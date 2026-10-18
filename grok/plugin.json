@@ -1,6 +1,6 @@
 {
   "id": "grok",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "minCodeterm": "1.14.2",
   "hostApi": 2,
   "displayName": "Grok",
