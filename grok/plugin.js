@@ -141,7 +141,7 @@ function grokTrustPromptResponse(index, screen) {
   return index === 0 ? ["eQ=="] : index === 1 ? ["bg=="] : [];
 }
 
-// ../codeterm/codeterm/packages/plugin-sdk/src/fileDiffs.ts
+// ../../codeterm/codeterm/packages/plugin-sdk/src/fileDiffs.ts
 function textLines(text) {
   return text ? text.replace(/\n$/, "").split("\n") : [];
 }
@@ -765,7 +765,7 @@ function fetchWeeklyUsage() {
     const body = safeJson(typeof response.body === "string" ? response.body : "");
     const config = body && body.config;
     const period = config && config.currentPeriod;
-    const percentage = config && config.creditUsagePercent;
+    const percentage = config?.creditUsagePercent === void 0 ? 0 : config.creditUsagePercent;
     const periodType = period && period.type;
     const resetsAtMs = period && typeof period.end === "string" ? parseTimeMs(period.end) : null;
     if (typeof percentage !== "number" || !Number.isFinite(percentage) || percentage < 0 || percentage > 100 || typeof periodType !== "string" || !periodType.toUpperCase().includes("WEEKLY") || resetsAtMs === null) return empty;

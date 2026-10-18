@@ -493,6 +493,20 @@ const tests = [
     assert.equal(JSON.stringify(request).includes("test-oauth-bearer"), false);
   }],
 
+  ["weekly billing omits the zero percent scalar", () => {
+    const body = readFileSync(join(__dirname, "tests/fixtures/billing-weekly-zero.json"), "utf8");
+    const plugin = load(hostFor({host: {
+      credentialPublic: () => JSON.stringify({userId: "test-user-id"}),
+      exec: () => JSON.stringify({code: 0, stdout: "grok 1.0.60 (01a8e1c591c0)"}),
+      fetch: () => JSON.stringify({status: 200, body}),
+    }}));
+    const snapshot = plugin.parseUsage(plugin.fetchUsage(123), 123);
+    assert.equal(snapshot.weekly_pct, 0);
+    assert.equal(snapshot.weekly_resets_at_ms, Date.parse("2026-10-23T16:45:46.224827+00:00"));
+    assert.equal(snapshot.limits_reported, true);
+    assert.equal(snapshot.spend_cents, null);
+  }],
+
   ["unreported subscription limits never fall back to compute cost", () => {
     const cwd = "/work/app";
     const id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
@@ -501,6 +515,15 @@ const tests = [
       () => JSON.stringify({ status: 503 }),
       () => JSON.stringify({ status: 200, body: "not-json" }),
       () => JSON.stringify({ status: 200, body: "{}" }),
+      ...[null, "0", -1, 101].map(creditUsagePercent => () => JSON.stringify({
+        status: 200,
+        body: JSON.stringify({config: {creditUsagePercent, currentPeriod: {
+          type: "USAGE_PERIOD_TYPE_WEEKLY", end: "2026-10-23T16:45:46.224827+00:00",
+        }}}),
+      })),
+      () => JSON.stringify({status: 200, body: JSON.stringify({config: {
+        currentPeriod: {type: "USAGE_PERIOD_TYPE_WEEKLY", end: "invalid"},
+      }})}),
       () => JSON.stringify({
         status: 200,
         body: JSON.stringify({

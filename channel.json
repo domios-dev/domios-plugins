@@ -43,7 +43,7 @@
     {
       "id": "grok",
       "path": "grok",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "minCodeterm": "1.14.2"
     },
     {

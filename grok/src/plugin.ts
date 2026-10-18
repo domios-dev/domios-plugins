@@ -696,7 +696,8 @@ function fetchWeeklyUsage(): { weeklyPct: number | null; weeklyResetsAtMs: numbe
     } | null;
     const config = body && body.config;
     const period = config && config.currentPeriod;
-    const percentage = config && config.creditUsagePercent;
+    // The credits endpoint omits zero scalars; require a valid weekly period below.
+    const percentage = config?.creditUsagePercent === undefined ? 0 : config.creditUsagePercent;
     const periodType = period && period.type;
     const resetsAtMs = period && typeof period.end === "string" ? parseTimeMs(period.end) : null;
     if (typeof percentage !== "number"
