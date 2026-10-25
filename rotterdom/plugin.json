@@ -1,4 +1,5 @@
 {
+  "license": "Apache-2.0",
   "id": "rotterdom",
   "version": "0.2.0",
   "minCodeterm": "1.14.2",

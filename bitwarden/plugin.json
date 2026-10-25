@@ -1,4 +1,5 @@
 {
+  "license": "Apache-2.0",
   "id": "bitwarden",
   "version": "1.0.7",
   "minCodeterm": "1.0.0",

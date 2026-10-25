@@ -1,4 +1,5 @@
 {
+  "license": "Apache-2.0",
   "name": "@codeterm/plugin-grok",
   "version": "0.1.5",
   "private": true,

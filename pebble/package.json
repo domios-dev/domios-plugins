@@ -1,4 +1,5 @@
 {
+  "license": "Apache-2.0",
   "name": "@codeterm/plugin-pebble",
   "version": "0.2.3",
   "private": true,

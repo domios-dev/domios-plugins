@@ -81,3 +81,5 @@ branch. A plugin committed only to a feature or lane branch is not released.
    report the new version and the `codeterm-plugins` channel source.
 5. Delete an integrated lane only after its tip is proven to be an ancestor of
    `main`. Do not leave release branches as alternate marketplace heads.
+
+Licensed under [Apache-2.0](LICENSE). Each plugin includes its own copy of the license.
