@@ -1,0 +1,11 @@
+> This is a page from the ElevenLabs documentation. For a complete page index, fetch https://elevenlabs.io/docs/llms.txt. For the full documentation in a single file, fetch https://elevenlabs.io/docs/llms-full.txt.
+
+# API reference
+
+> ElevenLabs provides APIs and SDKs for text to speech, voice cloning, speech to text, sound effects, voice isolator, voice changer, and conversational AI agents. Build voice-enabled applications with lifelike audio generation.
+
+## Docs
+
+- [Introduction](https://elevenlabs.io/docs/api-reference/introduction.md): Explore the ElevenLabs API reference with comprehensive guides, code examples, and endpoint documentation
+- [API Authentication](https://elevenlabs.io/docs/api-reference/authentication.md): Learn how to authenticate your ElevenLabs API requests
+- [Streaming](https://elevenlabs.io/docs/api-reference/streaming.md): Learn how to stream real-time audio from the ElevenLabs API using chunked transfer encoding

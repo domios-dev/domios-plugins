@@ -1,0 +1,155 @@
+{
+  "contract_version": 1,
+  "snapshot_date": "2026-10-29",
+  "snapshot_timezone": "Europe/Riga",
+  "status": "dated-public-source-research; not a runnable service or release claim",
+  "scope": "Finite union of saved llms.txt API Docs operation pages, public OpenAPI HTTP operations, embedded AsyncAPI schemas, overview model table and schema-bound model selectors. Account-specific live catalogs are unknown.",
+  "source_registry": "capabilities.json#/sources",
+  "schemas": {
+    "http": "evidence/openapi.json",
+    "websocket": "evidence/asyncapi.json",
+    "operation_coverage": "capabilities.json#/operations",
+    "model_coverage": "models.json#/models",
+    "parameters": "Resolve local JSON pointers and all transitively referenced schemas. Preserve required, nullable, default, enum, const, minimum, maximum, length, items, combinators and discriminator. Preserve prose constraints from the operation's saved primary page. No inferred default when absent.",
+    "unsupported_schema": "Refuse unsupported operation parameters before any vendor call; do not pass an arbitrary object/URL/HTTP method through. This research proposes implementation; it does not assert the current Blueprint schema can represent these schemas."
+  },
+  "safety": {
+    "credential_reads": 0,
+    "authenticated_vendor_calls": 0,
+    "generation_training_upload_calls": 0,
+    "settings_mutations": 0,
+    "protected_voices": "ALL existing voices, including Rollo, settings, samples, library memberships and collections remain untouched.",
+    "separate_approval": ["voice design/preview/remix", "instant/professional cloning", "voice creation/training", "music upload/training", "all paid proof"],
+    "research_network_allowlist": ["elevenlabs.io public documentation/pricing", "api.elevenlabs.io/openapi.json public schema only"],
+    "execute_examples": false,
+    "onboarding_command_executed": false
+  },
+  "ledger": {
+    "scope": "This research task only, both vendors; no paid operation submitted or reserved.",
+    "elevenlabs": {"spent": {"amount": 0, "unit": "usd_micro"}, "reserved": {"amount": 0, "unit": "usd_micro"}, "unknown_submissions": 0},
+    "higgsfield": {"spent": {"amount": 0, "unit": "usd_micro"}, "reserved": {"amount": 0, "unit": "usd_micro"}, "unknown_submissions": 0},
+    "aggregate": {"spent": {"amount": 0, "unit": "usd_micro"}, "reserved": {"amount": 0, "unit": "usd_micro"}, "unknown_submissions": 0},
+    "other_team_activity": "Unknown here; Watt is the budget authority. Do not infer a Team-wide zero balance from this task ledger."
+  },
+  "budget_contract": {
+    "source": "plan pl_ypyim0 verify-before-claim sha256:9ea0430cfd5f16685a05229f04197aead3d4ac9abc692adac6f9368868aa8ab8; Loom 4aaf8843 draft, external task identity pending",
+    "status": "draft-external-not-delivered",
+    "amount": {"type": "integer", "minimum": 0, "unit_enum": ["usd_micro", "credit_milli", "characters"]},
+    "ceilings": "Independent ceiling for each exact named unit; never add unlike units. Unknown reservations are tracked separately and block dependent work.",
+    "binding": ["operation revision", "validated parameters", "input references", "stable host operation identity"],
+    "approval": "Before each paid proof: require a fresh safe exact-operation estimate first, then purpose/model/parameters, authoritative cost basis and exact units, maximum, per-vendor and aggregate spent/reserved/unknown to Watt; Watt routes Elgar approval. An approval maximum cannot authorize itself. Unknown/stale/unsafe prices cannot be approved for submission.",
+    "identity": "Persist intent before submission. Vendor job id is write-once. Replacement or uncertain submission becomes unknown. No automatic resubmission/retry after uncertainty.",
+    "cancellation": "VM/graph cancellation and best-effort vendor paid-job cancellation are distinct outcomes. Neither transport disconnect nor a stopped UI proves vendor cancellation or refunds."
+  },
+  "pricing_decision": {
+    "authority": "Watt routed owner decision, received 2026-10-29; replaces prior unknown-price approval guidance",
+    "require_safe_fresh_estimate": true,
+    "missing_price_submission_allowed": false,
+    "unknown_price_approval_allowed": false,
+    "rule": "NO paid studio or pipeline submission without safe fresh estimate. A provider estimate or source-verified deterministic adapter estimate is eligible only when bounded/safe under actual tariff and exact inputs, with recorded basis and expiry. Missing/stale/unsafe price blocks submission; owner approval cannot waive it.",
+    "research_classification": "No full-operation authoritative preflight quote is established for any paid operation in this snapshot. Documented base tariffs provide candidates for deterministic estimators, not delivered safe estimators. Every operation records safe_estimate status. Two LLM expected-cost APIs exist but do not estimate the entire agent call/generation.",
+    "partial_estimate_endpoints": ["POST /v1/convai/agent/{agent_id}/llm-usage/calculate", "POST /v1/convai/llm-usage/calculate"],
+    "studio": {"primary_disabled": "Price unavailable", "retry_free": "Check again", "no_supported_price_model_label": "No pricing from provider", "message": "Vendor-appropriate muted explanation that there is no price for these settings; model remains listed and unavailable."},
+    "pipeline": {"state": "Waiting for a price", "retry_free": "Check price again", "controls": "Skip/cancel only through actual run controls; no Approve before fresh safe amount/unit."},
+    "fresh_approval": "Approve N units for this step",
+    "above_budget_exception": "Above this run’s budget. Later steps still stop for approval.",
+    "cancel_during_submit": "Canceling… then Status unknown until provider confirms. Never infer successful cancellation or refund.",
+    "safe_estimate_shape_proposal": ["operation revision", "exact parameters and input references", "actual tariff/source revision", "integer exact amount/unit or separate exact-unit amounts", "upper bound and basis", "retrieved_at", "expires_at", "safe=true only after all required evidence"]
+  },
+  "advertised_rates": {
+    "source": {"url": "https://elevenlabs.io/pricing/api", "retrieved_date": "2026-10-29", "snapshot": "evidence/pricing-browser.txt"},
+    "status": "Public advertised prices, excluding taxes; not authenticated account quote or proof of availability. Pricing page mixes subscriptions/PAYG; obtain current account quote before consumption.",
+    "rates": [
+      {"models": ["eleven_v4", "eleven_v3", "eleven_multilingual_v2"], "amount": 80000, "unit": "usd_micro", "per": {"amount": 1000, "unit": "characters"}},
+      {"models": ["eleven_v4_turbo", "eleven_v3_conversational", "eleven_flash_v2_5", "eleven_flash_v2", "eleven_turbo_v2_5", "eleven_turbo_v2"], "amount": 40000, "unit": "usd_micro", "per": {"amount": 1000, "unit": "characters"}},
+      {"models": ["scribe_v2", "scribe_v2_medical"], "amount": 220000, "unit": "usd_micro", "per": {"amount": 1, "unit": "hour"}},
+      {"models": ["scribe_v2_realtime"], "amount": 390000, "unit": "usd_micro", "per": {"amount": 1, "unit": "hour"}},
+      {"models": ["eleven_realtime_v1_mini", "eleven_realtime_v1_max"], "amount": 80000, "unit": "usd_micro", "per": {"amount": 1, "unit": "minute"}, "additional": "LLM usage extra; total unknown without model usage quote"},
+      {"product": "Speech Engine", "amount": 80000, "unit": "usd_micro", "per": {"amount": 1, "unit": "minute"}},
+      {"product": "Music", "amount": 150000, "unit": "usd_micro", "per": {"amount": 1, "unit": "minute"}},
+      {"product": "Voice Isolator / Voice Changer / Sound Effects", "amount": 120000, "unit": "usd_micro", "per": {"amount": 1, "unit": "minute"}},
+      {"product": "Dubbing v1", "amount": 330000, "unit": "usd_micro", "per": {"amount": 1, "unit": "minute"}},
+      {"product": "Dubbing v2", "amount": 2200000, "unit": "usd_micro", "per": {"amount": 1, "unit": "minute"}}
+    ],
+    "credits": "Credit multipliers, account balance, concurrency entitlements and total paid-job cost are not established by these dollar rates. Subscription/usage schemas are inventoried; no account query was made. Do not assume one credit equals one character or add dollar/credit/character totals."
+  },
+  "priority_workflows": [
+    {
+      "id": "speech",
+      "primary_urls": ["https://elevenlabs.io/docs/overview/models.md", "https://elevenlabs.io/docs/api-reference/text-to-speech/convert.md", "https://elevenlabs.io/docs/api-reference/text-to-dialogue/convert.md"],
+      "retrieved_date": "2026-10-29",
+      "contract": "TTS HTTP raw audio, timestamps JSON, chunked streams and input WebSockets are separate operations. Models overview routes eleven_v4 through Text to Dialogue; do not assume every listed model is valid for the TTS endpoint. Per-request voice_settings overrides must not mutate persisted settings.",
+      "limits": "TTS endpoint default output mp3_44100_128; 192kbps Creator+, 44.1kHz PCM/WAV Pro+. Model limits and enum values remain in saved schemas/pages. Endpoint enable_logging=false zero retention is Enterprise-only.",
+      "source_conflict": "TTD WebSocket page says one voice for eleven_v4 / v3_conversational; TTS-vs-TTD guide says up to 10 for eleven_v4, one for v4_turbo. Do not assert a universal speaker limit; use the restrictive bound until vendor clarification."
+    },
+    {
+      "id": "scribe",
+      "primary_urls": ["https://elevenlabs.io/docs/api-reference/speech-to-text/convert.md", "https://elevenlabs.io/docs/api-reference/speech-to-text/v-1-speech-to-text-realtime.md"],
+      "retrieved_date": "2026-10-29",
+      "contract": "Existing transcriber capability: transcribe(path, lang?) -> text/error and transcribeStatus. Proposed ElevenLabs plugin declares transcriber=true and exports those methods; existing active selection chooses it. No new transcription UI or edits to current whisper engine/remote endpoint.",
+      "batch": "Multipart POST /v1/speech-to-text: model_id required; file/source URL options preserved in exact schema. Synchronous result or webhook asynchronous acceptance; 202 is not transcript completion. Poll/get/delete transcript endpoints are separate inventoried operations. No unconfigured inbound webhook is assumed.",
+      "limits": "File minimum 100ms and <5GB; legacy cloud_storage_url docs say HTTPS <2GB and deprecated in favor of source_url. Up to 32 diarized speakers, five channels, 1000 keyterms (<50 chars, <=5 words each). Current media-delivery cap 256MiB is a host limit, not the vendor limit.",
+      "surcharges": "transcript_edit +30%, minimum 10 seconds; keyterms +20%, >100 terms minimum 20 seconds; detect_speaker_roles +10%; each channel billed at full audio duration. Preserve incompatibilities (edit vs entities/multichannel, role detection vs multichannel) from schema/page.",
+      "realtime": "WebSocket input_audio_chunk; partial_transcript is provisional, committed_transcript is stable for that segment. Manual commit/VAD are distinct. A host streaming session capability and consent/budget path are absent; batch transcriber signature does not establish realtime UI.",
+      "blocker": "SDK fetch body:string, response body:string and chunks:string[] are not binary/multipart transport; 30s request cap also conflicts with long synchronous transcription. Need external confined binary-upload and bounded async reconcile contract. Do not use curl argv or inherited credentials."
+    },
+    {
+      "id": "voices",
+      "primary_urls": ["https://elevenlabs.io/docs/overview/capabilities/voices.md", "https://elevenlabs.io/docs/api-reference/text-to-voice/design.md", "https://elevenlabs.io/docs/api-reference/voices/ivc/create.md"],
+      "retrieved_date": "2026-10-29",
+      "contract": "Listing/get/library search and sample playback are separate from add/edit/delete/design/remix/clone/train/verify. Design yields generated_voice_id plus base64 MP3 previews; create consumes chosen preview ID. eleven_ttv_v3 supports reference_audio_base64/prompt_strength; previews and reference guidance do not imply free generation.",
+      "limits": "Voice Library API unavailable to free tier; PVC creation Creator+. Voice Design overview says description 20-1000 chars, optional preview text 100-1000; exact schema can differ, retain both constraints. Existing default voices expire 2026-12-31 according to overview; do not migrate/delete voices automatically.",
+      "permission": "All existing voices/settings protected. Explicit independent owner approval before any creation/design/cloning/training or mutation. This task performs no listing against the account either."
+    },
+    {
+      "id": "music",
+      "primary_urls": ["https://elevenlabs.io/docs/api-reference/music/compose.md", "https://elevenlabs.io/docs/api-reference/music/upload.md", "https://elevenlabs.io/docs/overview/capabilities/music.md", "https://elevenlabs.io/docs/api-reference/music/finetunes/create.md"],
+      "retrieved_date": "2026-10-29",
+      "contract": "music_v1/v2/v2_5 have exact model enums and different plan types: MusicPrompt for v1, CompositionPlan chunks for v2/v2_5. Prompt and plan mutually exclusive. Composition/stream/detailed responses/plan/video-to-music/stem separation/upload/finetune CRUD are inventoried separately.",
+      "style_reference": "Positive/negative global/local styles, lyrics, generation and audio-reference chunks/source song ranges are typed in the schema. Public overview describes + Reference UI (~30s on paid plans); that UI capability is not an extra guessed endpoint. API upload for inpainting exists and is paid: same cost as generation, even rejected copyright upload charges half. Reference field semantics must follow the specific API schema, not the website button.",
+      "limits": "Compose endpoint music_length_ms 3000-600000; public pricing says 5 minute duration limit. Preserve conflict; do not promise 10 minute account availability. Default model music_v1; output auto resolves by model. Finetune training_progress 0..1 prose; example 1.1 is invalid evidence, not a usable oracle.",
+      "permission": "No upload or finetune creation/training executed; unknown exact training price blocks paid proof."
+    },
+    {
+      "id": "flows",
+      "primary_urls": ["https://elevenlabs.io/docs/overview/capabilities/image-video.md", "https://api.elevenlabs.io/openapi.json"],
+      "retrieved_date": "2026-10-29",
+      "contract": "Image/video/Flows templates have real documented HTTP operations and exact model enums in OpenAPI. Do not label the entire family website-only. Catalog-only visual features without an operation/schema remain unestablished API claims.",
+      "authorization": "Image/video API requires Pro+; ByteDance disabled by default and explicit approval required; Enterprise model approvals disabled by default. Regional restrictions apply to some models/uploads. No account/region eligibility probe occurred.",
+      "limit": "An enum value is documentation evidence, not proof of account enablement, price or availability. Third-party image/video model names and parameter branches are preserved in models.json and exact schemas."
+    },
+    {
+      "id": "remaining-families",
+      "primary_urls": ["https://elevenlabs.io/docs/llms.txt", "https://api.elevenlabs.io/openapi.json", "https://elevenlabs.io/docs/api-reference/studio-api-information.md", "https://elevenlabs.io/docs/api-reference/realtime-translation/v-1-translation-realtime.md", "https://elevenlabs.io/docs/api-reference/speech-engine/speech-engine-upstream.md"],
+      "retrieved_date": "2026-10-29",
+      "contract": "All Agents, Speech Engine, realtime, dubbing old/new/resource/segments, studio/projects/productions, Audio Native, pronunciation dictionaries, history/audio downloads, audio effects/isolation, sound effects, account/subscription/usage, workspace/member/service-account/API-key/secrets, integrations/telephony/WhatsApp/MCP/knowledge-base/tests/crawls/analytics/environment branches remain rows in capabilities.json.",
+      "authorization": "Studio API is request/contact-sales gated; realtime translation Enterprise-only. Outbound calls/messages and administrative changes are side effects requiring separate authorization, even when cost unknown. Catalog inclusion is not authorization.",
+      "reverse_transport": "Speech Engine upstream is an inbound WebSocket server contract: ElevenLabs connects to configured wsUrl; validate short-lived JWT. It is not a client-callable production GET endpoint. Public listener/JWT verification is an external platform dependency."
+    }
+  ],
+  "fixture_oracles": [
+    {"id": "catalog", "oracle": "Compare every API index URL and OpenAPI operationId, all local schema references, all table/model enums and all AsyncAPI message operationIds; reject removed, duplicate, unsourced or dangling records.", "network": false},
+    {"id": "tts-stream", "oracle": "Injected binary chunks including invalid UTF-8 retain exact bytes/order; EOF and error distinct; no success before durable saved asset; per-request voice settings never hit persisted-settings endpoint.", "network": false},
+    {"id": "scribe-selection", "oracle": "Two registered fake backends; explicit active=elevenlabs invokes only ElevenLabs with owned audio reference and language mapping. Disabled/unavailable/empty transcript and insufficient budget refuse. Never alter local engine config.", "network": false},
+    {"id": "async-lifecycle", "oracle": "202/pending != complete; write-once job ID, restart reconcile existing ID, unknown submit no retry, graph cancel != vendor cancel. Real progress only when source field exists.", "network": false},
+    {"id": "security", "oracle": "Two owners/two agents: reject forged UI owner/run/budget, foreign frame handles and secret readback. Validate MIME/path/symlink/range/expiry/revocation and large bounded delivery through external host fixtures.", "network": false},
+    {"id": "budget", "oracle": "Integer exact units, independent ceilings, surcharge/channel/minimum duration and unknown cases; no approval self-authorizes. No URL/HTTP escape hatch or paid adapter call during fixture execution.", "network": false},
+    {"id": "live-final", "oracle": "Deferred HIG-11: actual released host+SDK, two-owner child tabs/sidebar/activity/no-refresh persistence, audio/video playback and save/reveal, Scribe existing selector, typed Blueprint waiting/budget/media-aware review, Iris approval.", "status": "UNRUN; no live authorization in research"}
+  ],
+  "platform": {
+    "source_snapshot": "evidence/host-source.json",
+    "host_sha": "5ef813c0227e18d4082568068e29b1bbc3e34ed8",
+    "source_sdk_package_version": "1.16.1",
+    "released_sdk_with_required_capabilities": "unknown",
+    "minimum_host": "unknown",
+    "production_consumption": "blocked until exact merged/released capability, SDK and minimum-host evidence from owners",
+    "details": "PLATFORM-GAPS.md"
+  },
+  "known_evidence_limits": [
+    "The docs OpenAPI/AsyncAPI download URLs returned HTML rather than JSON in this session; public API OpenAPI and all embedded per-page AsyncAPI schemas were preserved instead.",
+    "llms-full.txt returned the same index body as llms.txt, not full page contents. All selected primary pages were fetched independently (648 successful, no retries).",
+    "Static schema catalog includes more model variants than overview; source/availability differences are retained. Dynamic account catalogs and open-string model selectors cannot be enumerated by unauthenticated research.",
+    "All per-operation commands, Blueprint descriptors and UI destinations are proposals, not implemented support. Whole-API support requires closed validation, not a raw HTTP executor.",
+    "Protocol/type prose can contain weaker constraints than executable schema and invalid examples; none of the example code was executed. Unresolved conflicts refuse unsupported consumption."
+  ]
+}

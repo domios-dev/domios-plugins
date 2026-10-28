@@ -1,0 +1,1338 @@
+We value your privacy
+
+By clicking “Accept all cookies”, you agree to the storing of cookies on your device to enhance site navigation, analyze site usage, and assist in our marketing efforts. You may click the customize button to personalize the types of cookies you would like to allow.
+
+Reject all
+Cookie settings
+Accept all cookies
+
+Start with 30,000 credits for only $1
+Ends November 1
+
+Subscribe for $1
+Skip to content
+Products
+Solutions
+Customers
+Resources
+Enterprise
+Pricing
+Log in
+Sign up
+Flexible pricing for your needs
+ElevenCreative
+ElevenAgents
+ElevenAPI
+v4
+
+Text to Speech
+
+New
+$0.08
+
+Price per 1K characters
+
+Get started
+
+Our fastest and most emotive voice model
+
+Audio tags for fine-grained control
+90+ languages supported
+v4 Turbo
+
+Text to Speech
+
+New
+$0.04
+
+Price per 1K characters
+
+Get started
+
+Our best model for real-time and agents
+
+Ultra-low latency (~100ms)
+v4 expressiveness, tuned for latency
+90+ languages supported
+v3
+
+Text to Speech
+
+$0.08
+
+Price per 1K characters
+
+Get started
+
+Emotionally rich delivery for dramatic performances
+
+High quality, expressive delivery
+70+ languages supported
+5,000 character limit
+Supports multi-speaker dialogue
+v3 Conversational
+
+Text to Speech
+
+$0.04
+
+Price per 1K characters
+
+Get started
+
+Low-latency v3, tuned for realtime conversation
+
+Low latency (~280ms)
+High quality, expressive delivery
+70+ languages supported
+Custom audio tags
+v2 Multilingual
+
+Text to Speech
+
+$0.08
+
+Price per 1K characters
+
+Get started
+
+Lifelike, consistent quality for long-form audio
+
+High quality voice generation
+29 languages supported
+10,000 character limit
+Stable on long-form generations
+Flash / Turbo
+
+Text to Speech
+
+$0.04
+
+Price per 1K characters
+
+Get started
+
+Our fast, affordable speech synthesis model
+
+Ultra-low latency (~75ms)
+32 languages supported
+40,000 character limit
+Scribe v2
+
+Speech to Text
+
+$0.22
+
+Price per hour
+
+Get started
+
+State-of-the-art speech recognition model
+
+Over 98% transcription accuracy
+Keyterm prompting
+90+ languages supported
+Dynamic audio tagging
+Scribe v2 Medical
+
+Speech to Text
+
+$0.22
+
+Price per hour
+
+Get started
+
+Speech recognition fine-tuned for clinical audio
+
+35% fewer clinical audio errors than Scribe v2
+HIPAA-eligible, with BAAs and Zero Retention Mode
+Scribe v2 languages, features & API
+Scribe v2 Realtime
+
+Speech to Text
+
+$0.39
+
+Price per hour
+
+Get started
+
+Real-time speech recognition model
+
+Low latency (~150ms)
+90+ languages supported
+Precise word-level timestamps
+Realtime transcription
+Realtime v1 Mini
+
+Speech to Speech
+
+New
+$0.08
++ LLM usage
+
+Price per minute
+
+Get started
+
+Our Speech to Speech model for natural conversations
+
+96% on conversational dynamics, 620ms for time to first audio
+90+ languages supported
+OpenAI Realtime-compatible
+Realtime v1 Max
+
+Speech to Speech
+
+New
+$0.08
++ LLM usage
+
+Price per minute
+
+Get started
+
+Our Speech to Speech model for complex, multi-step tasks
+
+99% on speech reasoning, 570ms for time to first audio
+Tool calling for lookups and actions
+OpenAI Realtime-compatible
+Speech Engine
+
+Agents
+
+$0.08
+
+Price per minute
+
+Get started
+
+Our speech models in one low-latency agent pipeline
+
+Add voice to your chat agent
+Optimized for conversations
+90+ languages supported
+Music
+
+Music Generation
+
+$0.15
+
+Price per minute
+
+Get started
+
+Studio-grade music from natural language prompts
+
+5 minute duration limit
+Commercial use licensing on Starter+ plans
+44.1kHz, 128-192kbps audio
+Voice Isolator
+
+Audio Processing
+
+$0.12
+
+Price per minute
+
+Get started
+
+Removes background noise for clean dialogue
+
+Removes ambient sounds, reverb, and interference
+WAV, MP3, FLAC, OGG, AAC
+Files up to 500MB/1 hour long
+Voice Changer
+
+Audio Processing
+
+$0.12
+
+Price per minute
+
+Get started
+
+Turns any recording into another voice
+
+Fast real-time processing
+17,000+ human-like voices
+70+ languages supported
+Sound Effects
+
+Audio Generation
+
+$0.12
+
+Price per minute
+
+Get started
+
+Royalty-free sound effects from a text prompt
+
+Generate custom sound effects
+Royalty-free
+MPS (44.1kHz) or WAV (48kHz) output
+Dubbing v1
+
+Dubbing
+
+$0.33
+
+Price per minute
+
+Get started
+
+Dubs video with automatic speaker detection
+
+Automatic speaker detection
+29 languages supported
+MP3, MP4, WAV, and MOV formats
+Dubbing v2
+
+Dubbing
+
+$2.20
+
+Price per minute
+
+Get started
+
+End-to-end dubbing that preserves voice and emotion
+
+End-to-end dubbing model
+92 languages supported
+MP3, MP4, WAV, and MOV formats
+
+Prices exclude all taxes, levies and duties.
+
+Calculate your costs based on your usage needs
+1
+Payment model
+Subscription
+Pay-as-you-go
+Monthly billing
+Monthly billing
+Yearly billing
+2
+Products
+Text to Speech (v4)
+Text to Speech (v4)
+Text to Speech (v4 Turbo)
+Text to Speech (v3)
+Text to Speech (v3 Conversational)
+Text to Speech (v2 Multilingual)
+Text to Speech (Flash / Turbo)
+Speech to Text (Scribe v2 / v2 Medical)
+Speech to Text (Scribe v2 Realtime)
+Realtime API (Realtime v1 Mini)
+Realtime API (Realtime v1 Max)
+Music
+Voice Isolator
+Voice Changer
+Sound Effects
+Dubbing v1
+Dubbing v2
+100k characters
+0
+19M+
+Add product
+Creator
+
+$11 $22
+
+Recommended for your usage
+
+/ month
+
+Most popular
+First month 50% off
+275k characters of TTS (v4) included
+Cancel anytime
+Start Creator — $11/mo
+Lovable
+Synthesia
+Stripe
+Perplexity
+Twilio
+Pay as you go
+
+Simple pricing based on usage, tailored to each of our flagship models.
+
+No commitment, cancel anytime
+Access to all ElevenLabs products and models
+Pay only for what you use
+Scales with your usage
+Start for free
+Startup Grants Program
+
+Build intelligent, real-time conversational AI agents into your new product or startup for free with an ElevenLabs Grant.
+
+12 months free
+33,000,000 characters
+High concurrency limits and improved support
+Apply now
+Learn more
+Enterprise Plan
+
+Custom solution for large organizations.
+
+Custom terms & assurance around DPA/SLAs
+Custom SSO & Priority support
+BAAs for HIPAA customers, and more
+Contact us
+Learn more
+Model pricing
+Monthly billing
+Monthly billing
+Yearly billing
+Free / Pay as you go
+Starter
+$6 per month, first month $1
+Creator
+$22 per month, first month $11
+Pro
+$99 per month
+Scale
+$299 per month
+Business
+$990 per month
+Text to Speech API
+
+Generate speech from text with our high-quality models
+
+Get started with TTS
+v4
+
+Price per 1K characters
+
+Characters included
+
+$0.08
+~$0.08/minute
+
+10 000
+~10 min
+
+$0.08
+~$0.08/minute
+
+75 000
+~75 min
+
+$0.08
+~$0.08/minute
+
+275 000
+~275 min
+
+$0.08
+~$0.08/minute
+
+1 238 000
+~1,238 min
+
+$0.08
+~$0.08/minute
+
+3 738 000
+~3,738 min
+
+$0.08
+~$0.08/minute
+
+12 375 000
+~12,375 min
+
+v4 Turbo
+
+Price per 1K characters
+
+Characters included
+
+$0.04
+~$0.04/minute
+
+20 000
+~20 min
+
+$0.04
+~$0.04/minute
+
+150 000
+~150 min
+
+$0.04
+~$0.04/minute
+
+550 000
+~550 min
+
+$0.04
+~$0.04/minute
+
+2 475 000
+~2,475 min
+
+$0.04
+~$0.04/minute
+
+7 475 000
+~7,475 min
+
+$0.04
+~$0.04/minute
+
+24 750 000
+~24,750 min
+
+v3
+
+Price per 1K characters
+
+Characters included
+
+$0.08
+~$0.08/minute
+
+10 000
+~10 min
+
+$0.08
+~$0.08/minute
+
+75 000
+~75 min
+
+$0.08
+~$0.08/minute
+
+275 000
+~275 min
+
+$0.08
+~$0.08/minute
+
+1 238 000
+~1,238 min
+
+$0.08
+~$0.08/minute
+
+3 738 000
+~3,738 min
+
+$0.08
+~$0.08/minute
+
+12 375 000
+~12,375 min
+
+v3 Conversational
+
+Price per 1K characters
+
+Characters included
+
+$0.04
+~$0.04/minute
+
+20 000
+~20 min
+
+$0.04
+~$0.04/minute
+
+150 000
+~150 min
+
+$0.04
+~$0.04/minute
+
+550 000
+~550 min
+
+$0.04
+~$0.04/minute
+
+2 475 000
+~2,475 min
+
+$0.04
+~$0.04/minute
+
+7 475 000
+~7,475 min
+
+$0.04
+~$0.04/minute
+
+24 750 000
+~24,750 min
+
+v2 Multilingual
+
+Price per 1K characters
+
+Characters included
+
+$0.08
+~$0.08/minute
+
+10 000
+~10 min
+
+$0.08
+~$0.08/minute
+
+75 000
+~75 min
+
+$0.08
+~$0.08/minute
+
+275 000
+~275 min
+
+$0.08
+~$0.08/minute
+
+1 238 000
+~1,238 min
+
+$0.08
+~$0.08/minute
+
+3 738 000
+~3,738 min
+
+$0.08
+~$0.08/minute
+
+12 375 000
+~12,375 min
+
+Flash / Turbo
+
+Price per 1K characters
+
+Characters included
+
+$0.04
+~$0.04/minute
+
+20 000
+~20 min
+
+$0.04
+~$0.04/minute
+
+150 000
+~150 min
+
+$0.04
+~$0.04/minute
+
+550 000
+~550 min
+
+$0.04
+~$0.04/minute
+
+2 475 000
+~2,475 min
+
+$0.04
+~$0.04/minute
+
+7 475 000
+~7,475 min
+
+$0.04
+~$0.04/minute
+
+24 750 000
+~24,750 min
+
+Speech to Text API
+
+Transcribe audio realtime or in bulk
+
+Get started with STT
+Scribe v2 & Scribe v2 Medical
+
+Price per hour
+
+Keyterm prompting (per hour)
+
+Transcript editing (per hour)
+
+Hours included
+
+$0.22
+
+$0.050
+
+$0.070
+
+4 hours 30 minutes
+
+$0.22
+
+$0.050
+
+$0.070
+
+27 hours
+
+$0.22
+
+$0.050
+
+$0.070
+
+100 hours
+
+$0.22
+
+$0.050
+
+$0.070
+
+450 hours
+
+$0.22
+
+$0.050
+
+$0.070
+
+1359 hours
+
+$0.22
+
+$0.050
+
+$0.070
+
+4500 hours
+
+Scribe v2 Realtime
+
+Price per hour
+
+Keyterm prompting (per hour)
+
+Transcript editing (per hour)
+
+Hours included
+
+$0.39
+
+$0.080
+
+$0.120
+
+2 hours 30 minutes
+
+$0.39
+
+$0.080
+
+$0.120
+
+15 hours
+
+$0.39
+
+$0.080
+
+$0.120
+
+56 hours
+
+$0.39
+
+$0.080
+
+$0.120
+
+254 hours
+
+$0.39
+
+$0.080
+
+$0.120
+
+767 hours
+
+$0.39
+
+$0.080
+
+$0.120
+
+2538 hours
+
+Realtime API
+
+A new class of Speech to Speech models to quickly build natural-sounding voice agents
+
+Get started with Realtime
+Eleven Realtime v1 Mini
+
+Minutes included
+
+Connected audio (per additional minute)
+
+Input tokens (per 1M)
+
+Output tokens (per 1M)
+
+~14 min
+
+$0.080
+
+$0.20
+
+$6.00
+
+~71 min
+
+$0.080
+
+$0.20
+
+$6.00
+
+~262 min
+
+$0.080
+
+$0.20
+
+$6.00
+
+~1,179 min
+
+$0.080
+
+$0.20
+
+$6.00
+
+~3,562 min
+
+$0.080
+
+$0.20
+
+$6.00
+
+~11,794 min
+
+$0.080
+
+$0.20
+
+$6.00
+
+Eleven Realtime v1 Max
+
+Minutes included
+
+Connected audio (per additional minute)
+
+Input tokens (per 1M)
+
+Output tokens (per 1M)
+
+~12 min
+
+$0.080
+
+$1.80
+
+$9.00
+
+~59 min
+
+$0.080
+
+$1.80
+
+$9.00
+
+~216 min
+
+$0.080
+
+$1.80
+
+$9.00
+
+~971 min
+
+$0.080
+
+$1.80
+
+$9.00
+
+~2,934 min
+
+$0.080
+
+$1.80
+
+$9.00
+
+~9,714 min
+
+$0.080
+
+$1.80
+
+$9.00
+
+Both models
+
+Burst pricing (per minute)
+
+Concurrent Calls
+
+$0.160
+
+4
+
+$0.160
+
+6
+
+$0.160
+
+10
+
+$0.160
+
+20
+
+$0.160
+
+30
+
+$0.160
+
+40
+
+Included minutes are estimates based on typical token usage. Actual minutes vary with conversation length and tool use. Burst pricing applies to connected audio above your concurrency limit.
+
+Speech Engine API
+
+Bring human-like speech to your chatbot
+
+Get started with Speech Engine
+
+Minutes included
+
+Additional Minutes
+
+Burst pricing (per minute)
+
+Concurrent Calls
+
+15 min
+
+$0.080
+
+$0.160
+
+4
+
+75 min
+
+$0.080
+
+$0.160
+
+6
+
+275 min
+
+$0.080
+
+$0.160
+
+10
+
+1,238 min
+
+$0.080
+
+$0.160
+
+20
+
+3,738 min
+
+$0.080
+
+$0.160
+
+30
+
+12,375 min
+
+$0.080
+
+$0.160
+
+40
+
+Music
+
+Turn text prompts into music
+
+Get started with Music
+
+Price per minute
+
+Minutes included
+
+Cost per Finetune
+
+$0.150
+
+3 min
+
+$1.50
+
+$0.150
+
+40 min
+
+$1.50
+
+$0.150
+
+147 min
+
+$1.50
+
+$0.150
+
+660 min
+
+$1.50
+
+$0.150
+
+1,993 min
+
+$1.50
+
+$0.150
+
+6,600 min
+
+$1.50
+
+Voice Isolator
+
+Remove background noise from audio
+
+Get started with Voice Isolator
+
+Price per minute
+
+Minutes included
+
+$0.120
+
+8.3 min
+
+$0.120
+
+50 min
+
+$0.120
+
+183 min
+
+$0.120
+
+825 min
+
+$0.120
+
+2,492 min
+
+$0.120
+
+8,250 min
+
+Voice Changer
+
+Transform voice characteristics
+
+Get started with Voice Changer
+
+Price per minute
+
+Minutes included
+
+$0.120
+
+8.3 min
+
+$0.120
+
+50 min
+
+$0.120
+
+183 min
+
+$0.120
+
+825 min
+
+$0.120
+
+2,492 min
+
+$0.120
+
+8,250 min
+
+Sound Effects
+
+Generate sound effects from text descriptions
+
+Get started with Sound Effects
+
+Price per minute
+
+Number of included generations
+
+$0.120
+
+8
+
+$0.120
+
+150
+
+$0.120
+
+605
+
+$0.120
+
+3 000
+
+$0.120
+
+9 000
+
+$0.120
+
+30 000
+
+Dubbing API
+
+Automatically dub audio and video content
+
+Get started with Dubbing
+Dubbing v1
+
+Price per minute (with watermark)
+
+Included minutes (with watermark)
+
+Price per minute (without watermark)
+
+Included minutes (no watermark)
+
+$0.33
+
+2.53 min
+
+$0.50
+
+$0.33
+
+18 min
+
+$0.50
+
+12 min
+
+$0.33
+
+67 min
+
+$0.50
+
+44 min
+
+$0.33
+
+300 min
+
+$0.50
+
+198 min
+
+$0.33
+
+906 min
+
+$0.50
+
+598 min
+
+$0.33
+
+3,000 min
+
+$0.50
+
+1,980 min
+
+Dubbing v2
+
+Price per minute
+
+Minutes included
+
+$2.20
+
+$2.20
+
+3 min
+
+$2.20
+
+10 min
+
+$2.20
+
+45 min
+
+$2.20
+
+136 min
+
+$2.20
+
+450 min
+
+FAQs
+What are the per-product API rates?
+How is usage metered?
+How will I know how many characters/minutes I've used each month?
+Can I use custom voices via API?
+Do you offer an Enterprise plan and support?
+What happens if I upgrade, downgrade, or cancel my subscription?
+When can I cancel my subscription?
+What kind of payment do you accept?
+
+Create with the highest quality AI Audio
+
+Talk to sales
+Sign up
+English
+English
+Svenska
+Polski
+Português
+日本語
+한국어
+हिन्दी
+Español
+Français
+Deutsch
+Italiano
+简体中文
+Nederlands
+
+ElevenCreative
+
+Text to Speech
+Speech to Text
+Voice Changer
+Text to Sound Effects
+Voice Cloning
+Voice Isolator
+AI Music Generator
+Studio
+Voice Design
+AI Voice Generator
+AI Image Generator
+AI Video Generator
+Ads Engine
+
+ElevenAgents
+
+Voice Agents
+Conversational AI
+Integrations
+Telecommunications
+Financial Services
+Healthcare
+Government
+Technology
+Retail & E-commerce
+Travel & Hospitality
+Customer Support
+Chatbots
+
+ElevenAPI
+
+API Reference
+Agents API
+Speech Engine
+Dubbing API
+Text to Speech API
+Speech to Text API
+Sound Effects API
+Music API
+API Key
+
+Resources
+
+Blog
+Iconic Marketplace
+Impact Program
+Startup Grants
+Help Center
+Webinars
+Docs
+Enterprise
+Trust Center
+India
+
+Socials
+
+X
+LinkedIn
+GitHub
+YouTube
+Discord
+TikTok
+Instagram
+Facebook
+Reddit
+
+Company
+
+About
+Careers
+Safety
+Brand & Press Kit
+ElevenLabs Summit
+Policies
+Cookie Settings
+Voice chat
