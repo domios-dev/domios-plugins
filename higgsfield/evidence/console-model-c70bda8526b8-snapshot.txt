@@ -1,0 +1,140 @@
+page: Wan 3.0 Prime — API reference | Higgsfield API — https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/reference-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@69b966482a2f4183b5dc2185d611fb5b-e1]
+  - button "Collapse sidebar" [expanded=true] [@69b966482a2f4183b5dc2185d611fb5b-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@69b966482a2f4183b5dc2185d611fb5b-e3]
+    - link "Explore models" [@69b966482a2f4183b5dc2185d611fb5b-e4]
+    - link "Quick start" [@69b966482a2f4183b5dc2185d611fb5b-e5]
+    - link "Documentation" [@69b966482a2f4183b5dc2185d611fb5b-e6]
+    - link "Pricing UP TO 75% OFF" [@69b966482a2f4183b5dc2185d611fb5b-e7]
+    - button "Playground" [expanded=true] [@69b966482a2f4183b5dc2185d611fb5b-e8]
+    - link "API keys" [@69b966482a2f4183b5dc2185d611fb5b-e9]
+    - link "Cashback" [@69b966482a2f4183b5dc2185d611fb5b-e10]
+    - link "Analytics" [@69b966482a2f4183b5dc2185d611fb5b-e11]
+    - link "Billing" [@69b966482a2f4183b5dc2185d611fb5b-e12]
+  - link "Contact sales" [@69b966482a2f4183b5dc2185d611fb5b-e13]
+  - link "Status" [@69b966482a2f4183b5dc2185d611fb5b-e14]
+  - link "Pricing" [@69b966482a2f4183b5dc2185d611fb5b-e15]
+  - link "Log in" [@69b966482a2f4183b5dc2185d611fb5b-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@69b966482a2f4183b5dc2185d611fb5b-e17]
+  - heading "WAN 3.0 PRIME"
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@69b966482a2f4183b5dc2185d611fb5b-e18]
+  - button "Copy agent prompt" [@69b966482a2f4183b5dc2185d611fb5b-e19]
+  - status
+  - link "View docs" [@69b966482a2f4183b5dc2185d611fb5b-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@69b966482a2f4183b5dc2185d611fb5b-e21]
+  - button "Copy for agent" [@69b966482a2f4183b5dc2185d611fb5b-e22]
+  - navigation "Model sections"
+    - link "Playground" [@69b966482a2f4183b5dc2185d611fb5b-e23]
+    - link "API" [disabled] [@69b966482a2f4183b5dc2185d611fb5b-e24]
+    - link "Requests" [disabled] [@69b966482a2f4183b5dc2185d611fb5b-e25]
+    - link "Analytics" [disabled] [@69b966482a2f4183b5dc2185d611fb5b-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@69b966482a2f4183b5dc2185d611fb5b-e27]
+    - link "1. Calling the API" [@69b966482a2f4183b5dc2185d611fb5b-e28]
+    - link "Install" [@69b966482a2f4183b5dc2185d611fb5b-e29]
+    - link "Setup" [@69b966482a2f4183b5dc2185d611fb5b-e30]
+    - link "Request parameters" [@69b966482a2f4183b5dc2185d611fb5b-e31]
+    - link "2. Authentication" [@69b966482a2f4183b5dc2185d611fb5b-e32]
+    - link "API Key" [@69b966482a2f4183b5dc2185d611fb5b-e33]
+    - link "3. Queue" [@69b966482a2f4183b5dc2185d611fb5b-e34]
+    - link "Submit and wait" [@69b966482a2f4183b5dc2185d611fb5b-e35]
+    - link "Explicit lifecycle control" [@69b966482a2f4183b5dc2185d611fb5b-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@69b966482a2f4183b5dc2185d611fb5b-e37]
+  - heading "Setup"
+  - button "Copy code" [@69b966482a2f4183b5dc2185d611fb5b-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Seed. Minimum: 0. Maximum: 2147483647."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "2-30 seconds. Minimum: 2. Maximum: 30."
+    - row
+      - cell "file_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "One document (docx/xlsx/pptx/pdf/md). Forces deep thinking."
+    - row
+      - cell "link_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "One public page. Forces deep thinking. Not combinable with file_url."
+    - row
+      - cell "audio_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Up to 5 files, 30s total. WAV or MP3."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Reference Images."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""1080p""
+      - cell "Resolution. Options: 480p, 720p, 1080p."
+    - row
+      - cell "video_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Up to 5 clips, 30s total, each 1-30s."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""adaptive""
+      - cell "Aspect Ratio. Options: 16:9, 4:3, 1:1, 3:4, 9:16, adaptive."
+    - row
+      - cell "generate_audio"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Sound."
+    - row
+      - cell "enable_thinking"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell "Deep Thinking."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@69b966482a2f4183b5dc2185d611fb5b-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@69b966482a2f4183b5dc2185d611fb5b-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@69b966482a2f4183b5dc2185d611fb5b-e41]
+- region "Notifications alt+T"

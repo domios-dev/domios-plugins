@@ -1,0 +1,177 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Soul Standard
+Explore
+/
+Soul Standard
+Image
+SOUL STANDARD
+
+Generates fashion and lifestyle photos from text, with style presets for editorial and social content.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "higgsfield-ai/soul/standard",
+9
+  {
+10
+    input: {
+11
+      "seed": null,
+12
+      "prompt": "A cinematic scene at sunset",
+13
+      "style_id": null,
+14
+      "batch_size": 1,
+15
+      "resolution": "720p",
+16
+      "aspect_ratio": "4:3",
+17
+      "enhance_prompt": true,
+18
+      "style_strength": 1
+19
+    },
+20
+    withPolling: true,
+21
+  },
+22
+);
+23
+24
+console.log(result);
+Copy for agent
+Explore
+/
+Soul Standard
+Playground
+API
+Requests
+Analytics
+Schema
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+
+Soul Standard uses the model ID higgsfield-ai/soul/standard. Create original images from written prompts with Soul Standard.
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/higgsfield-ai/soul/standard with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+seed	integer	No	null	Seed. Minimum: 1. Maximum: 1000000.
+prompt	string	Yes	—	Prompt.
+style_id	string	No	null	Soul Style.
+batch_size	integer	No	1	Result images. Options: 1, 4.
+resolution	string	No	"720p"	Resolution. Options: 720p, 1080p.
+aspect_ratio	string	No	"4:3"	Aspect Ratio. Options: 9:16, 16:9, 4:3, 3:4, 1:1, 2:3, 3:2.
+enhance_prompt	boolean	No	true	Enhance Prompt.
+style_strength	number	No	1	Style strength. Minimum: 0. Maximum: 1.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns generated files in the images array.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "higgsfield-ai/soul/standard",
+  {
+    input: {
+      "seed": null,
+      "prompt": "A cinematic scene at sunset",
+      "style_id": null,
+      "batch_size": 1,
+      "resolution": "720p",
+      "aspect_ratio": "4:3",
+      "enhance_prompt": true,
+      "style_strength": 1
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)

@@ -1,0 +1,162 @@
+page: Open Higgsfield AI | Official Higgsfield API Platform — https://open.higgsfield.ai/explore?tab=video
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@a047de7ca711436fa30dfcaa0bfa2906-e1]
+  - button "Collapse sidebar" [expanded=true] [@a047de7ca711436fa30dfcaa0bfa2906-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@a047de7ca711436fa30dfcaa0bfa2906-e3]
+    - link "Explore models" [@a047de7ca711436fa30dfcaa0bfa2906-e4]
+    - link "Quick start" [@a047de7ca711436fa30dfcaa0bfa2906-e5]
+    - link "Documentation" [@a047de7ca711436fa30dfcaa0bfa2906-e6]
+    - link "Pricing UP TO 75% OFF" [@a047de7ca711436fa30dfcaa0bfa2906-e7]
+    - button "Playground" [expanded=true] [@a047de7ca711436fa30dfcaa0bfa2906-e8]
+    - link "API keys" [@a047de7ca711436fa30dfcaa0bfa2906-e9]
+    - link "Cashback" [@a047de7ca711436fa30dfcaa0bfa2906-e10]
+    - link "Analytics" [@a047de7ca711436fa30dfcaa0bfa2906-e11]
+    - link "Billing" [@a047de7ca711436fa30dfcaa0bfa2906-e12]
+  - link "Contact sales" [@a047de7ca711436fa30dfcaa0bfa2906-e13]
+  - link "Status" [@a047de7ca711436fa30dfcaa0bfa2906-e14]
+  - link "Pricing" [@a047de7ca711436fa30dfcaa0bfa2906-e15]
+  - link "Log in" [@a047de7ca711436fa30dfcaa0bfa2906-e16]
+  - separator "Resize sidebar"
+- main
+  - region "Featured models"
+    - link "Explore Genjutsu Light" [@a047de7ca711436fa30dfcaa0bfa2906-e17]
+    - heading "GENJUTSU LIGHT"
+    - button "Show Kling 4.0" [@a047de7ca711436fa30dfcaa0bfa2906-e18]
+    - button "Show Seedance 2.5" [@a047de7ca711436fa30dfcaa0bfa2906-e19]
+    - button "Show Genjutsu" [@a047de7ca711436fa30dfcaa0bfa2906-e20]
+    - button "Show Genjutsu Light" [@a047de7ca711436fa30dfcaa0bfa2906-e21]
+    - button "Show Marketing Studio Image" [@a047de7ca711436fa30dfcaa0bfa2906-e22]
+    - group "Select featured model"
+      - button "Show Kling 4.0" [@a047de7ca711436fa30dfcaa0bfa2906-e23]
+      - button "Show Seedance 2.5" [@a047de7ca711436fa30dfcaa0bfa2906-e24]
+      - button "Show Genjutsu" [@a047de7ca711436fa30dfcaa0bfa2906-e25]
+      - button "Show Genjutsu Light" [@a047de7ca711436fa30dfcaa0bfa2906-e26]
+      - button "Show Marketing Studio Image" [@a047de7ca711436fa30dfcaa0bfa2906-e27]
+  - tab "All models" [selected=false] [@a047de7ca711436fa30dfcaa0bfa2906-e28]
+  - tab "Image" [selected=false] [@a047de7ca711436fa30dfcaa0bfa2906-e29]
+  - tab "Video" [focused] [selected=true] [@a047de7ca711436fa30dfcaa0bfa2906-e30]
+  - searchbox "Search models" [@a047de7ca711436fa30dfcaa0bfa2906-e31]
+  - button "Filter" [expanded=false] [@a047de7ca711436fa30dfcaa0bfa2906-e32]
+  - image "Loading the media file..."
+  - Video "Generates videos up to 30 seconds from text, image, video, or audio."
+  - link "Open Seedance 2.5 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e33]
+  - link "bytedance / Seedance 2.5 5 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e34]
+    - heading "bytedance / Seedance 2.5"
+  - image "Loading the media file..."
+  - Video "Transfer motion to reference characters and scenes. Uses the first 15 seconds of the source video an"
+  - link "Open Genjutsu Light in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e35]
+  - link "higgsfield / Genjutsu Light 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e36]
+    - heading "higgsfield / Genjutsu Light"
+  - image "Loading the media file..."
+  - Video "Swaps characters, locations, and styles in a video, keeping its motion."
+  - link "Open Genjutsu in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e37]
+  - link "higgsfield / Genjutsu 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e38]
+    - heading "higgsfield / Genjutsu"
+  - image "Loading the media file..."
+  - Video "Create videos with Kling 4.0 from text, images, and video references. Generate up to 30-second clips"
+  - link "Open Kling 4.0 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e39]
+  - link "kling / Kling 4.0 4 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e40]
+    - heading "kling / Kling 4.0"
+  - image "Loading the media file..."
+  - Video "Generates 2K videos up to 15 seconds using text, image, video, and optional audio reference files."
+  - link "Open MiniMax H3 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e41]
+  - link "minimax / MiniMax H3 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e42]
+    - heading "minimax / MiniMax H3"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or media references with fast processing and clips up to 30 seconds."
+  - link "Open Wan 3.0 Prime in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e43]
+  - link "alibaba / Wan 3.0 Prime 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e44]
+    - heading "alibaba / Wan 3.0 Prime"
+  - image "Loading the media file..."
+  - Video "Creates 4K video from text or media references. Supports up to 15 seconds with optional sound."
+  - link "Open Seedance 2.0 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e45]
+  - link "bytedance / Seedance 2.0 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e46]
+    - heading "bytedance / Seedance 2.0"
+  - image "Loading the media file..."
+  - Video "Generates cinematic videos up to 30 seconds with automatic scene direction."
+  - link "Open Cinema Studio 4.0 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e47]
+  - link "higgsfield / Cinema Studio 4.0" [@a047de7ca711436fa30dfcaa0bfa2906-e48]
+    - heading "higgsfield / Cinema Studio 4.0"
+  - image "Loading the media file..."
+  - Video "Transfer motion from a reference video to your characters, products, or clothes."
+  - link "Open Genjutsu workflow" [@a047de7ca711436fa30dfcaa0bfa2906-e49]
+  - link "higgsfield / Genjutsu 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e50]
+    - heading "higgsfield / Genjutsu"
+  - image "Loading the media file..."
+  - Video "Generates multi-shot videos from text or images, with native audio and durations up to 15 seconds."
+  - link "Open Kling 3.0 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e51]
+  - link "kling / Kling 3.0 10 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e52]
+    - heading "kling / Kling 3.0"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or images with native audio and adjustable duration up to 30 seconds."
+  - link "Open Wan 3.0 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e53]
+  - link "alibaba / Wan 3.0 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e54]
+    - heading "alibaba / Wan 3.0"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or images with native audio, camera motion controls and 4K resolution."
+  - link "Open LTX 2.5 Fast in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e55]
+  - link "lightricks / LTX 2.5 Fast 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e56]
+    - heading "lightricks / LTX 2.5 Fast"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or images with native audio, camera motion controls and 1080p output."
+  - link "Open LTX 2.5 Pro in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e57]
+  - link "lightricks / LTX 2.5 Pro 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e58]
+    - heading "lightricks / LTX 2.5 Pro"
+  - image "Loading the media file..."
+  - Video "Creates videos from text prompts or still images, with 1080p resolution and clips up to 15 seconds."
+  - link "Open Grok Imagine Video 1.5 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e59]
+  - link "xai / Grok Imagine Video 1.5" [@a047de7ca711436fa30dfcaa0bfa2906-e60]
+    - heading "xai / Grok Imagine Video 1.5"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or images with native audio and consistent characters across scenes."
+  - link "Open Wan 2.7 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e61]
+  - link "alibaba / Wan 2.7 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e62]
+    - heading "alibaba / Wan 2.7"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or image references with output at 1080p and clips up to 15 seconds."
+  - link "Open Happy Horse 1.1 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e63]
+  - link "alibaba / Happy Horse 1.1 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e64]
+    - heading "alibaba / Happy Horse 1.1"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or image references with clips up to 15 seconds and 1080p resolution."
+  - link "Open Happy Horse 1.0 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e65]
+  - link "alibaba / Happy Horse 1.0 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e66]
+    - heading "alibaba / Happy Horse 1.0"
+  - image "Loading the media file..."
+  - Video "Generates videos from text or images with native sound and control over the first and last frames."
+  - link "Open PixVerse 6 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e67]
+  - link "pixverse / PixVerse 6 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e68]
+    - heading "pixverse / PixVerse 6"
+  - image "Loading the media file..."
+  - Video "Generates and edits videos using image or video references, multi-shot scenes and native sound."
+  - link "Open Kling O3 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e69]
+  - link "kling / Kling O3 4 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e70]
+    - heading "kling / Kling O3"
+  - image "Loading the media file..."
+  - Video "Generates videos and sound from text or images, including dialogue, sound effects and ambience."
+  - link "Open Kling 2.6 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e71]
+  - link "kling / Kling 2.6 4 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e72]
+    - heading "kling / Kling 2.6"
+  - image "Loading the media file..."
+  - Video "Generates and edits videos using image or video references and controls for start and end frames."
+  - link "Open Kling O1 (Omni) in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e73]
+  - link "kling / Kling O1 (Omni) 4 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e74]
+    - heading "kling / Kling O1 (Omni)"
+  - image "Loading the media file..."
+  - Video "Generates multi-shot videos from text or images with native sound and optional video references."
+  - link "Open Wan 2.6 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e75]
+  - link "alibaba / Wan 2.6 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e76]
+    - heading "alibaba / Wan 2.6"
+  - image "Loading the media file..."
+  - Video "Generates short videos from text or images with fluid body motion and natural facial expressions."
+  - link "Open MiniMax Hailuo 2.3 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e77]
+  - link "minimax / MiniMax Hailuo 2.3 2 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e78]
+    - heading "minimax / MiniMax Hailuo 2.3"
+  - image "Loading the media file..."
+  - Video "Generates videos from text prompts and images, with fast generation and precise prompt control."
+  - link "Open Kling 2.5 in Video mode" [@a047de7ca711436fa30dfcaa0bfa2906-e79]
+  - link "kling / Kling 2.5 3 modes" [@a047de7ca711436fa30dfcaa0bfa2906-e80]
+    - heading "kling / Kling 2.5"
+- region "Notifications alt+T"

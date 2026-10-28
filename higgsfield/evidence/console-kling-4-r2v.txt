@@ -1,0 +1,209 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Kling 4.0
+Reference-to-Video
+Explore
+/
+Kling 4.0
+Video
+KLING 4.0
+Reference-to-Video
+
+Create videos with Kling 4.0 using image and video references. Combine a text prompt with reference images, videos, or elements to guide clips up to 30 seconds long in 720p or 1080p.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "kling-video/v4.0/reference-to-video",
+9
+  {
+10
+    input: {
+11
+      "prompt": "A cinematic scene at sunset",
+12
+      "duration": 10,
+13
+      "resolution": "1080p",
+14
+      "aspect_ratio": "adaptive"
+15
+    },
+16
+    withPolling: true,
+17
+  },
+18
+);
+19
+20
+console.log(result);
+Copy for agent
+Explore
+/
+Kling 4.0
+Reference-to-Video
+Playground
+API
+Requests
+Analytics
+
+Kling 4.0 — Reference to Video
+
+TypeScript
+1.
+Calling the API
+SDK setup
+2.
+Request parameters
+3.
+Using this model
+Required references
+Reference IDs in prompts
+Input video processing
+4.
+Request examples
+Submit and wait
+Image references only
+5.
+Results and polling
+6.
+Validation notes
+
+Generate a new video guided by reference images or reference videos. Use the prompt to describe the new scene and how each reference should influence it.
+
+Model ID: kling-video/v4.0/reference-to-video
+
+1. CALLING THE API
+
+Send a JSON POST request to https://api.higgsfield.ai/kling-video/v4.0/reference-to-video. Authenticate with Authorization: Key KEY_ID:KEY_SECRET.
+
+SDK setup
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+
+Keep API credentials on your server and out of browser code and source control.
+
+2. REQUEST PARAMETERS
+Parameter	Type	Required	Default	Description
+prompt	string	Yes	—	A non-empty prompt describing the video and the role of each reference.
+image_urls	string[]	Conditional	—	Reference image URLs, up to 10 images. These guide the generated content; they are not middle frames in this mode.
+video_urls	string[]	Conditional	—	Reference video URLs, up to 5 videos. These are motion/content references, not the source video to edit.
+duration	integer	No	10	Output duration in seconds. Integer from 3 to 30.
+resolution	string	No	1080p	Output resolution: 720p or 1080p.
+aspect_ratio	string	No	adaptive	Output aspect ratio: 21:9, 16:9, 9:16, 1:1, or adaptive.
+
+Defaults apply when a field is omitted. Send media as non-empty URLs accessible to the service, not local file paths. Replace the example.com URLs in the examples with your own reachable media URLs.
+
+3. USING THIS MODEL
+Required references
+
+A prompt alone is insufficient. Supply at least one non-empty image_urls or video_urls list. Empty lists do not satisfy the reference requirement.
+
+Reference IDs in prompts
+
+Images are addressed as @image_1, @image_2, and so on, and videos as @video_1, @video_2, and so on, following array order.
+
+This mode creates a new video from references. To edit an existing source video, use kling-video/v4.0/video-edit and its required video_url.
+
+Input video processing
+
+Each supplied video URL is subject to a 2 GiB download limit. Input videos longer than 30 seconds are trimmed to their first 30 seconds before generation. This does not change the requested output duration, which remains an integer from 3 to 30 seconds.
+
+4. REQUEST EXAMPLES
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "kling-video/v4.0/reference-to-video",
+  {
+    input: {
+      "prompt": "Use the character from @image_1 in a new scene walking through a sunlit market. Follow the camera motion from @video_1.",
+      "image_urls": [
+        "https://example.com/character.jpg"
+      ],
+      "video_urls": [
+        "https://example.com/camera-reference.mp4"
+      ],
+      "duration": 10,
+      "resolution": "1080p",
+      "aspect_ratio": "16:9"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Image references only
+
+Use this JSON body with the same model endpoint:
+
+{
+  "prompt": "Place the character from @image_1 in a snowy mountain scene with a slow camera orbit.",
+  "image_urls": [
+    "https://example.com/character.jpg"
+  ],
+  "duration": 10,
+  "resolution": "1080p",
+  "aspect_ratio": "16:9"
+}
+5. RESULTS AND POLLING
+
+Generation is asynchronous. A direct HTTP submission returns request_id, status, status_url, and cancel_url. Submission is not the finished video.
+
+The SDK examples above use automatic polling. For direct HTTP integration, send authenticated GET requests to the returned status_url. Continue while status is queued or in_progress; stop on completed, failed, nsfw, or canceled. A completed video result exposes the generated URL as video.url. If generation fails, inspect the returned error before retrying.
+
+curl --request GET \
+  --url "$STATUS_URL" \
+  --header "Authorization: Key $HF_KEY"
+
+Set STATUS_URL to the URL returned by submission. Keep the same API credentials for subsequent requests.
+
+6. VALIDATION NOTES
+
+Use the exact field names and values listed above. duration must be an integer from 3 to 30, and resolution must be 720p or 1080p. Omit unused media fields instead of sending empty strings or nulls.
+
+The schema permits additional properties, but undocumented keys do not create new model controls. Use only the parameters documented for this endpoint.
+
+A prompt with no usable reference is invalid. An empty reference array does not satisfy the source requirement.

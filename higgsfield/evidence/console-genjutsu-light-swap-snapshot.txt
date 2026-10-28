@@ -1,0 +1,65 @@
+page: Genjutsu Light — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/genjutsu-light/object-swap/v1.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@f59f12150196452fad5daa57fec096aa-e1]
+  - button "Collapse sidebar" [expanded=true] [@f59f12150196452fad5daa57fec096aa-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@f59f12150196452fad5daa57fec096aa-e3]
+    - link "Explore models" [@f59f12150196452fad5daa57fec096aa-e4]
+    - link "Quick start" [@f59f12150196452fad5daa57fec096aa-e5]
+    - link "Documentation" [@f59f12150196452fad5daa57fec096aa-e6]
+    - link "Pricing UP TO 75% OFF" [@f59f12150196452fad5daa57fec096aa-e7]
+    - button "Playground" [expanded=true] [@f59f12150196452fad5daa57fec096aa-e8]
+    - link "API keys" [@f59f12150196452fad5daa57fec096aa-e9]
+    - link "Cashback" [@f59f12150196452fad5daa57fec096aa-e10]
+    - link "Analytics" [@f59f12150196452fad5daa57fec096aa-e11]
+    - link "Billing" [@f59f12150196452fad5daa57fec096aa-e12]
+  - link "Contact sales" [@f59f12150196452fad5daa57fec096aa-e13]
+  - link "Status" [@f59f12150196452fad5daa57fec096aa-e14]
+  - link "Pricing" [@f59f12150196452fad5daa57fec096aa-e15]
+  - link "Log in" [@f59f12150196452fad5daa57fec096aa-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@f59f12150196452fad5daa57fec096aa-e17]
+  - button "Select model variant: Object Swap" [expanded=false] [@f59f12150196452fad5daa57fec096aa-e18]
+  - link "Explore" [@f59f12150196452fad5daa57fec096aa-e19]
+  - heading "GENJUTSU LIGHT"
+  - button "Select model variant: Object Swap" [expanded=false] [@f59f12150196452fad5daa57fec096aa-e20]
+  - button "Copy agent prompt" [@f59f12150196452fad5daa57fec096aa-e21]
+  - status
+  - link "View docs" [@f59f12150196452fad5daa57fec096aa-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@f59f12150196452fad5daa57fec096aa-e23]
+  - button "Copy for agent" [@f59f12150196452fad5daa57fec096aa-e24]
+  - navigation "Model sections"
+    - link "Playground" [@f59f12150196452fad5daa57fec096aa-e25]
+    - link "API" [disabled] [@f59f12150196452fad5daa57fec096aa-e26]
+    - link "Requests" [disabled] [@f59f12150196452fad5daa57fec096aa-e27]
+    - link "Analytics" [disabled] [@f59f12150196452fad5daa57fec096aa-e28]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@f59f12150196452fad5daa57fec096aa-e29]
+    - link "1. Calling the API" [@f59f12150196452fad5daa57fec096aa-e30]
+    - link "Install" [@f59f12150196452fad5daa57fec096aa-e31]
+    - link "Setup" [@f59f12150196452fad5daa57fec096aa-e32]
+    - link "2. Authentication" [@f59f12150196452fad5daa57fec096aa-e33]
+    - link "API Key" [@f59f12150196452fad5daa57fec096aa-e34]
+    - link "3. Queue" [@f59f12150196452fad5daa57fec096aa-e35]
+    - link "Submit" [@f59f12150196452fad5daa57fec096aa-e36]
+    - link "Fetch" [@f59f12150196452fad5daa57fec096aa-e37]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "npm" [@f59f12150196452fad5daa57fec096aa-e38]
+  - button "yarn" [@f59f12150196452fad5daa57fec096aa-e39]
+  - button "pnpm" [@f59f12150196452fad5daa57fec096aa-e40]
+  - button "bun" [@f59f12150196452fad5daa57fec096aa-e41]
+  - button "Copy code" [@f59f12150196452fad5daa57fec096aa-e42]
+  - heading "Setup"
+  - button "Copy code" [@f59f12150196452fad5daa57fec096aa-e43]
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@f59f12150196452fad5daa57fec096aa-e44]
+  - heading "3. QUEUE"
+  - heading "Submit"
+  - button "Copy code" [@f59f12150196452fad5daa57fec096aa-e45]
+  - heading "Fetch"
+  - button "Copy code" [@f59f12150196452fad5daa57fec096aa-e46]
+- region "Notifications alt+T"

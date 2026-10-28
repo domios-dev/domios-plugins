@@ -1,0 +1,264 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+50% OFF
+Higgsfield
+GENJUTSU LIGHT
+
+Transfer motion to reference characters and scenes. Uses the first 15 seconds of the source video and preserves source audio.
+
+Explore model
+from
+0.025 / s
+0.050 / s
+All models
+Image
+Video
+Filter
+All models
+Image
+Video
+Filter
+Video
+bytedance / Seedance 2.5
+5 modes
+
+Generates videos up to 30 seconds from text, image, video, or audio.
+
+30% OFF
+from
+0.144 / s
+0.206
+Video
+Higgsfield Exclusive
+higgsfield / Genjutsu Light
+2 modes
+
+Transfer motion to reference characters and scenes. Uses the first 15 seconds of the source video and preserves source audio.
+
+50% OFF
+from
+0.025 / s
+0.050
+Video
+Higgsfield Exclusive
+higgsfield / Genjutsu
+2 modes
+
+Swaps characters, locations, and styles in a video, keeping its motion.
+
+50% OFF
+from
+0.159 / s
+0.318
+Video
+kling / Kling 4.0
+4 modes
+
+Create videos with Kling 4.0 from text, images, and video references. Generate up to 30-second clips in 1080p, guide keyframes, and edit existing videos.
+
+30% OFF
+from
+0.110 / s
+0.157
+Video
+minimax / MiniMax H3
+3 modes
+
+Generates 2K videos up to 15 seconds using text, image, video, and optional audio reference files.
+
+50% OFF
+0.065 / s
+0.130
+Video
+alibaba / Wan 3.0 Prime
+3 modes
+
+Generates videos from text or media references with fast processing and clips up to 30 seconds.
+
+60% OFF
+from
+0.027 / s
+0.068
+Video
+bytedance / Seedance 2.0
+3 modes
+
+Creates 4K video from text or media references. Supports up to 15 seconds with optional sound.
+
+30% OFF
+from
+0.099 / s
+0.141
+Video
+Higgsfield Exclusive
+higgsfield / Cinema Studio 4.0
+
+Generates cinematic videos up to 30 seconds with automatic scene direction.
+
+from
+0.206 / s
+Workflow
+Higgsfield Exclusive
+higgsfield / Genjutsu
+2 modes
+
+Transfer motion from a reference video to your characters, products, or clothes.
+
+50% OFF
+from
+0.159 / s
+0.318
+Video
+kling / Kling 3.0
+10 modes
+
+Generates multi-shot videos from text or images, with native audio and durations up to 15 seconds.
+
+50% OFF
+0.042 / s
+0.084
+Video
+alibaba / Wan 3.0
+3 modes
+
+Generates videos from text or images with native audio and adjustable duration up to 30 seconds.
+
+60% OFF
+from
+0.020 / s
+0.050
+Video
+lightricks / LTX 2.5 Fast
+2 modes
+
+Generates videos from text or images with native audio, camera motion controls and 4K resolution.
+
+from
+0.090 / s
+Video
+lightricks / LTX 2.5 Pro
+2 modes
+
+Generates videos from text or images with native audio, camera motion controls and 1080p output.
+
+from
+0.120 / s
+Video
+xai / Grok Imagine Video 1.5
+
+Creates videos from text prompts or still images, with 1080p resolution and clips up to 15 seconds.
+
+from
+0.080 / s
+Video
+alibaba / Wan 2.7
+3 modes
+
+Generates videos from text or images with native audio and consistent characters across scenes.
+
+50% OFF
+from
+0.050 / s
+0.100
+Video
+alibaba / Happy Horse 1.1
+3 modes
+
+Generates videos from text or image references with output at 1080p and clips up to 15 seconds.
+
+50% OFF
+from
+0.070 / s
+0.140
+Video
+alibaba / Happy Horse 1.0
+3 modes
+
+Generates videos from text or image references with clips up to 15 seconds and 1080p resolution.
+
+50% OFF
+from
+0.070 / s
+0.140
+Video
+pixverse / PixVerse 6
+2 modes
+
+Generates videos from text or images with native sound and control over the first and last frames.
+
+15% OFF
+0.098 / s
+0.115
+Video
+kling / Kling O3
+4 modes
+
+Generates and edits videos using image or video references, multi-shot scenes and native sound.
+
+50% OFF
+from
+0.042 / s
+0.084
+Video
+kling / Kling 2.6
+4 modes
+
+Generates videos and sound from text or images, including dialogue, sound effects and ambience.
+
+50% OFF
+from
+0.035 / s
+0.070
+Video
+kling / Kling O1 (Omni)
+4 modes
+
+Generates and edits videos using image or video references and controls for start and end frames.
+
+50% OFF
+from
+0.042 / s
+0.084
+Video
+alibaba / Wan 2.6
+3 modes
+
+Generates multi-shot videos from text or images with native sound and optional video references.
+
+50% OFF
+from
+0.050 / s
+0.100
+Video
+minimax / MiniMax Hailuo 2.3
+2 modes
+
+Generates short videos from text or images with fluid body motion and natural facial expressions.
+
+75% OFF
+from
+0.012 / s
+0.047
+Video
+kling / Kling 2.5
+3 modes
+
+Generates videos from text prompts and images, with fast generation and precise prompt control.
+
+50% OFF
+0.021 / s
+0.042

@@ -1,0 +1,122 @@
+page: Seedance 2.5 — API reference | Higgsfield API — https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-extend/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@a4a19b9f769b4ff9827a30f008bcc15f-e1]
+  - button "Collapse sidebar" [expanded=true] [@a4a19b9f769b4ff9827a30f008bcc15f-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@a4a19b9f769b4ff9827a30f008bcc15f-e3]
+    - link "Explore models" [@a4a19b9f769b4ff9827a30f008bcc15f-e4]
+    - link "Quick start" [@a4a19b9f769b4ff9827a30f008bcc15f-e5]
+    - link "Documentation" [@a4a19b9f769b4ff9827a30f008bcc15f-e6]
+    - link "Pricing UP TO 75% OFF" [@a4a19b9f769b4ff9827a30f008bcc15f-e7]
+    - button "Playground" [expanded=true] [@a4a19b9f769b4ff9827a30f008bcc15f-e8]
+    - link "API keys" [@a4a19b9f769b4ff9827a30f008bcc15f-e9]
+    - link "Cashback" [@a4a19b9f769b4ff9827a30f008bcc15f-e10]
+    - link "Analytics" [@a4a19b9f769b4ff9827a30f008bcc15f-e11]
+    - link "Billing" [@a4a19b9f769b4ff9827a30f008bcc15f-e12]
+  - link "Contact sales" [@a4a19b9f769b4ff9827a30f008bcc15f-e13]
+  - link "Status" [@a4a19b9f769b4ff9827a30f008bcc15f-e14]
+  - link "Pricing" [@a4a19b9f769b4ff9827a30f008bcc15f-e15]
+  - link "Log in" [@a4a19b9f769b4ff9827a30f008bcc15f-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@a4a19b9f769b4ff9827a30f008bcc15f-e17]
+  - heading "SEEDANCE 2.5"
+  - button "Select model variant: Video Extend" [expanded=false] [@a4a19b9f769b4ff9827a30f008bcc15f-e18]
+  - button "Copy agent prompt" [@a4a19b9f769b4ff9827a30f008bcc15f-e19]
+  - status
+  - link "View docs" [@a4a19b9f769b4ff9827a30f008bcc15f-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@a4a19b9f769b4ff9827a30f008bcc15f-e21]
+  - button "Copy for agent" [@a4a19b9f769b4ff9827a30f008bcc15f-e22]
+  - navigation "Model sections"
+    - link "Playground" [@a4a19b9f769b4ff9827a30f008bcc15f-e23]
+    - link "API" [disabled] [@a4a19b9f769b4ff9827a30f008bcc15f-e24]
+    - link "Requests" [disabled] [@a4a19b9f769b4ff9827a30f008bcc15f-e25]
+    - link "Analytics" [disabled] [@a4a19b9f769b4ff9827a30f008bcc15f-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@a4a19b9f769b4ff9827a30f008bcc15f-e27]
+    - link "1. Calling the API" [@a4a19b9f769b4ff9827a30f008bcc15f-e28]
+    - link "Install" [@a4a19b9f769b4ff9827a30f008bcc15f-e29]
+    - link "Setup" [@a4a19b9f769b4ff9827a30f008bcc15f-e30]
+    - link "Request parameters" [@a4a19b9f769b4ff9827a30f008bcc15f-e31]
+    - link "2. Authentication" [@a4a19b9f769b4ff9827a30f008bcc15f-e32]
+    - link "API Key" [@a4a19b9f769b4ff9827a30f008bcc15f-e33]
+    - link "3. Queue" [@a4a19b9f769b4ff9827a30f008bcc15f-e34]
+    - link "Submit and wait" [@a4a19b9f769b4ff9827a30f008bcc15f-e35]
+    - link "Explicit lifecycle control" [@a4a19b9f769b4ff9827a30f008bcc15f-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@a4a19b9f769b4ff9827a30f008bcc15f-e37]
+  - heading "Setup"
+  - button "Copy code" [@a4a19b9f769b4ff9827a30f008bcc15f-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Minimum length: 1."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Minimum: 4. Maximum: 30."
+    - row
+      - cell "video_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell
+    - row
+      - cell "audio_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Options: 480p, 720p, 1080p."
+    - row
+      - cell "video_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell
+    - row
+      - cell "output_format"
+      - cell "string"
+      - cell "No"
+      - cell ""mp4""
+      - cell "Options: mp4, mov."
+    - row
+      - cell "generate_audio"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@a4a19b9f769b4ff9827a30f008bcc15f-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@a4a19b9f769b4ff9827a30f008bcc15f-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@a4a19b9f769b4ff9827a30f008bcc15f-e41]
+- region "Notifications alt+T"

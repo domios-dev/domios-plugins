@@ -1,0 +1,620 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Pricing
+MODELS API PRICING
+
+The best prices on the market with the most cost-effective offers
+
+All models
+Video
+Image
+Search models
+Compare prices with others
+
+60% OFF on Wan 3.0 and Wan 3.0 Prime ends on Oct 31. After that, Max Discount gives 50% OFF on Wan 3.0 and 40% OFF on Wan 3.0 Prime.
+
+Model name
+	
+Resolution
+	
+Duration
+	
+List price
+	
+leads to
+	
+Max-discount price
+	
+Max-discount selection
+
+
+Kling O1 (Omni)
+4 modes
+	
+—
+	
+3–10s
+	from $0.084/s	
+	
+50% OFF
+from $0.042/s
+	
+Compare
+
+
+Kling Omni
+Image Reference
+	
+—
+	
+3–10s
+	from $0.084/s	
+	
+50% OFF
+from $0.042/s
+	
+Compare
+
+
+Kling Omni
+Video Reference
+	
+—
+	
+3–10s
+	from $0.126/s	
+	
+50% OFF
+from $0.063/s
+	
+Compare
+
+
+Kling Omni
+Video Edit
+	
+—
+	
+—
+	$0.126/s	
+	
+50% OFF
+$0.063/s
+	
+Compare
+
+
+Kling Omni
+First/Last Frame
+	
+—
+	
+5s / 10s
+	from $0.084/s	
+	
+50% OFF
+from $0.042/s
+	
+Compare
+
+
+Kling O3
+4 modes
+	
+—
+	
+3–15s
+	from $0.084/s	
+	
+50% OFF
+from $0.042/s
+	
+Compare
+
+
+Kling O3
+Video Edit
+	
+—
+	
+—
+	$0.126/s	
+	
+50% OFF
+$0.063/s
+	
+Compare
+
+
+Kling O3
+First/Last Frame
+	
+—
+	
+3–15s
+	from $0.084/s	
+	
+50% OFF
+from $0.042/s
+	
+Compare
+
+
+Kling O3
+Video Reference
+	
+—
+	
+3–10s
+	from $0.126/s	
+	
+50% OFF
+from $0.063/s
+	
+Compare
+
+
+Kling O3
+Image Reference
+	
+—
+	
+3–15s
+	$0.084/s	
+	
+50% OFF
+$0.042/s
+	
+Compare
+
+
+Marketing Studio Image
+3 modes
+	
+up to 4k
+	
+—
+	from $0.013/image	
+	
+15% OFF
+from $0.011/image
+	
+Compare
+
+
+Marketing Studio Image
+2.5 Sunburst
+	
+up to 4k
+	
+—
+	from $0.013/image	
+	
+15% OFF
+from $0.011/image
+	
+Compare
+
+
+Marketing Studio Image
+2.5 Flare
+	
+up to 4k
+	
+—
+	from $0.013/image	
+	
+15% OFF
+from $0.011/image
+	
+Compare
+
+
+Marketing Studio Image
+2.0 Alpha
+	
+up to 4k
+	
+—
+	from $0.016/image	
+	
+15% OFF
+from $0.014/image
+	
+Compare
+
+
+Grok Imagine 2.0
+	
+up to 2k
+	
+—
+	—	
+		
+Compare
+
+
+AI Influencer
+	
+—
+	
+—
+	—	
+		
+Compare
+
+
+Cinema Studio 4.0
+	
+up to 720p
+	
+4–30s
+	—	
+		
+Compare
+
+
+MiniMax Hailuo 2.3
+2 modes
+	
+up to 768p
+	
+6s / 10s
+	from $0.047/s	
+	
+75% OFF
+from $0.012/s
+	
+Compare
+
+
+MiniMax Hailuo 2.3 Standard
+Image to Video (Standard)
+	
+—
+	
+6s / 10s
+	from $0.047/s	
+	
+75% OFF
+from $0.012/s
+	
+Compare
+
+
+MiniMax Hailuo 2.3 Standard
+Text to Video (Standard)
+	
+up to 768p
+	
+6s / 10s
+	from $0.047/s	
+	
+75% OFF
+from $0.012/s
+	
+Compare
+
+
+Happy Horse 1.0
+3 modes
+	
+up to 1080p
+	
+2–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+Happy Horse 1.0
+Text to Video
+	
+up to 1080p
+	
+3–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+Happy Horse 1.0
+Image to Video
+	
+up to 1080p
+	
+2–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+Happy Horse 1.0
+Reference to Video
+	
+up to 1080p
+	
+2–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+Happy Horse 1.1
+3 modes
+	
+up to 1080p
+	
+2–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+HappyHorse 1.1
+Reference to Video
+	
+up to 1080p
+	
+2–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+HappyHorse 1.1
+Image to Video
+	
+up to 1080p
+	
+2–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+HappyHorse 1.1
+Text to Video
+	
+up to 1080p
+	
+3–15s
+	from $0.140/s	
+	
+50% OFF
+from $0.070/s
+	
+Compare
+
+
+MiniMax H3
+3 modes
+	
+up to 2K
+	
+5–15s
+	$0.130/s	
+	
+50% OFF
+$0.065/s
+	
+Compare
+
+
+MiniMax H3
+Image to Video
+	
+up to 2K
+	
+5–15s
+	$0.130/s	
+	
+50% OFF
+$0.065/s
+	
+Compare
+
+
+MiniMax H3
+Text to Video
+	
+up to 2K
+	
+5–15s
+	$0.130/s	
+	
+50% OFF
+$0.065/s
+	
+Compare
+
+
+MiniMax H3
+Reference to Video
+	
+up to 2K
+	
+5–15s
+	$0.130/s	
+	
+50% OFF
+$0.065/s
+	
+Compare
+
+11–20 of 33 shown
+
+1
+2
+3
+4
+COMPARE WITH OTHERS
+
+See how our prices compare to other vendors
+
+All models
+Video
+Image
+Search models
+Compare prices with
+Fal
+Model name
+	
+Higgsfield
+	
+Fal
+
+
+Kling 3.0 4K · Text to Video · Image to Video
+	
+$0.210/s
+$0.420
+50% lower
+	$0.420/s
+
+Kling 3.0 Pro · Text to Video · Image to Video
+	
+$0.084/s
+$0.168
+50% lower
+	$0.168/s
+
+Kling 3.0 Standard · Image to Video
+	
+$0.063/s
+$0.126
+50% lower
+	$0.126/s
+
+Kling 3.0 Turbo · Text to Video · Image to Video
+	
+$0.070/s
+$0.140
+50% lower
+	$0.140/s
+
+Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video
+	
+$0.090/s
+$0.180
+50% lower
+	$0.180/s
+
+Seedance 2.5 · Text to Video · Image to Video
+	
+$0.145/s
+$0.207
+30% lower
+	$0.207/s
+
+Seedance 2.5 · Reference to Video · Video Edit · Video Extend
+	
+$0.174/s
+$0.248
+30% lower
+	$0.248/s
+
+Seedance 2.0 · Text to Video · Image to Video
+	
+$0.099/s
+$0.141
+30% lower
+	$0.141/s
+
+Seedance 2.0 · Reference to Video
+	
+$0.118/s
+$0.168
+30% lower
+	$0.168/s
+
+MiniMax H3 · Text to Video · Image to Video · Reference to Video
+	
+$0.065/s
+$0.130
+50% lower
+	$0.130/s
+
+10 of 20 showed
+
+1
+2
+
+Comparison is based on prices as of 16 September, 2026.
+
+Concurrency limits
+
+Add funds to unlock more concurrent generation requests for your account
+
+Learn more
+2 concurrent generations
+
+included with every new account
+
+Only funds added in the past 28 days are counted
+
+Add funds
+2 concurrent
+current limit
+10 concurrent
+≥$25
+20 concurrent
+≥$100
+40 concurrent
+≥$1,000
+
+Need higher limits?
+
+Let's find the right limits for your workloads
+
+Contact sales
+FAQ
+What is Higgsfield API?
+
+Higgsfield API gives developers one API for leading image and video models. Send a generation request, and Higgsfield handles the queueing, GPUs, and scaling before returning the generated file URL.
+
+How does Higgsfield API pricing work?
+What's included in the Higgsfield API launch offer?
+Do I need to talk to sales to start using Higgsfield API?
+How do I integrate Higgsfield API?
+Can I migrate from fal or Replicate to Higgsfield API?
+Can AI agents use Higgsfield API?
+What are the Higgsfield API rate limits?
+How do I keep Higgsfield API spending under control?
+How do teams use Higgsfield API?
+Which models are available through Higgsfield API?

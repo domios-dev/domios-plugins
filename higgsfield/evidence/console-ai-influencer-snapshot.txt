@@ -1,0 +1,145 @@
+page: AI Influencer — Overview | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/ai-influencer/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@d7d59d78487144b3a4094d4eeb781637-e1]
+  - button "Collapse sidebar" [expanded=true] [@d7d59d78487144b3a4094d4eeb781637-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@d7d59d78487144b3a4094d4eeb781637-e3]
+    - link "Explore models" [@d7d59d78487144b3a4094d4eeb781637-e4]
+    - link "Quick start" [@d7d59d78487144b3a4094d4eeb781637-e5]
+    - link "Documentation" [@d7d59d78487144b3a4094d4eeb781637-e6]
+    - link "Pricing UP TO 75% OFF" [@d7d59d78487144b3a4094d4eeb781637-e7]
+    - button "Playground" [expanded=true] [@d7d59d78487144b3a4094d4eeb781637-e8]
+    - link "API keys" [@d7d59d78487144b3a4094d4eeb781637-e9]
+    - link "Cashback" [@d7d59d78487144b3a4094d4eeb781637-e10]
+    - link "Analytics" [@d7d59d78487144b3a4094d4eeb781637-e11]
+    - link "Billing" [@d7d59d78487144b3a4094d4eeb781637-e12]
+  - link "Contact sales" [@d7d59d78487144b3a4094d4eeb781637-e13]
+  - link "Status" [@d7d59d78487144b3a4094d4eeb781637-e14]
+  - link "Pricing" [@d7d59d78487144b3a4094d4eeb781637-e15]
+  - link "Log in" [@d7d59d78487144b3a4094d4eeb781637-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@d7d59d78487144b3a4094d4eeb781637-e17]
+  - heading "AI INFLUENCER"
+  - button "Copy agent prompt" [@d7d59d78487144b3a4094d4eeb781637-e18]
+  - status
+  - link "View docs" [focused] [@d7d59d78487144b3a4094d4eeb781637-e19]
+  - combobox "Code language": TypeScript [expanded=false] [@d7d59d78487144b3a4094d4eeb781637-e20]
+  - button "Copy for agent" [@d7d59d78487144b3a4094d4eeb781637-e21]
+  - navigation "Model sections"
+    - link "Playground" [@d7d59d78487144b3a4094d4eeb781637-e22]
+    - link "API" [disabled] [@d7d59d78487144b3a4094d4eeb781637-e23]
+    - link "Requests" [disabled] [@d7d59d78487144b3a4094d4eeb781637-e24]
+    - link "Analytics" [disabled] [@d7d59d78487144b3a4094d4eeb781637-e25]
+  - navigation "API reference contents"
+    - link "1. Quick start" [@d7d59d78487144b3a4094d4eeb781637-e26]
+    - link "2. Character types" [@d7d59d78487144b3a4094d4eeb781637-e27]
+    - link "3. Inputs" [@d7d59d78487144b3a4094d4eeb781637-e28]
+    - link "Identity photo and item references" [@d7d59d78487144b3a4094d4eeb781637-e29]
+    - link "4. Appearance options" [@d7d59d78487144b3a4094d4eeb781637-e30]
+    - link "5. Animal variations" [@d7d59d78487144b3a4094d4eeb781637-e31]
+    - link "6. Advanced trait overrides" [@d7d59d78487144b3a4094d4eeb781637-e32]
+  - heading "QUICK START"
+  - button "Copy code" [@d7d59d78487144b3a4094d4eeb781637-e33]
+  - heading "CHARACTER TYPES"
+  - table
+    - row
+      - columnheader "tier"
+      - columnheader "Playground label"
+      - columnheader "Character"
+    - row
+      - cell "normal"
+      - cell "Average"
+      - cell "Human with natural appearance; default"
+    - row
+      - cell "freak"
+      - cell "Bold"
+      - cell "Human with more unusual appearance traits"
+    - row
+      - cell "total"
+      - cell "Extreme"
+      - cell "Human with stronger appearance transformations"
+    - row
+      - cell "insects"
+      - cell "Insect"
+      - cell "Insect character"
+    - row
+      - cell "frogs"
+      - cell "Frog"
+      - cell "Frog character"
+    - row
+      - cell "cats"
+      - cell "Cat"
+      - cell "Cat character"
+    - row
+      - cell "dogs"
+      - cell "Dog"
+      - cell "Dog character"
+    - row
+      - cell "capybaras"
+      - cell "Rodent"
+      - cell "Capybara character"
+    - row
+      - cell "birds"
+      - cell "Bird"
+      - cell "Bird character"
+  - heading "INPUTS"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type / default"
+      - columnheader "Usage"
+    - row
+      - cell "tier"
+      - cell "string, "normal""
+      - cell "One of the nine character types above."
+    - row
+      - cell "selection"
+      - cell "object, {}"
+      - cell "Category keys mapped to arrays of option keys. Up to 18 categories; each category has its own select"
+    - row
+      - cell "image_url"
+      - cell "URL or null, null"
+      - cell "One identity reference photo. This is separate from item references."
+    - row
+      - cell "item_image_urls"
+      - cell "URL array, []"
+      - cell "Up to three clothing, footwear or item references, in order."
+    - row
+      - cell "brief"
+      - cell "string, """
+      - cell "Optional character direction, up to 4,000 characters. Supported by the API even though hidden in the"
+    - row
+      - cell "seed"
+      - cell "integer or null, null"
+      - cell "Character-selection seed from 1 to 1,000,000. Omit it for an automatically generated seed."
+    - row
+      - cell "variation_index"
+      - cell "integer, 0"
+      - cell "Animal sequence position from 0 to 2,147,483,647. Human types require 0."
+    - row
+      - cell "body_color"
+      - cell "string or null"
+      - cell "Optional animal body color as #RRGGBB. Human types require omission or null."
+    - row
+      - cell "pinned_species"
+      - cell "string or null"
+      - cell "Optional valid insect species ID, 1–64 characters, to keep the species fixed while varying its look."
+    - row
+      - cell "trait_variants"
+      - cell "object or null, null"
+      - cell "Advanced overrides for selected appearance traits; normally omit this field. See below."
+  - heading "Identity photo and item references"
+  - button "Copy code" [@d7d59d78487144b3a4094d4eeb781637-e34]
+  - heading "APPEARANCE OPTIONS"
+  - list
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+  - button "Copy code" [@d7d59d78487144b3a4094d4eeb781637-e35]
+  - heading "ANIMAL VARIATIONS"
+  - button "Copy code" [@d7d59d78487144b3a4094d4eeb781637-e36]
+  - heading "ADVANCED TRAIT OVERRIDES"
+- region "Notifications alt+T"

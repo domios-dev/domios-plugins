@@ -1,0 +1,92 @@
+page: Genjutsu — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/genjutsu/motion-transfer/v1.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@35df9f582b254a1caaf365039f14b342-e1]
+  - button "Collapse sidebar" [expanded=true] [@35df9f582b254a1caaf365039f14b342-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@35df9f582b254a1caaf365039f14b342-e3]
+    - link "Explore models" [@35df9f582b254a1caaf365039f14b342-e4]
+    - link "Quick start" [@35df9f582b254a1caaf365039f14b342-e5]
+    - link "Documentation" [@35df9f582b254a1caaf365039f14b342-e6]
+    - link "Pricing UP TO 75% OFF" [@35df9f582b254a1caaf365039f14b342-e7]
+    - button "Playground" [expanded=true] [@35df9f582b254a1caaf365039f14b342-e8]
+    - link "API keys" [@35df9f582b254a1caaf365039f14b342-e9]
+    - link "Cashback" [@35df9f582b254a1caaf365039f14b342-e10]
+    - link "Analytics" [@35df9f582b254a1caaf365039f14b342-e11]
+    - link "Billing" [@35df9f582b254a1caaf365039f14b342-e12]
+  - link "Contact sales" [@35df9f582b254a1caaf365039f14b342-e13]
+  - link "Status" [@35df9f582b254a1caaf365039f14b342-e14]
+  - link "Pricing" [@35df9f582b254a1caaf365039f14b342-e15]
+  - link "Log in" [@35df9f582b254a1caaf365039f14b342-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@35df9f582b254a1caaf365039f14b342-e17]
+  - heading "GENJUTSU"
+  - button "Select model variant: Motion Transfer" [expanded=false] [@35df9f582b254a1caaf365039f14b342-e18]
+  - button "Copy agent prompt" [@35df9f582b254a1caaf365039f14b342-e19]
+  - status
+  - link "View docs" [@35df9f582b254a1caaf365039f14b342-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@35df9f582b254a1caaf365039f14b342-e21]
+  - button "Copy for agent" [@35df9f582b254a1caaf365039f14b342-e22]
+  - navigation "Model sections"
+    - link "Playground" [@35df9f582b254a1caaf365039f14b342-e23]
+    - link "API" [disabled] [@35df9f582b254a1caaf365039f14b342-e24]
+    - link "Requests" [disabled] [@35df9f582b254a1caaf365039f14b342-e25]
+    - link "Analytics" [disabled] [@35df9f582b254a1caaf365039f14b342-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@35df9f582b254a1caaf365039f14b342-e27]
+    - link "1. Calling the API" [@35df9f582b254a1caaf365039f14b342-e28]
+    - link "Install" [@35df9f582b254a1caaf365039f14b342-e29]
+    - link "Setup" [@35df9f582b254a1caaf365039f14b342-e30]
+    - link "Request parameters" [@35df9f582b254a1caaf365039f14b342-e31]
+    - link "2. Authentication" [@35df9f582b254a1caaf365039f14b342-e32]
+    - link "API Key" [@35df9f582b254a1caaf365039f14b342-e33]
+    - link "3. Queue" [@35df9f582b254a1caaf365039f14b342-e34]
+    - link "Submit and wait" [@35df9f582b254a1caaf365039f14b342-e35]
+    - link "Explicit lifecycle control" [@35df9f582b254a1caaf365039f14b342-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@35df9f582b254a1caaf365039f14b342-e37]
+  - heading "Setup"
+  - button "Copy code" [@35df9f582b254a1caaf365039f14b342-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Prompt. Maximum length: 10000."
+    - row
+      - cell "video_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Video Url. Minimum length: 1. Maximum length: 2083."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image Urls."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Resolution. Options: 720p, 480p, 1080p."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@35df9f582b254a1caaf365039f14b342-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@35df9f582b254a1caaf365039f14b342-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@35df9f582b254a1caaf365039f14b342-e41]
+- region "Notifications alt+T"

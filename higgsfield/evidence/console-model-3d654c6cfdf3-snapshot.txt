@@ -1,0 +1,122 @@
+page: Wan 2.7 — API reference | Higgsfield API — https://open.higgsfield.ai/models/wan/v2.7/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@b0d6576aad2946fcbbf990449abbad6d-e1]
+  - button "Collapse sidebar" [expanded=true] [@b0d6576aad2946fcbbf990449abbad6d-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@b0d6576aad2946fcbbf990449abbad6d-e3]
+    - link "Explore models" [@b0d6576aad2946fcbbf990449abbad6d-e4]
+    - link "Quick start" [@b0d6576aad2946fcbbf990449abbad6d-e5]
+    - link "Documentation" [@b0d6576aad2946fcbbf990449abbad6d-e6]
+    - link "Pricing UP TO 75% OFF" [@b0d6576aad2946fcbbf990449abbad6d-e7]
+    - button "Playground" [expanded=true] [@b0d6576aad2946fcbbf990449abbad6d-e8]
+    - link "API keys" [@b0d6576aad2946fcbbf990449abbad6d-e9]
+    - link "Cashback" [@b0d6576aad2946fcbbf990449abbad6d-e10]
+    - link "Analytics" [@b0d6576aad2946fcbbf990449abbad6d-e11]
+    - link "Billing" [@b0d6576aad2946fcbbf990449abbad6d-e12]
+  - link "Contact sales" [@b0d6576aad2946fcbbf990449abbad6d-e13]
+  - link "Status" [@b0d6576aad2946fcbbf990449abbad6d-e14]
+  - link "Pricing" [@b0d6576aad2946fcbbf990449abbad6d-e15]
+  - link "Log in" [@b0d6576aad2946fcbbf990449abbad6d-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@b0d6576aad2946fcbbf990449abbad6d-e17]
+  - heading "WAN 2.7"
+  - button "Select model variant: Image-to-Video" [expanded=false] [@b0d6576aad2946fcbbf990449abbad6d-e18]
+  - button "Copy agent prompt" [@b0d6576aad2946fcbbf990449abbad6d-e19]
+  - status
+  - link "View docs" [@b0d6576aad2946fcbbf990449abbad6d-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@b0d6576aad2946fcbbf990449abbad6d-e21]
+  - button "Copy for agent" [@b0d6576aad2946fcbbf990449abbad6d-e22]
+  - navigation "Model sections"
+    - link "Playground" [@b0d6576aad2946fcbbf990449abbad6d-e23]
+    - link "API" [disabled] [@b0d6576aad2946fcbbf990449abbad6d-e24]
+    - link "Requests" [disabled] [@b0d6576aad2946fcbbf990449abbad6d-e25]
+    - link "Analytics" [disabled] [@b0d6576aad2946fcbbf990449abbad6d-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@b0d6576aad2946fcbbf990449abbad6d-e27]
+    - link "1. Calling the API" [@b0d6576aad2946fcbbf990449abbad6d-e28]
+    - link "Install" [@b0d6576aad2946fcbbf990449abbad6d-e29]
+    - link "Setup" [@b0d6576aad2946fcbbf990449abbad6d-e30]
+    - link "Request parameters" [@b0d6576aad2946fcbbf990449abbad6d-e31]
+    - link "2. Authentication" [@b0d6576aad2946fcbbf990449abbad6d-e32]
+    - link "API Key" [@b0d6576aad2946fcbbf990449abbad6d-e33]
+    - link "3. Queue" [@b0d6576aad2946fcbbf990449abbad6d-e34]
+    - link "Submit and wait" [@b0d6576aad2946fcbbf990449abbad6d-e35]
+    - link "Explicit lifecycle control" [@b0d6576aad2946fcbbf990449abbad6d-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@b0d6576aad2946fcbbf990449abbad6d-e37]
+  - heading "Setup"
+  - button "Copy code" [@b0d6576aad2946fcbbf990449abbad6d-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Minimum: 1. Maximum: 2147483646."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 2. Maximum: 15."
+    - row
+      - cell "audio_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Audio URL."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Options: 720p, 1080p."
+    - row
+      - cell "end_image_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "prompt_extend"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell
+    - row
+      - cell "negative_prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Negative prompt."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@b0d6576aad2946fcbbf990449abbad6d-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@b0d6576aad2946fcbbf990449abbad6d-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@b0d6576aad2946fcbbf990449abbad6d-e41]
+- region "Notifications alt+T"

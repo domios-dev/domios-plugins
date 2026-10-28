@@ -1,0 +1,97 @@
+page: Z-Image Turbo — API reference | Higgsfield API — https://open.higgsfield.ai/models/z-image/turbo/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@6c2c6199c1714e4b812b3c771cff7933-e1]
+  - button "Collapse sidebar" [expanded=true] [@6c2c6199c1714e4b812b3c771cff7933-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@6c2c6199c1714e4b812b3c771cff7933-e3]
+    - link "Explore models" [@6c2c6199c1714e4b812b3c771cff7933-e4]
+    - link "Quick start" [@6c2c6199c1714e4b812b3c771cff7933-e5]
+    - link "Documentation" [@6c2c6199c1714e4b812b3c771cff7933-e6]
+    - link "Pricing UP TO 75% OFF" [@6c2c6199c1714e4b812b3c771cff7933-e7]
+    - button "Playground" [expanded=true] [@6c2c6199c1714e4b812b3c771cff7933-e8]
+    - link "API keys" [@6c2c6199c1714e4b812b3c771cff7933-e9]
+    - link "Cashback" [@6c2c6199c1714e4b812b3c771cff7933-e10]
+    - link "Analytics" [@6c2c6199c1714e4b812b3c771cff7933-e11]
+    - link "Billing" [@6c2c6199c1714e4b812b3c771cff7933-e12]
+  - link "Contact sales" [@6c2c6199c1714e4b812b3c771cff7933-e13]
+  - link "Status" [@6c2c6199c1714e4b812b3c771cff7933-e14]
+  - link "Pricing" [@6c2c6199c1714e4b812b3c771cff7933-e15]
+  - link "Log in" [@6c2c6199c1714e4b812b3c771cff7933-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@6c2c6199c1714e4b812b3c771cff7933-e17]
+  - heading "Z-IMAGE TURBO"
+  - button "Copy agent prompt" [@6c2c6199c1714e4b812b3c771cff7933-e18]
+  - status
+  - link "View docs" [@6c2c6199c1714e4b812b3c771cff7933-e19]
+  - combobox "Code language": TypeScript [expanded=false] [@6c2c6199c1714e4b812b3c771cff7933-e20]
+  - button "Copy for agent" [@6c2c6199c1714e4b812b3c771cff7933-e21]
+  - navigation "Model sections"
+    - link "Playground" [@6c2c6199c1714e4b812b3c771cff7933-e22]
+    - link "API" [disabled] [@6c2c6199c1714e4b812b3c771cff7933-e23]
+    - link "Requests" [disabled] [@6c2c6199c1714e4b812b3c771cff7933-e24]
+    - link "Analytics" [disabled] [@6c2c6199c1714e4b812b3c771cff7933-e25]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@6c2c6199c1714e4b812b3c771cff7933-e26]
+    - link "1. Calling the API" [@6c2c6199c1714e4b812b3c771cff7933-e27]
+    - link "Install" [@6c2c6199c1714e4b812b3c771cff7933-e28]
+    - link "Setup" [@6c2c6199c1714e4b812b3c771cff7933-e29]
+    - link "Request parameters" [@6c2c6199c1714e4b812b3c771cff7933-e30]
+    - link "2. Authentication" [@6c2c6199c1714e4b812b3c771cff7933-e31]
+    - link "API Key" [@6c2c6199c1714e4b812b3c771cff7933-e32]
+    - link "3. Queue" [@6c2c6199c1714e4b812b3c771cff7933-e33]
+    - link "Submit and wait" [@6c2c6199c1714e4b812b3c771cff7933-e34]
+    - link "Explicit lifecycle control" [@6c2c6199c1714e4b812b3c771cff7933-e35]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@6c2c6199c1714e4b812b3c771cff7933-e36]
+  - heading "Setup"
+  - button "Copy code" [@6c2c6199c1714e4b812b3c771cff7933-e37]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Optional random seed for similar, reproducible results. Minimum: 0. Maximum: 2147483647."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Positive prompt describing the desired content, style, and composition. Minimum length: 1. Maximum l"
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""1k""
+      - cell "Output resolution tier. Both tiers produce PNG images. Options: 1k, 2k."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""1:1""
+      - cell "Output aspect ratio. Exact provider-recommended dimensions are selected automatically. Options: 1:1,"
+    - row
+      - cell "prompt_extend"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell "Rewrite and reason over the prompt before generation; this uses the enhanced price tier."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@6c2c6199c1714e4b812b3c771cff7933-e38]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@6c2c6199c1714e4b812b3c771cff7933-e39]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@6c2c6199c1714e4b812b3c771cff7933-e40]
+- region "Notifications alt+T"

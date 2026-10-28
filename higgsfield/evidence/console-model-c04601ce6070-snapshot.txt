@@ -1,0 +1,185 @@
+page: Genjutsu — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@a8ad462ce2eb40409c571ec142fe60d6-e1]
+  - button "Collapse sidebar" [expanded=true] [@a8ad462ce2eb40409c571ec142fe60d6-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@a8ad462ce2eb40409c571ec142fe60d6-e3]
+    - link "Explore models" [@a8ad462ce2eb40409c571ec142fe60d6-e4]
+    - link "Quick start" [@a8ad462ce2eb40409c571ec142fe60d6-e5]
+    - link "Documentation" [@a8ad462ce2eb40409c571ec142fe60d6-e6]
+    - link "Pricing UP TO 75% OFF" [@a8ad462ce2eb40409c571ec142fe60d6-e7]
+    - button "Playground" [expanded=true] [@a8ad462ce2eb40409c571ec142fe60d6-e8]
+    - link "API keys" [@a8ad462ce2eb40409c571ec142fe60d6-e9]
+    - link "Cashback" [@a8ad462ce2eb40409c571ec142fe60d6-e10]
+    - link "Analytics" [@a8ad462ce2eb40409c571ec142fe60d6-e11]
+    - link "Billing" [@a8ad462ce2eb40409c571ec142fe60d6-e12]
+  - link "Contact sales" [@a8ad462ce2eb40409c571ec142fe60d6-e13]
+  - link "Status" [@a8ad462ce2eb40409c571ec142fe60d6-e14]
+  - link "Pricing" [@a8ad462ce2eb40409c571ec142fe60d6-e15]
+  - link "Log in" [@a8ad462ce2eb40409c571ec142fe60d6-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@a8ad462ce2eb40409c571ec142fe60d6-e17]
+  - button "Select model variant: Restyle" [expanded=false] [@a8ad462ce2eb40409c571ec142fe60d6-e18]
+  - link "Explore" [@a8ad462ce2eb40409c571ec142fe60d6-e19]
+  - heading "GENJUTSU"
+  - button "Select model variant: Restyle" [expanded=false] [@a8ad462ce2eb40409c571ec142fe60d6-e20]
+  - button "Copy agent prompt" [@a8ad462ce2eb40409c571ec142fe60d6-e21]
+  - status
+  - link "View docs" [@a8ad462ce2eb40409c571ec142fe60d6-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@a8ad462ce2eb40409c571ec142fe60d6-e23]
+  - button "Copy for agent" [@a8ad462ce2eb40409c571ec142fe60d6-e24]
+  - link "Explore" [@a8ad462ce2eb40409c571ec142fe60d6-e25]
+  - button "Select model variant: Restyle" [expanded=false] [@a8ad462ce2eb40409c571ec142fe60d6-e26]
+  - navigation "Model sections"
+    - link "Playground" [@a8ad462ce2eb40409c571ec142fe60d6-e27]
+    - link "API" [disabled] [@a8ad462ce2eb40409c571ec142fe60d6-e28]
+    - link "Requests" [disabled] [@a8ad462ce2eb40409c571ec142fe60d6-e29]
+    - link "Analytics" [disabled] [@a8ad462ce2eb40409c571ec142fe60d6-e30]
+  - navigation "API reference contents"
+    - link "1. Authentication" [@a8ad462ce2eb40409c571ec142fe60d6-e31]
+    - link "2. Get the available styles" [@a8ad462ce2eb40409c571ec142fe60d6-e32]
+    - link "3. Input parameters" [@a8ad462ce2eb40409c571ec142fe60d6-e33]
+    - link "`video_url`" [@a8ad462ce2eb40409c571ec142fe60d6-e34]
+    - link "`preset_id`" [@a8ad462ce2eb40409c571ec142fe60d6-e35]
+    - link "`image_urls`" [@a8ad462ce2eb40409c571ec142fe60d6-e36]
+    - link "`prompt`" [@a8ad462ce2eb40409c571ec142fe60d6-e37]
+    - link "`resolution`" [@a8ad462ce2eb40409c571ec142fe60d6-e38]
+    - link "4. Generate a video" [@a8ad462ce2eb40409c571ec142fe60d6-e39]
+    - link "Minimal request: restyle the existing source subjects" [@a8ad462ce2eb40409c571ec142fe60d6-e40]
+    - link "Full request: include a character reference" [@a8ad462ce2eb40409c571ec142fe60d6-e41]
+    - link "5. Retrieve the generated video" [@a8ad462ce2eb40409c571ec142fe60d6-e42]
+    - link "6. Input checklist" [@a8ad462ce2eb40409c571ec142fe60d6-e43]
+  - heading "AUTHENTICATION"
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e44]
+  - heading "GET THE AVAILABLE STYLES"
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e45]
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e46]
+  - table
+    - row
+      - columnheader "Response field"
+      - columnheader "Meaning"
+    - row
+      - cell "model"
+      - cell "The generation model to which this catalog belongs."
+    - row
+      - cell "items"
+      - cell "Array of available styles. Treat an empty array as no selectable styles."
+    - row
+      - cell "items[].id"
+      - cell "Style UUID. Copy this value into the generation request's preset_id."
+    - row
+      - cell "items[].name"
+      - cell "Human-readable style name for a menu or style picker."
+    - row
+      - cell "items[].preview_url"
+      - cell "Style preview image for display. This is not the value of preset_id and does not need to be sent in "
+  - heading "INPUT PARAMETERS"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Limits / allowed values"
+    - row
+      - cell "video_url"
+      - cell "string (URL)"
+      - cell "Yes"
+      - cell "None"
+      - cell "Downloadable source video; at least 4 seconds; at most 200 MiB. Videos longer than 30 seconds use on"
+    - row
+      - cell "preset_id"
+      - cell "string (UUID)"
+      - cell "Yes"
+      - cell "None"
+      - cell "One currently available style ID from the presets endpoint."
+    - row
+      - cell "image_urls"
+      - cell "array of URL strings"
+      - cell "No"
+      - cell "[]"
+      - cell "0–5 character reference images; at most 64 MiB per image."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Additional instructions, up to 10,000 characters."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Exactly "480p", "720p", or "1080p"."
+  - heading "video_url"
+  - list
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+  - heading "preset_id"
+  - list
+    - listitem
+    - listitem
+    - listitem
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e47]
+  - heading "image_urls"
+  - list
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e48]
+  - heading "prompt"
+  - list
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+  - heading "resolution"
+  - table
+    - row
+      - columnheader "Value"
+      - columnheader "Meaning"
+      - columnheader "Approximate price per source-video second"
+    - row
+      - cell ""480p""
+      - cell "Lower-resolution output"
+      - cell "$0.318"
+    - row
+      - cell ""720p""
+      - cell "Default output tier"
+      - cell "$0.681"
+    - row
+      - cell ""1080p""
+      - cell "Higher-resolution output"
+      - cell "$1.632"
+  - heading "GENERATE A VIDEO"
+  - heading "Minimal request: restyle the existing source subjects"
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e49]
+  - heading "Full request: include a character reference"
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e50]
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e51]
+  - heading "RETRIEVE THE GENERATED VIDEO"
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e52]
+  - button "Copy code" [@a8ad462ce2eb40409c571ec142fe60d6-e53]
+  - heading "INPUT CHECKLIST"
+  - list
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+    - listitem
+- region "Notifications alt+T"

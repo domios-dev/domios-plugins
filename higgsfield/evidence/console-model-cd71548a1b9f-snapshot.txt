@@ -1,0 +1,99 @@
+page: Grok Imagine 2.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/xai/grok-imagine-image-2.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@29e21cfcdfe04971b7ac37fa943b3203-e1]
+  - button "Collapse sidebar" [expanded=true] [@29e21cfcdfe04971b7ac37fa943b3203-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@29e21cfcdfe04971b7ac37fa943b3203-e3]
+    - link "Explore models" [@29e21cfcdfe04971b7ac37fa943b3203-e4]
+    - link "Quick start" [@29e21cfcdfe04971b7ac37fa943b3203-e5]
+    - link "Documentation" [@29e21cfcdfe04971b7ac37fa943b3203-e6]
+    - link "Pricing UP TO 75% OFF" [@29e21cfcdfe04971b7ac37fa943b3203-e7]
+    - button "Playground" [expanded=true] [@29e21cfcdfe04971b7ac37fa943b3203-e8]
+    - link "API keys" [@29e21cfcdfe04971b7ac37fa943b3203-e9]
+    - link "Cashback" [@29e21cfcdfe04971b7ac37fa943b3203-e10]
+    - link "Analytics" [@29e21cfcdfe04971b7ac37fa943b3203-e11]
+    - link "Billing" [@29e21cfcdfe04971b7ac37fa943b3203-e12]
+  - link "Contact sales" [@29e21cfcdfe04971b7ac37fa943b3203-e13]
+  - link "Status" [@29e21cfcdfe04971b7ac37fa943b3203-e14]
+  - link "Pricing" [@29e21cfcdfe04971b7ac37fa943b3203-e15]
+  - link "Log in" [@29e21cfcdfe04971b7ac37fa943b3203-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@29e21cfcdfe04971b7ac37fa943b3203-e17]
+  - link "Explore" [@29e21cfcdfe04971b7ac37fa943b3203-e18]
+  - heading "GROK IMAGINE 2.0"
+  - button "Copy agent prompt" [@29e21cfcdfe04971b7ac37fa943b3203-e19]
+  - status
+  - link "View docs" [@29e21cfcdfe04971b7ac37fa943b3203-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@29e21cfcdfe04971b7ac37fa943b3203-e21]
+  - button "Copy for agent" [@29e21cfcdfe04971b7ac37fa943b3203-e22]
+  - link "Explore" [@29e21cfcdfe04971b7ac37fa943b3203-e23]
+  - navigation "Model sections"
+    - link "Playground" [@29e21cfcdfe04971b7ac37fa943b3203-e24]
+    - link "API" [disabled] [@29e21cfcdfe04971b7ac37fa943b3203-e25]
+    - link "Requests" [disabled] [@29e21cfcdfe04971b7ac37fa943b3203-e26]
+    - link "Analytics" [disabled] [@29e21cfcdfe04971b7ac37fa943b3203-e27]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@29e21cfcdfe04971b7ac37fa943b3203-e28]
+    - link "1. Calling the API" [@29e21cfcdfe04971b7ac37fa943b3203-e29]
+    - link "Install" [@29e21cfcdfe04971b7ac37fa943b3203-e30]
+    - link "Setup" [@29e21cfcdfe04971b7ac37fa943b3203-e31]
+    - link "Request parameters" [@29e21cfcdfe04971b7ac37fa943b3203-e32]
+    - link "2. Authentication" [@29e21cfcdfe04971b7ac37fa943b3203-e33]
+    - link "API Key" [@29e21cfcdfe04971b7ac37fa943b3203-e34]
+    - link "3. Queue" [@29e21cfcdfe04971b7ac37fa943b3203-e35]
+    - link "Submit and wait" [@29e21cfcdfe04971b7ac37fa943b3203-e36]
+    - link "Explicit lifecycle control" [@29e21cfcdfe04971b7ac37fa943b3203-e37]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@29e21cfcdfe04971b7ac37fa943b3203-e38]
+  - heading "Setup"
+  - button "Copy code" [@29e21cfcdfe04971b7ac37fa943b3203-e39]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "quality"
+      - cell "string"
+      - cell "No"
+      - cell ""medium""
+      - cell "Quality. Options: low, medium."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Input Images."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""1k""
+      - cell "Resolution. Options: 1k, 2k."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""auto""
+      - cell "Options: auto, 1:1, 1:2, 2:1, 3:2, 2:3, 4:3, 3:4, 16:9, 9:16."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@29e21cfcdfe04971b7ac37fa943b3203-e40]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@29e21cfcdfe04971b7ac37fa943b3203-e41]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@29e21cfcdfe04971b7ac37fa943b3203-e42]
+- region "Notifications alt+T"

@@ -1,0 +1,96 @@
+page: MiniMax Hailuo 2.3 Standard — API reference | Higgsfield API — https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@f474f069ac5e4673a4e1e6681ed427b4-e1]
+  - button "Collapse sidebar" [expanded=true] [@f474f069ac5e4673a4e1e6681ed427b4-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@f474f069ac5e4673a4e1e6681ed427b4-e3]
+    - link "Explore models" [@f474f069ac5e4673a4e1e6681ed427b4-e4]
+    - link "Quick start" [@f474f069ac5e4673a4e1e6681ed427b4-e5]
+    - link "Documentation" [@f474f069ac5e4673a4e1e6681ed427b4-e6]
+    - link "Pricing UP TO 75% OFF" [@f474f069ac5e4673a4e1e6681ed427b4-e7]
+    - button "Playground" [expanded=true] [@f474f069ac5e4673a4e1e6681ed427b4-e8]
+    - link "API keys" [@f474f069ac5e4673a4e1e6681ed427b4-e9]
+    - link "Cashback" [@f474f069ac5e4673a4e1e6681ed427b4-e10]
+    - link "Analytics" [@f474f069ac5e4673a4e1e6681ed427b4-e11]
+    - link "Billing" [@f474f069ac5e4673a4e1e6681ed427b4-e12]
+  - link "Contact sales" [@f474f069ac5e4673a4e1e6681ed427b4-e13]
+  - link "Status" [@f474f069ac5e4673a4e1e6681ed427b4-e14]
+  - link "Pricing" [@f474f069ac5e4673a4e1e6681ed427b4-e15]
+  - link "Log in" [@f474f069ac5e4673a4e1e6681ed427b4-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@f474f069ac5e4673a4e1e6681ed427b4-e17]
+  - button "Select model variant: Image-to-Video (Standard)" [expanded=false] [@f474f069ac5e4673a4e1e6681ed427b4-e18]
+  - link "Explore" [@f474f069ac5e4673a4e1e6681ed427b4-e19]
+  - heading "MINIMAX HAILUO 2.3 STANDARD"
+  - button "Select model variant: Image-to-Video (Standard)" [expanded=false] [@f474f069ac5e4673a4e1e6681ed427b4-e20]
+  - button "Copy agent prompt" [@f474f069ac5e4673a4e1e6681ed427b4-e21]
+  - status
+  - link "View docs" [@f474f069ac5e4673a4e1e6681ed427b4-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@f474f069ac5e4673a4e1e6681ed427b4-e23]
+  - button "Copy for agent" [@f474f069ac5e4673a4e1e6681ed427b4-e24]
+  - link "Explore" [@f474f069ac5e4673a4e1e6681ed427b4-e25]
+  - button "Select model variant: Image-to-Video (Standard)" [expanded=false] [@f474f069ac5e4673a4e1e6681ed427b4-e26]
+  - navigation "Model sections"
+    - link "Playground" [@f474f069ac5e4673a4e1e6681ed427b4-e27]
+    - link "API" [disabled] [@f474f069ac5e4673a4e1e6681ed427b4-e28]
+    - link "Requests" [disabled] [@f474f069ac5e4673a4e1e6681ed427b4-e29]
+    - link "Analytics" [disabled] [@f474f069ac5e4673a4e1e6681ed427b4-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@f474f069ac5e4673a4e1e6681ed427b4-e31]
+    - link "1. Calling the API" [@f474f069ac5e4673a4e1e6681ed427b4-e32]
+    - link "Install" [@f474f069ac5e4673a4e1e6681ed427b4-e33]
+    - link "Setup" [@f474f069ac5e4673a4e1e6681ed427b4-e34]
+    - link "Request parameters" [@f474f069ac5e4673a4e1e6681ed427b4-e35]
+    - link "2. Authentication" [@f474f069ac5e4673a4e1e6681ed427b4-e36]
+    - link "API Key" [@f474f069ac5e4673a4e1e6681ed427b4-e37]
+    - link "3. Queue" [@f474f069ac5e4673a4e1e6681ed427b4-e38]
+    - link "Submit and wait" [@f474f069ac5e4673a4e1e6681ed427b4-e39]
+    - link "Explicit lifecycle control" [@f474f069ac5e4673a4e1e6681ed427b4-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@f474f069ac5e4673a4e1e6681ed427b4-e41]
+  - heading "Setup"
+  - button "Copy code" [@f474f069ac5e4673a4e1e6681ed427b4-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "6"
+      - cell "Duration. Options: 6, 10."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "prompt_optimizer"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Prompt optimizer."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@f474f069ac5e4673a4e1e6681ed427b4-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@f474f069ac5e4673a4e1e6681ed427b4-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@f474f069ac5e4673a4e1e6681ed427b4-e45]
+- region "Notifications alt+T"

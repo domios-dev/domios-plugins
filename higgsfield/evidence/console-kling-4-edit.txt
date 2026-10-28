@@ -1,0 +1,217 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Kling 4.0
+Video Edit
+Explore
+/
+Kling 4.0
+30% OFF
+Video
+from
+0.0658 / s
+0.094
+KLING 4.0
+Video Edit
+
+No description available.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "kling-video/v4.0/video-edit",
+9
+  {
+10
+    input: {
+11
+      "prompt": "A cinematic scene at sunset",
+12
+      "duration": 10,
+13
+      "video_url": "https://example.com/input.mp4",
+14
+      "resolution": "1080p",
+15
+      "aspect_ratio": "adaptive"
+16
+    },
+17
+    withPolling: true,
+18
+  },
+19
+);
+20
+21
+console.log(result);
+Copy for agent
+Explore
+/
+Kling 4.0
+Video Edit
+Playground
+API
+Requests
+Analytics
+
+Kling 4.0 — Video Edit
+
+TypeScript
+1.
+Calling the API
+SDK setup
+2.
+Request parameters
+3.
+Using this model
+Source video versus references
+Reference IDs in edit prompts
+Input video processing
+4.
+Request examples
+Submit and wait
+Edit with image and motion references
+5.
+Results and polling
+6.
+Validation notes
+
+Edit an existing video using a text instruction. Supply the source video separately from optional image and video references that guide the edit.
+
+Model ID: kling-video/v4.0/video-edit
+
+1. CALLING THE API
+
+Send a JSON POST request to https://api.higgsfield.ai/kling-video/v4.0/video-edit. Authenticate with Authorization: Key KEY_ID:KEY_SECRET.
+
+SDK setup
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+
+Keep API credentials on your server and out of browser code and source control.
+
+2. REQUEST PARAMETERS
+Parameter	Type	Required	Default	Description
+prompt	string	Yes	—	A non-empty instruction describing the edit to the source video.
+video_url	string	Yes	—	The single source video to edit. Displayed separately as Video to edit in Playground.
+image_urls	string[]	No	—	Reference image URLs, up to 10 images. These guide the generated content; they are not middle frames in this mode.
+video_urls	string[]	No	—	Reference video URLs, up to 5 videos. These are motion/content references, not the source video to edit.
+duration	integer	No	10	Output duration in seconds. Integer from 3 to 30.
+resolution	string	No	1080p	Output resolution: 720p or 1080p.
+aspect_ratio	string	No	adaptive	Output aspect ratio: 21:9, 16:9, 9:16, 1:1, or adaptive.
+
+Defaults apply when a field is omitted. Send media as non-empty URLs accessible to the service, not local file paths. Replace the example.com URLs in the examples with your own reachable media URLs.
+
+3. USING THIS MODEL
+Source video versus references
+
+video_url is the required source video to edit. video_urls contains optional reference videos; it does not replace the source. image_urls contains optional reference images. A source video plus a prompt is sufficient; references are not required.
+
+In Playground, upload the source into Video to edit. Upload optional images and videos into the separate references block.
+
+Reference IDs in edit prompts
+
+The source is @video_1. Reference videos from video_urls start at @video_2, in array order. Reference images start at @image_1, in array order.
+
+duration controls the requested output duration; it is not automatically copied from the source video's length.
+
+Input video processing
+
+Each supplied video URL is subject to a 2 GiB download limit. Input videos longer than 30 seconds are trimmed to their first 30 seconds before generation. This does not change the requested output duration, which remains an integer from 3 to 30 seconds.
+
+4. REQUEST EXAMPLES
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "kling-video/v4.0/video-edit",
+  {
+    input: {
+      "prompt": "Edit @video_1 to change the scene to golden-hour lighting while preserving the subject's movement.",
+      "video_url": "https://example.com/source-video.mp4",
+      "duration": 10,
+      "resolution": "1080p",
+      "aspect_ratio": "adaptive"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Edit with image and motion references
+
+Use this JSON body with the same model endpoint:
+
+{
+  "prompt": "Edit @video_1 using the visual style of @image_1 and the camera motion of @video_2.",
+  "video_url": "https://example.com/source-video.mp4",
+  "image_urls": [
+    "https://example.com/style-reference.jpg"
+  ],
+  "video_urls": [
+    "https://example.com/motion-reference.mp4"
+  ],
+  "duration": 10,
+  "resolution": "1080p",
+  "aspect_ratio": "adaptive"
+}
+5. RESULTS AND POLLING
+
+Generation is asynchronous. A direct HTTP submission returns request_id, status, status_url, and cancel_url. Submission is not the finished video.
+
+The SDK examples above use automatic polling. For direct HTTP integration, send authenticated GET requests to the returned status_url. Continue while status is queued or in_progress; stop on completed, failed, nsfw, or canceled. A completed video result exposes the generated URL as video.url. If generation fails, inspect the returned error before retrying.
+
+curl --request GET \
+  --url "$STATUS_URL" \
+  --header "Authorization: Key $HF_KEY"
+
+Set STATUS_URL to the URL returned by submission. Keep the same API credentials for subsequent requests.
+
+6. VALIDATION NOTES
+
+Use the exact field names and values listed above. duration must be an integer from 3 to 30, and resolution must be 720p or 1080p. Omit unused media fields instead of sending empty strings or nulls.
+
+The schema permits additional properties, but undocumented keys do not create new model controls. Use only the parameters documented for this endpoint.
+
+A reference video in video_urls does not satisfy the required video_url. Keep the source and reference roles separate.

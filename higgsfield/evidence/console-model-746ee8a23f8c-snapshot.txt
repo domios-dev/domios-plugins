@@ -1,0 +1,102 @@
+page: Seedance 2.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/bytedance/seedance-2.0/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@53325d6582cb463b9c9c496da71fa971-e1]
+  - button "Collapse sidebar" [expanded=true] [@53325d6582cb463b9c9c496da71fa971-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@53325d6582cb463b9c9c496da71fa971-e3]
+    - link "Explore models" [@53325d6582cb463b9c9c496da71fa971-e4]
+    - link "Quick start" [@53325d6582cb463b9c9c496da71fa971-e5]
+    - link "Documentation" [@53325d6582cb463b9c9c496da71fa971-e6]
+    - link "Pricing UP TO 75% OFF" [@53325d6582cb463b9c9c496da71fa971-e7]
+    - button "Playground" [expanded=true] [@53325d6582cb463b9c9c496da71fa971-e8]
+    - link "API keys" [@53325d6582cb463b9c9c496da71fa971-e9]
+    - link "Cashback" [@53325d6582cb463b9c9c496da71fa971-e10]
+    - link "Analytics" [@53325d6582cb463b9c9c496da71fa971-e11]
+    - link "Billing" [@53325d6582cb463b9c9c496da71fa971-e12]
+  - link "Contact sales" [@53325d6582cb463b9c9c496da71fa971-e13]
+  - link "Status" [@53325d6582cb463b9c9c496da71fa971-e14]
+  - link "Pricing" [@53325d6582cb463b9c9c496da71fa971-e15]
+  - link "Log in" [@53325d6582cb463b9c9c496da71fa971-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@53325d6582cb463b9c9c496da71fa971-e17]
+  - button "Select model variant: Text-to-Video" [expanded=false] [@53325d6582cb463b9c9c496da71fa971-e18]
+  - link "Explore" [@53325d6582cb463b9c9c496da71fa971-e19]
+  - heading "SEEDANCE 2.0"
+  - button "Select model variant: Text-to-Video" [expanded=false] [@53325d6582cb463b9c9c496da71fa971-e20]
+  - button "Copy agent prompt" [@53325d6582cb463b9c9c496da71fa971-e21]
+  - status
+  - link "View docs" [@53325d6582cb463b9c9c496da71fa971-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@53325d6582cb463b9c9c496da71fa971-e23]
+  - button "Copy for agent" [@53325d6582cb463b9c9c496da71fa971-e24]
+  - link "Explore" [@53325d6582cb463b9c9c496da71fa971-e25]
+  - button "Select model variant: Text-to-Video" [expanded=false] [@53325d6582cb463b9c9c496da71fa971-e26]
+  - navigation "Model sections"
+    - link "Playground" [@53325d6582cb463b9c9c496da71fa971-e27]
+    - link "API" [disabled] [@53325d6582cb463b9c9c496da71fa971-e28]
+    - link "Requests" [disabled] [@53325d6582cb463b9c9c496da71fa971-e29]
+    - link "Analytics" [disabled] [@53325d6582cb463b9c9c496da71fa971-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@53325d6582cb463b9c9c496da71fa971-e31]
+    - link "1. Calling the API" [@53325d6582cb463b9c9c496da71fa971-e32]
+    - link "Install" [@53325d6582cb463b9c9c496da71fa971-e33]
+    - link "Setup" [@53325d6582cb463b9c9c496da71fa971-e34]
+    - link "Request parameters" [@53325d6582cb463b9c9c496da71fa971-e35]
+    - link "2. Authentication" [@53325d6582cb463b9c9c496da71fa971-e36]
+    - link "API Key" [@53325d6582cb463b9c9c496da71fa971-e37]
+    - link "3. Queue" [@53325d6582cb463b9c9c496da71fa971-e38]
+    - link "Submit and wait" [@53325d6582cb463b9c9c496da71fa971-e39]
+    - link "Explicit lifecycle control" [@53325d6582cb463b9c9c496da71fa971-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@53325d6582cb463b9c9c496da71fa971-e41]
+  - heading "Setup"
+  - button "Copy code" [@53325d6582cb463b9c9c496da71fa971-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Minimum length: 1."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Minimum: 4. Maximum: 15."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Options: 480p, 720p, 1080p, 4k."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""16:9""
+      - cell "Options: 16:9, 4:3, 1:1, 3:4, 9:16, 21:9."
+    - row
+      - cell "generate_audio"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@53325d6582cb463b9c9c496da71fa971-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@53325d6582cb463b9c9c496da71fa971-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@53325d6582cb463b9c9c496da71fa971-e45]
+- region "Notifications alt+T"

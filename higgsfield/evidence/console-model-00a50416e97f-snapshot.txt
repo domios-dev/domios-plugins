@@ -1,0 +1,91 @@
+page: MiniMax Hailuo 2.3 Standard — API reference | Higgsfield API — https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@2883f68ca912440489392ec92f0c9b8a-e1]
+  - button "Collapse sidebar" [expanded=true] [@2883f68ca912440489392ec92f0c9b8a-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@2883f68ca912440489392ec92f0c9b8a-e3]
+    - link "Explore models" [@2883f68ca912440489392ec92f0c9b8a-e4]
+    - link "Quick start" [@2883f68ca912440489392ec92f0c9b8a-e5]
+    - link "Documentation" [@2883f68ca912440489392ec92f0c9b8a-e6]
+    - link "Pricing UP TO 75% OFF" [@2883f68ca912440489392ec92f0c9b8a-e7]
+    - button "Playground" [expanded=true] [@2883f68ca912440489392ec92f0c9b8a-e8]
+    - link "API keys" [@2883f68ca912440489392ec92f0c9b8a-e9]
+    - link "Cashback" [@2883f68ca912440489392ec92f0c9b8a-e10]
+    - link "Analytics" [@2883f68ca912440489392ec92f0c9b8a-e11]
+    - link "Billing" [@2883f68ca912440489392ec92f0c9b8a-e12]
+  - link "Contact sales" [@2883f68ca912440489392ec92f0c9b8a-e13]
+  - link "Status" [@2883f68ca912440489392ec92f0c9b8a-e14]
+  - link "Pricing" [@2883f68ca912440489392ec92f0c9b8a-e15]
+  - link "Log in" [@2883f68ca912440489392ec92f0c9b8a-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@2883f68ca912440489392ec92f0c9b8a-e17]
+  - button "Select model variant: Text-to-Video (Standard)" [expanded=false] [@2883f68ca912440489392ec92f0c9b8a-e18]
+  - link "Explore" [@2883f68ca912440489392ec92f0c9b8a-e19]
+  - button "About cashback pricing" [expanded=false] [@2883f68ca912440489392ec92f0c9b8a-e20]
+  - heading "MINIMAX HAILUO 2.3 STANDARD"
+  - button "Select model variant: Text-to-Video (Standard)" [expanded=false] [@2883f68ca912440489392ec92f0c9b8a-e21]
+  - button "Copy agent prompt" [@2883f68ca912440489392ec92f0c9b8a-e22]
+  - status
+  - link "View docs" [@2883f68ca912440489392ec92f0c9b8a-e23]
+  - combobox "Code language": TypeScript [expanded=false] [@2883f68ca912440489392ec92f0c9b8a-e24]
+  - button "Copy for agent" [@2883f68ca912440489392ec92f0c9b8a-e25]
+  - link "Explore" [@2883f68ca912440489392ec92f0c9b8a-e26]
+  - button "Select model variant: Text-to-Video (Standard)" [expanded=false] [@2883f68ca912440489392ec92f0c9b8a-e27]
+  - navigation "Model sections"
+    - link "Playground" [@2883f68ca912440489392ec92f0c9b8a-e28]
+    - link "API" [disabled] [@2883f68ca912440489392ec92f0c9b8a-e29]
+    - link "Requests" [disabled] [@2883f68ca912440489392ec92f0c9b8a-e30]
+    - link "Analytics" [disabled] [@2883f68ca912440489392ec92f0c9b8a-e31]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@2883f68ca912440489392ec92f0c9b8a-e32]
+    - link "1. Calling the API" [@2883f68ca912440489392ec92f0c9b8a-e33]
+    - link "Install" [@2883f68ca912440489392ec92f0c9b8a-e34]
+    - link "Setup" [@2883f68ca912440489392ec92f0c9b8a-e35]
+    - link "Request parameters" [@2883f68ca912440489392ec92f0c9b8a-e36]
+    - link "2. Authentication" [@2883f68ca912440489392ec92f0c9b8a-e37]
+    - link "API Key" [@2883f68ca912440489392ec92f0c9b8a-e38]
+    - link "3. Queue" [@2883f68ca912440489392ec92f0c9b8a-e39]
+    - link "Submit and wait" [@2883f68ca912440489392ec92f0c9b8a-e40]
+    - link "Explicit lifecycle control" [@2883f68ca912440489392ec92f0c9b8a-e41]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@2883f68ca912440489392ec92f0c9b8a-e42]
+  - heading "Setup"
+  - button "Copy code" [@2883f68ca912440489392ec92f0c9b8a-e43]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "6"
+      - cell "Duration. Options: 6, 10."
+    - row
+      - cell "prompt_optimizer"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Prompt optimizer."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@2883f68ca912440489392ec92f0c9b8a-e44]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@2883f68ca912440489392ec92f0c9b8a-e45]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@2883f68ca912440489392ec92f0c9b8a-e46]
+- region "Notifications alt+T"

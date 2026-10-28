@@ -1,0 +1,139 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Genjutsu Light
+Object Swap
+Explore
+/
+Genjutsu Light
+Video
+GENJUTSU LIGHT
+Object Swap
+
+Replace objects, characters or clothes using reference images. Uses the first 15 seconds of the source video and preserves source audio.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "higgsfield/genjutsu-light/object-swap/v1.0",
+9
+  {
+10
+    input: {
+11
+      "prompt": "",
+12
+      "video_url": "https://example.com/input.mp4",
+13
+      "image_urls": [
+14
+        "https://example.com/input.jpg"
+15
+      ],
+16
+      "resolution": "720p"
+17
+    },
+18
+    withPolling: true,
+19
+  },
+20
+);
+21
+22
+console.log(result);
+Copy for agent
+Explore
+/
+Genjutsu Light
+Object Swap
+Playground
+API
+Requests
+Analytics
+
+About
+
+JavaScript
+1.
+Calling the API
+Install
+Setup
+2.
+Authentication
+API Key
+3.
+Queue
+Submit
+Fetch
+1. CALLING THE API
+
+Use the Higgsfield client to call Genjutsu Light from your application.
+
+Install
+
+Choose the installation method for your selected client. cURL does not require a client package.
+
+npm
+yarn
+pnpm
+bun
+npm install @higgsfield-ai/client
+Setup
+
+Create a client and submit input to the model endpoint.
+
+import { HiggsfieldClient } from '@higgsfield-ai/client'
+
+const client = new HiggsfieldClient({
+  apiKey: process.env.HIGGSFIELD_API_KEY,
+})
+2. AUTHENTICATION
+API Key
+
+Pass your API key through the client configuration or the authorization header.
+
+Authorization: Bearer $HIGGSFIELD_API_KEY
+
+Keep API keys on the server and never expose them in browser code.
+
+3. QUEUE
+
+Model requests run asynchronously. Submit a request, then fetch it until it reaches a terminal state.
+
+Submit
+const request = await client.submit('higgsfield/genjutsu-light/object-swap/v1.0', {
+  prompt: 'A cinematic portrait in soft natural light',
+})
+Fetch
+const result = await client.requests.get(request.id)

@@ -1,0 +1,97 @@
+page: Ideogram 4.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/ideogram/v4.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@94d370565cdd491f9fd15b48705e95fb-e1]
+  - button "Collapse sidebar" [expanded=true] [@94d370565cdd491f9fd15b48705e95fb-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@94d370565cdd491f9fd15b48705e95fb-e3]
+    - link "Explore models" [@94d370565cdd491f9fd15b48705e95fb-e4]
+    - link "Quick start" [@94d370565cdd491f9fd15b48705e95fb-e5]
+    - link "Documentation" [@94d370565cdd491f9fd15b48705e95fb-e6]
+    - link "Pricing UP TO 75% OFF" [@94d370565cdd491f9fd15b48705e95fb-e7]
+    - button "Playground" [expanded=true] [@94d370565cdd491f9fd15b48705e95fb-e8]
+    - link "API keys" [@94d370565cdd491f9fd15b48705e95fb-e9]
+    - link "Cashback" [@94d370565cdd491f9fd15b48705e95fb-e10]
+    - link "Analytics" [@94d370565cdd491f9fd15b48705e95fb-e11]
+    - link "Billing" [@94d370565cdd491f9fd15b48705e95fb-e12]
+  - link "Contact sales" [@94d370565cdd491f9fd15b48705e95fb-e13]
+  - link "Status" [@94d370565cdd491f9fd15b48705e95fb-e14]
+  - link "Pricing" [@94d370565cdd491f9fd15b48705e95fb-e15]
+  - link "Log in" [@94d370565cdd491f9fd15b48705e95fb-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@94d370565cdd491f9fd15b48705e95fb-e17]
+  - heading "IDEOGRAM 4.0"
+  - button "Copy agent prompt" [@94d370565cdd491f9fd15b48705e95fb-e18]
+  - status
+  - link "View docs" [@94d370565cdd491f9fd15b48705e95fb-e19]
+  - combobox "Code language": TypeScript [expanded=false] [@94d370565cdd491f9fd15b48705e95fb-e20]
+  - button "Copy for agent" [@94d370565cdd491f9fd15b48705e95fb-e21]
+  - navigation "Model sections"
+    - link "Playground" [@94d370565cdd491f9fd15b48705e95fb-e22]
+    - link "API" [disabled] [@94d370565cdd491f9fd15b48705e95fb-e23]
+    - link "Requests" [disabled] [@94d370565cdd491f9fd15b48705e95fb-e24]
+    - link "Analytics" [disabled] [@94d370565cdd491f9fd15b48705e95fb-e25]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@94d370565cdd491f9fd15b48705e95fb-e26]
+    - link "1. Calling the API" [@94d370565cdd491f9fd15b48705e95fb-e27]
+    - link "Install" [@94d370565cdd491f9fd15b48705e95fb-e28]
+    - link "Setup" [@94d370565cdd491f9fd15b48705e95fb-e29]
+    - link "Request parameters" [@94d370565cdd491f9fd15b48705e95fb-e30]
+    - link "2. Authentication" [@94d370565cdd491f9fd15b48705e95fb-e31]
+    - link "API Key" [@94d370565cdd491f9fd15b48705e95fb-e32]
+    - link "3. Queue" [@94d370565cdd491f9fd15b48705e95fb-e33]
+    - link "Submit and wait" [@94d370565cdd491f9fd15b48705e95fb-e34]
+    - link "Explicit lifecycle control" [@94d370565cdd491f9fd15b48705e95fb-e35]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@94d370565cdd491f9fd15b48705e95fb-e36]
+  - heading "Setup"
+  - button "Copy code" [@94d370565cdd491f9fd15b48705e95fb-e37]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt. Minimum length: 2. Maximum length: 2048."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Input image."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""1:1""
+      - cell "Aspect ratio. Options: 1:1, 1:2, 2:1, 2:3, 3:2, 4:5, 5:4, 9:16, 16:9, 5:8, 8:5, 3:4, 4:3, 9:22, 22:9"
+    - row
+      - cell "image_weight"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "How strongly the output should preserve the input image. Minimum: 1. Maximum: 100."
+    - row
+      - cell "rendering_speed"
+      - cell "string"
+      - cell "No"
+      - cell ""DEFAULT""
+      - cell "Rendering speed. Options: TURBO, DEFAULT, QUALITY."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@94d370565cdd491f9fd15b48705e95fb-e38]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@94d370565cdd491f9fd15b48705e95fb-e39]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@94d370565cdd491f9fd15b48705e95fb-e40]
+- region "Notifications alt+T"

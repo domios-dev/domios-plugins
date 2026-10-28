@@ -1,0 +1,26 @@
+page: Page not found | Higgsfield API — https://open.higgsfield.ai/models/higgsfield-ai/soul/cinema/playground
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@581ee1a4438c49739734a471faa866f4-e1]
+  - button "Collapse sidebar" [expanded=true] [@581ee1a4438c49739734a471faa866f4-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@581ee1a4438c49739734a471faa866f4-e3]
+    - link "Explore models" [@581ee1a4438c49739734a471faa866f4-e4]
+    - link "Quick start" [@581ee1a4438c49739734a471faa866f4-e5]
+    - link "Documentation" [@581ee1a4438c49739734a471faa866f4-e6]
+    - link "Pricing UP TO 75% OFF" [@581ee1a4438c49739734a471faa866f4-e7]
+    - button "Playground" [expanded=true] [@581ee1a4438c49739734a471faa866f4-e8]
+    - link "API keys" [@581ee1a4438c49739734a471faa866f4-e9]
+    - link "Cashback" [@581ee1a4438c49739734a471faa866f4-e10]
+    - link "Analytics" [@581ee1a4438c49739734a471faa866f4-e11]
+    - link "Billing" [@581ee1a4438c49739734a471faa866f4-e12]
+  - link "Contact sales" [@581ee1a4438c49739734a471faa866f4-e13]
+  - link "Status" [@581ee1a4438c49739734a471faa866f4-e14]
+  - link "Pricing" [@581ee1a4438c49739734a471faa866f4-e15]
+  - link "Log in" [@581ee1a4438c49739734a471faa866f4-e16]
+  - separator "Resize sidebar"
+- main
+  - heading "Model Not Found"
+  - link "Go to Explore" [@581ee1a4438c49739734a471faa866f4-e17]
+  - link "Go Back" [@581ee1a4438c49739734a471faa866f4-e18]
+- region "Notifications alt+T"

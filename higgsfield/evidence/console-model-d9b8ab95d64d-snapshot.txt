@@ -1,0 +1,57 @@
+page: Marketing Studio Image — API reference | Higgsfield API — https://open.higgsfield.ai/models/marketing-studio/image/sunburst/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@e8cbd61d4da944898fd881f4d86fe28b-e1]
+  - button "Collapse sidebar" [expanded=true] [@e8cbd61d4da944898fd881f4d86fe28b-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@e8cbd61d4da944898fd881f4d86fe28b-e3]
+    - link "Explore models" [@e8cbd61d4da944898fd881f4d86fe28b-e4]
+    - link "Quick start" [@e8cbd61d4da944898fd881f4d86fe28b-e5]
+    - link "Documentation" [@e8cbd61d4da944898fd881f4d86fe28b-e6]
+    - link "Pricing UP TO 75% OFF" [@e8cbd61d4da944898fd881f4d86fe28b-e7]
+    - button "Playground" [expanded=true] [@e8cbd61d4da944898fd881f4d86fe28b-e8]
+    - link "API keys" [@e8cbd61d4da944898fd881f4d86fe28b-e9]
+    - link "Cashback" [@e8cbd61d4da944898fd881f4d86fe28b-e10]
+    - link "Analytics" [@e8cbd61d4da944898fd881f4d86fe28b-e11]
+    - link "Billing" [@e8cbd61d4da944898fd881f4d86fe28b-e12]
+  - link "Contact sales" [@e8cbd61d4da944898fd881f4d86fe28b-e13]
+  - link "Status" [@e8cbd61d4da944898fd881f4d86fe28b-e14]
+  - link "Pricing" [@e8cbd61d4da944898fd881f4d86fe28b-e15]
+  - link "Log in" [@e8cbd61d4da944898fd881f4d86fe28b-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@e8cbd61d4da944898fd881f4d86fe28b-e17]
+  - button "Select model variant: 2.5 Sunburst" [expanded=false] [@e8cbd61d4da944898fd881f4d86fe28b-e18]
+  - link "Explore" [@e8cbd61d4da944898fd881f4d86fe28b-e19]
+  - heading "MARKETING STUDIO IMAGE"
+  - button "Select model variant: 2.5 Sunburst" [expanded=false] [@e8cbd61d4da944898fd881f4d86fe28b-e20]
+  - button "Copy agent prompt" [@e8cbd61d4da944898fd881f4d86fe28b-e21]
+  - status
+  - link "View docs" [@e8cbd61d4da944898fd881f4d86fe28b-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@e8cbd61d4da944898fd881f4d86fe28b-e23]
+  - button "Copy for agent" [@e8cbd61d4da944898fd881f4d86fe28b-e24]
+  - link "Explore" [@e8cbd61d4da944898fd881f4d86fe28b-e25]
+  - button "Select model variant: 2.5 Sunburst" [expanded=false] [@e8cbd61d4da944898fd881f4d86fe28b-e26]
+  - navigation "Model sections"
+    - link "Playground" [@e8cbd61d4da944898fd881f4d86fe28b-e27]
+    - link "API" [disabled] [@e8cbd61d4da944898fd881f4d86fe28b-e28]
+    - link "Requests" [disabled] [@e8cbd61d4da944898fd881f4d86fe28b-e29]
+    - link "Analytics" [disabled] [@e8cbd61d4da944898fd881f4d86fe28b-e30]
+  - navigation "API reference contents"
+    - link "1. Direct generation or editing" [@e8cbd61d4da944898fd881f4d86fe28b-e31]
+    - link "2. Preset enhancement" [@e8cbd61d4da944898fd881f4d86fe28b-e32]
+    - link "Get a preset UUID" [@e8cbd61d4da944898fd881f4d86fe28b-e33]
+    - link "Send the enhanced request" [@e8cbd61d4da944898fd881f4d86fe28b-e34]
+    - link "3. Request behavior" [@e8cbd61d4da944898fd881f4d86fe28b-e35]
+    - link "4. Authentication and queue" [@e8cbd61d4da944898fd881f4d86fe28b-e36]
+  - heading "1. DIRECT GENERATION OR EDITING"
+  - button "Copy code" [@e8cbd61d4da944898fd881f4d86fe28b-e37]
+  - heading "2. PRESET ENHANCEMENT"
+  - heading "Get a preset UUID"
+  - button "Copy code" [@e8cbd61d4da944898fd881f4d86fe28b-e38]
+  - button "Copy code" [@e8cbd61d4da944898fd881f4d86fe28b-e39]
+  - heading "Send the enhanced request"
+  - button "Copy code" [@e8cbd61d4da944898fd881f4d86fe28b-e40]
+  - heading "3. REQUEST BEHAVIOR"
+  - heading "4. AUTHENTICATION AND QUEUE"
+- region "Notifications alt+T"

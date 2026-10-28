@@ -1,0 +1,163 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+MiniMax Hailuo 2.3 Standard
+Text-to-Video (Standard)
+Explore
+/
+MiniMax Hailuo 2.3 Standard
+75% OFF
+Video
+from
+0.0117 / s
+0.0467
+MINIMAX HAILUO 2.3 STANDARD
+Text-to-Video (Standard)
+
+Generates short videos from text or images with fluid body motion and natural facial expressions.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "minimax/hailuo-2.3/standard/text-to-video",
+9
+  {
+10
+    input: {
+11
+      "prompt": "A cinematic scene at sunset",
+12
+      "duration": 6,
+13
+      "prompt_optimizer": true
+14
+    },
+15
+    withPolling: true,
+16
+  },
+17
+);
+18
+19
+console.log(result);
+Copy for agent
+Explore
+/
+MiniMax Hailuo 2.3 Standard
+Text-to-Video (Standard)
+Playground
+API
+Requests
+Analytics
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+
+MiniMax Hailuo 2.3 Standard uses the model ID minimax/hailuo-2.3/standard/text-to-video. MiniMax Hailuo 2.3 Standard is an image-to-video model that delivers physics-aware 768p results and runs with 2.5× higher efficiency
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/minimax/hailuo-2.3/standard/text-to-video with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+prompt	string	Yes	—	Prompt.
+duration	integer	No	6	Duration. Options: 6, 10.
+prompt_optimizer	boolean	No	true	Prompt optimizer.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns the generated file in the video field.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "minimax/hailuo-2.3/standard/text-to-video",
+  {
+    input: {
+      "prompt": "A cinematic scene at sunset",
+      "duration": 6,
+      "prompt_optimizer": true
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)

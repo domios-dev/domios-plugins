@@ -1,0 +1,116 @@
+page: Soul Standard — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield-ai/soul/standard/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@3b0233f1f41b47628487da6bcf754061-e1]
+  - button "Collapse sidebar" [expanded=true] [@3b0233f1f41b47628487da6bcf754061-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@3b0233f1f41b47628487da6bcf754061-e3]
+    - link "Explore models" [@3b0233f1f41b47628487da6bcf754061-e4]
+    - link "Quick start" [@3b0233f1f41b47628487da6bcf754061-e5]
+    - link "Documentation" [@3b0233f1f41b47628487da6bcf754061-e6]
+    - link "Pricing UP TO 75% OFF" [@3b0233f1f41b47628487da6bcf754061-e7]
+    - button "Playground" [expanded=true] [@3b0233f1f41b47628487da6bcf754061-e8]
+    - link "API keys" [@3b0233f1f41b47628487da6bcf754061-e9]
+    - link "Cashback" [@3b0233f1f41b47628487da6bcf754061-e10]
+    - link "Analytics" [@3b0233f1f41b47628487da6bcf754061-e11]
+    - link "Billing" [@3b0233f1f41b47628487da6bcf754061-e12]
+  - link "Contact sales" [@3b0233f1f41b47628487da6bcf754061-e13]
+  - link "Status" [@3b0233f1f41b47628487da6bcf754061-e14]
+  - link "Pricing" [@3b0233f1f41b47628487da6bcf754061-e15]
+  - link "Log in" [@3b0233f1f41b47628487da6bcf754061-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@3b0233f1f41b47628487da6bcf754061-e17]
+  - heading "SOUL STANDARD"
+  - button "Copy agent prompt" [@3b0233f1f41b47628487da6bcf754061-e18]
+  - status
+  - link "View docs" [@3b0233f1f41b47628487da6bcf754061-e19]
+  - combobox "Code language": TypeScript [expanded=false] [@3b0233f1f41b47628487da6bcf754061-e20]
+  - button "Copy for agent" [@3b0233f1f41b47628487da6bcf754061-e21]
+  - navigation "Model sections"
+    - link "Playground" [@3b0233f1f41b47628487da6bcf754061-e22]
+    - link "API" [disabled] [@3b0233f1f41b47628487da6bcf754061-e23]
+    - link "Requests" [disabled] [@3b0233f1f41b47628487da6bcf754061-e24]
+    - link "Analytics" [disabled] [@3b0233f1f41b47628487da6bcf754061-e25]
+    - link "Schema" [disabled] [@3b0233f1f41b47628487da6bcf754061-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@3b0233f1f41b47628487da6bcf754061-e27]
+    - link "1. Calling the API" [@3b0233f1f41b47628487da6bcf754061-e28]
+    - link "Install" [@3b0233f1f41b47628487da6bcf754061-e29]
+    - link "Setup" [@3b0233f1f41b47628487da6bcf754061-e30]
+    - link "Request parameters" [@3b0233f1f41b47628487da6bcf754061-e31]
+    - link "2. Authentication" [@3b0233f1f41b47628487da6bcf754061-e32]
+    - link "API Key" [@3b0233f1f41b47628487da6bcf754061-e33]
+    - link "3. Queue" [@3b0233f1f41b47628487da6bcf754061-e34]
+    - link "Submit and wait" [@3b0233f1f41b47628487da6bcf754061-e35]
+    - link "Explicit lifecycle control" [@3b0233f1f41b47628487da6bcf754061-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@3b0233f1f41b47628487da6bcf754061-e37]
+  - heading "Setup"
+  - button "Copy code" [@3b0233f1f41b47628487da6bcf754061-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "null"
+      - cell "Seed. Minimum: 1. Maximum: 1000000."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "style_id"
+      - cell "string"
+      - cell "No"
+      - cell "null"
+      - cell "Soul Style."
+    - row
+      - cell "batch_size"
+      - cell "integer"
+      - cell "No"
+      - cell "1"
+      - cell "Result images. Options: 1, 4."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Resolution. Options: 720p, 1080p."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""4:3""
+      - cell "Aspect Ratio. Options: 9:16, 16:9, 4:3, 3:4, 1:1, 2:3, 3:2."
+    - row
+      - cell "enhance_prompt"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Enhance Prompt."
+    - row
+      - cell "style_strength"
+      - cell "number"
+      - cell "No"
+      - cell "1"
+      - cell "Style strength. Minimum: 0. Maximum: 1."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@3b0233f1f41b47628487da6bcf754061-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@3b0233f1f41b47628487da6bcf754061-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@3b0233f1f41b47628487da6bcf754061-e41]
+- region "Notifications alt+T"

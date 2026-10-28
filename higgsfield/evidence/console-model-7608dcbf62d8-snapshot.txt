@@ -1,0 +1,110 @@
+page: Wan 3.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/alibaba/wan-3.0/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@b91093509e924b139fed78ea5085bebd-e1]
+  - button "Collapse sidebar" [expanded=true] [@b91093509e924b139fed78ea5085bebd-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@b91093509e924b139fed78ea5085bebd-e3]
+    - link "Explore models" [@b91093509e924b139fed78ea5085bebd-e4]
+    - link "Quick start" [@b91093509e924b139fed78ea5085bebd-e5]
+    - link "Documentation" [@b91093509e924b139fed78ea5085bebd-e6]
+    - link "Pricing UP TO 75% OFF" [@b91093509e924b139fed78ea5085bebd-e7]
+    - button "Playground" [expanded=true] [@b91093509e924b139fed78ea5085bebd-e8]
+    - link "API keys" [@b91093509e924b139fed78ea5085bebd-e9]
+    - link "Cashback" [@b91093509e924b139fed78ea5085bebd-e10]
+    - link "Analytics" [@b91093509e924b139fed78ea5085bebd-e11]
+    - link "Billing" [@b91093509e924b139fed78ea5085bebd-e12]
+  - link "Contact sales" [@b91093509e924b139fed78ea5085bebd-e13]
+  - link "Status" [@b91093509e924b139fed78ea5085bebd-e14]
+  - link "Pricing" [@b91093509e924b139fed78ea5085bebd-e15]
+  - link "Log in" [@b91093509e924b139fed78ea5085bebd-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@b91093509e924b139fed78ea5085bebd-e17]
+  - heading "WAN 3.0"
+  - button "Select model variant: Text-to-Video" [expanded=false] [@b91093509e924b139fed78ea5085bebd-e18]
+  - button "Copy agent prompt" [@b91093509e924b139fed78ea5085bebd-e19]
+  - status
+  - link "View docs" [@b91093509e924b139fed78ea5085bebd-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@b91093509e924b139fed78ea5085bebd-e21]
+  - button "Copy for agent" [@b91093509e924b139fed78ea5085bebd-e22]
+  - navigation "Model sections"
+    - link "Playground" [@b91093509e924b139fed78ea5085bebd-e23]
+    - link "API" [disabled] [@b91093509e924b139fed78ea5085bebd-e24]
+    - link "Requests" [disabled] [@b91093509e924b139fed78ea5085bebd-e25]
+    - link "Analytics" [disabled] [@b91093509e924b139fed78ea5085bebd-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@b91093509e924b139fed78ea5085bebd-e27]
+    - link "1. Calling the API" [@b91093509e924b139fed78ea5085bebd-e28]
+    - link "Install" [@b91093509e924b139fed78ea5085bebd-e29]
+    - link "Setup" [@b91093509e924b139fed78ea5085bebd-e30]
+    - link "Request parameters" [@b91093509e924b139fed78ea5085bebd-e31]
+    - link "2. Authentication" [@b91093509e924b139fed78ea5085bebd-e32]
+    - link "API Key" [@b91093509e924b139fed78ea5085bebd-e33]
+    - link "3. Queue" [@b91093509e924b139fed78ea5085bebd-e34]
+    - link "Submit and wait" [@b91093509e924b139fed78ea5085bebd-e35]
+    - link "Explicit lifecycle control" [@b91093509e924b139fed78ea5085bebd-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@b91093509e924b139fed78ea5085bebd-e37]
+  - heading "Setup"
+  - button "Copy code" [@b91093509e924b139fed78ea5085bebd-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Seed. Minimum: 0. Maximum: 2147483647."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "2-30 seconds. Minimum: 2. Maximum: 30."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""1080p""
+      - cell "Resolution. Options: 480p, 720p, 1080p."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""adaptive""
+      - cell "Aspect Ratio. Options: 16:9, 4:3, 1:1, 3:4, 9:16, adaptive."
+    - row
+      - cell "generate_audio"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Sound."
+    - row
+      - cell "enable_thinking"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell "Deep Thinking."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@b91093509e924b139fed78ea5085bebd-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@b91093509e924b139fed78ea5085bebd-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@b91093509e924b139fed78ea5085bebd-e41]
+- region "Notifications alt+T"

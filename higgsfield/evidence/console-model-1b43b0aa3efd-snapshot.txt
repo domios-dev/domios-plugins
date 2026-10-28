@@ -1,0 +1,102 @@
+page: Kling O3 — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/o3/video-edit/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@e5ecb820733748f997394eb0bdaa45e0-e1]
+  - button "Collapse sidebar" [expanded=true] [@e5ecb820733748f997394eb0bdaa45e0-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@e5ecb820733748f997394eb0bdaa45e0-e3]
+    - link "Explore models" [@e5ecb820733748f997394eb0bdaa45e0-e4]
+    - link "Quick start" [@e5ecb820733748f997394eb0bdaa45e0-e5]
+    - link "Documentation" [@e5ecb820733748f997394eb0bdaa45e0-e6]
+    - link "Pricing UP TO 75% OFF" [@e5ecb820733748f997394eb0bdaa45e0-e7]
+    - button "Playground" [expanded=true] [@e5ecb820733748f997394eb0bdaa45e0-e8]
+    - link "API keys" [@e5ecb820733748f997394eb0bdaa45e0-e9]
+    - link "Cashback" [@e5ecb820733748f997394eb0bdaa45e0-e10]
+    - link "Analytics" [@e5ecb820733748f997394eb0bdaa45e0-e11]
+    - link "Billing" [@e5ecb820733748f997394eb0bdaa45e0-e12]
+  - link "Contact sales" [@e5ecb820733748f997394eb0bdaa45e0-e13]
+  - link "Status" [@e5ecb820733748f997394eb0bdaa45e0-e14]
+  - link "Pricing" [@e5ecb820733748f997394eb0bdaa45e0-e15]
+  - link "Log in" [@e5ecb820733748f997394eb0bdaa45e0-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@e5ecb820733748f997394eb0bdaa45e0-e17]
+  - button "Select model variant: Video Edit" [expanded=false] [@e5ecb820733748f997394eb0bdaa45e0-e18]
+  - link "Explore" [@e5ecb820733748f997394eb0bdaa45e0-e19]
+  - heading "KLING O3"
+  - button "Select model variant: Video Edit" [expanded=false] [@e5ecb820733748f997394eb0bdaa45e0-e20]
+  - button "Copy agent prompt" [@e5ecb820733748f997394eb0bdaa45e0-e21]
+  - status
+  - link "View docs" [@e5ecb820733748f997394eb0bdaa45e0-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@e5ecb820733748f997394eb0bdaa45e0-e23]
+  - button "Copy for agent" [@e5ecb820733748f997394eb0bdaa45e0-e24]
+  - link "Explore" [@e5ecb820733748f997394eb0bdaa45e0-e25]
+  - button "Select model variant: Video Edit" [expanded=false] [@e5ecb820733748f997394eb0bdaa45e0-e26]
+  - navigation "Model sections"
+    - link "Playground" [@e5ecb820733748f997394eb0bdaa45e0-e27]
+    - link "API" [disabled] [@e5ecb820733748f997394eb0bdaa45e0-e28]
+    - link "Requests" [disabled] [@e5ecb820733748f997394eb0bdaa45e0-e29]
+    - link "Analytics" [disabled] [@e5ecb820733748f997394eb0bdaa45e0-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@e5ecb820733748f997394eb0bdaa45e0-e31]
+    - link "1. Calling the API" [@e5ecb820733748f997394eb0bdaa45e0-e32]
+    - link "Install" [@e5ecb820733748f997394eb0bdaa45e0-e33]
+    - link "Setup" [@e5ecb820733748f997394eb0bdaa45e0-e34]
+    - link "Request parameters" [@e5ecb820733748f997394eb0bdaa45e0-e35]
+    - link "2. Authentication" [@e5ecb820733748f997394eb0bdaa45e0-e36]
+    - link "API Key" [@e5ecb820733748f997394eb0bdaa45e0-e37]
+    - link "3. Queue" [@e5ecb820733748f997394eb0bdaa45e0-e38]
+    - link "Submit and wait" [@e5ecb820733748f997394eb0bdaa45e0-e39]
+    - link "Explicit lifecycle control" [@e5ecb820733748f997394eb0bdaa45e0-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@e5ecb820733748f997394eb0bdaa45e0-e41]
+  - heading "Setup"
+  - button "Copy code" [@e5ecb820733748f997394eb0bdaa45e0-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "mode"
+      - cell "string"
+      - cell "No"
+      - cell ""pro""
+      - cell "Options: std, pro, 4k."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "elements"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell
+    - row
+      - cell "video_urls"
+      - cell "array[string]"
+      - cell "Yes"
+      - cell "—"
+      - cell
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@e5ecb820733748f997394eb0bdaa45e0-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@e5ecb820733748f997394eb0bdaa45e0-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@e5ecb820733748f997394eb0bdaa45e0-e45]
+- region "Notifications alt+T"

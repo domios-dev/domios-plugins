@@ -1,0 +1,65 @@
+page: Cinema Studio 4.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/cinema-studio/4.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@4cfedd928641485ea7c09bea1e3c3f37-e1]
+  - button "Collapse sidebar" [expanded=true] [@4cfedd928641485ea7c09bea1e3c3f37-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@4cfedd928641485ea7c09bea1e3c3f37-e3]
+    - link "Explore models" [@4cfedd928641485ea7c09bea1e3c3f37-e4]
+    - link "Quick start" [@4cfedd928641485ea7c09bea1e3c3f37-e5]
+    - link "Documentation" [@4cfedd928641485ea7c09bea1e3c3f37-e6]
+    - link "Pricing UP TO 75% OFF" [@4cfedd928641485ea7c09bea1e3c3f37-e7]
+    - button "Playground" [expanded=true] [@4cfedd928641485ea7c09bea1e3c3f37-e8]
+    - link "API keys" [@4cfedd928641485ea7c09bea1e3c3f37-e9]
+    - link "Cashback" [@4cfedd928641485ea7c09bea1e3c3f37-e10]
+    - link "Analytics" [@4cfedd928641485ea7c09bea1e3c3f37-e11]
+    - link "Billing" [@4cfedd928641485ea7c09bea1e3c3f37-e12]
+  - link "Contact sales" [@4cfedd928641485ea7c09bea1e3c3f37-e13]
+  - link "Status" [@4cfedd928641485ea7c09bea1e3c3f37-e14]
+  - link "Pricing" [@4cfedd928641485ea7c09bea1e3c3f37-e15]
+  - link "Log in" [@4cfedd928641485ea7c09bea1e3c3f37-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@4cfedd928641485ea7c09bea1e3c3f37-e17]
+  - link "Explore" [@4cfedd928641485ea7c09bea1e3c3f37-e18]
+  - button "About cashback pricing" [expanded=false] [@4cfedd928641485ea7c09bea1e3c3f37-e19]
+  - heading "CINEMA STUDIO 4.0"
+  - button "Copy agent prompt" [@4cfedd928641485ea7c09bea1e3c3f37-e20]
+  - status
+  - link "View docs" [@4cfedd928641485ea7c09bea1e3c3f37-e21]
+  - combobox "Code language": TypeScript [expanded=false] [@4cfedd928641485ea7c09bea1e3c3f37-e22]
+  - button "Copy for agent" [@4cfedd928641485ea7c09bea1e3c3f37-e23]
+  - link "Explore" [@4cfedd928641485ea7c09bea1e3c3f37-e24]
+  - navigation "Model sections"
+    - link "Playground" [@4cfedd928641485ea7c09bea1e3c3f37-e25]
+    - link "API" [disabled] [@4cfedd928641485ea7c09bea1e3c3f37-e26]
+    - link "Requests" [disabled] [@4cfedd928641485ea7c09bea1e3c3f37-e27]
+    - link "Analytics" [disabled] [@4cfedd928641485ea7c09bea1e3c3f37-e28]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@4cfedd928641485ea7c09bea1e3c3f37-e29]
+    - link "1. Calling the API" [@4cfedd928641485ea7c09bea1e3c3f37-e30]
+    - link "Install" [@4cfedd928641485ea7c09bea1e3c3f37-e31]
+    - link "Setup" [@4cfedd928641485ea7c09bea1e3c3f37-e32]
+    - link "2. Authentication" [@4cfedd928641485ea7c09bea1e3c3f37-e33]
+    - link "API Key" [@4cfedd928641485ea7c09bea1e3c3f37-e34]
+    - link "3. Queue" [@4cfedd928641485ea7c09bea1e3c3f37-e35]
+    - link "Submit" [@4cfedd928641485ea7c09bea1e3c3f37-e36]
+    - link "Fetch" [@4cfedd928641485ea7c09bea1e3c3f37-e37]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "npm" [@4cfedd928641485ea7c09bea1e3c3f37-e38]
+  - button "yarn" [@4cfedd928641485ea7c09bea1e3c3f37-e39]
+  - button "pnpm" [@4cfedd928641485ea7c09bea1e3c3f37-e40]
+  - button "bun" [@4cfedd928641485ea7c09bea1e3c3f37-e41]
+  - button "Copy code" [@4cfedd928641485ea7c09bea1e3c3f37-e42]
+  - heading "Setup"
+  - button "Copy code" [@4cfedd928641485ea7c09bea1e3c3f37-e43]
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@4cfedd928641485ea7c09bea1e3c3f37-e44]
+  - heading "3. QUEUE"
+  - heading "Submit"
+  - button "Copy code" [@4cfedd928641485ea7c09bea1e3c3f37-e45]
+  - heading "Fetch"
+  - button "Copy code" [@4cfedd928641485ea7c09bea1e3c3f37-e46]
+- region "Notifications alt+T"

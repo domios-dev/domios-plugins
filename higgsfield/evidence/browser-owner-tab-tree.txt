@@ -1,0 +1,7 @@
+Higgsfield  d5e471e8  5 tabs  C:/Developer/codeterm-plugins  (self)
+  team Higgsfield  team_aba8deea  plan=pl_ypyim0
+    4a4fff9e  Watt  [6.1-sol · orchestrator · idle]
+      ad97c28e  Atlas  [6.1-sol · worker · working]  (self)
+        70191bbf  Browser  [idle]
+      23dfb1e4  Sage  [6.1-sol · worker · working]
+        cfa8cefa  Browser  [idle]

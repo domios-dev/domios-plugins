@@ -1,0 +1,925 @@
+{
+  "contractVersion": 1,
+  "snapshotDate": "2026-10-29",
+  "snapshotTimezone": "Europe/Riga; retrieval timestamps UTC can be previous date",
+  "scope": "Dated public docs linked closure + public console image/video catalog, variant references and pricing. Account access not tested.",
+  "ledger": {
+    "currency": "USD",
+    "higgsfield": {
+      "spent": "0",
+      "reserved": "0",
+      "unknown": "0"
+    },
+    "elevenlabs": {
+      "spent": "0",
+      "reserved": "0",
+      "unknown": "0",
+      "basis": "no requests in this research; other task spending not asserted"
+    },
+    "thisResearchAggregate": {
+      "spent": "0",
+      "reserved": "0",
+      "unknown": "0"
+    },
+    "authenticatedCalls": 0,
+    "secretReads": 0,
+    "uploads": 0,
+    "generations": 0,
+    "training": 0
+  },
+  "auth": {
+    "header": "Authorization: Key KEY_ID:KEY_SECRET",
+    "secretName": "higgsfield-api-key",
+    "storage": "plugin host-secret bucket, never global-vault assumption",
+    "provision": "stdin only; no key read/provision performed",
+    "source": "https://docs.higgsfield.ai/docs/authentication.md",
+    "legacy": [
+      "hf-api-key",
+      "hf-secret"
+    ],
+    "conflicts": [
+      "Genjutsu Light console Bearer sample conflicts with shared Key auth; unsupported pending clarification"
+    ]
+  },
+  "generation": {
+    "states": [
+      "queued",
+      "in_progress",
+      "completed",
+      "failed",
+      "nsfw",
+      "canceled"
+    ],
+    "terminal": [
+      "completed",
+      "failed",
+      "nsfw",
+      "canceled"
+    ],
+    "cancel": "POST returned cancel_url only when every job queued; 202 empty, 400 if started",
+    "status": "GET returned status_url with same account auth",
+    "identity": "Persist request_id immediately and write once; local unknown-submission is not provider status",
+    "retention": "Default 604800s from terminal time; Hf-Expires-After 3600..accountRetention only shortens. expires_at output expiry. Uploaded/reuse input copies independent <=7 days. Default seven-day expiry removes files; explicit deletion/shorter retention also removes prompt/params, billing remains.",
+    "streaming": "No generation media stream/percent/ETA/live previews documented in this catalog. SDK subscribe means polling, not streaming.",
+    "sources": [
+      "https://docs.higgsfield.ai/docs/concepts/requests.md",
+      "https://docs.higgsfield.ai/docs/enterprise/data-retention.md"
+    ]
+  },
+  "referenceTraining": {
+    "states": [
+      "not_ready",
+      "queued",
+      "in_progress",
+      "completed",
+      "failed"
+    ],
+    "identity": "id distinct from request_id; own account; matching v1/v2/cinema",
+    "cancel": "not documented",
+    "retention": "not established for trained reference; do not apply generation expiry without evidence",
+    "sources": [
+      "https://docs.higgsfield.ai/docs/models/soul-id/create-character.md"
+    ]
+  },
+  "idempotency": {
+    "key": "1..255 visible ASCII, no whitespace; account scoped through key rotation",
+    "binding": [
+      "endpoint",
+      "JSON body including omission/null/ordered arrays",
+      "hf_webhook",
+      "Hf-Expires-After"
+    ],
+    "replay": "same request ID; acceptance receipt may still say queued; fetch current status",
+    "policy": "Never automatically retry uncertain submissions; reconcile/explicit authorized recovery only. No auto-new key on 422. Training/upload/estimate replay protection not established.",
+    "source": "https://docs.higgsfield.ai/docs/concepts/idempotency.md"
+  },
+  "webhooks": {
+    "query": "hf_webhook HTTPS public endpoint, JSON POST, <=10s response",
+    "terminal": [
+      "completed",
+      "failed",
+      "nsfw"
+    ],
+    "signature": "Standard Webhooks; raw body; timestamp ±5min; webhook-id dedupe; HMAC SHA256 with decoded whsec_ secret; rotation old valid24h; created only on console reveal (not performed)",
+    "delivery": "2xx after durable record; network/5xx retry <=2h, 4xx permanent; stop after deletion; fallback polling",
+    "hostLimitation": "Current webhookReceiver kind pebble is not a generic Higgsfield ingress; polling baseline until accepted generic authenticated ingress.",
+    "source": "https://docs.higgsfield.ai/docs/how-to/webhooks.md"
+  },
+  "costPolicy": {
+    "authoritative": "authenticated exact-parameter account quote, not indicative catalog/minimum/discount/cashback; decimal USD to exact integer usd_micro only when representable; precision unknown refuses",
+    "atomicUnits": [
+      "usd_micro",
+      "credit_milli",
+      "characters"
+    ],
+    "sum": "separate ceilings by exact unit; unknown separate; never sum incomparable units",
+    "approval": "Watt approval required before every paid proof; purpose/model/parameters/basis/max/per-vendor+aggregate ledger; approval maximum never self-authorizes",
+    "billing": "Successful generations charged; failed/nsfw not charged; queued canceled refunded; balance funds expire1year",
+    "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md",
+    "submission": "No paid submit studio or pipeline without fresh safe estimate. Provider estimate or source-verified safe bounded deterministic actual tariff with exact inputs/basis/expiry only.",
+    "unknownUi": {
+      "studioPrimary": "Price unavailable",
+      "studioRefresh": "Check again",
+      "modelUnavailable": "No pricing from provider",
+      "pipelineState": "Waiting for a price",
+      "pipelineRefresh": "Check price again",
+      "pipelineApprove": false,
+      "freshApproval": "Approve N units for this step",
+      "aboveBudget": "Above this run’s budget. Later steps still stop for approval.",
+      "uncertainCancel": [
+        "Canceling…",
+        "Status unknown"
+      ]
+    }
+  },
+  "operations": [
+    {
+      "id": "requests.status",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/requests/{request_id}/status",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/api-reference/requests/get-request-status.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:30.387981+00:00",
+        "snapshot": "evidence/docs-api-reference__requests__get-request-status.md",
+        "sha256": "4fc710e2965d7433c094c59c1ca3b2fd5425a0dd6033099cef04a48d53f87dbe"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Path parameters only; no JSON body. Use returned status/cancel URL after validating API origin. Delete is terminal-only, returns deleted separately from six generation states.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "requests.cancel",
+      "method": "POST",
+      "endpoint": "https://api.higgsfield.ai/requests/{request_id}/cancel",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/api-reference/requests/cancel-a-queued-request.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:30.265197+00:00",
+        "snapshot": "evidence/docs-api-reference__requests__cancel-a-queued-request.md",
+        "sha256": "94b6437bb7256d8c4ac21229a0d45df55cf1b37c100ea01313e14e06dfa7ad71"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Path parameters only; no JSON body. Use returned status/cancel URL after validating API origin. Delete is terminal-only, returns deleted separately from six generation states.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "requests.delete",
+      "method": "DELETE",
+      "endpoint": "https://api.higgsfield.ai/requests/{request_id}",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/api-reference/requests/delete-request-data.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:30.219410+00:00",
+        "snapshot": "evidence/docs-api-reference__requests__delete-request-data.md",
+        "sha256": "83e1070d707800b10f57bd48f9588b343a858291bd08f7b8c0329e5f134fd363"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Path parameters only; no JSON body. Use returned status/cancel URL after validating API origin. Delete is terminal-only, returns deleted separately from six generation states.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "estimate.model",
+      "method": "POST",
+      "endpoint": "https://api.higgsfield.ai/estimate/{model_id}",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:28.736506+00:00",
+        "snapshot": "evidence/docs-concepts__billing-and-retention.md",
+        "sha256": "f0b784c236eebf607c45b5b95ad8005c1fd39a1e720c210dc3c970d50eb57d7f"
+      },
+      "schema": null,
+      "schemaStatus": "model-schema-reference",
+      "kind": "read",
+      "notes": "Body is exact selected generation schema. Public example establishes Soul 2 estimate. Per-model estimate availability/cost units must be confirmed by vendor/account; no paid submit when quote unknown.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "files.upload-url",
+      "method": "POST",
+      "endpoint": "https://api.higgsfield.ai/files/generate-upload-url",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/concepts/file-uploads.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:28.686169+00:00",
+        "snapshot": "evidence/docs-concepts__file-uploads.md",
+        "sha256": "50752840d9367ddf43f5b4b742658b76eb394a2a1115cd5490dc98a4791f82ae"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/jpg",
+              "image/png",
+              "image/webp",
+              "image/gif",
+              "audio/wav",
+              "audio/x-wav",
+              "video/mp4"
+            ]
+          }
+        },
+        "required": [
+          "content_type"
+        ]
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "prepare",
+      "notes": "Returns public_url/upload_url/content_type/upload_headers. URL expires 1h; size limits model-specific, no global size published.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "files.put",
+      "method": "PUT",
+      "endpoint": "{returned_upload_url}",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/concepts/file-uploads.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:28.686169+00:00",
+        "snapshot": "evidence/docs-concepts__file-uploads.md",
+        "sha256": "50752840d9367ddf43f5b4b742658b76eb394a2a1115cd5490dc98a4791f82ae"
+      },
+      "schema": null,
+      "schemaStatus": "binary-body",
+      "kind": "upload",
+      "notes": "Exact bytes, every returned upload_headers, matching content type. Never send Higgsfield Authorization to storage. Validate redirect/host/MIME/size; authenticated uploads not executed.",
+      "transport": "HTTPS binary PUT to presigned URL",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "styles.soul",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/v1/text2image/soul-styles",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/models/soul-standard/generate.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:00.686644+00:00",
+        "snapshot": "evidence/docs-models__soul-standard__generate.md",
+        "sha256": "91c0bc0737d84eec3e28db70c3e514e95c5549ad364418516a7f64d3c04a13cc"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Authenticated catalog; array id/name/description/preview_url, current account visibility. No parameters documented.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "styles.soul-v2",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/v1/text2image/soul-styles/v2",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/models/soul-2/generate.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:04.823319+00:00",
+        "snapshot": "evidence/docs-models__soul-2__generate.md",
+        "sha256": "038864f4f4d00ccf134d4925544f97ecbcec7c302c3261800d3b442d8b081926"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Authenticated live catalog; do not hardcode style UUIDs.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "presets.marketing",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/marketing-studio/image/presets",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/generate-and-edit.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:06.784452+00:00",
+        "snapshot": "evidence/docs-models__marketing-studio-image__generate-and-edit.md",
+        "sha256": "38ebd9491c05c2f5a3f3df26a2163d9434d6c50c751a571714857c59f8688b91"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "size": {
+            "type": "integer",
+            "default": 50,
+            "minimum": 1,
+            "maximum": 100
+          },
+          "cursor": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0
+          }
+        },
+        "required": []
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Query parameters; response total/cursor/items; cursor null ends paging. Only visible usable presets. Enhancement requires current preset and 1–2 references product first.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "presets.restyle",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/presets",
+      "source": {
+        "url": "https://docs.higgsfield.ai/docs/models/genjutsu/restyle.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:57.201543+00:00",
+        "snapshot": "evidence/docs-models__genjutsu__restyle.md",
+        "sha256": "52ffdd8900780fea190fd3d13aa8fceb1fb5e6f2e4d272d7cf7dd6f664e783e8"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Authenticated + model access. No pagination/query/body. All selectable system presets ordered name/ID; excludes hidden/personal. Empty means no selectable styles.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "references.get",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/v1/custom-references/{id}",
+      "source": {
+        "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/api-reference",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": null,
+        "snapshot": "evidence/console-soul-2-t2i.txt",
+        "sha256": "0107175ede29900462fd968c54e1efb777488454cc5e64ce865b68fcca68629c"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Same account only; list page=1,page_size=20 is documented example, not defaults or proven maximum. Response/list envelope bounds not published in captured source. Reference IDs differ from generation IDs.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "references.list",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/v1/custom-references/list",
+      "source": {
+        "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/api-reference",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": null,
+        "snapshot": "evidence/console-soul-2-t2i.txt",
+        "sha256": "0107175ede29900462fd968c54e1efb777488454cc5e64ce865b68fcca68629c"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          }
+        },
+        "required": []
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Same account only; list page=1,page_size=20 is documented example, not defaults or proven maximum. Response/list envelope bounds not published in captured source. Reference IDs differ from generation IDs.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "same calling account credentials except presigned PUT"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    },
+    {
+      "id": "influencer.options",
+      "method": "GET",
+      "endpoint": "https://api.higgsfield.ai/models/higgsfield/ai-influencer/options",
+      "source": {
+        "url": "https://open.higgsfield.ai/models/higgsfield/ai-influencer/api-reference",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": null,
+        "snapshot": "evidence/console-ai-influencer.txt",
+        "sha256": "275760d94558fb47eb98ee4718c277850e29c7fab5fa4ee40eab9428dca1c84c"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "schemaStatus": "documented-schema-transcription",
+      "kind": "read",
+      "notes": "Public when visible, 404 while hidden/unavailable. config_revision/categories; category key,label,tiers,max,options; option key,label,img?,color?,tiers?,slot?,exclusive. Does not expose internal species/trait override catalogs.",
+      "transport": "HTTPS JSON",
+      "availability": {
+        "status": "documented-api",
+        "liveTested": false,
+        "accountAccess": "no auth for options when publicly visible; generation requires auth/model access"
+      },
+      "cost": {
+        "status": "not-separately-priced-in-public-docs",
+        "source": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md"
+      },
+      "lifecycle": "synchronous metadata response; no generation unless explicitly stated",
+      "cancel": "not applicable",
+      "progress": "no progress contract",
+      "preview": "none"
+    }
+  ],
+  "catalog": {
+    "docsDeclared": 84,
+    "docsImage": 17,
+    "docsVideo": 67,
+    "unionModels": 92,
+    "additionalConsole": 8,
+    "schemaCompleteness": "84 primary JSON schemas; console typed parameter transcriptions; Genjutsu Light two explicit unavailable schemas, excluded from submissions",
+    "availabilityNotGlobalClaim": true,
+    "consoleCrossCheck": {
+      "linkedGenerationTargets": 83,
+      "referencePages": 82,
+      "unavailableModelTarget": [
+        "higgsfield-ai/soul/cinema"
+      ],
+      "source": "evidence/console-model-retrievals.json",
+      "parameterConflicts": 7
+    }
+  },
+  "limitations": [
+    "Complete production consumption blocked by platform delivery and vendor schema/auth conflicts. Research snapshot is not a production SDK contract.",
+    "No verified exact output CDN allowlist: example.com/example CDNs are illustrative, real output hosts unknown. Never allow wildcard remote binary download as proof.",
+    "Current console and docs disagree on Soul 2 seed/null/defaults/style_strength; explicit known-legal values only, vendor clarification before claiming parity.",
+    "Per-model estimate path coverage and training estimate/cancel/retention not fully documented; unknown quote refuses paid work."
+  ],
+  "platformDependencies": [
+    {
+      "id": "agent-view-verbs",
+      "owner": "Concierge f32435fc",
+      "action": "Deliver accepted agentVerbs/onSurfaceCall/invalidation parity and released SDK contract",
+      "readyTrigger": "Exact delivered capability/SDK/min-host and two-owner runtime refusal proof",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "trusted-view-call-context",
+      "owner": "Concierge f32435fc with Loom",
+      "action": "Provide exact-originating-frame trusted view-call owner context, separate from run authority",
+      "readyTrigger": "Forged/stale/cross-owner invoke contexts refused with native/JS desktop/web parity",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "durable-reconcile",
+      "owner": "Concierge and Loom 4aaf8843",
+      "action": "Define host-driven reconcile scheduling/restart/close/deadline contract for long-lived jobs",
+      "readyTrigger": "Persisted job recovery without paid resubmit and actual no-refresh updates proved",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "confined-media-delivery",
+      "owner": "Courier b44bfdff COD-2024",
+      "action": "Supply reviewed delivery/security/parity proof and released capability SDK",
+      "readyTrigger": "Exact-frame playable audio/video, bounded ranges/expiry/revocation proved on released host",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "gesture-actions",
+      "owner": "Iris ea6d7585 COD-2025",
+      "action": "Merge/release typed availability and gesture-owned actions with media integration",
+      "readyTrigger": "Iris acceptance and delivered desktop/web refusal/export/reacquire proof",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "typed-blueprint-budget",
+      "owner": "Loom 4aaf8843; external task identity pending",
+      "action": "Finalize closed schema descriptors and authoritative waiting/budget/reconcile contract",
+      "readyTrigger": "Reviewed released typed steps with revision/input/quote binding, per-unit ceilings, durable waiting",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "durable-media-review",
+      "owner": "Loom and Courier; Watt routes ownership",
+      "action": "Deliver durable scoped media refs and media-aware AgentTaskInput/review consumption",
+      "readyTrigger": "Actual independent media review, lineage and cross-owner isolation; filename strings insufficient",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    },
+    {
+      "id": "binary-media-acquisition",
+      "owner": "Courier; Watt assigns generic transport owner if distinct",
+      "action": "Deliver bounded lossless download-to-file/upload with exact remote allowlist and confinement",
+      "readyTrigger": "Byte/hash, MIME/path/symlink/redirect/size/deadline/range proofs and released SDK/host",
+      "minimumHost": null,
+      "releasedSdk": null,
+      "status": "blocked-for-production-consumption; research-recorded",
+      "source": "PLATFORM-GAPS.md"
+    }
+  ],
+  "supplementaryResponseSchemas": {
+    "source": {
+      "url": "https://docs.higgsfield.ai/docs/openapi.json",
+      "retrievedDate": "2026-10-29",
+      "snapshot": "evidence/docs-openapi.json",
+      "sha256": "3b78b16075b432df9b8a09a9cf93ef47a63731c06bd02b711eac6eff9ce1a44a"
+    },
+    "schemas": {
+      "RequestStatus": {
+        "title": "Request",
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "queued",
+              "in_progress",
+              "nsfw",
+              "failed",
+              "completed",
+              "canceled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "cancel_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaOutput"
+            }
+          },
+          "video": {
+            "$ref": "#/components/schemas/MediaOutput"
+          },
+          "audio": {
+            "$ref": "#/components/schemas/MediaOutput"
+          },
+          "audios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaOutput"
+            }
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When the request data is deleted and output URLs stop working. Present once the request has finished."
+          }
+        },
+        "required": [
+          "status",
+          "request_id"
+        ]
+      },
+      "MediaOutput": {
+        "title": "Media output",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "ErrorResponse": {
+        "title": "Error response",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ]
+      },
+      "DeletedRequest": {
+        "title": "DeletedRequest",
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "deleted"
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "status"
+        ]
+      }
+    },
+    "status": "supplementary, not complete model catalog or exhaustive model-specific output guarantee"
+  },
+  "consoleControls": [
+    {
+      "id": "training-opt-out",
+      "apiStatus": "console-control-no-public-callable-route-established",
+      "source": "https://docs.higgsfield.ai/docs/enterprise/model-training.md",
+      "retrievedDate": "2026-10-29",
+      "authorization": "selected account setting, off by default",
+      "commandDisposition": "docs-only destination; no settings mutation"
+    },
+    {
+      "id": "api-key-management",
+      "apiStatus": "console-control-no-public-callable-route-established",
+      "source": "https://docs.higgsfield.ai/docs/enterprise/access-control.md",
+      "retrievedDate": "2026-10-29",
+      "authorization": "organization Admin only",
+      "commandDisposition": "docs-only destination; no settings mutation"
+    },
+    {
+      "id": "webhook-secret-reveal-rotate",
+      "apiStatus": "console-control-no-public-callable-route-established",
+      "source": "https://docs.higgsfield.ai/docs/enterprise/webhook-security.md",
+      "retrievedDate": "2026-10-29",
+      "authorization": "organization Admin only; revealing creates secret",
+      "commandDisposition": "docs-only destination; no settings mutation"
+    },
+    {
+      "id": "organization-members-sso",
+      "apiStatus": "console-control-no-public-callable-route-established",
+      "source": "https://docs.higgsfield.ai/docs/enterprise/organizations.md",
+      "retrievedDate": "2026-10-29",
+      "authorization": "admin mutation permissions; members view/use",
+      "commandDisposition": "docs-only destination; no settings mutation"
+    },
+    {
+      "id": "billing-auto-payments",
+      "apiStatus": "console-control-no-public-callable-route-established",
+      "source": "https://docs.higgsfield.ai/docs/enterprise/usage-and-billing.md",
+      "retrievedDate": "2026-10-29",
+      "authorization": "organization Admin mutations",
+      "commandDisposition": "docs-only destination; no settings mutation"
+    },
+    {
+      "id": "retention-account-policy",
+      "apiStatus": "console-control-no-public-callable-route-established",
+      "source": "https://docs.higgsfield.ai/docs/enterprise/data-retention.md",
+      "retrievedDate": "2026-10-29",
+      "authorization": "Higgsfield configures account retention on request",
+      "commandDisposition": "docs-only destination; no settings mutation"
+    }
+  ]
+}

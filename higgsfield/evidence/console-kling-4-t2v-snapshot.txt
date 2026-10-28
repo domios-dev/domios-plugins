@@ -1,0 +1,93 @@
+page: Kling 4.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v4.0/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@abbd773ca51a4d92a7fe65d92f21268f-e1]
+  - button "Collapse sidebar" [expanded=true] [@abbd773ca51a4d92a7fe65d92f21268f-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@abbd773ca51a4d92a7fe65d92f21268f-e3]
+    - link "Explore models" [@abbd773ca51a4d92a7fe65d92f21268f-e4]
+    - link "Quick start" [@abbd773ca51a4d92a7fe65d92f21268f-e5]
+    - link "Documentation" [@abbd773ca51a4d92a7fe65d92f21268f-e6]
+    - link "Pricing UP TO 75% OFF" [@abbd773ca51a4d92a7fe65d92f21268f-e7]
+    - button "Playground" [expanded=true] [@abbd773ca51a4d92a7fe65d92f21268f-e8]
+    - link "API keys" [@abbd773ca51a4d92a7fe65d92f21268f-e9]
+    - link "Cashback" [@abbd773ca51a4d92a7fe65d92f21268f-e10]
+    - link "Analytics" [@abbd773ca51a4d92a7fe65d92f21268f-e11]
+    - link "Billing" [@abbd773ca51a4d92a7fe65d92f21268f-e12]
+  - link "Contact sales" [@abbd773ca51a4d92a7fe65d92f21268f-e13]
+  - link "Status" [@abbd773ca51a4d92a7fe65d92f21268f-e14]
+  - link "Pricing" [@abbd773ca51a4d92a7fe65d92f21268f-e15]
+  - link "Log in" [@abbd773ca51a4d92a7fe65d92f21268f-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@abbd773ca51a4d92a7fe65d92f21268f-e17]
+  - button "Select model variant: Text-to-Video" [expanded=false] [@abbd773ca51a4d92a7fe65d92f21268f-e18]
+  - link "Explore" [@abbd773ca51a4d92a7fe65d92f21268f-e19]
+  - heading "KLING 4.0"
+  - button "Select model variant: Text-to-Video" [expanded=false] [@abbd773ca51a4d92a7fe65d92f21268f-e20]
+  - button "Copy agent prompt" [@abbd773ca51a4d92a7fe65d92f21268f-e21]
+  - status
+  - link "View docs" [@abbd773ca51a4d92a7fe65d92f21268f-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@abbd773ca51a4d92a7fe65d92f21268f-e23]
+  - button "Copy for agent" [@abbd773ca51a4d92a7fe65d92f21268f-e24]
+  - link "Explore" [@abbd773ca51a4d92a7fe65d92f21268f-e25]
+  - button "Select model variant: Text-to-Video" [expanded=false] [@abbd773ca51a4d92a7fe65d92f21268f-e26]
+  - navigation "Model sections"
+    - link "Playground" [@abbd773ca51a4d92a7fe65d92f21268f-e27]
+    - link "API" [disabled] [@abbd773ca51a4d92a7fe65d92f21268f-e28]
+    - link "Requests" [disabled] [@abbd773ca51a4d92a7fe65d92f21268f-e29]
+    - link "Analytics" [disabled] [@abbd773ca51a4d92a7fe65d92f21268f-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@abbd773ca51a4d92a7fe65d92f21268f-e31]
+    - link "1. Calling the API" [@abbd773ca51a4d92a7fe65d92f21268f-e32]
+    - link "SDK setup" [@abbd773ca51a4d92a7fe65d92f21268f-e33]
+    - link "2. Request parameters" [@abbd773ca51a4d92a7fe65d92f21268f-e34]
+    - link "3. Using this model" [@abbd773ca51a4d92a7fe65d92f21268f-e35]
+    - link "4. Request examples" [@abbd773ca51a4d92a7fe65d92f21268f-e36]
+    - link "Submit and wait" [@abbd773ca51a4d92a7fe65d92f21268f-e37]
+    - link "5. Results and polling" [@abbd773ca51a4d92a7fe65d92f21268f-e38]
+    - link "6. Validation notes" [@abbd773ca51a4d92a7fe65d92f21268f-e39]
+  - heading "1. CALLING THE API"
+  - heading "SDK setup"
+  - button "Copy code" [@abbd773ca51a4d92a7fe65d92f21268f-e40]
+  - button "Copy code" [@abbd773ca51a4d92a7fe65d92f21268f-e41]
+  - heading "2. REQUEST PARAMETERS"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "A non-empty description of the video to generate."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "10"
+      - cell "Output duration in seconds. Integer from 3 to 30."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell "1080p"
+      - cell "Output resolution: 720p or 1080p."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell "16:9"
+      - cell "Output aspect ratio: 21:9, 16:9, 9:16, or 1:1. adaptive is not supported by this endpoint."
+  - heading "3. USING THIS MODEL"
+  - heading "4. REQUEST EXAMPLES"
+  - heading "Submit and wait"
+  - button "Copy code" [@abbd773ca51a4d92a7fe65d92f21268f-e42]
+  - heading "5. RESULTS AND POLLING"
+  - button "Copy code" [@abbd773ca51a4d92a7fe65d92f21268f-e43]
+  - heading "6. VALIDATION NOTES"
+- region "Notifications alt+T"

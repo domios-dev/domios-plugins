@@ -1,0 +1,415 @@
+page: Pricing | Higgsfield API — https://open.higgsfield.ai/pricing?page=3
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@60e2cbe01ba2486cac1717bf6a2068f7-e1]
+  - button "Collapse sidebar" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@60e2cbe01ba2486cac1717bf6a2068f7-e3]
+    - link "Explore models" [@60e2cbe01ba2486cac1717bf6a2068f7-e4]
+    - link "Quick start" [@60e2cbe01ba2486cac1717bf6a2068f7-e5]
+    - link "Documentation" [@60e2cbe01ba2486cac1717bf6a2068f7-e6]
+    - link "Pricing UP TO 75% OFF" [@60e2cbe01ba2486cac1717bf6a2068f7-e7]
+    - button "Playground" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e8]
+    - link "API keys" [@60e2cbe01ba2486cac1717bf6a2068f7-e9]
+    - link "Cashback" [@60e2cbe01ba2486cac1717bf6a2068f7-e10]
+    - link "Analytics" [@60e2cbe01ba2486cac1717bf6a2068f7-e11]
+    - link "Billing" [@60e2cbe01ba2486cac1717bf6a2068f7-e12]
+  - link "Contact sales" [@60e2cbe01ba2486cac1717bf6a2068f7-e13]
+  - link "Status" [@60e2cbe01ba2486cac1717bf6a2068f7-e14]
+  - link "Pricing" [@60e2cbe01ba2486cac1717bf6a2068f7-e15]
+  - link "Log in" [@60e2cbe01ba2486cac1717bf6a2068f7-e16]
+  - separator "Resize sidebar"
+- main
+  - heading "MODELS API PRICING"
+  - tab "All models" [selected=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e17]
+  - tab "Video" [selected=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e18]
+  - tab "Image" [selected=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e19]
+  - searchbox "Search models" [@60e2cbe01ba2486cac1717bf6a2068f7-e20]
+  - button "Compare prices with others" [@60e2cbe01ba2486cac1717bf6a2068f7-e21]
+  - table
+    - row
+      - columnheader "Model name"
+      - columnheader "Resolution"
+      - columnheader "Duration"
+      - columnheader "List price"
+      - columnheader "leads to"
+      - columnheader "Max-discount price"
+      - columnheader "Max-discount selection"
+    - row
+      - cell "Collapse Wan 2.6, 3 modes Wan 2.6, 3 modes"
+        - button "Collapse Wan 2.6, 3 modes" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e22]
+        - link "Wan 2.6, 3 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e23]
+      - cell "up to 1080p"
+      - cell "5s / 10s / 15s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.6 with other providers"
+        - button "Compare Wan 2.6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e24]
+    - row
+      - cell "Wan 2.6, Text to Video"
+        - link "Wan 2.6, Text to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e25]
+      - cell "up to 1080p"
+      - cell "5s / 10s / 15s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.6 with other providers"
+        - button "Compare Wan 2.6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e26]
+    - row
+      - cell "Wan 2.6, Image to Video"
+        - link "Wan 2.6, Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e27]
+      - cell "up to 1080p"
+      - cell "5s / 10s / 15s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.6 with other providers"
+        - button "Compare Wan 2.6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e28]
+    - row
+      - cell "Wan 2.6, Reference to Video"
+        - link "Wan 2.6, Reference to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e29]
+      - cell "up to 1080p"
+      - cell "5s / 10s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.6 with other providers"
+        - button "Compare Wan 2.6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e30]
+    - row
+      - cell "Collapse Wan 2.7, 3 modes Wan 2.7, 3 modes"
+        - button "Collapse Wan 2.7, 3 modes" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e31]
+        - link "Wan 2.7, 3 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e32]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.7 with other providers"
+        - button "Compare Wan 2.7 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e33]
+    - row
+      - cell "Wan 2.7, Image to Video"
+        - link "Wan 2.7, Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e34]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.7 with other providers"
+        - button "Compare Wan 2.7 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e35]
+    - row
+      - cell "Wan 2.7, Reference to Video"
+        - link "Wan 2.7, Reference to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e36]
+      - cell "up to 1080p"
+      - cell "2–10s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.7 with other providers"
+        - button "Compare Wan 2.7 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e37]
+    - row
+      - cell "Wan 2.7, Text to Video"
+        - link "Wan 2.7, Text to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e38]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.100/s"
+      - cell
+      - cell "50% OFF from $0.050/s"
+      - cell "Compare Wan 2.7 with other providers"
+        - button "Compare Wan 2.7 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e39]
+    - row
+      - cell "Collapse PixVerse 6, 2 modes PixVerse 6, 2 modes"
+        - button "Collapse PixVerse 6, 2 modes" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e40]
+        - link "PixVerse 6, 2 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e41]
+      - cell "up to 1080p"
+      - cell "1–15s"
+      - cell "$0.115/s"
+      - cell
+      - cell "15% OFF $0.098/s"
+      - cell "Compare PixVerse 6 with other providers"
+        - button "Compare PixVerse 6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e42]
+    - row
+      - cell "PixVerse V6, Image to Video"
+        - link "PixVerse V6, Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e43]
+      - cell "up to 1080p"
+      - cell "1–15s"
+      - cell "$0.115/s"
+      - cell
+      - cell "15% OFF $0.098/s"
+      - cell "Compare PixVerse V6 with other providers"
+        - button "Compare PixVerse V6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e44]
+    - row
+      - cell "PixVerse V6, Text to Video"
+        - link "PixVerse V6, Text to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e45]
+      - cell "up to 1080p"
+      - cell "1–15s"
+      - cell "$0.115/s"
+      - cell
+      - cell "15% OFF $0.098/s"
+      - cell "Compare PixVerse V6 with other providers"
+        - button "Compare PixVerse V6 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e46]
+    - row
+      - cell "Soul Standard"
+        - link "Soul Standard" [@60e2cbe01ba2486cac1717bf6a2068f7-e47]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Soul Standard with other providers"
+        - button "Compare Soul Standard with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e48]
+    - row
+      - cell "Ads Studio"
+        - link "Ads Studio" [@60e2cbe01ba2486cac1717bf6a2068f7-e49]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Ads Studio with other providers"
+        - button "Compare Ads Studio with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e50]
+    - row
+      - cell "Ideogram 4.0"
+        - link "Ideogram 4.0" [@60e2cbe01ba2486cac1717bf6a2068f7-e51]
+      - cell "—"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Ideogram 4.0 with other providers"
+        - button "Compare Ideogram 4.0 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e52]
+    - row
+      - cell "Collapse LTX 2.5 Fast, 2 modes LTX 2.5 Fast, 2 modes"
+        - button "Collapse LTX 2.5 Fast, 2 modes" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e53]
+        - link "LTX 2.5 Fast, 2 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e54]
+      - cell "up to 4k"
+      - cell "6s / 8s / 10s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare LTX 2.5 Fast with other providers"
+        - button "Compare LTX 2.5 Fast with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e55]
+    - row
+      - cell "LTX-2.5 Fast, Image to Video"
+        - link "LTX-2.5 Fast, Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e56]
+      - cell "up to 4k"
+      - cell "6s / 8s / 10s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare LTX-2.5 Fast with other providers"
+        - button "Compare LTX-2.5 Fast with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e57]
+    - row
+      - cell "LTX-2.5 Fast, Text to Video"
+        - link "LTX-2.5 Fast, Text to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e58]
+      - cell "up to 4k"
+      - cell "6s / 8s / 10s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare LTX-2.5 Fast with other providers"
+        - button "Compare LTX-2.5 Fast with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e59]
+    - row
+      - cell "Collapse LTX 2.5 Pro, 2 modes LTX 2.5 Pro, 2 modes"
+        - button "Collapse LTX 2.5 Pro, 2 modes" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e60]
+        - link "LTX 2.5 Pro, 2 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e61]
+      - cell "up to 1080p"
+      - cell "6s / 8s / 10s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare LTX 2.5 Pro with other providers"
+        - button "Compare LTX 2.5 Pro with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e62]
+    - row
+      - cell "LTX-2.5 Pro, Text to Video"
+        - link "LTX-2.5 Pro, Text to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e63]
+      - cell "up to 1080p"
+      - cell "6s / 8s / 10s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare LTX-2.5 Pro with other providers"
+        - button "Compare LTX-2.5 Pro with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e64]
+    - row
+      - cell "LTX-2.5 Pro, Image to Video"
+        - link "LTX-2.5 Pro, Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e65]
+      - cell "up to 1080p"
+      - cell "6s / 8s / 10s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare LTX-2.5 Pro with other providers"
+        - button "Compare LTX-2.5 Pro with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e66]
+    - row
+      - cell "Collapse Qwen Image 3, 2 modes Qwen Image 3, 2 modes"
+        - button "Collapse Qwen Image 3, 2 modes" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e67]
+        - link "Qwen Image 3, 2 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e68]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Qwen Image 3 with other providers"
+        - button "Compare Qwen Image 3 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e69]
+    - row
+      - cell "Qwen Image 3, Edit"
+        - link "Qwen Image 3, Edit" [@60e2cbe01ba2486cac1717bf6a2068f7-e70]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Qwen Image 3 with other providers"
+        - button "Compare Qwen Image 3 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e71]
+    - row
+      - cell "Qwen Image 3, Text to Image"
+        - link "Qwen Image 3, Text to Image" [@60e2cbe01ba2486cac1717bf6a2068f7-e72]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Qwen Image 3 with other providers"
+        - button "Compare Qwen Image 3 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e73]
+    - row
+      - cell "Collapse Recraft 4.1, 4 modes Recraft 4.1, 4 modes"
+        - button "Collapse Recraft 4.1, 4 modes" [focused] [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e74]
+        - link "Recraft 4.1, 4 modes" [@60e2cbe01ba2486cac1717bf6a2068f7-e75]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Recraft 4.1 with other providers"
+        - button "Compare Recraft 4.1 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e76]
+    - row
+      - cell "Recraft V4.1 Utility, Utility Text to Image"
+        - link "Recraft V4.1 Utility, Utility Text to Image" [@60e2cbe01ba2486cac1717bf6a2068f7-e77]
+      - cell "up to 1k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Recraft V4.1 Utility with other providers"
+        - button "Compare Recraft V4.1 Utility with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e78]
+    - row
+      - cell "Recraft V4.1, Text to Image"
+        - link "Recraft V4.1, Text to Image" [@60e2cbe01ba2486cac1717bf6a2068f7-e79]
+      - cell "up to 1k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Recraft V4.1 with other providers"
+        - button "Compare Recraft V4.1 with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e80]
+    - row
+      - cell "Recraft V4.1 Pro, Pro Text to Image"
+        - link "Recraft V4.1 Pro, Pro Text to Image" [@60e2cbe01ba2486cac1717bf6a2068f7-e81]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Recraft V4.1 Pro with other providers"
+        - button "Compare Recraft V4.1 Pro with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e82]
+    - row
+      - cell "Recraft V4.1 Utility Pro, Utility Pro Text to Image"
+        - link "Recraft V4.1 Utility Pro, Utility Pro Text to Image" [@60e2cbe01ba2486cac1717bf6a2068f7-e83]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Recraft V4.1 Utility Pro with other providers"
+        - button "Compare Recraft V4.1 Utility Pro with other providers" [@60e2cbe01ba2486cac1717bf6a2068f7-e84]
+  - navigation "Pricing pages"
+    - button "Page 1" [@60e2cbe01ba2486cac1717bf6a2068f7-e85]
+    - button "Page 2" [@60e2cbe01ba2486cac1717bf6a2068f7-e86]
+    - button "Page 3" [@60e2cbe01ba2486cac1717bf6a2068f7-e87]
+    - button "Page 4" [@60e2cbe01ba2486cac1717bf6a2068f7-e88]
+  - region "Price comparison"
+    - heading "COMPARE WITH OTHERS"
+    - tab "All models" [selected=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e89]
+    - tab "Video" [selected=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e90]
+    - tab "Image" [selected=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e91]
+    - searchbox "Search models" [@60e2cbe01ba2486cac1717bf6a2068f7-e92]
+    - button "Compare prices with Fal" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e93]
+    - table
+      - row
+        - columnheader "Model name"
+        - columnheader "Higgsfield"
+        - columnheader "Fal"
+      - row
+        - cell "Kling 3.0 4K · Text to Video · Image to Video"
+          - link "Kling 3.0 4K · Text to Video · Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e94]
+        - cell "$0.210/s $0.420 50% lower"
+        - cell "$0.420/s"
+      - row
+        - cell "Kling 3.0 Pro · Text to Video · Image to Video"
+          - link "Kling 3.0 Pro · Text to Video · Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e95]
+        - cell "$0.084/s $0.168 50% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "Kling 3.0 Standard · Image to Video"
+          - link "Kling 3.0 Standard · Image to Video" [@60e2cbe01ba2486cac1717bf6a2068f7-e96]
+        - cell "$0.063/s $0.126 50% lower"
+        - cell "$0.126/s"
+      - row
+        - cell "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p"
+          - link "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p" [@60e2cbe01ba2486cac1717bf6a2068f7-e97]
+        - cell "$0.070/s $0.140 50% lower"
+        - cell "$0.140/s"
+      - row
+        - cell "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p"
+          - link "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p" [@60e2cbe01ba2486cac1717bf6a2068f7-e98]
+        - cell "$0.090/s $0.180 50% lower"
+        - cell "$0.180/s"
+      - row
+        - cell "Seedance 2.5 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.5 · Text to Video · Image to Video — 480p" [@60e2cbe01ba2486cac1717bf6a2068f7-e99]
+        - cell "$0.145/s $0.207 30% lower"
+        - cell "$0.207/s"
+      - row
+        - cell "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p"
+          - link "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p" [@60e2cbe01ba2486cac1717bf6a2068f7-e100]
+        - cell "$0.174/s $0.248 30% lower"
+        - cell "$0.248/s"
+      - row
+        - cell "Seedance 2.0 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.0 · Text to Video · Image to Video — 480p" [@60e2cbe01ba2486cac1717bf6a2068f7-e101]
+        - cell "$0.099/s $0.141 30% lower"
+        - cell "$0.141/s"
+      - row
+        - cell "Seedance 2.0 · Reference to Video — 480p"
+          - link "Seedance 2.0 · Reference to Video — 480p" [@60e2cbe01ba2486cac1717bf6a2068f7-e102]
+        - cell "$0.118/s $0.168 30% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K"
+          - link "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K" [@60e2cbe01ba2486cac1717bf6a2068f7-e103]
+        - cell "$0.065/s $0.130 50% lower"
+        - cell "$0.130/s"
+    - navigation "Pricing pages"
+      - button "Page 1" [@60e2cbe01ba2486cac1717bf6a2068f7-e104]
+      - button "Page 2" [@60e2cbe01ba2486cac1717bf6a2068f7-e105]
+  - region "Concurrency limits"
+    - heading "Concurrency limits"
+    - button "Learn more" [@60e2cbe01ba2486cac1717bf6a2068f7-e106]
+    - heading "2 concurrent generations"
+    - button "Add funds" [@60e2cbe01ba2486cac1717bf6a2068f7-e107]
+    - progressbar "Progress to the next concurrency tier": 0
+    - button "Contact sales" [@60e2cbe01ba2486cac1717bf6a2068f7-e108]
+  - region "FAQ"
+    - heading "FAQ"
+    - button "What is Higgsfield API?" [expanded=true] [@60e2cbe01ba2486cac1717bf6a2068f7-e109]
+    - button "How does Higgsfield API pricing work?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e110]
+    - button "What's included in the Higgsfield API launch offer?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e111]
+    - button "Do I need to talk to sales to start using Higgsfield API?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e112]
+    - button "How do I integrate Higgsfield API?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e113]
+    - button "Can I migrate from fal or Replicate to Higgsfield API?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e114]
+    - button "Can AI agents use Higgsfield API?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e115]
+    - button "What are the Higgsfield API rate limits?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e116]
+    - button "How do I keep Higgsfield API spending under control?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e117]
+    - button "How do teams use Higgsfield API?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e118]
+    - button "Which models are available through Higgsfield API?" [expanded=false] [@60e2cbe01ba2486cac1717bf6a2068f7-e119]
+- region "Notifications alt+T"

@@ -1,0 +1,169 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Kling Omni
+Image Reference
+Explore
+/
+Kling Omni
+50% OFF
+Video
+from
+0.042 / s
+0.084
+KLING OMNI
+Image Reference
+
+Kling Omni Image Reference generates videos from images and text prompts, allowing customization of duration, aspect ratio, and elements. It supports modes for standard or professional output, making it suitable for creating dynamic video content from static images.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "kling-video/omni/image-reference",
+9
+  {
+10
+    input: {
+11
+      "mode": "pro",
+12
+      "prompt": "A cinematic scene at sunset",
+13
+      "duration": 5,
+14
+      "aspect_ratio": "16:9"
+15
+    },
+16
+    withPolling: true,
+17
+  },
+18
+);
+19
+20
+console.log(result);
+Copy for agent
+Explore
+/
+Kling Omni
+Image Reference
+Playground
+API
+Requests
+Analytics
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+
+Kling Omni uses the model ID kling-video/omni/image-reference. Kling Omni Image Reference generates videos from images and text prompts, allowing customization of duration, aspect ratio, and elements. It supports modes for standard or professional output, making it suitable for creating dynamic video content from static images.
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/kling-video/omni/image-reference with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+mode	string	No	"pro"	Options: std, pro.
+prompt	string	Yes	—	Prompt.
+duration	integer	No	5	Duration. Minimum: 3. Maximum: 10.
+elements	array[string]	No	—	
+image_urls	array[string]	No	—	
+aspect_ratio	string	No	"16:9"	Options: 16:9, 9:16, 1:1.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns the generated file in the video field.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "kling-video/omni/image-reference",
+  {
+    input: {
+      "mode": "pro",
+      "prompt": "A cinematic scene at sunset",
+      "duration": 5,
+      "aspect_ratio": "16:9"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)

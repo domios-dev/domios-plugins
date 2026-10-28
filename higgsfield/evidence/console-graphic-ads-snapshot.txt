@@ -1,0 +1,54 @@
+page: Graphic ads — API reference | Higgsfield API — https://open.higgsfield.ai/models/workflows/graphic-ads/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@24fb5c794a634cfab5f0515eabcbf081-e1]
+  - button "Collapse sidebar" [expanded=true] [@24fb5c794a634cfab5f0515eabcbf081-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@24fb5c794a634cfab5f0515eabcbf081-e3]
+    - link "Explore models" [@24fb5c794a634cfab5f0515eabcbf081-e4]
+    - link "Quick start" [@24fb5c794a634cfab5f0515eabcbf081-e5]
+    - link "Documentation" [@24fb5c794a634cfab5f0515eabcbf081-e6]
+    - link "Pricing UP TO 75% OFF" [@24fb5c794a634cfab5f0515eabcbf081-e7]
+    - button "Playground" [expanded=true] [@24fb5c794a634cfab5f0515eabcbf081-e8]
+    - link "API keys" [@24fb5c794a634cfab5f0515eabcbf081-e9]
+    - link "Cashback" [@24fb5c794a634cfab5f0515eabcbf081-e10]
+    - link "Analytics" [@24fb5c794a634cfab5f0515eabcbf081-e11]
+    - link "Billing" [@24fb5c794a634cfab5f0515eabcbf081-e12]
+  - link "Contact sales" [@24fb5c794a634cfab5f0515eabcbf081-e13]
+  - link "Status" [@24fb5c794a634cfab5f0515eabcbf081-e14]
+  - link "Pricing" [@24fb5c794a634cfab5f0515eabcbf081-e15]
+  - link "Log in" [@24fb5c794a634cfab5f0515eabcbf081-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@24fb5c794a634cfab5f0515eabcbf081-e17]
+  - link "Explore" [@24fb5c794a634cfab5f0515eabcbf081-e18]
+  - heading "GRAPHIC ADS"
+  - button "Copy agent prompt" [@24fb5c794a634cfab5f0515eabcbf081-e19]
+  - status
+  - link "View docs" [@24fb5c794a634cfab5f0515eabcbf081-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@24fb5c794a634cfab5f0515eabcbf081-e21]
+  - button "Copy for agent" [@24fb5c794a634cfab5f0515eabcbf081-e22]
+  - link "Explore" [@24fb5c794a634cfab5f0515eabcbf081-e23]
+  - navigation "Model sections"
+    - link "Playground" [@24fb5c794a634cfab5f0515eabcbf081-e24]
+    - link "API" [disabled] [@24fb5c794a634cfab5f0515eabcbf081-e25]
+    - link "Requests" [disabled] [@24fb5c794a634cfab5f0515eabcbf081-e26]
+    - link "Analytics" [disabled] [@24fb5c794a634cfab5f0515eabcbf081-e27]
+  - navigation "API reference contents"
+    - link "1. Direct generation or editing" [@24fb5c794a634cfab5f0515eabcbf081-e28]
+    - link "2. Preset enhancement" [@24fb5c794a634cfab5f0515eabcbf081-e29]
+    - link "Get a preset UUID" [@24fb5c794a634cfab5f0515eabcbf081-e30]
+    - link "Send the enhanced request" [@24fb5c794a634cfab5f0515eabcbf081-e31]
+    - link "3. Request behavior" [@24fb5c794a634cfab5f0515eabcbf081-e32]
+    - link "4. Authentication and queue" [@24fb5c794a634cfab5f0515eabcbf081-e33]
+  - heading "1. DIRECT GENERATION OR EDITING"
+  - button "Copy code" [@24fb5c794a634cfab5f0515eabcbf081-e34]
+  - heading "2. PRESET ENHANCEMENT"
+  - heading "Get a preset UUID"
+  - button "Copy code" [@24fb5c794a634cfab5f0515eabcbf081-e35]
+  - button "Copy code" [@24fb5c794a634cfab5f0515eabcbf081-e36]
+  - heading "Send the enhanced request"
+  - button "Copy code" [@24fb5c794a634cfab5f0515eabcbf081-e37]
+  - heading "3. REQUEST BEHAVIOR"
+  - heading "4. AUTHENTICATION AND QUEUE"
+- region "Notifications alt+T"

@@ -1,0 +1,455 @@
+page: Pricing | Higgsfield API — https://open.higgsfield.ai/pricing?page=2
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@648a3ff9ee8345539faffa9a1d83dee1-e1]
+  - button "Collapse sidebar" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@648a3ff9ee8345539faffa9a1d83dee1-e3]
+    - link "Explore models" [@648a3ff9ee8345539faffa9a1d83dee1-e4]
+    - link "Quick start" [@648a3ff9ee8345539faffa9a1d83dee1-e5]
+    - link "Documentation" [@648a3ff9ee8345539faffa9a1d83dee1-e6]
+    - link "Pricing UP TO 75% OFF" [@648a3ff9ee8345539faffa9a1d83dee1-e7]
+    - button "Playground" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e8]
+    - link "API keys" [@648a3ff9ee8345539faffa9a1d83dee1-e9]
+    - link "Cashback" [@648a3ff9ee8345539faffa9a1d83dee1-e10]
+    - link "Analytics" [@648a3ff9ee8345539faffa9a1d83dee1-e11]
+    - link "Billing" [@648a3ff9ee8345539faffa9a1d83dee1-e12]
+  - link "Contact sales" [@648a3ff9ee8345539faffa9a1d83dee1-e13]
+  - link "Status" [@648a3ff9ee8345539faffa9a1d83dee1-e14]
+  - link "Pricing" [@648a3ff9ee8345539faffa9a1d83dee1-e15]
+  - link "Log in" [@648a3ff9ee8345539faffa9a1d83dee1-e16]
+  - separator "Resize sidebar"
+- main
+  - heading "MODELS API PRICING"
+  - tab "All models" [selected=true] [@648a3ff9ee8345539faffa9a1d83dee1-e17]
+  - tab "Video" [selected=false] [@648a3ff9ee8345539faffa9a1d83dee1-e18]
+  - tab "Image" [selected=false] [@648a3ff9ee8345539faffa9a1d83dee1-e19]
+  - searchbox "Search models" [@648a3ff9ee8345539faffa9a1d83dee1-e20]
+  - button "Compare prices with others" [@648a3ff9ee8345539faffa9a1d83dee1-e21]
+  - table
+    - row
+      - columnheader "Model name"
+      - columnheader "Resolution"
+      - columnheader "Duration"
+      - columnheader "List price"
+      - columnheader "leads to"
+      - columnheader "Max-discount price"
+      - columnheader "Max-discount selection"
+    - row
+      - cell "Collapse Kling O1 (Omni), 4 modes Kling O1 (Omni), 4 modes"
+        - button "Collapse Kling O1 (Omni), 4 modes" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e22]
+        - link "Kling O1 (Omni), 4 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e23]
+      - cell "—"
+      - cell "3–10s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling O1 (Omni) with other providers"
+        - button "Compare Kling O1 (Omni) with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e24]
+    - row
+      - cell "Kling Omni, Image Reference"
+        - link "Kling Omni, Image Reference" [@648a3ff9ee8345539faffa9a1d83dee1-e25]
+      - cell "—"
+      - cell "3–10s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling Omni with other providers"
+        - button "Compare Kling Omni with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e26]
+    - row
+      - cell "Kling Omni, Video Reference"
+        - link "Kling Omni, Video Reference" [@648a3ff9ee8345539faffa9a1d83dee1-e27]
+      - cell "—"
+      - cell "3–10s"
+      - cell "from $0.126/s"
+      - cell
+      - cell "50% OFF from $0.063/s"
+      - cell "Compare Kling Omni with other providers"
+        - button "Compare Kling Omni with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e28]
+    - row
+      - cell "Kling Omni, Video Edit"
+        - link "Kling Omni, Video Edit" [@648a3ff9ee8345539faffa9a1d83dee1-e29]
+      - cell "—"
+      - cell "—"
+      - cell "$0.126/s"
+      - cell
+      - cell "50% OFF $0.063/s"
+      - cell "Compare Kling Omni with other providers"
+        - button "Compare Kling Omni with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e30]
+    - row
+      - cell "Kling Omni, First/Last Frame"
+        - link "Kling Omni, First/Last Frame" [@648a3ff9ee8345539faffa9a1d83dee1-e31]
+      - cell "—"
+      - cell "5s / 10s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling Omni with other providers"
+        - button "Compare Kling Omni with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e32]
+    - row
+      - cell "Collapse Kling O3, 4 modes Kling O3, 4 modes"
+        - button "Collapse Kling O3, 4 modes" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e33]
+        - link "Kling O3, 4 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e34]
+      - cell "—"
+      - cell "3–15s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling O3 with other providers"
+        - button "Compare Kling O3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e35]
+    - row
+      - cell "Kling O3, Video Edit"
+        - link "Kling O3, Video Edit" [@648a3ff9ee8345539faffa9a1d83dee1-e36]
+      - cell "—"
+      - cell "—"
+      - cell "$0.126/s"
+      - cell
+      - cell "50% OFF $0.063/s"
+      - cell "Compare Kling O3 with other providers"
+        - button "Compare Kling O3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e37]
+    - row
+      - cell "Kling O3, First/Last Frame"
+        - link "Kling O3, First/Last Frame" [@648a3ff9ee8345539faffa9a1d83dee1-e38]
+      - cell "—"
+      - cell "3–15s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling O3 with other providers"
+        - button "Compare Kling O3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e39]
+    - row
+      - cell "Kling O3, Video Reference"
+        - link "Kling O3, Video Reference" [@648a3ff9ee8345539faffa9a1d83dee1-e40]
+      - cell "—"
+      - cell "3–10s"
+      - cell "from $0.126/s"
+      - cell
+      - cell "50% OFF from $0.063/s"
+      - cell "Compare Kling O3 with other providers"
+        - button "Compare Kling O3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e41]
+    - row
+      - cell "Kling O3, Image Reference"
+        - link "Kling O3, Image Reference" [@648a3ff9ee8345539faffa9a1d83dee1-e42]
+      - cell "—"
+      - cell "3–15s"
+      - cell "$0.084/s"
+      - cell
+      - cell "50% OFF $0.042/s"
+      - cell "Compare Kling O3 with other providers"
+        - button "Compare Kling O3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e43]
+    - row
+      - cell "Collapse Marketing Studio Image, 3 modes Marketing Studio Image, 3 modes"
+        - button "Collapse Marketing Studio Image, 3 modes" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e44]
+        - link "Marketing Studio Image, 3 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e45]
+      - cell "up to 4k"
+      - cell "—"
+      - cell "from $0.013/image"
+      - cell
+      - cell "15% OFF from $0.011/image"
+      - cell "Compare Marketing Studio Image with other providers"
+        - button "Compare Marketing Studio Image with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e46]
+    - row
+      - cell "Marketing Studio Image, 2.5 Sunburst"
+        - link "Marketing Studio Image, 2.5 Sunburst" [@648a3ff9ee8345539faffa9a1d83dee1-e47]
+      - cell "up to 4k"
+      - cell "—"
+      - cell "from $0.013/image"
+      - cell
+      - cell "15% OFF from $0.011/image"
+      - cell "Compare Marketing Studio Image with other providers"
+        - button "Compare Marketing Studio Image with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e48]
+    - row
+      - cell "Marketing Studio Image, 2.5 Flare"
+        - link "Marketing Studio Image, 2.5 Flare" [@648a3ff9ee8345539faffa9a1d83dee1-e49]
+      - cell "up to 4k"
+      - cell "—"
+      - cell "from $0.013/image"
+      - cell
+      - cell "15% OFF from $0.011/image"
+      - cell "Compare Marketing Studio Image with other providers"
+        - button "Compare Marketing Studio Image with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e50]
+    - row
+      - cell "Marketing Studio Image, 2.0 Alpha"
+        - link "Marketing Studio Image, 2.0 Alpha" [@648a3ff9ee8345539faffa9a1d83dee1-e51]
+      - cell "up to 4k"
+      - cell "—"
+      - cell "from $0.016/image"
+      - cell
+      - cell "15% OFF from $0.014/image"
+      - cell "Compare Marketing Studio Image with other providers"
+        - button "Compare Marketing Studio Image with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e52]
+    - row
+      - cell "Grok Imagine 2.0"
+        - link "Grok Imagine 2.0" [@648a3ff9ee8345539faffa9a1d83dee1-e53]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Grok Imagine 2.0 with other providers"
+        - button "Compare Grok Imagine 2.0 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e54]
+    - row
+      - cell "AI Influencer"
+        - link "AI Influencer" [@648a3ff9ee8345539faffa9a1d83dee1-e55]
+      - cell "—"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare AI Influencer with other providers"
+        - button "Compare AI Influencer with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e56]
+    - row
+      - cell "Cinema Studio 4.0"
+        - link "Cinema Studio 4.0" [@648a3ff9ee8345539faffa9a1d83dee1-e57]
+      - cell "up to 720p"
+      - cell "4–30s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Cinema Studio 4.0 with other providers"
+        - button "Compare Cinema Studio 4.0 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e58]
+    - row
+      - cell "Collapse MiniMax Hailuo 2.3, 2 modes MiniMax Hailuo 2.3, 2 modes"
+        - button "Collapse MiniMax Hailuo 2.3, 2 modes" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e59]
+        - link "MiniMax Hailuo 2.3, 2 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e60]
+      - cell "up to 768p"
+      - cell "6s / 10s"
+      - cell "from $0.047/s"
+      - cell
+      - cell "75% OFF from $0.012/s"
+      - cell "Compare MiniMax Hailuo 2.3 with other providers"
+        - button "Compare MiniMax Hailuo 2.3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e61]
+    - row
+      - cell "MiniMax Hailuo 2.3 Standard, Image to Video (Standard)"
+        - link "MiniMax Hailuo 2.3 Standard, Image to Video (Standard)" [@648a3ff9ee8345539faffa9a1d83dee1-e62]
+      - cell "—"
+      - cell "6s / 10s"
+      - cell "from $0.047/s"
+      - cell
+      - cell "75% OFF from $0.012/s"
+      - cell "Compare MiniMax Hailuo 2.3 Standard with other providers"
+        - button "Compare MiniMax Hailuo 2.3 Standard with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e63]
+    - row
+      - cell "MiniMax Hailuo 2.3 Standard, Text to Video (Standard)"
+        - link "MiniMax Hailuo 2.3 Standard, Text to Video (Standard)" [@648a3ff9ee8345539faffa9a1d83dee1-e64]
+      - cell "up to 768p"
+      - cell "6s / 10s"
+      - cell "from $0.047/s"
+      - cell
+      - cell "75% OFF from $0.012/s"
+      - cell "Compare MiniMax Hailuo 2.3 Standard with other providers"
+        - button "Compare MiniMax Hailuo 2.3 Standard with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e65]
+    - row
+      - cell "Collapse Happy Horse 1.0, 3 modes Happy Horse 1.0, 3 modes"
+        - button "Collapse Happy Horse 1.0, 3 modes" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e66]
+        - link "Happy Horse 1.0, 3 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e67]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare Happy Horse 1.0 with other providers"
+        - button "Compare Happy Horse 1.0 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e68]
+    - row
+      - cell "Happy Horse 1.0, Text to Video"
+        - link "Happy Horse 1.0, Text to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e69]
+      - cell "up to 1080p"
+      - cell "3–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare Happy Horse 1.0 with other providers"
+        - button "Compare Happy Horse 1.0 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e70]
+    - row
+      - cell "Happy Horse 1.0, Image to Video"
+        - link "Happy Horse 1.0, Image to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e71]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare Happy Horse 1.0 with other providers"
+        - button "Compare Happy Horse 1.0 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e72]
+    - row
+      - cell "Happy Horse 1.0, Reference to Video"
+        - link "Happy Horse 1.0, Reference to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e73]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare Happy Horse 1.0 with other providers"
+        - button "Compare Happy Horse 1.0 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e74]
+    - row
+      - cell "Collapse Happy Horse 1.1, 3 modes Happy Horse 1.1, 3 modes"
+        - button "Collapse Happy Horse 1.1, 3 modes" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e75]
+        - link "Happy Horse 1.1, 3 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e76]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare Happy Horse 1.1 with other providers"
+        - button "Compare Happy Horse 1.1 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e77]
+    - row
+      - cell "HappyHorse 1.1, Reference to Video"
+        - link "HappyHorse 1.1, Reference to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e78]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare HappyHorse 1.1 with other providers"
+        - button "Compare HappyHorse 1.1 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e79]
+    - row
+      - cell "HappyHorse 1.1, Image to Video"
+        - link "HappyHorse 1.1, Image to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e80]
+      - cell "up to 1080p"
+      - cell "2–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare HappyHorse 1.1 with other providers"
+        - button "Compare HappyHorse 1.1 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e81]
+    - row
+      - cell "HappyHorse 1.1, Text to Video"
+        - link "HappyHorse 1.1, Text to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e82]
+      - cell "up to 1080p"
+      - cell "3–15s"
+      - cell "from $0.140/s"
+      - cell
+      - cell "50% OFF from $0.070/s"
+      - cell "Compare HappyHorse 1.1 with other providers"
+        - button "Compare HappyHorse 1.1 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e83]
+    - row
+      - cell "Collapse MiniMax H3, 3 modes MiniMax H3, 3 modes"
+        - button "Collapse MiniMax H3, 3 modes" [focused] [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e84]
+        - link "MiniMax H3, 3 modes" [@648a3ff9ee8345539faffa9a1d83dee1-e85]
+      - cell "up to 2K"
+      - cell "5–15s"
+      - cell "$0.130/s"
+      - cell
+      - cell "50% OFF $0.065/s"
+      - cell "Compare MiniMax H3 with other providers"
+        - button "Compare MiniMax H3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e86]
+    - row
+      - cell "MiniMax H3, Image to Video"
+        - link "MiniMax H3, Image to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e87]
+      - cell "up to 2K"
+      - cell "5–15s"
+      - cell "$0.130/s"
+      - cell
+      - cell "50% OFF $0.065/s"
+      - cell "Compare MiniMax H3 with other providers"
+        - button "Compare MiniMax H3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e88]
+    - row
+      - cell "MiniMax H3, Text to Video"
+        - link "MiniMax H3, Text to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e89]
+      - cell "up to 2K"
+      - cell "5–15s"
+      - cell "$0.130/s"
+      - cell
+      - cell "50% OFF $0.065/s"
+      - cell "Compare MiniMax H3 with other providers"
+        - button "Compare MiniMax H3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e90]
+    - row
+      - cell "MiniMax H3, Reference to Video"
+        - link "MiniMax H3, Reference to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e91]
+      - cell "up to 2K"
+      - cell "5–15s"
+      - cell "$0.130/s"
+      - cell
+      - cell "50% OFF $0.065/s"
+      - cell "Compare MiniMax H3 with other providers"
+        - button "Compare MiniMax H3 with other providers" [@648a3ff9ee8345539faffa9a1d83dee1-e92]
+  - navigation "Pricing pages"
+    - button "Page 1" [@648a3ff9ee8345539faffa9a1d83dee1-e93]
+    - button "Page 2" [@648a3ff9ee8345539faffa9a1d83dee1-e94]
+    - button "Page 3" [@648a3ff9ee8345539faffa9a1d83dee1-e95]
+    - button "Page 4" [@648a3ff9ee8345539faffa9a1d83dee1-e96]
+  - region "Price comparison"
+    - heading "COMPARE WITH OTHERS"
+    - tab "All models" [selected=true] [@648a3ff9ee8345539faffa9a1d83dee1-e97]
+    - tab "Video" [selected=false] [@648a3ff9ee8345539faffa9a1d83dee1-e98]
+    - tab "Image" [selected=false] [@648a3ff9ee8345539faffa9a1d83dee1-e99]
+    - searchbox "Search models" [@648a3ff9ee8345539faffa9a1d83dee1-e100]
+    - button "Compare prices with Fal" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e101]
+    - table
+      - row
+        - columnheader "Model name"
+        - columnheader "Higgsfield"
+        - columnheader "Fal"
+      - row
+        - cell "Kling 3.0 4K · Text to Video · Image to Video"
+          - link "Kling 3.0 4K · Text to Video · Image to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e102]
+        - cell "$0.210/s $0.420 50% lower"
+        - cell "$0.420/s"
+      - row
+        - cell "Kling 3.0 Pro · Text to Video · Image to Video"
+          - link "Kling 3.0 Pro · Text to Video · Image to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e103]
+        - cell "$0.084/s $0.168 50% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "Kling 3.0 Standard · Image to Video"
+          - link "Kling 3.0 Standard · Image to Video" [@648a3ff9ee8345539faffa9a1d83dee1-e104]
+        - cell "$0.063/s $0.126 50% lower"
+        - cell "$0.126/s"
+      - row
+        - cell "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p"
+          - link "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p" [@648a3ff9ee8345539faffa9a1d83dee1-e105]
+        - cell "$0.070/s $0.140 50% lower"
+        - cell "$0.140/s"
+      - row
+        - cell "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p"
+          - link "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p" [@648a3ff9ee8345539faffa9a1d83dee1-e106]
+        - cell "$0.090/s $0.180 50% lower"
+        - cell "$0.180/s"
+      - row
+        - cell "Seedance 2.5 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.5 · Text to Video · Image to Video — 480p" [@648a3ff9ee8345539faffa9a1d83dee1-e107]
+        - cell "$0.145/s $0.207 30% lower"
+        - cell "$0.207/s"
+      - row
+        - cell "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p"
+          - link "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p" [@648a3ff9ee8345539faffa9a1d83dee1-e108]
+        - cell "$0.174/s $0.248 30% lower"
+        - cell "$0.248/s"
+      - row
+        - cell "Seedance 2.0 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.0 · Text to Video · Image to Video — 480p" [@648a3ff9ee8345539faffa9a1d83dee1-e109]
+        - cell "$0.099/s $0.141 30% lower"
+        - cell "$0.141/s"
+      - row
+        - cell "Seedance 2.0 · Reference to Video — 480p"
+          - link "Seedance 2.0 · Reference to Video — 480p" [@648a3ff9ee8345539faffa9a1d83dee1-e110]
+        - cell "$0.118/s $0.168 30% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K"
+          - link "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K" [@648a3ff9ee8345539faffa9a1d83dee1-e111]
+        - cell "$0.065/s $0.130 50% lower"
+        - cell "$0.130/s"
+    - navigation "Pricing pages"
+      - button "Page 1" [@648a3ff9ee8345539faffa9a1d83dee1-e112]
+      - button "Page 2" [@648a3ff9ee8345539faffa9a1d83dee1-e113]
+  - region "Concurrency limits"
+    - heading "Concurrency limits"
+    - button "Learn more" [@648a3ff9ee8345539faffa9a1d83dee1-e114]
+    - heading "2 concurrent generations"
+    - button "Add funds" [@648a3ff9ee8345539faffa9a1d83dee1-e115]
+    - progressbar "Progress to the next concurrency tier": 0
+    - button "Contact sales" [@648a3ff9ee8345539faffa9a1d83dee1-e116]
+  - region "FAQ"
+    - heading "FAQ"
+    - button "What is Higgsfield API?" [expanded=true] [@648a3ff9ee8345539faffa9a1d83dee1-e117]
+    - button "How does Higgsfield API pricing work?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e118]
+    - button "What's included in the Higgsfield API launch offer?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e119]
+    - button "Do I need to talk to sales to start using Higgsfield API?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e120]
+    - button "How do I integrate Higgsfield API?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e121]
+    - button "Can I migrate from fal or Replicate to Higgsfield API?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e122]
+    - button "Can AI agents use Higgsfield API?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e123]
+    - button "What are the Higgsfield API rate limits?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e124]
+    - button "How do I keep Higgsfield API spending under control?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e125]
+    - button "How do teams use Higgsfield API?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e126]
+    - button "Which models are available through Higgsfield API?" [expanded=false] [@648a3ff9ee8345539faffa9a1d83dee1-e127]
+- region "Notifications alt+T"

@@ -1,0 +1,179 @@
+page: Pricing | Higgsfield API — https://open.higgsfield.ai/pricing?page=4
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@5770b22477d4489aa6701f2ab4388248-e1]
+  - button "Collapse sidebar" [expanded=true] [@5770b22477d4489aa6701f2ab4388248-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@5770b22477d4489aa6701f2ab4388248-e3]
+    - link "Explore models" [@5770b22477d4489aa6701f2ab4388248-e4]
+    - link "Quick start" [@5770b22477d4489aa6701f2ab4388248-e5]
+    - link "Documentation" [@5770b22477d4489aa6701f2ab4388248-e6]
+    - link "Pricing UP TO 75% OFF" [@5770b22477d4489aa6701f2ab4388248-e7]
+    - button "Playground" [expanded=true] [@5770b22477d4489aa6701f2ab4388248-e8]
+    - link "API keys" [@5770b22477d4489aa6701f2ab4388248-e9]
+    - link "Cashback" [@5770b22477d4489aa6701f2ab4388248-e10]
+    - link "Analytics" [@5770b22477d4489aa6701f2ab4388248-e11]
+    - link "Billing" [@5770b22477d4489aa6701f2ab4388248-e12]
+  - link "Contact sales" [@5770b22477d4489aa6701f2ab4388248-e13]
+  - link "Status" [@5770b22477d4489aa6701f2ab4388248-e14]
+  - link "Pricing" [@5770b22477d4489aa6701f2ab4388248-e15]
+  - link "Log in" [@5770b22477d4489aa6701f2ab4388248-e16]
+  - separator "Resize sidebar"
+- main
+  - heading "MODELS API PRICING"
+  - tab "All models" [selected=true] [@5770b22477d4489aa6701f2ab4388248-e17]
+  - tab "Video" [selected=false] [@5770b22477d4489aa6701f2ab4388248-e18]
+  - tab "Image" [selected=false] [@5770b22477d4489aa6701f2ab4388248-e19]
+  - searchbox "Search models" [@5770b22477d4489aa6701f2ab4388248-e20]
+  - button "Compare prices with others" [@5770b22477d4489aa6701f2ab4388248-e21]
+  - table
+    - row
+      - columnheader "Model name"
+      - columnheader "Resolution"
+      - columnheader "Duration"
+      - columnheader "List price"
+      - columnheader "leads to"
+      - columnheader "Max-discount price"
+      - columnheader "Max-discount selection"
+    - row
+      - cell "Collapse Soul 2, 2 modes Soul 2, 2 modes"
+        - button "Collapse Soul 2, 2 modes" [focused] [expanded=true] [@5770b22477d4489aa6701f2ab4388248-e22]
+        - link "Soul 2, 2 modes" [@5770b22477d4489aa6701f2ab4388248-e23]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Soul 2 with other providers"
+        - button "Compare Soul 2 with other providers" [@5770b22477d4489aa6701f2ab4388248-e24]
+    - row
+      - cell "Soul 2, Text to Image"
+        - link "Soul 2, Text to Image" [@5770b22477d4489aa6701f2ab4388248-e25]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Soul 2 with other providers"
+        - button "Compare Soul 2 with other providers" [@5770b22477d4489aa6701f2ab4388248-e26]
+    - row
+      - cell "Soul 2, Image to Image"
+        - link "Soul 2, Image to Image" [@5770b22477d4489aa6701f2ab4388248-e27]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Soul 2 with other providers"
+        - button "Compare Soul 2 with other providers" [@5770b22477d4489aa6701f2ab4388248-e28]
+    - row
+      - cell "Grok Imagine Video 1.5"
+        - link "Grok Imagine Video 1.5" [@5770b22477d4489aa6701f2ab4388248-e29]
+      - cell "up to 1080p"
+      - cell "1–15s"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Grok Imagine Video 1.5 with other providers"
+        - button "Compare Grok Imagine Video 1.5 with other providers" [@5770b22477d4489aa6701f2ab4388248-e30]
+    - row
+      - cell "Z-Image Turbo, Turbo"
+        - link "Z-Image Turbo, Turbo" [@5770b22477d4489aa6701f2ab4388248-e31]
+      - cell "up to 2k"
+      - cell "—"
+      - cell "—"
+      - cell
+      - cell
+      - cell "Compare Z-Image Turbo with other providers"
+        - button "Compare Z-Image Turbo with other providers" [@5770b22477d4489aa6701f2ab4388248-e32]
+  - navigation "Pricing pages"
+    - button "Page 1" [@5770b22477d4489aa6701f2ab4388248-e33]
+    - button "Page 2" [@5770b22477d4489aa6701f2ab4388248-e34]
+    - button "Page 3" [@5770b22477d4489aa6701f2ab4388248-e35]
+    - button "Page 4" [@5770b22477d4489aa6701f2ab4388248-e36]
+  - region "Price comparison"
+    - heading "COMPARE WITH OTHERS"
+    - tab "All models" [selected=true] [@5770b22477d4489aa6701f2ab4388248-e37]
+    - tab "Video" [selected=false] [@5770b22477d4489aa6701f2ab4388248-e38]
+    - tab "Image" [selected=false] [@5770b22477d4489aa6701f2ab4388248-e39]
+    - searchbox "Search models" [@5770b22477d4489aa6701f2ab4388248-e40]
+    - button "Compare prices with Fal" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e41]
+    - table
+      - row
+        - columnheader "Model name"
+        - columnheader "Higgsfield"
+        - columnheader "Fal"
+      - row
+        - cell "Kling 3.0 4K · Text to Video · Image to Video"
+          - link "Kling 3.0 4K · Text to Video · Image to Video" [@5770b22477d4489aa6701f2ab4388248-e42]
+        - cell "$0.210/s $0.420 50% lower"
+        - cell "$0.420/s"
+      - row
+        - cell "Kling 3.0 Pro · Text to Video · Image to Video"
+          - link "Kling 3.0 Pro · Text to Video · Image to Video" [@5770b22477d4489aa6701f2ab4388248-e43]
+        - cell "$0.084/s $0.168 50% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "Kling 3.0 Standard · Image to Video"
+          - link "Kling 3.0 Standard · Image to Video" [@5770b22477d4489aa6701f2ab4388248-e44]
+        - cell "$0.063/s $0.126 50% lower"
+        - cell "$0.126/s"
+      - row
+        - cell "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p"
+          - link "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p" [@5770b22477d4489aa6701f2ab4388248-e45]
+        - cell "$0.070/s $0.140 50% lower"
+        - cell "$0.140/s"
+      - row
+        - cell "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p"
+          - link "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p" [@5770b22477d4489aa6701f2ab4388248-e46]
+        - cell "$0.090/s $0.180 50% lower"
+        - cell "$0.180/s"
+      - row
+        - cell "Seedance 2.5 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.5 · Text to Video · Image to Video — 480p" [@5770b22477d4489aa6701f2ab4388248-e47]
+        - cell "$0.145/s $0.207 30% lower"
+        - cell "$0.207/s"
+      - row
+        - cell "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p"
+          - link "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p" [@5770b22477d4489aa6701f2ab4388248-e48]
+        - cell "$0.174/s $0.248 30% lower"
+        - cell "$0.248/s"
+      - row
+        - cell "Seedance 2.0 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.0 · Text to Video · Image to Video — 480p" [@5770b22477d4489aa6701f2ab4388248-e49]
+        - cell "$0.099/s $0.141 30% lower"
+        - cell "$0.141/s"
+      - row
+        - cell "Seedance 2.0 · Reference to Video — 480p"
+          - link "Seedance 2.0 · Reference to Video — 480p" [@5770b22477d4489aa6701f2ab4388248-e50]
+        - cell "$0.118/s $0.168 30% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K"
+          - link "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K" [@5770b22477d4489aa6701f2ab4388248-e51]
+        - cell "$0.065/s $0.130 50% lower"
+        - cell "$0.130/s"
+    - navigation "Pricing pages"
+      - button "Page 1" [@5770b22477d4489aa6701f2ab4388248-e52]
+      - button "Page 2" [@5770b22477d4489aa6701f2ab4388248-e53]
+  - region "Concurrency limits"
+    - heading "Concurrency limits"
+    - button "Learn more" [@5770b22477d4489aa6701f2ab4388248-e54]
+    - heading "2 concurrent generations"
+    - button "Add funds" [@5770b22477d4489aa6701f2ab4388248-e55]
+    - progressbar "Progress to the next concurrency tier": 0
+    - button "Contact sales" [@5770b22477d4489aa6701f2ab4388248-e56]
+  - region "FAQ"
+    - heading "FAQ"
+    - button "What is Higgsfield API?" [expanded=true] [@5770b22477d4489aa6701f2ab4388248-e57]
+    - button "How does Higgsfield API pricing work?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e58]
+    - button "What's included in the Higgsfield API launch offer?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e59]
+    - button "Do I need to talk to sales to start using Higgsfield API?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e60]
+    - button "How do I integrate Higgsfield API?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e61]
+    - button "Can I migrate from fal or Replicate to Higgsfield API?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e62]
+    - button "Can AI agents use Higgsfield API?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e63]
+    - button "What are the Higgsfield API rate limits?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e64]
+    - button "How do I keep Higgsfield API spending under control?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e65]
+    - button "How do teams use Higgsfield API?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e66]
+    - button "Which models are available through Higgsfield API?" [expanded=false] [@5770b22477d4489aa6701f2ab4388248-e67]
+- region "Notifications alt+T"

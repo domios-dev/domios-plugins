@@ -1,0 +1,1258 @@
+[
+  {
+    "url": "https://docs.higgsfield.ai/docs/llms.txt",
+    "finalUrl": "https://docs.higgsfield.ai/docs/llms.txt",
+    "file": "evidence/docs-llms.txt",
+    "retrievedAt": "2026-10-28T23:20:28.071641+00:00",
+    "sha256": "bc8e7b726f1e30c7e3b1be5955692353a6534333271d54b32a1351630c7facf2",
+    "bytes": 4945
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/index.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/index.md",
+    "file": "evidence/docs-index.md",
+    "retrievedAt": "2026-10-28T23:20:28.110852+00:00",
+    "sha256": "eccf4570ba4e5c371bd05fd49f643ee4aa397e0dc929255faa03f46387a25189",
+    "bytes": 3472
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/quickstart.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/quickstart.md",
+    "file": "evidence/docs-quickstart.md",
+    "retrievedAt": "2026-10-28T23:20:28.152960+00:00",
+    "sha256": "ef05d20322334502a1621687cf7196b7d10e1a1cd58d1bbb80b459e2becc8225",
+    "bytes": 3985
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/authentication.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/authentication.md",
+    "file": "evidence/docs-authentication.md",
+    "retrievedAt": "2026-10-28T23:20:29.129987+00:00",
+    "sha256": "a1090ce584f357ccd719c00e419fa5c3e59f5e3f12f7056ea6a578e84dbcea6d",
+    "bytes": 2502
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/how-to/introduction.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/how-to/introduction.md",
+    "file": "evidence/docs-how-to__introduction.md",
+    "retrievedAt": "2026-10-28T23:20:28.182427+00:00",
+    "sha256": "af714939b06d0e18b03809edc47e52d663017ce916fe4c63c58058ecdfba683e",
+    "bytes": 1727
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/requests.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/requests.md",
+    "file": "evidence/docs-concepts__requests.md",
+    "retrievedAt": "2026-10-28T23:20:28.083727+00:00",
+    "sha256": "a694501400a6701f69ffa70f1e08194d23a239b626d3fdf3b1a337097ab0381f",
+    "bytes": 4855
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/polling.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/polling.md",
+    "file": "evidence/docs-concepts__polling.md",
+    "retrievedAt": "2026-10-28T23:20:28.775339+00:00",
+    "sha256": "a7578d0fff2f90a5f8f0bc3ab2da54b5b809f056c1ccf5d7c1d4e5d6827cb9b2",
+    "bytes": 2305
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/how-to/webhooks.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/how-to/webhooks.md",
+    "file": "evidence/docs-how-to__webhooks.md",
+    "retrievedAt": "2026-10-28T23:20:28.176357+00:00",
+    "sha256": "12a52a76eda61b84b318741648be77f9bf911f308034a758099e45a279baca83",
+    "bytes": 7200
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/file-uploads.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/file-uploads.md",
+    "file": "evidence/docs-concepts__file-uploads.md",
+    "retrievedAt": "2026-10-28T23:20:28.686169+00:00",
+    "sha256": "50752840d9367ddf43f5b4b742658b76eb394a2a1115cd5490dc98a4791f82ae",
+    "bytes": 2593
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/errors.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/errors.md",
+    "file": "evidence/docs-concepts__errors.md",
+    "retrievedAt": "2026-10-28T23:20:28.673028+00:00",
+    "sha256": "8f78644ca7766e4f4355196e3d12a6938a4e537ee9d4cec6297d5d51861f6348",
+    "bytes": 3184
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/rate-limits.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/rate-limits.md",
+    "file": "evidence/docs-concepts__rate-limits.md",
+    "retrievedAt": "2026-10-28T23:20:28.884340+00:00",
+    "sha256": "0f39035c7352430a93c710bf80e91b97e06bf880a8804ffab95924a277f63bbd",
+    "bytes": 3574
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/billing-and-retention.md",
+    "file": "evidence/docs-concepts__billing-and-retention.md",
+    "retrievedAt": "2026-10-28T23:20:28.736506+00:00",
+    "sha256": "f0b784c236eebf607c45b5b95ad8005c1fd39a1e720c210dc3c970d50eb57d7f",
+    "bytes": 2774
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/overview.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/overview.md",
+    "file": "evidence/docs-enterprise__overview.md",
+    "retrievedAt": "2026-10-28T23:20:29.190611+00:00",
+    "sha256": "efb45843a76f49ebd52f24fd5bd9b137d1472ce1013ffddb31d0273978c46bd5",
+    "bytes": 3932
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/data-retention.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/data-retention.md",
+    "file": "evidence/docs-enterprise__data-retention.md",
+    "retrievedAt": "2026-10-28T23:20:28.875333+00:00",
+    "sha256": "4632904a8e252740322bddd94051678a6b0469b472c0506a75fc9dd76de96d7a",
+    "bytes": 5952
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/organizations.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/organizations.md",
+    "file": "evidence/docs-enterprise__organizations.md",
+    "retrievedAt": "2026-10-28T23:20:29.153181+00:00",
+    "sha256": "5b429f55816a8e8d71766cf4c929507ec023d1b303cd0665c3005a63f4f2d614",
+    "bytes": 4006
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/model-training.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/model-training.md",
+    "file": "evidence/docs-enterprise__model-training.md",
+    "retrievedAt": "2026-10-28T23:20:30.571377+00:00",
+    "sha256": "a7aae498e57c0c67a6cb361fe24ce3c3731b1037911f66ec3cae4bad2c3bf591",
+    "bytes": 1663
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/webhook-security.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/webhook-security.md",
+    "file": "evidence/docs-enterprise__webhook-security.md",
+    "retrievedAt": "2026-10-28T23:20:29.688742+00:00",
+    "sha256": "6e216ca2c36c13ba5b78f8ee5b865ab7099000ed5d8576103dcbcea937ef783e",
+    "bytes": 2864
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/access-control.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/access-control.md",
+    "file": "evidence/docs-enterprise__access-control.md",
+    "retrievedAt": "2026-10-28T23:20:29.424279+00:00",
+    "sha256": "049c35034b9de768dea9ec0ea9c0eb3431e2a35e59bd74a8f33fd799ef337a3b",
+    "bytes": 2914
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/capacity.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/capacity.md",
+    "file": "evidence/docs-enterprise__capacity.md",
+    "retrievedAt": "2026-10-28T23:20:29.381998+00:00",
+    "sha256": "3e8032e203b4f7c314eac4e31a21a6027c1b176054fa27e5566f0720426d692b",
+    "bytes": 2914
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/usage-and-billing.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/usage-and-billing.md",
+    "file": "evidence/docs-enterprise__usage-and-billing.md",
+    "retrievedAt": "2026-10-28T23:20:29.360301+00:00",
+    "sha256": "da2664198ec6e48d5658034c1fd426637765b5b6bcd91fb63724e3458289f92b",
+    "bytes": 3156
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/enterprise/reliability-and-support.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/enterprise/reliability-and-support.md",
+    "file": "evidence/docs-enterprise__reliability-and-support.md",
+    "retrievedAt": "2026-10-28T23:20:29.591103+00:00",
+    "sha256": "a115f73d5657f450de7c6bab7fb80ba7e5d7819dc5b488784cfdcbf0f0f57685",
+    "bytes": 2631
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/how-to/sdk.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/how-to/sdk.md",
+    "file": "evidence/docs-how-to__sdk.md",
+    "retrievedAt": "2026-10-28T23:20:29.844286+00:00",
+    "sha256": "37d4b5d52be6992f5701a8fbcede408157d1b7e5da75e260f1ed49ed520b328d",
+    "bytes": 3809
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/organizations.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/organizations.md",
+    "file": "evidence/docs-organizations.md",
+    "retrievedAt": "2026-10-28T23:20:29.660033+00:00",
+    "sha256": "7662af0ce7e86bdf9224017d9fbc3f0abf0e4e1c037c4cc2446302cbb2fdd5c0",
+    "bytes": 1338
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/organizations/managing-members.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/organizations/managing-members.md",
+    "file": "evidence/docs-organizations__managing-members.md",
+    "retrievedAt": "2026-10-28T23:20:29.872430+00:00",
+    "sha256": "13bb6c41a6356907428ef1150bd21e384c9b8c4914e68d5edf1aeca3aecbcfc5",
+    "bytes": 2447
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/api-reference/overview.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/api-reference/overview.md",
+    "file": "evidence/docs-api-reference__overview.md",
+    "retrievedAt": "2026-10-28T23:20:29.917009+00:00",
+    "sha256": "9d02f48596bc608270868ec6edeb56c2a5bb14b2d633930a040dad6fcca06020",
+    "bytes": 1875
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/api-reference/headers.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/api-reference/headers.md",
+    "file": "evidence/docs-api-reference__headers.md",
+    "retrievedAt": "2026-10-28T23:20:29.935111+00:00",
+    "sha256": "ec4488b747a56ed230dc23260f06da99a369f68399c61e1a16ade4e3ffd14140",
+    "bytes": 3309
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/api-reference/requests/get-request-status.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/api-reference/requests/get-request-status.md",
+    "file": "evidence/docs-api-reference__requests__get-request-status.md",
+    "retrievedAt": "2026-10-28T23:20:30.387981+00:00",
+    "sha256": "4fc710e2965d7433c094c59c1ca3b2fd5425a0dd6033099cef04a48d53f87dbe",
+    "bytes": 3904
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/api-reference/requests/cancel-a-queued-request.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/api-reference/requests/cancel-a-queued-request.md",
+    "file": "evidence/docs-api-reference__requests__cancel-a-queued-request.md",
+    "retrievedAt": "2026-10-28T23:20:30.265197+00:00",
+    "sha256": "94b6437bb7256d8c4ac21229a0d45df55cf1b37c100ea01313e14e06dfa7ad71",
+    "bytes": 2710
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/api-reference/requests/delete-request-data.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/api-reference/requests/delete-request-data.md",
+    "file": "evidence/docs-api-reference__requests__delete-request-data.md",
+    "retrievedAt": "2026-10-28T23:20:30.219410+00:00",
+    "sha256": "83e1070d707800b10f57bd48f9588b343a858291bd08f7b8c0329e5f134fd363",
+    "bytes": 3492
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/help/faq.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/help/faq.md",
+    "file": "evidence/docs-help__faq.md",
+    "retrievedAt": "2026-10-28T23:20:30.495318+00:00",
+    "sha256": "1082079207148be9ea219cf360fd576ac78b4118f97bb2b0b80175948100e30a",
+    "bytes": 4962
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/help/support.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/help/support.md",
+    "file": "evidence/docs-help__support.md",
+    "retrievedAt": "2026-10-28T23:20:30.501276+00:00",
+    "sha256": "bda486416f2cf25f1aae656e637bc081f212427280f6d2a819c2712135527d4c",
+    "bytes": 3570
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/openapi.json",
+    "finalUrl": "https://docs.higgsfield.ai/docs/openapi.json",
+    "file": "evidence/docs-openapi.json",
+    "retrievedAt": "2026-10-28T23:20:30.219410+00:00",
+    "sha256": "3b78b16075b432df9b8a09a9cf93ef47a63731c06bd02b711eac6eff9ce1a44a",
+    "bytes": 30064
+  },
+  {
+    "url": "https://open.higgsfield.ai/explore",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://open.higgsfield.ai/llms.txt",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/concepts/idempotency.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/concepts/idempotency.md",
+    "file": "evidence/docs-concepts__idempotency.md",
+    "retrievedAt": "2026-10-28T23:20:57.195444+00:00",
+    "sha256": "5271e65bc6566b68cc9612c6d941fc7a80db6326cbfae25d6c4b00f0b03117a0",
+    "bytes": 3947
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models.md",
+    "file": "evidence/docs-models.md",
+    "retrievedAt": "2026-10-28T23:20:57.509816+00:00",
+    "sha256": "a6c0fb4dc59d0dcc6b0ed1cdb29058c45fa837653ebebfbfa8c3e7de44a84cd8",
+    "bytes": 2131
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ads-studio/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ads-studio/generate.md",
+    "file": "evidence/docs-models__ads-studio__generate.md",
+    "retrievedAt": "2026-10-28T23:20:57.637763+00:00",
+    "sha256": "89519aa4f76664cc5e0d03fc5ba58c0defbce09d5663c66412ccd367512f9436",
+    "bytes": 11192
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/genjutsu/motion-transfer.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/genjutsu/motion-transfer.md",
+    "file": "evidence/docs-models__genjutsu__motion-transfer.md",
+    "retrievedAt": "2026-10-28T23:20:57.236563+00:00",
+    "sha256": "9157437a523dfcc39af2d0d79a8941d9e97a9d65be381f0bf470b222610064e4",
+    "bytes": 5827
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/genjutsu/restyle.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/genjutsu/restyle.md",
+    "file": "evidence/docs-models__genjutsu__restyle.md",
+    "retrievedAt": "2026-10-28T23:20:57.201543+00:00",
+    "sha256": "52ffdd8900780fea190fd3d13aa8fceb1fb5e6f2e4d272d7cf7dd6f664e783e8",
+    "bytes": 13516
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/image-to-video.md",
+    "file": "evidence/docs-models__happy-horse-1-1__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.222178+00:00",
+    "sha256": "28e1ab89042e3af1736a47a52fa63c7bfedb9f19211331d26f46ea6ed7c574d0",
+    "bytes": 5194
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/reference-to-video.md",
+    "file": "evidence/docs-models__happy-horse-1-1__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.222178+00:00",
+    "sha256": "3f3ba7bcdb6082d078fc614494daafcf490a30c418934b8fa123a967b2e663dd",
+    "bytes": 5734
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1/image-to-video.md",
+    "file": "evidence/docs-models__happy-horse-1__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.188166+00:00",
+    "sha256": "590eea418b6865c4ecc65cdde1ff255d1cc87fa12e909cb88d98a717a21c5e13",
+    "bytes": 5161
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1/reference-to-video.md",
+    "file": "evidence/docs-models__happy-horse-1__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.211811+00:00",
+    "sha256": "97cca3ced69d0fc216c7fb9a1ad8ee3dfac2694a164b68d50d1ae9e5b3b60b9f",
+    "bytes": 5701
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/image-generation.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/image-generation.md",
+    "file": "evidence/docs-models__image-generation.md",
+    "retrievedAt": "2026-10-28T23:20:57.183652+00:00",
+    "sha256": "7092b2280306fb2edeaac7ad41b584f289ffe9061924751aa42092042ba6977e",
+    "bytes": 4082
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-pro/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-pro/generate.md",
+    "file": "evidence/docs-models__recraft-v4-1-pro__generate.md",
+    "retrievedAt": "2026-10-28T23:20:57.788574+00:00",
+    "sha256": "1672114acb6f563035d0dcf50ca424007eb3f49db0a4b4504715cbfdf864f55b",
+    "bytes": 8194
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility-pro/text-to-image.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility-pro/text-to-image.md",
+    "file": "evidence/docs-models__recraft-v4-1-utility-pro__text-to-image.md",
+    "retrievedAt": "2026-10-28T23:20:57.738251+00:00",
+    "sha256": "419e5573506285b005d19a4f4e21696b5e2ad43d8dd42441bf16efcbcedd7454",
+    "bytes": 8255
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility/text-to-image.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility/text-to-image.md",
+    "file": "evidence/docs-models__recraft-v4-1-utility__text-to-image.md",
+    "retrievedAt": "2026-10-28T23:20:57.746357+00:00",
+    "sha256": "849e1dcd96ed08d07bed8600e00c86e3756e09191972831b7d51c703326b7e3f",
+    "bytes": 8202
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/reference-to-video.md",
+    "file": "evidence/docs-models__seedance-2-5__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.751873+00:00",
+    "sha256": "46c8fb14dce0db63645a4fa580edc6ec6e314924460468fa7797358b70c4c9a4",
+    "bytes": 7131
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2/reference-to-video.md",
+    "file": "evidence/docs-models__seedance-2__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.728398+00:00",
+    "sha256": "edc7bbc8a455f4cd91f14c0632e8584e563d1a5369affbd9c2d46372df6d92dd",
+    "bytes": 6795
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-id/create-character.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-id/create-character.md",
+    "file": "evidence/docs-models__soul-id__create-character.md",
+    "retrievedAt": "2026-10-28T23:20:57.790097+00:00",
+    "sha256": "a6c6a35afcfad8f2351f16d81d4af50ee1a420b7acc3d68df609723b881773c2",
+    "bytes": 5376
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-6/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6/reference-to-video.md",
+    "file": "evidence/docs-models__wan-2-6__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:58.041731+00:00",
+    "sha256": "16c0d4a1608d1c573b42ef7e9e44bc22b30c987f3d2cd9f563c56f5f2b3ca69b",
+    "bytes": 5748
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-7/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7/reference-to-video.md",
+    "file": "evidence/docs-models__wan-2-7__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:57.862668+00:00",
+    "sha256": "ca591756a9ac85b8e19a24e415bce1380930c401135e5aa432ddce9e047ab297",
+    "bytes": 6877
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3/reference-to-video.md",
+    "file": "evidence/docs-models__wan-3__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:58.276319+00:00",
+    "sha256": "ac0d4d91168458d9a6ed91f9a6078a09c8af59970bd0b72f86e727a20d9a9b95",
+    "bytes": 8268
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ads-studio.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ads-studio.md",
+    "file": "evidence/docs-models__ads-studio.md",
+    "retrievedAt": "2026-10-28T23:20:58.710704+00:00",
+    "sha256": "95b9c4bb8ab2b3dfebfa89ee87cdbab9971b115280c7c9ced9f26111fc2ffafa",
+    "bytes": 1379
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/cinema-studio-4/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/cinema-studio-4/generate.md",
+    "file": "evidence/docs-models__cinema-studio-4__generate.md",
+    "retrievedAt": "2026-10-28T23:20:58.836831+00:00",
+    "sha256": "f30c51a0624568cfad94a7dc1f6a4b327c48764d9cdcaf1c6ec4a6efcde78990",
+    "bytes": 13069
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/genjutsu.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/genjutsu.md",
+    "file": "evidence/docs-models__genjutsu.md",
+    "retrievedAt": "2026-10-28T23:20:58.783652+00:00",
+    "sha256": "2da838636d0278a9fbae85ce0e8887828a9b51e87bec09e524cf5d4fb19a1c7b",
+    "bytes": 1423
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/genjutsu/object-swap.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/genjutsu/object-swap.md",
+    "file": "evidence/docs-models__genjutsu__object-swap.md",
+    "retrievedAt": "2026-10-28T23:20:58.852094+00:00",
+    "sha256": "1300eb34fecef1d772923fe204630374cabe4c8f758715e03f61be04aa8c09c0",
+    "bytes": 5854
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/grok-image-2.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/grok-image-2.md",
+    "file": "evidence/docs-models__grok-image-2.md",
+    "retrievedAt": "2026-10-28T23:20:58.777556+00:00",
+    "sha256": "69f8326c1345a9cd0d9060a8b0beeaac6b38f47660f21be3d3467081e6c2e629",
+    "bytes": 1329
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/grok-image-2/generate-and-edit.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/grok-image-2/generate-and-edit.md",
+    "file": "evidence/docs-models__grok-image-2__generate-and-edit.md",
+    "retrievedAt": "2026-10-28T23:20:58.848570+00:00",
+    "sha256": "02423f33cbd0f90d00784778c4e66b951339f06210dc20c2e70e04ee1fed46ae",
+    "bytes": 6084
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1.md",
+    "file": "evidence/docs-models__happy-horse-1-1.md",
+    "retrievedAt": "2026-10-28T23:20:58.730506+00:00",
+    "sha256": "f01d5f83a3f152dff81d99c096aef5729e4ead592e2046c2ae4c853e3e6da574",
+    "bytes": 1625
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1-1/text-to-video.md",
+    "file": "evidence/docs-models__happy-horse-1-1__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:59.985968+00:00",
+    "sha256": "326210c0623e77f2baf12eeaa4643ec2e5aa188661a4d7ed98e5d717759ed322",
+    "bytes": 5381
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1.md",
+    "file": "evidence/docs-models__happy-horse-1.md",
+    "retrievedAt": "2026-10-28T23:20:58.899555+00:00",
+    "sha256": "9112081284f4616ca6fa6d6977da58d9f597bf3a17d215f44d0e07caaeda9db0",
+    "bytes": 1604
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/happy-horse-1/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/happy-horse-1/text-to-video.md",
+    "file": "evidence/docs-models__happy-horse-1__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:58.870738+00:00",
+    "sha256": "f4f5637b01c9135f7bb42a07c0a4ceea9b50d5d1fd1e7ca235216f5ff2f85fb1",
+    "bytes": 5348
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ideogram-4.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ideogram-4.md",
+    "file": "evidence/docs-models__ideogram-4.md",
+    "retrievedAt": "2026-10-28T23:20:59.126344+00:00",
+    "sha256": "cc74555c149de35f7ae4682d83f06831f5d9677ea16af00da06885a938106ca8",
+    "bytes": 1204
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-o3/image-reference.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/image-reference.md",
+    "file": "evidence/docs-models__kling-o3__image-reference.md",
+    "retrievedAt": "2026-10-28T23:20:59.222705+00:00",
+    "sha256": "06e8702d4eac63db133bcfc4c586de55ab1f3e311e758f2399c8f38a0e33e0f2",
+    "bytes": 8716
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-o3/video-reference.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/video-reference.md",
+    "file": "evidence/docs-models__kling-o3__video-reference.md",
+    "retrievedAt": "2026-10-28T23:20:59.260804+00:00",
+    "sha256": "534c4da49b8f8369e3e5a7df5090d71b5049d750dd3eece4029824f6754ef022",
+    "bytes": 6601
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/marketing-studio-image.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image.md",
+    "file": "evidence/docs-models__marketing-studio-image.md",
+    "retrievedAt": "2026-10-28T23:20:59.268864+00:00",
+    "sha256": "3624db0d033870b8179c688c57da3d395005c89ba215d68436d04b41ce1a3d66",
+    "bytes": 1578
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/qwen-image-3.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/qwen-image-3.md",
+    "file": "evidence/docs-models__qwen-image-3.md",
+    "retrievedAt": "2026-10-28T23:20:59.301904+00:00",
+    "sha256": "cfc0c81e4a6bf516b75cb2a5a6e1a4efaa51d260e559f94bcaf482bf51057374",
+    "bytes": 1371
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-pro.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-pro.md",
+    "file": "evidence/docs-models__recraft-v4-1-pro.md",
+    "retrievedAt": "2026-10-28T23:21:00.054010+00:00",
+    "sha256": "7e9adca2e3f9d8d68ed391719e88c56dd134b5b47cbaa97ed65e115458b1841f",
+    "bytes": 1287
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility-pro.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility-pro.md",
+    "file": "evidence/docs-models__recraft-v4-1-utility-pro.md",
+    "retrievedAt": "2026-10-28T23:20:59.362304+00:00",
+    "sha256": "c576da2bb166be726646c911e65cd8e2e0b3b777ef7cccc6d039465dfa021d1f",
+    "bytes": 1332
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1-utility.md",
+    "file": "evidence/docs-models__recraft-v4-1-utility.md",
+    "retrievedAt": "2026-10-28T23:21:00.054010+00:00",
+    "sha256": "a5b2ff26a2875b054b0429ec9dd7eb066136414cfe95174be487aac632a84d9e",
+    "bytes": 1293
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1.md",
+    "file": "evidence/docs-models__recraft-v4-1.md",
+    "retrievedAt": "2026-10-28T23:21:00.053498+00:00",
+    "sha256": "a0b86b2166c379f4a622b26fe795381a5a7213e35acde5ca5e6720fea267952d",
+    "bytes": 1272
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/recraft-v4-1/text-to-image.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/recraft-v4-1/text-to-image.md",
+    "file": "evidence/docs-models__recraft-v4-1__text-to-image.md",
+    "retrievedAt": "2026-10-28T23:20:59.667548+00:00",
+    "sha256": "46a2f8d593348278623da2eba00f9a2aec35a834242b3c7941246b0cc11fde74",
+    "bytes": 8083
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5.md",
+    "file": "evidence/docs-models__seedance-2-5.md",
+    "retrievedAt": "2026-10-28T23:20:59.991586+00:00",
+    "sha256": "c52d6d552fbf026bf7b67f8680233bc79f2a0300359018059d333c2caa31e2ce",
+    "bytes": 1881
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/image-to-video.md",
+    "file": "evidence/docs-models__seedance-2-5__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:00.176458+00:00",
+    "sha256": "ab3fb9153ac06a0b2ea71aa4a10d33327dd5f51ac77ac9a472b0a774a3bc0355",
+    "bytes": 5535
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/text-to-video.md",
+    "file": "evidence/docs-models__seedance-2-5__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:20:59.936360+00:00",
+    "sha256": "4c24fe51251e8c482acc10ec30a192132a101b1948f1af887e7fc8a0eb2c8a9d",
+    "bytes": 5933
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-edit.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-edit.md",
+    "file": "evidence/docs-models__seedance-2-5__video-edit.md",
+    "retrievedAt": "2026-10-28T23:21:00.748654+00:00",
+    "sha256": "49c6adb72759843db9fa96ca0cdbc822bff6270772074a6af3e3e84974694b96",
+    "bytes": 6837
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-extend.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-extend.md",
+    "file": "evidence/docs-models__seedance-2-5__video-extend.md",
+    "retrievedAt": "2026-10-28T23:20:59.876029+00:00",
+    "sha256": "a05b78c79ce9bbe4ea6745d8d0c45df53e7f79b82fac64256fe742acb3d7f547",
+    "bytes": 6994
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2.md",
+    "file": "evidence/docs-models__seedance-2.md",
+    "retrievedAt": "2026-10-28T23:21:00.173934+00:00",
+    "sha256": "f98ebe6ec0431630d2365e698e737a7222dd964934fc240b96ecde0354109f5d",
+    "bytes": 1597
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2/image-to-video.md",
+    "file": "evidence/docs-models__seedance-2__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:00.431866+00:00",
+    "sha256": "026067892fda5b6af49c99b3a2e44fec99a0b5eeaae7b3c28a390b3b3294b8ed",
+    "bytes": 5293
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/seedance-2/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/seedance-2/text-to-video.md",
+    "file": "evidence/docs-models__seedance-2__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:00.475366+00:00",
+    "sha256": "f6aa68aa28da33afe53dee000f79ae00d35c58bc02eb0bf3f3cb7f1f483e931f",
+    "bytes": 5475
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-2.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-2.md",
+    "file": "evidence/docs-models__soul-2.md",
+    "retrievedAt": "2026-10-28T23:21:00.785314+00:00",
+    "sha256": "a2d5e16171cd9b69be4d0b2583aa17d963f0c82e4a6f9f8de84bd469b56314b1",
+    "bytes": 1158
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-2/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-2/generate.md",
+    "file": "evidence/docs-models__soul-2__generate.md",
+    "retrievedAt": "2026-10-28T23:21:04.823319+00:00",
+    "sha256": "038864f4f4d00ccf134d4925544f97ecbcec7c302c3261800d3b442d8b081926",
+    "bytes": 8788
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-cinema.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-cinema.md",
+    "file": "evidence/docs-models__soul-cinema.md",
+    "retrievedAt": "2026-10-28T23:21:00.465559+00:00",
+    "sha256": "43c9229eb4ae7762443784defdbfa84a86b14953eb17b3216c008dd521c6e7f5",
+    "bytes": 1201
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-cinema/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-cinema/generate.md",
+    "file": "evidence/docs-models__soul-cinema__generate.md",
+    "retrievedAt": "2026-10-28T23:21:00.646389+00:00",
+    "sha256": "576b374dfcd39558755a96f421394abc069cd75c83ec7986eafa16de8d06ac20",
+    "bytes": 7280
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-id.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-id.md",
+    "file": "evidence/docs-models__soul-id.md",
+    "retrievedAt": "2026-10-28T23:21:00.546217+00:00",
+    "sha256": "7c79145c75a0992ce646804319e77cfc0574204fcf35b449c363a61ac51a81a7",
+    "bytes": 1261
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-standard.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-standard.md",
+    "file": "evidence/docs-models__soul-standard.md",
+    "retrievedAt": "2026-10-28T23:21:05.126237+00:00",
+    "sha256": "784c5e3dbad4ff43b2ceca215399cff7003b5e75780397f624bc295db1420322",
+    "bytes": 1162
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/soul-standard/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/soul-standard/generate.md",
+    "file": "evidence/docs-models__soul-standard__generate.md",
+    "retrievedAt": "2026-10-28T23:21:00.686644+00:00",
+    "sha256": "91c0bc0737d84eec3e28db70c3e514e95c5549ad364418516a7f64d3c04a13cc",
+    "bytes": 9431
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/video-generation.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/video-generation.md",
+    "file": "evidence/docs-models__video-generation.md",
+    "retrievedAt": "2026-10-28T23:21:01.005505+00:00",
+    "sha256": "c47cd33716f723d9c7cb88b85fb08b9f9f16c3c4f0e9ced9809936f19799738c",
+    "bytes": 5408
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-6.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6.md",
+    "file": "evidence/docs-models__wan-2-6.md",
+    "retrievedAt": "2026-10-28T23:21:01.013112+00:00",
+    "sha256": "e529a4e925292a5ad7351b851f9cc7608c0c214d33c60bffe569dbbf29c9852c",
+    "bytes": 1485
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-6/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6/image-to-video.md",
+    "file": "evidence/docs-models__wan-2-6__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:00.992380+00:00",
+    "sha256": "cf027ebd7af648af69cf185e8c5b34b4154d1b5ae3819604ecab116567ba01cc",
+    "bytes": 6167
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-6/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-6/text-to-video.md",
+    "file": "evidence/docs-models__wan-2-6__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:01.157535+00:00",
+    "sha256": "bdfb887110799ee442cabb4c8028b819462f09f3a30edc1cfeb0d54f1a179619",
+    "bytes": 5367
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-7.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7.md",
+    "file": "evidence/docs-models__wan-2-7.md",
+    "retrievedAt": "2026-10-28T23:21:01.119424+00:00",
+    "sha256": "649882d1fb5ba4618056116b2f6225b48e97881d23bb199d6d617e04d458513d",
+    "bytes": 1427
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-7/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7/image-to-video.md",
+    "file": "evidence/docs-models__wan-2-7__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:01.147981+00:00",
+    "sha256": "2d2a930c5e8e7bb381905a58fcde92644157dc9879f28de0ec5baec9237b7267",
+    "bytes": 5671
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-2-7/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-2-7/text-to-video.md",
+    "file": "evidence/docs-models__wan-2-7__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:01.273479+00:00",
+    "sha256": "aa7d82496ec140028c02a6cdb6d28143b4f9cd04c7fa5ce0986f540f60c73d63",
+    "bytes": 5699
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3-prime.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime.md",
+    "file": "evidence/docs-models__wan-3-prime.md",
+    "retrievedAt": "2026-10-28T23:21:01.777978+00:00",
+    "sha256": "8f3d9ecdf5f6208b0ccbfe277ba39849f94745c1280f535b3461b46934226cbd",
+    "bytes": 1592
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3-prime/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime/reference-to-video.md",
+    "file": "evidence/docs-models__wan-3-prime__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:02.269831+00:00",
+    "sha256": "c8846f7a1a896ffeec1efce20bf2dcc6fb565454d73f054a29e90566e8c52ab2",
+    "bytes": 8384
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3.md",
+    "file": "evidence/docs-models__wan-3.md",
+    "retrievedAt": "2026-10-28T23:21:01.522847+00:00",
+    "sha256": "e561f7e89e335683642a4f13230fa3712e98589601b4ec46db366a6d2d12932d",
+    "bytes": 1492
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3/image-to-video.md",
+    "file": "evidence/docs-models__wan-3__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:01.844874+00:00",
+    "sha256": "9e20eec5f1fff3607d6db3eca00caa17ad9a1c5b346bdcbd41bebbf30d9ff70f",
+    "bytes": 6534
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3/text-to-video.md",
+    "file": "evidence/docs-models__wan-3__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:01.649058+00:00",
+    "sha256": "981887b9c320103a066344a539877fecc7fc4089c0d5c8e70cca32ed6e8d22b4",
+    "bytes": 5852
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/z-image-turbo.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/z-image-turbo.md",
+    "file": "evidence/docs-models__z-image-turbo.md",
+    "retrievedAt": "2026-10-28T23:21:02.026696+00:00",
+    "sha256": "fc2143a522c4e63c7c66aa6ddbcc424c9472211cbcc6cd1ecf2aea6a30d54b1d",
+    "bytes": 1293
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/cinema-studio-4.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/cinema-studio-4.md",
+    "file": "evidence/docs-models__cinema-studio-4.md",
+    "retrievedAt": "2026-10-28T23:21:05.664126+00:00",
+    "sha256": "de22fbdfe10315edb8c519eda4fcb5e053991e5b3c7607caf2e026abf808cc7a",
+    "bytes": 1179
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/grok-video-1-5.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/grok-video-1-5.md",
+    "file": "evidence/docs-models__grok-video-1-5.md",
+    "retrievedAt": "2026-10-28T23:21:05.656597+00:00",
+    "sha256": "b49ffd741f78c09603680d045bdbea001ced693e4fccaff0bc925c2e9c522e80",
+    "bytes": 1263
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/grok-video-1-5/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/grok-video-1-5/reference-to-video.md",
+    "file": "evidence/docs-models__grok-video-1-5__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:05.790664+00:00",
+    "sha256": "3a98b775ee24f349451dd0a223b76ed9e16619ff45849f600acd6e3ff92bff56",
+    "bytes": 6765
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/hailuo-2-3.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/hailuo-2-3.md",
+    "file": "evidence/docs-models__hailuo-2-3.md",
+    "retrievedAt": "2026-10-28T23:21:05.692361+00:00",
+    "sha256": "7bd297605e27ea985c10e204fb51aae0f656a2be7003c2a36163eecea764ea06",
+    "bytes": 1277
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ideogram-4/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ideogram-4/generate.md",
+    "file": "evidence/docs-models__ideogram-4__generate.md",
+    "retrievedAt": "2026-10-28T23:21:05.718098+00:00",
+    "sha256": "da26f9ef09af47052f152a459aacc2d9c6b1dbab71a910950d672ab8f28bf4ae",
+    "bytes": 6440
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo.md",
+    "file": "evidence/docs-models__kling-2-5-turbo.md",
+    "retrievedAt": "2026-10-28T23:21:05.914079+00:00",
+    "sha256": "74cc8f510b37fd3467624feaa4c61609930dbeb5c5b1cd9a9ddd77270050e629",
+    "bytes": 1710
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-image-to-video.md",
+    "file": "evidence/docs-models__kling-2-5-turbo__pro-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:05.924091+00:00",
+    "sha256": "632c1fa5815a2f86396b3111bab843fb071eb39a37d7b3078f385dcac84b0a14",
+    "bytes": 5661
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/standard-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/standard-image-to-video.md",
+    "file": "evidence/docs-models__kling-2-5-turbo__standard-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:05.995910+00:00",
+    "sha256": "06a329c8d51ed3dd0a7b68beaa6b523579648cba55ceb4f130cf4ca096ebbe55",
+    "bytes": 5704
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control.md",
+    "file": "evidence/docs-models__kling-2-6-motion-control.md",
+    "retrievedAt": "2026-10-28T23:21:05.729648+00:00",
+    "sha256": "e352a98f5017f9843b36be68e52c3129c1329fc3b9131ee681d089b40f1d01c0",
+    "bytes": 1475
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-6.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6.md",
+    "file": "evidence/docs-models__kling-2-6.md",
+    "retrievedAt": "2026-10-28T23:21:05.641961+00:00",
+    "sha256": "f97013dc79209eeeef802e5c9ddf54034a832302e8382ac5ce6e6e44e8a5236a",
+    "bytes": 1471
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-text-to-video.md",
+    "file": "evidence/docs-models__kling-2-6__pro-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:06.147531+00:00",
+    "sha256": "ba7bb25fc2ed9fc34a80c3662fee41e6f34fbd1fae794a8b936cee78a2a9ecb1",
+    "bytes": 5368
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control.md",
+    "file": "evidence/docs-models__kling-3-motion-control.md",
+    "retrievedAt": "2026-10-28T23:21:06.157098+00:00",
+    "sha256": "f329203dfcdfaa6128fc16c8b4d16a605e140100742c0069d29bce3c71c4bd2b",
+    "bytes": 1479
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3.md",
+    "file": "evidence/docs-models__kling-3.md",
+    "retrievedAt": "2026-10-28T23:21:06.081474+00:00",
+    "sha256": "886125adc4a7158858166cf4e3ce153bf7e6fad2cd84d4123885deeae6cd0b5b",
+    "bytes": 2353
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/4k-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/4k-text-to-video.md",
+    "file": "evidence/docs-models__kling-3__4k-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:06.278441+00:00",
+    "sha256": "ef1e9257639efc4a0516b237127a78f5c8ac62af53302ffe2b2bccec5c9fcac1",
+    "bytes": 7014
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/turbo-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/turbo-image-to-video.md",
+    "file": "evidence/docs-models__kling-3__turbo-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:06.381360+00:00",
+    "sha256": "1dbd40bca3c5425a8f7fba234354407419cc2de16097e354530baa6925b7cd93",
+    "bytes": 5594
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-o3.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-o3.md",
+    "file": "evidence/docs-models__kling-o3.md",
+    "retrievedAt": "2026-10-28T23:21:06.272239+00:00",
+    "sha256": "c897f7c85578927ffbf6136d72ad9509f122919fcc969dd91098dbf7ccf1c831",
+    "bytes": 1660
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/first-last-frame.md",
+    "file": "evidence/docs-models__kling-o3__first-last-frame.md",
+    "retrievedAt": "2026-10-28T23:21:06.601213+00:00",
+    "sha256": "d79418feec38c2512377062ac0c658eff0631a03058e0fed61bfda61b4a395ad",
+    "bytes": 7791
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-o3/video-edit.md",
+    "file": "evidence/docs-models__kling-o3__video-edit.md",
+    "retrievedAt": "2026-10-28T23:21:06.626480+00:00",
+    "sha256": "65a2a4c4742ba0f6fec7f299d04a8275d5b52ef2ecfbe1949ee344fa75e88388",
+    "bytes": 6154
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-omni.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-omni.md",
+    "file": "evidence/docs-models__kling-omni.md",
+    "retrievedAt": "2026-10-28T23:21:06.412422+00:00",
+    "sha256": "4f26fff13602461e2da1fda7d3d24b23973b2132d5cba0936f71bc1fb2de1030",
+    "bytes": 1670
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-omni/image-reference.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/image-reference.md",
+    "file": "evidence/docs-models__kling-omni__image-reference.md",
+    "retrievedAt": "2026-10-28T23:21:06.613779+00:00",
+    "sha256": "4c5d55925b05694189db576c2abfe6a1cc2ce36e3ea8ed2fcfa1410b51c432f2",
+    "bytes": 6027
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-omni/video-reference.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/video-reference.md",
+    "file": "evidence/docs-models__kling-omni__video-reference.md",
+    "retrievedAt": "2026-10-28T23:21:07.561769+00:00",
+    "sha256": "9dd14310df0cfae2d16ed4ae3de43b6a7c58058b6f8ff588d1cb61fd9cf45bf6",
+    "bytes": 6834
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ltx-2-5.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5.md",
+    "file": "evidence/docs-models__ltx-2-5.md",
+    "retrievedAt": "2026-10-28T23:21:08.085362+00:00",
+    "sha256": "8275d8ba6ef259733b73174f2e1a3b2231e1d7bd4cc7d4948120f769cf99799c",
+    "bytes": 1715
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/flare.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/flare.md",
+    "file": "evidence/docs-models__marketing-studio-image__flare.md",
+    "retrievedAt": "2026-10-28T23:21:06.613779+00:00",
+    "sha256": "92cea02ce99545b97ca348e9b43183fcacc6bf79763ed42f2da4f97ea1c4402a",
+    "bytes": 8064
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/generate-and-edit.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/generate-and-edit.md",
+    "file": "evidence/docs-models__marketing-studio-image__generate-and-edit.md",
+    "retrievedAt": "2026-10-28T23:21:06.784452+00:00",
+    "sha256": "38ebd9491c05c2f5a3f3df26a2163d9434d6c50c751a571714857c59f8688b91",
+    "bytes": 9201
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/sunburst.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/marketing-studio-image/sunburst.md",
+    "file": "evidence/docs-models__marketing-studio-image__sunburst.md",
+    "retrievedAt": "2026-10-28T23:21:06.795965+00:00",
+    "sha256": "c2f20e02fdddab36370eab2b616fc302be40865ae2ee767c39333d9b759406e7",
+    "bytes": 8074
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/minimax-h3.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3.md",
+    "file": "evidence/docs-models__minimax-h3.md",
+    "retrievedAt": "2026-10-28T23:21:06.973875+00:00",
+    "sha256": "1e3ad0bfdbb4323fb973aaa7fe72bd5a6a6e3c3c84ecfbab94c6dacad47d4755",
+    "bytes": 1483
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/pixverse-v6.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/pixverse-v6.md",
+    "file": "evidence/docs-models__pixverse-v6.md",
+    "retrievedAt": "2026-10-28T23:21:06.850466+00:00",
+    "sha256": "ea49df80c9a0c717a9c1ce31a566d0c62f5ff3cd2382bdc66ffac7b99f455f52",
+    "bytes": 1233
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/qwen-image-3/edit.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/qwen-image-3/edit.md",
+    "file": "evidence/docs-models__qwen-image-3__edit.md",
+    "retrievedAt": "2026-10-28T23:21:07.138037+00:00",
+    "sha256": "703a91a9603b1d3c2facb4ccb43ab2ed1f8f4d656b336486d7ac6e1d84bbdcff",
+    "bytes": 8571
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/qwen-image-3/text-to-image.md",
+    "file": "evidence/docs-models__qwen-image-3__text-to-image.md",
+    "retrievedAt": "2026-10-28T23:21:07.083078+00:00",
+    "sha256": "7a8de1a4137c3a3d7aea731e3cec7f7b204f3bfe3a128adc2ae4e9e26b420554",
+    "bytes": 8030
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3-prime/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime/image-to-video.md",
+    "file": "evidence/docs-models__wan-3-prime__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:07.508211+00:00",
+    "sha256": "9e739347ec1b4f58df6069d922846a33ed21a7662dd7c5b3f65434e5b65863d8",
+    "bytes": 6650
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/wan-3-prime/text-to-video.md",
+    "file": "evidence/docs-models__wan-3-prime__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:07.304390+00:00",
+    "sha256": "5b6c5b4bae8378efaed7d7ec1fc8511bca523735fd59b87146511cf3cd6c7b79",
+    "bytes": 5978
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/z-image-turbo/generate.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/z-image-turbo/generate.md",
+    "file": "evidence/docs-models__z-image-turbo__generate.md",
+    "retrievedAt": "2026-10-28T23:21:07.247463+00:00",
+    "sha256": "fa35660c591cfb85169e74fc31d06b0ca521c378c6992f39587c4084d799d9ae",
+    "bytes": 6517
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-image-to-video.md",
+    "file": "evidence/docs-models__hailuo-2-3__standard-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:08.597193+00:00",
+    "sha256": "897d306256e8851ceb442b7af01bc5ea2d5f64543fd91e4ba3a661ee8747611a",
+    "bytes": 5322
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/hailuo-2-3/standard-text-to-video.md",
+    "file": "evidence/docs-models__hailuo-2-3__standard-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.611731+00:00",
+    "sha256": "e99d0fa006f81cf0f15d288f17b950603cad6beab0513d971d74a667aa9e8c14",
+    "bytes": 4812
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-5-turbo/pro-text-to-video.md",
+    "file": "evidence/docs-models__kling-2-5-turbo__pro-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:08.680530+00:00",
+    "sha256": "745d92dd95a6b0a5a4105a23b74446760f0e1e411599b5dea181ef7cbdc0ba26",
+    "bytes": 5046
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/pro.md",
+    "file": "evidence/docs-models__kling-2-6-motion-control__pro.md",
+    "retrievedAt": "2026-10-28T23:21:08.578645+00:00",
+    "sha256": "f29955eed8fd0a3226a8287bc06af2db20e842157b96a63fba03d070a26a6796",
+    "bytes": 6207
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6-motion-control/std.md",
+    "file": "evidence/docs-models__kling-2-6-motion-control__std.md",
+    "retrievedAt": "2026-10-28T23:21:08.633420+00:00",
+    "sha256": "182687444aab0fda20721cbf22471becf333f498cb7e16d6afd9a28cd62936bc",
+    "bytes": 6217
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-2-6/pro-image-to-video.md",
+    "file": "evidence/docs-models__kling-2-6__pro-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:08.569595+00:00",
+    "sha256": "b53fc9b34669ba1371f842bd81b7e929a53bfaa4064b040ae24b7a5fb2b12bbe",
+    "bytes": 5950
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/pro.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/pro.md",
+    "file": "evidence/docs-models__kling-3-motion-control__pro.md",
+    "retrievedAt": "2026-10-28T23:21:08.724841+00:00",
+    "sha256": "758538a10ccf87615c0ae0a7a1197d461604156a86caa801c7d5593b98507bb6",
+    "bytes": 6230
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/std.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3-motion-control/std.md",
+    "file": "evidence/docs-models__kling-3-motion-control__std.md",
+    "retrievedAt": "2026-10-28T23:21:09.565259+00:00",
+    "sha256": "7ab0e9e286a260c5fdc7890d70b3ab16c800c65584f76f47cf530a430c1c10d5",
+    "bytes": 6240
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/4k-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/4k-image-to-video.md",
+    "file": "evidence/docs-models__kling-3__4k-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:08.595687+00:00",
+    "sha256": "ee186c22d80fe17f85432298e737432671cea451cd4b85120539fe7a61cb0bca",
+    "bytes": 7576
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/pro-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/pro-image-to-video.md",
+    "file": "evidence/docs-models__kling-3__pro-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:08.677404+00:00",
+    "sha256": "90a28d60e4efa79fe4a407838dccf157a021e03e61a7443d5522f37e06f15dd5",
+    "bytes": 7582
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/pro-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/pro-text-to-video.md",
+    "file": "evidence/docs-models__kling-3__pro-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.347567+00:00",
+    "sha256": "dd56f251b3919a6dd30950b64180d26c6ba60094682ff63e9be0bdeb522d406b",
+    "bytes": 7018
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/standard-image-to-video.md",
+    "file": "evidence/docs-models__kling-3__standard-image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.281783+00:00",
+    "sha256": "ad34e71c8a07ea4359b49bd41654ea8f9605d14e188a705d8f10d575ec9c5dcd",
+    "bytes": 7621
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/standard-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/standard-text-to-video.md",
+    "file": "evidence/docs-models__kling-3__standard-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.228016+00:00",
+    "sha256": "21c2b8bdcbcd3cbd54d76e518053fc4bd890e19c3a4b646319be1d496c1515ed",
+    "bytes": 7036
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-3/turbo-text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-3/turbo-text-to-video.md",
+    "file": "evidence/docs-models__kling-3__turbo-text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.111587+00:00",
+    "sha256": "9146aa0283fb04baaf33c6aec13bf067feee9282d7baa086bd1278c86e066ed5",
+    "bytes": 5342
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/first-last-frame.md",
+    "file": "evidence/docs-models__kling-omni__first-last-frame.md",
+    "retrievedAt": "2026-10-28T23:21:09.082019+00:00",
+    "sha256": "32642a3a150343cd77f43df19565a4b6177348effe37507879be10c5a9be6da0",
+    "bytes": 5878
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/kling-omni/video-edit.md",
+    "file": "evidence/docs-models__kling-omni__video-edit.md",
+    "retrievedAt": "2026-10-28T23:21:09.263903+00:00",
+    "sha256": "242c36f9687b7d231de72d46f56c6030905602d535f25f606eae986d188b42e0",
+    "bytes": 6164
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-fast.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-fast.md",
+    "file": "evidence/docs-models__ltx-2-5__image-to-video-fast.md",
+    "retrievedAt": "2026-10-28T23:21:09.310672+00:00",
+    "sha256": "eec3f833ac2b95580cfbb05386888618ad5ec522bd4a4633e58c46feaced9ed4",
+    "bytes": 7268
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-pro.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/image-to-video-pro.md",
+    "file": "evidence/docs-models__ltx-2-5__image-to-video-pro.md",
+    "retrievedAt": "2026-10-28T23:21:09.191129+00:00",
+    "sha256": "29c889ef56e04317b8a87427bda03a427205924c0e26c5685cc3bdc6797bc24f",
+    "bytes": 7298
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-fast.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-fast.md",
+    "file": "evidence/docs-models__ltx-2-5__text-to-video-fast.md",
+    "retrievedAt": "2026-10-28T23:21:09.920979+00:00",
+    "sha256": "a2cfbbc75e3cff5b06fd682b37b91f4987efb7d339019dd6aadffa7f379cab08",
+    "bytes": 6496
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-pro.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/ltx-2-5/text-to-video-pro.md",
+    "file": "evidence/docs-models__ltx-2-5__text-to-video-pro.md",
+    "retrievedAt": "2026-10-28T23:21:09.953992+00:00",
+    "sha256": "9e19347d7b3c5fd75fd5eb575e1059c4d12e98405e2539bfda4dadce932b4132",
+    "bytes": 6522
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/minimax-h3/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3/image-to-video.md",
+    "file": "evidence/docs-models__minimax-h3__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:20.693653+00:00",
+    "sha256": "9737299eabf84af82a5eead2b355d09780cec1f3ed693ace192f83e0f13e8302",
+    "bytes": 6237
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/minimax-h3/reference-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3/reference-to-video.md",
+    "file": "evidence/docs-models__minimax-h3__reference-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.695182+00:00",
+    "sha256": "0405660e9063cfd2383db32ac10b789a602e82002c643dbe11418c51013fe622",
+    "bytes": 7315
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/minimax-h3/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/minimax-h3/text-to-video.md",
+    "file": "evidence/docs-models__minimax-h3__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:09.786856+00:00",
+    "sha256": "9102b4371c02f8b040f46774928c0c0c8d8b81aeb5572dae590a6458d17c50ec",
+    "bytes": 5541
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/pixverse-v6/image-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/pixverse-v6/image-to-video.md",
+    "file": "evidence/docs-models__pixverse-v6__image-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:20.832134+00:00",
+    "sha256": "46e51042b7c7662f7da8c4ccccaeced4e5a11df4d902d393c90f43b4feace3bb",
+    "bytes": 6424
+  },
+  {
+    "url": "https://docs.higgsfield.ai/docs/models/pixverse-v6/text-to-video.md",
+    "finalUrl": "https://docs.higgsfield.ai/docs/models/pixverse-v6/text-to-video.md",
+    "file": "evidence/docs-models__pixverse-v6__text-to-video.md",
+    "retrievedAt": "2026-10-28T23:21:20.859767+00:00",
+    "sha256": "3c83fe5c1574e34946e0aa54be9c6222ec2c87c0ea4133fd3ebc57b6f7433b29",
+    "bytes": 5979
+  }
+]

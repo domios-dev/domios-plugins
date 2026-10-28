@@ -1,0 +1,120 @@
+page: MiniMax H3 — API reference | Higgsfield API — https://open.higgsfield.ai/models/minimax/h3/reference-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@4242c1538f554122872ae683712c27fd-e1]
+  - button "Collapse sidebar" [expanded=true] [@4242c1538f554122872ae683712c27fd-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@4242c1538f554122872ae683712c27fd-e3]
+    - link "Explore models" [@4242c1538f554122872ae683712c27fd-e4]
+    - link "Quick start" [@4242c1538f554122872ae683712c27fd-e5]
+    - link "Documentation" [@4242c1538f554122872ae683712c27fd-e6]
+    - link "Pricing UP TO 75% OFF" [@4242c1538f554122872ae683712c27fd-e7]
+    - button "Playground" [expanded=true] [@4242c1538f554122872ae683712c27fd-e8]
+    - link "API keys" [@4242c1538f554122872ae683712c27fd-e9]
+    - link "Cashback" [@4242c1538f554122872ae683712c27fd-e10]
+    - link "Analytics" [@4242c1538f554122872ae683712c27fd-e11]
+    - link "Billing" [@4242c1538f554122872ae683712c27fd-e12]
+  - link "Contact sales" [@4242c1538f554122872ae683712c27fd-e13]
+  - link "Status" [@4242c1538f554122872ae683712c27fd-e14]
+  - link "Pricing" [@4242c1538f554122872ae683712c27fd-e15]
+  - link "Log in" [@4242c1538f554122872ae683712c27fd-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@4242c1538f554122872ae683712c27fd-e17]
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@4242c1538f554122872ae683712c27fd-e18]
+  - link "Explore" [@4242c1538f554122872ae683712c27fd-e19]
+  - heading "MINIMAX H3"
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@4242c1538f554122872ae683712c27fd-e20]
+  - button "Copy agent prompt" [@4242c1538f554122872ae683712c27fd-e21]
+  - status
+  - link "View docs" [@4242c1538f554122872ae683712c27fd-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@4242c1538f554122872ae683712c27fd-e23]
+  - button "Copy for agent" [@4242c1538f554122872ae683712c27fd-e24]
+  - link "Explore" [@4242c1538f554122872ae683712c27fd-e25]
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@4242c1538f554122872ae683712c27fd-e26]
+  - navigation "Model sections"
+    - link "Playground" [@4242c1538f554122872ae683712c27fd-e27]
+    - link "API" [disabled] [@4242c1538f554122872ae683712c27fd-e28]
+    - link "Requests" [disabled] [@4242c1538f554122872ae683712c27fd-e29]
+    - link "Analytics" [disabled] [@4242c1538f554122872ae683712c27fd-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@4242c1538f554122872ae683712c27fd-e31]
+    - link "1. Calling the API" [@4242c1538f554122872ae683712c27fd-e32]
+    - link "Install" [@4242c1538f554122872ae683712c27fd-e33]
+    - link "Setup" [@4242c1538f554122872ae683712c27fd-e34]
+    - link "Request parameters" [@4242c1538f554122872ae683712c27fd-e35]
+    - link "2. Authentication" [@4242c1538f554122872ae683712c27fd-e36]
+    - link "API Key" [@4242c1538f554122872ae683712c27fd-e37]
+    - link "3. Queue" [@4242c1538f554122872ae683712c27fd-e38]
+    - link "Submit and wait" [@4242c1538f554122872ae683712c27fd-e39]
+    - link "Explicit lifecycle control" [@4242c1538f554122872ae683712c27fd-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@4242c1538f554122872ae683712c27fd-e41]
+  - heading "Setup"
+  - button "Copy code" [@4242c1538f554122872ae683712c27fd-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt. Minimum length: 1."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 5. Maximum: 15."
+    - row
+      - cell "audio_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Reference audio URLs."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Reference image URLs."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""2K""
+      - cell "Resolution. Options: 2K."
+    - row
+      - cell "video_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Reference video URLs."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""auto""
+      - cell "Aspect ratio. Options: auto, adaptive, 21:9, 16:9, 4:3, 1:1, 3:4, 9:16."
+    - row
+      - cell "aigc_watermark"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell "AIGC watermark."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@4242c1538f554122872ae683712c27fd-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@4242c1538f554122872ae683712c27fd-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@4242c1538f554122872ae683712c27fd-e45]
+- region "Notifications alt+T"

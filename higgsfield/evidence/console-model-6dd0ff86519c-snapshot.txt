@@ -1,0 +1,98 @@
+page: Kling 2.6 — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/motion-control/std/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@fd3c14f845204687a1b7833a8780b8bb-e1]
+  - button "Collapse sidebar" [expanded=true] [@fd3c14f845204687a1b7833a8780b8bb-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@fd3c14f845204687a1b7833a8780b8bb-e3]
+    - link "Explore models" [@fd3c14f845204687a1b7833a8780b8bb-e4]
+    - link "Quick start" [@fd3c14f845204687a1b7833a8780b8bb-e5]
+    - link "Documentation" [@fd3c14f845204687a1b7833a8780b8bb-e6]
+    - link "Pricing UP TO 75% OFF" [@fd3c14f845204687a1b7833a8780b8bb-e7]
+    - button "Playground" [expanded=true] [@fd3c14f845204687a1b7833a8780b8bb-e8]
+    - link "API keys" [@fd3c14f845204687a1b7833a8780b8bb-e9]
+    - link "Cashback" [@fd3c14f845204687a1b7833a8780b8bb-e10]
+    - link "Analytics" [@fd3c14f845204687a1b7833a8780b8bb-e11]
+    - link "Billing" [@fd3c14f845204687a1b7833a8780b8bb-e12]
+  - link "Contact sales" [@fd3c14f845204687a1b7833a8780b8bb-e13]
+  - link "Status" [@fd3c14f845204687a1b7833a8780b8bb-e14]
+  - link "Pricing" [@fd3c14f845204687a1b7833a8780b8bb-e15]
+  - link "Log in" [@fd3c14f845204687a1b7833a8780b8bb-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@fd3c14f845204687a1b7833a8780b8bb-e17]
+  - heading "KLING 2.6"
+  - button "Select model variant: Motion Control (Standard)" [expanded=false] [@fd3c14f845204687a1b7833a8780b8bb-e18]
+  - button "Copy agent prompt" [@fd3c14f845204687a1b7833a8780b8bb-e19]
+  - status
+  - link "View docs" [@fd3c14f845204687a1b7833a8780b8bb-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@fd3c14f845204687a1b7833a8780b8bb-e21]
+  - button "Copy for agent" [@fd3c14f845204687a1b7833a8780b8bb-e22]
+  - navigation "Model sections"
+    - link "Playground" [@fd3c14f845204687a1b7833a8780b8bb-e23]
+    - link "API" [disabled] [@fd3c14f845204687a1b7833a8780b8bb-e24]
+    - link "Requests" [disabled] [@fd3c14f845204687a1b7833a8780b8bb-e25]
+    - link "Analytics" [disabled] [@fd3c14f845204687a1b7833a8780b8bb-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@fd3c14f845204687a1b7833a8780b8bb-e27]
+    - link "1. Calling the API" [@fd3c14f845204687a1b7833a8780b8bb-e28]
+    - link "Install" [@fd3c14f845204687a1b7833a8780b8bb-e29]
+    - link "Setup" [@fd3c14f845204687a1b7833a8780b8bb-e30]
+    - link "Request parameters" [@fd3c14f845204687a1b7833a8780b8bb-e31]
+    - link "2. Authentication" [@fd3c14f845204687a1b7833a8780b8bb-e32]
+    - link "API Key" [@fd3c14f845204687a1b7833a8780b8bb-e33]
+    - link "3. Queue" [@fd3c14f845204687a1b7833a8780b8bb-e34]
+    - link "Submit and wait" [@fd3c14f845204687a1b7833a8780b8bb-e35]
+    - link "Explicit lifecycle control" [@fd3c14f845204687a1b7833a8780b8bb-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@fd3c14f845204687a1b7833a8780b8bb-e37]
+  - heading "Setup"
+  - button "Copy code" [@fd3c14f845204687a1b7833a8780b8bb-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Prompt."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "video_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Video URL."
+    - row
+      - cell "keep_original_sound"
+      - cell "string"
+      - cell "No"
+      - cell ""yes""
+      - cell "Keep original sound. Options: yes, no."
+    - row
+      - cell "character_orientation"
+      - cell "string"
+      - cell "No"
+      - cell ""video""
+      - cell "Generate the orientation of the characters in the video, which can be selected to match the image or"
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@fd3c14f845204687a1b7833a8780b8bb-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@fd3c14f845204687a1b7833a8780b8bb-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@fd3c14f845204687a1b7833a8780b8bb-e41]
+- region "Notifications alt+T"

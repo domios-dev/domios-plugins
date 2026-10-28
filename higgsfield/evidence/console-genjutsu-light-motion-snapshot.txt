@@ -1,0 +1,67 @@
+page: Genjutsu Light — Overview | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/genjutsu-light/motion-transfer/v1.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@3bb02959e79f478b91cc4c9d2b602012-e1]
+  - button "Collapse sidebar" [expanded=true] [@3bb02959e79f478b91cc4c9d2b602012-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@3bb02959e79f478b91cc4c9d2b602012-e3]
+    - link "Explore models" [@3bb02959e79f478b91cc4c9d2b602012-e4]
+    - link "Quick start" [@3bb02959e79f478b91cc4c9d2b602012-e5]
+    - link "Documentation" [@3bb02959e79f478b91cc4c9d2b602012-e6]
+    - link "Pricing UP TO 75% OFF" [@3bb02959e79f478b91cc4c9d2b602012-e7]
+    - button "Playground" [expanded=true] [@3bb02959e79f478b91cc4c9d2b602012-e8]
+    - link "API keys" [@3bb02959e79f478b91cc4c9d2b602012-e9]
+    - link "Cashback" [@3bb02959e79f478b91cc4c9d2b602012-e10]
+    - link "Analytics" [@3bb02959e79f478b91cc4c9d2b602012-e11]
+    - link "Billing" [@3bb02959e79f478b91cc4c9d2b602012-e12]
+  - link "Contact sales" [@3bb02959e79f478b91cc4c9d2b602012-e13]
+  - link "Status" [@3bb02959e79f478b91cc4c9d2b602012-e14]
+  - link "Pricing" [@3bb02959e79f478b91cc4c9d2b602012-e15]
+  - link "Log in" [@3bb02959e79f478b91cc4c9d2b602012-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@3bb02959e79f478b91cc4c9d2b602012-e17]
+  - button "Select model variant: Motion Transfer" [expanded=false] [@3bb02959e79f478b91cc4c9d2b602012-e18]
+  - link "Explore" [@3bb02959e79f478b91cc4c9d2b602012-e19]
+  - heading "GENJUTSU LIGHT"
+  - button "Select model variant: Motion Transfer" [expanded=false] [@3bb02959e79f478b91cc4c9d2b602012-e20]
+  - button "Copy agent prompt" [@3bb02959e79f478b91cc4c9d2b602012-e21]
+  - status
+  - link "View docs" [focused] [@3bb02959e79f478b91cc4c9d2b602012-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@3bb02959e79f478b91cc4c9d2b602012-e23]
+  - button "Copy for agent" [@3bb02959e79f478b91cc4c9d2b602012-e24]
+  - link "Explore" [@3bb02959e79f478b91cc4c9d2b602012-e25]
+  - button "Select model variant: Motion Transfer" [expanded=false] [@3bb02959e79f478b91cc4c9d2b602012-e26]
+  - navigation "Model sections"
+    - link "Playground" [@3bb02959e79f478b91cc4c9d2b602012-e27]
+    - link "API" [disabled] [@3bb02959e79f478b91cc4c9d2b602012-e28]
+    - link "Requests" [disabled] [@3bb02959e79f478b91cc4c9d2b602012-e29]
+    - link "Analytics" [disabled] [@3bb02959e79f478b91cc4c9d2b602012-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@3bb02959e79f478b91cc4c9d2b602012-e31]
+    - link "1. Calling the API" [@3bb02959e79f478b91cc4c9d2b602012-e32]
+    - link "Install" [@3bb02959e79f478b91cc4c9d2b602012-e33]
+    - link "Setup" [@3bb02959e79f478b91cc4c9d2b602012-e34]
+    - link "2. Authentication" [@3bb02959e79f478b91cc4c9d2b602012-e35]
+    - link "API Key" [@3bb02959e79f478b91cc4c9d2b602012-e36]
+    - link "3. Queue" [@3bb02959e79f478b91cc4c9d2b602012-e37]
+    - link "Submit" [@3bb02959e79f478b91cc4c9d2b602012-e38]
+    - link "Fetch" [@3bb02959e79f478b91cc4c9d2b602012-e39]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "npm" [@3bb02959e79f478b91cc4c9d2b602012-e40]
+  - button "yarn" [@3bb02959e79f478b91cc4c9d2b602012-e41]
+  - button "pnpm" [@3bb02959e79f478b91cc4c9d2b602012-e42]
+  - button "bun" [@3bb02959e79f478b91cc4c9d2b602012-e43]
+  - button "Copy code" [@3bb02959e79f478b91cc4c9d2b602012-e44]
+  - heading "Setup"
+  - button "Copy code" [@3bb02959e79f478b91cc4c9d2b602012-e45]
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@3bb02959e79f478b91cc4c9d2b602012-e46]
+  - heading "3. QUEUE"
+  - heading "Submit"
+  - button "Copy code" [@3bb02959e79f478b91cc4c9d2b602012-e47]
+  - heading "Fetch"
+  - button "Copy code" [@3bb02959e79f478b91cc4c9d2b602012-e48]
+- region "Notifications alt+T"

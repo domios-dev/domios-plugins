@@ -1,0 +1,174 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+HappyHorse 1.1
+Reference-to-Video
+Explore
+/
+HappyHorse 1.1
+50% OFF
+Video
+from
+0.07 / s
+0.14
+HAPPYHORSE 1.1
+Reference-to-Video
+
+HappyHorse 1.1 - Reference to Video. Configured Alibaba route; cloned from happy-horse/reference-to-video.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "alibaba/happy-horse/v1.1/reference-to-video",
+9
+  {
+10
+    input: {
+11
+      "prompt": "A cinematic scene at sunset",
+12
+      "duration": 5,
+13
+      "image_urls": [
+14
+        "https://example.com/input.jpg"
+15
+      ],
+16
+      "resolution": "1080p"
+17
+    },
+18
+    withPolling: true,
+19
+  },
+20
+);
+21
+22
+console.log(result);
+Copy for agent
+Explore
+/
+HappyHorse 1.1
+Reference-to-Video
+Playground
+API
+Requests
+Analytics
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+
+HappyHorse 1.1 uses the model ID alibaba/happy-horse/v1.1/reference-to-video. HappyHorse 1.1 - Reference to Video. Configured Alibaba route; cloned from happy-horse/reference-to-video.
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/alibaba/happy-horse/v1.1/reference-to-video with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+seed	integer	No	—	Minimum: 1. Maximum: 2147483646.
+prompt	string	Yes	—	Prompt.
+duration	integer	No	5	Duration. Minimum: 2. Maximum: 15.
+image_urls	array[string]	Yes	—	
+resolution	string	No	"1080p"	Options: 720p, 1080p.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns the generated file in the video field.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "alibaba/happy-horse/v1.1/reference-to-video",
+  {
+    input: {
+      "prompt": "A cinematic scene at sunset",
+      "duration": 5,
+      "image_urls": [
+        "https://example.com/input.jpg"
+      ],
+      "resolution": "1080p"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)
