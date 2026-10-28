@@ -1,0 +1,96 @@
+page: Genjutsu — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/genjutsu/object-swap/v1.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@706977613e27476ead4963326931e06f-e1]
+  - button "Collapse sidebar" [expanded=true] [@706977613e27476ead4963326931e06f-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@706977613e27476ead4963326931e06f-e3]
+    - link "Explore models" [@706977613e27476ead4963326931e06f-e4]
+    - link "Quick start" [@706977613e27476ead4963326931e06f-e5]
+    - link "Documentation" [@706977613e27476ead4963326931e06f-e6]
+    - link "Pricing UP TO 75% OFF" [@706977613e27476ead4963326931e06f-e7]
+    - button "Playground" [expanded=true] [@706977613e27476ead4963326931e06f-e8]
+    - link "API keys" [@706977613e27476ead4963326931e06f-e9]
+    - link "Cashback" [@706977613e27476ead4963326931e06f-e10]
+    - link "Analytics" [@706977613e27476ead4963326931e06f-e11]
+    - link "Billing" [@706977613e27476ead4963326931e06f-e12]
+  - link "Contact sales" [@706977613e27476ead4963326931e06f-e13]
+  - link "Status" [@706977613e27476ead4963326931e06f-e14]
+  - link "Pricing" [@706977613e27476ead4963326931e06f-e15]
+  - link "Log in" [@706977613e27476ead4963326931e06f-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@706977613e27476ead4963326931e06f-e17]
+  - button "Select model variant: Object Swap" [expanded=false] [@706977613e27476ead4963326931e06f-e18]
+  - link "Explore" [@706977613e27476ead4963326931e06f-e19]
+  - heading "GENJUTSU"
+  - button "Select model variant: Object Swap" [expanded=false] [@706977613e27476ead4963326931e06f-e20]
+  - button "Copy agent prompt" [@706977613e27476ead4963326931e06f-e21]
+  - status
+  - link "View docs" [@706977613e27476ead4963326931e06f-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@706977613e27476ead4963326931e06f-e23]
+  - button "Copy for agent" [@706977613e27476ead4963326931e06f-e24]
+  - link "Explore" [@706977613e27476ead4963326931e06f-e25]
+  - button "Select model variant: Object Swap" [expanded=false] [@706977613e27476ead4963326931e06f-e26]
+  - navigation "Model sections"
+    - link "Playground" [@706977613e27476ead4963326931e06f-e27]
+    - link "API" [disabled] [@706977613e27476ead4963326931e06f-e28]
+    - link "Requests" [disabled] [@706977613e27476ead4963326931e06f-e29]
+    - link "Analytics" [disabled] [@706977613e27476ead4963326931e06f-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@706977613e27476ead4963326931e06f-e31]
+    - link "1. Calling the API" [@706977613e27476ead4963326931e06f-e32]
+    - link "Install" [@706977613e27476ead4963326931e06f-e33]
+    - link "Setup" [@706977613e27476ead4963326931e06f-e34]
+    - link "Request parameters" [@706977613e27476ead4963326931e06f-e35]
+    - link "2. Authentication" [@706977613e27476ead4963326931e06f-e36]
+    - link "API Key" [@706977613e27476ead4963326931e06f-e37]
+    - link "3. Queue" [@706977613e27476ead4963326931e06f-e38]
+    - link "Submit and wait" [@706977613e27476ead4963326931e06f-e39]
+    - link "Explicit lifecycle control" [@706977613e27476ead4963326931e06f-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@706977613e27476ead4963326931e06f-e41]
+  - heading "Setup"
+  - button "Copy code" [@706977613e27476ead4963326931e06f-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Prompt. Maximum length: 10000."
+    - row
+      - cell "video_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Video Url. Minimum length: 1. Maximum length: 2083."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image Urls."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Resolution. Options: 720p, 480p, 1080p."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@706977613e27476ead4963326931e06f-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@706977613e27476ead4963326931e06f-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@706977613e27476ead4963326931e06f-e45]
+- region "Notifications alt+T"

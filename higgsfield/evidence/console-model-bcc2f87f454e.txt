@@ -1,0 +1,167 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Kling 2.6 Pro
+Text-to-Video (Pro)
+Explore
+/
+Kling 2.6 Pro
+Video
+KLING 2.6 PRO
+Text-to-Video (Pro)
+
+Generates videos and sound from text or images, including dialogue, sound effects and ambience.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "kling-video/v2.6/pro/text-to-video",
+9
+  {
+10
+    input: {
+11
+      "sound": "on",
+12
+      "prompt": "A cinematic scene at sunset",
+13
+      "duration": 5,
+14
+      "cfg_scale": 0.5,
+15
+      "aspect_ratio": "16:9"
+16
+    },
+17
+    withPolling: true,
+18
+  },
+19
+);
+20
+21
+console.log(result);
+Copy for agent
+Explore
+/
+Kling 2.6 Pro
+Text-to-Video (Pro)
+Playground
+API
+Requests
+Analytics
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+
+Kling 2.6 Pro uses the model ID kling-video/v2.6/pro/text-to-video. Kling 2.6 Pro generates short videos from text prompts with customizable duration, aspect ratio, and sound options. Users can adjust the CFG scale to control the adherence to the prompt for creative flexibility.
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/kling-video/v2.6/pro/text-to-video with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+sound	string	No	"on"	Generate sound. Options: on, off.
+prompt	string	Yes	—	Prompt.
+duration	integer	No	5	Duration. Options: 5, 10.
+cfg_scale	number	No	0.5	CFG Scale. Minimum: 0. Maximum: 1.
+aspect_ratio	string	No	"16:9"	Aspect ratio. Options: 16:9, 9:16, 1:1.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns the generated file in the video field.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "kling-video/v2.6/pro/text-to-video",
+  {
+    input: {
+      "sound": "on",
+      "prompt": "A cinematic scene at sunset",
+      "duration": 5,
+      "cfg_scale": 0.5,
+      "aspect_ratio": "16:9"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)

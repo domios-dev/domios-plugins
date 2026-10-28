@@ -1,0 +1,137 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+30% OFF
+ByteDance
+SEEDANCE 2.5
+
+Generates videos up to 30 seconds from text, image, video, or audio.
+
+Explore model
+from
+0.144 / s
+0.206 / s
+All models
+Image
+Video
+Filter
+All models
+Image
+Video
+Filter
+Image
+xai / Grok Imagine 2.0
+
+Generates images and makes precise edits while preserving image details and visual consistency.
+
+from
+0.040 / img
+Image
+Marketing Studio Image
+3 modes
+
+Creates and edits campaign images up to 4K from text or images.
+
+15% OFF
+from
+0.014 / img
+0.016
+Image
+Higgsfield Exclusive
+higgsfield / AI Influencer
+
+Create one AI influencer character sheet. Human and animal modes. $0.05 per sheet.
+
+0.050 / img
+Image
+Higgsfield Exclusive
+higgsfield / Soul 2
+2 modes
+
+Generates realistic portraits and fashion images, with natural textures and curated editorial styles.
+
+from
+0.003 / img
+Image
+ideogram / Ideogram 4.0
+
+Generates and edits images with multilingual text for posters, packaging and other graphic layouts.
+
+0.030 / img
+Image
+recraft / Recraft 4.1
+4 modes
+
+Generates images and illustrations using custom palettes and background colors to fit your brand.
+
+0.035 / img
+Image
+Higgsfield Exclusive
+higgsfield / Soul Standard
+
+Generates fashion and lifestyle photos from text, with style presets for editorial and social content.
+
+from
+0.094 / img
+Workflow
+Higgsfield Exclusive
+higgsfield / Ads Studio
+
+From a simple brief to ready-to-use ads. Bring your product, describe your vision, and let Ads Studio handle the creative.
+
+from
+0.084 / img
+Image
+alibaba / Qwen Image 3
+2 modes
+
+Generates images from English or Chinese text, with enhanced prompts and resolution up to 2K.
+
+from
+0.040 / img
+Image
+alibaba / Z-Image Turbo
+
+Generates images quickly with clear Chinese and English text rendering and PNG output up to 2K.
+
+0.015 / img
+Workflow
+Product shots
+
+Turns product photos into campaign images with presets for composition, lighting and visual style.
+
+15% OFF
+from
+0.014 / img
+0.016
+Workflow
+Graphic ads
+
+Creates ad creatives from a product photo, with presets that guide layout, typography and colors.
+
+15% OFF
+from
+0.014 / img
+0.016
+Workflow
+Marketplace design
+
+Creates listing images from a product photo, with preset styles designed for marketplace catalogs.
+
+15% OFF
+from
+0.014 / img
+0.016

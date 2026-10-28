@@ -1,0 +1,126 @@
+page: Qwen Image 3 — API reference | Higgsfield API — https://open.higgsfield.ai/models/alibaba/qwen-image-3/edit/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@e6281b78ff704677a6c0a4b663b2c349-e1]
+  - button "Collapse sidebar" [expanded=true] [@e6281b78ff704677a6c0a4b663b2c349-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@e6281b78ff704677a6c0a4b663b2c349-e3]
+    - link "Explore models" [@e6281b78ff704677a6c0a4b663b2c349-e4]
+    - link "Quick start" [@e6281b78ff704677a6c0a4b663b2c349-e5]
+    - link "Documentation" [@e6281b78ff704677a6c0a4b663b2c349-e6]
+    - link "Pricing UP TO 75% OFF" [@e6281b78ff704677a6c0a4b663b2c349-e7]
+    - button "Playground" [expanded=true] [@e6281b78ff704677a6c0a4b663b2c349-e8]
+    - link "API keys" [@e6281b78ff704677a6c0a4b663b2c349-e9]
+    - link "Cashback" [@e6281b78ff704677a6c0a4b663b2c349-e10]
+    - link "Analytics" [@e6281b78ff704677a6c0a4b663b2c349-e11]
+    - link "Billing" [@e6281b78ff704677a6c0a4b663b2c349-e12]
+  - link "Contact sales" [@e6281b78ff704677a6c0a4b663b2c349-e13]
+  - link "Status" [@e6281b78ff704677a6c0a4b663b2c349-e14]
+  - link "Pricing" [@e6281b78ff704677a6c0a4b663b2c349-e15]
+  - link "Log in" [@e6281b78ff704677a6c0a4b663b2c349-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@e6281b78ff704677a6c0a4b663b2c349-e17]
+  - button "Select model variant: Edit" [expanded=false] [@e6281b78ff704677a6c0a4b663b2c349-e18]
+  - link "Explore" [@e6281b78ff704677a6c0a4b663b2c349-e19]
+  - heading "QWEN IMAGE 3"
+  - button "Select model variant: Edit" [expanded=false] [@e6281b78ff704677a6c0a4b663b2c349-e20]
+  - button "Copy agent prompt" [@e6281b78ff704677a6c0a4b663b2c349-e21]
+  - status
+  - link "View docs" [@e6281b78ff704677a6c0a4b663b2c349-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@e6281b78ff704677a6c0a4b663b2c349-e23]
+  - button "Copy for agent" [@e6281b78ff704677a6c0a4b663b2c349-e24]
+  - link "Explore" [@e6281b78ff704677a6c0a4b663b2c349-e25]
+  - button "Select model variant: Edit" [expanded=false] [@e6281b78ff704677a6c0a4b663b2c349-e26]
+  - navigation "Model sections"
+    - link "Playground" [@e6281b78ff704677a6c0a4b663b2c349-e27]
+    - link "API" [disabled] [@e6281b78ff704677a6c0a4b663b2c349-e28]
+    - link "Requests" [disabled] [@e6281b78ff704677a6c0a4b663b2c349-e29]
+    - link "Analytics" [disabled] [@e6281b78ff704677a6c0a4b663b2c349-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@e6281b78ff704677a6c0a4b663b2c349-e31]
+    - link "1. Calling the API" [@e6281b78ff704677a6c0a4b663b2c349-e32]
+    - link "Install" [@e6281b78ff704677a6c0a4b663b2c349-e33]
+    - link "Setup" [@e6281b78ff704677a6c0a4b663b2c349-e34]
+    - link "Request parameters" [@e6281b78ff704677a6c0a4b663b2c349-e35]
+    - link "2. Authentication" [@e6281b78ff704677a6c0a4b663b2c349-e36]
+    - link "API Key" [@e6281b78ff704677a6c0a4b663b2c349-e37]
+    - link "3. Queue" [@e6281b78ff704677a6c0a4b663b2c349-e38]
+    - link "Submit and wait" [@e6281b78ff704677a6c0a4b663b2c349-e39]
+    - link "Explicit lifecycle control" [@e6281b78ff704677a6c0a4b663b2c349-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@e6281b78ff704677a6c0a4b663b2c349-e41]
+  - heading "Setup"
+  - button "Copy code" [@e6281b78ff704677a6c0a4b663b2c349-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Optional random seed for similar, reproducible results. Minimum: 0. Maximum: 2147483647."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Positive prompt or editing instruction in Chinese or English. Alibaba recommends at most 4,500 token"
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "Yes"
+      - cell "—"
+      - cell "One to three ordered public image URLs used as editing references."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""1k""
+      - cell "Output resolution tier. Both tiers produce PNG images. Options: 1k, 2k."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""1:1""
+      - cell "Output aspect ratio. Exact provider-recommended dimensions are selected automatically. Options: 1:1,"
+    - row
+      - cell "prompt_extend"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Improve the prompt before generation. Required when thinking mode is enabled."
+    - row
+      - cell "enable_thinking"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Use model reasoning to improve image quality. Requires prompt enhancement."
+    - row
+      - cell "negative_prompt"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Content, styles, or artifacts to avoid in the output."
+    - row
+      - cell "prompt_extend_mode"
+      - cell "string"
+      - cell "No"
+      - cell ""direct""
+      - cell "Direct enhancement is available for every request; agent enhancement is text-to-image only. Options:"
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@e6281b78ff704677a6c0a4b663b2c349-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@e6281b78ff704677a6c0a4b663b2c349-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@e6281b78ff704677a6c0a4b663b2c349-e45]
+- region "Notifications alt+T"

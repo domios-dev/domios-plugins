@@ -1,0 +1,102 @@
+page: MiniMax H3 — API reference | Higgsfield API — https://open.higgsfield.ai/models/minimax/h3/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@3e26ece29f5c4f7fbf28f5471bb0816a-e1]
+  - button "Collapse sidebar" [expanded=true] [@3e26ece29f5c4f7fbf28f5471bb0816a-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@3e26ece29f5c4f7fbf28f5471bb0816a-e3]
+    - link "Explore models" [@3e26ece29f5c4f7fbf28f5471bb0816a-e4]
+    - link "Quick start" [@3e26ece29f5c4f7fbf28f5471bb0816a-e5]
+    - link "Documentation" [@3e26ece29f5c4f7fbf28f5471bb0816a-e6]
+    - link "Pricing UP TO 75% OFF" [@3e26ece29f5c4f7fbf28f5471bb0816a-e7]
+    - button "Playground" [expanded=true] [@3e26ece29f5c4f7fbf28f5471bb0816a-e8]
+    - link "API keys" [@3e26ece29f5c4f7fbf28f5471bb0816a-e9]
+    - link "Cashback" [@3e26ece29f5c4f7fbf28f5471bb0816a-e10]
+    - link "Analytics" [@3e26ece29f5c4f7fbf28f5471bb0816a-e11]
+    - link "Billing" [@3e26ece29f5c4f7fbf28f5471bb0816a-e12]
+  - link "Contact sales" [@3e26ece29f5c4f7fbf28f5471bb0816a-e13]
+  - link "Status" [@3e26ece29f5c4f7fbf28f5471bb0816a-e14]
+  - link "Pricing" [@3e26ece29f5c4f7fbf28f5471bb0816a-e15]
+  - link "Log in" [@3e26ece29f5c4f7fbf28f5471bb0816a-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@3e26ece29f5c4f7fbf28f5471bb0816a-e17]
+  - button "Select model variant: Text-to-Video" [expanded=false] [@3e26ece29f5c4f7fbf28f5471bb0816a-e18]
+  - link "Explore" [@3e26ece29f5c4f7fbf28f5471bb0816a-e19]
+  - heading "MINIMAX H3"
+  - button "Select model variant: Text-to-Video" [expanded=false] [@3e26ece29f5c4f7fbf28f5471bb0816a-e20]
+  - button "Copy agent prompt" [@3e26ece29f5c4f7fbf28f5471bb0816a-e21]
+  - status
+  - link "View docs" [@3e26ece29f5c4f7fbf28f5471bb0816a-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@3e26ece29f5c4f7fbf28f5471bb0816a-e23]
+  - button "Copy for agent" [@3e26ece29f5c4f7fbf28f5471bb0816a-e24]
+  - link "Explore" [@3e26ece29f5c4f7fbf28f5471bb0816a-e25]
+  - button "Select model variant: Text-to-Video" [expanded=false] [@3e26ece29f5c4f7fbf28f5471bb0816a-e26]
+  - navigation "Model sections"
+    - link "Playground" [@3e26ece29f5c4f7fbf28f5471bb0816a-e27]
+    - link "API" [disabled] [@3e26ece29f5c4f7fbf28f5471bb0816a-e28]
+    - link "Requests" [disabled] [@3e26ece29f5c4f7fbf28f5471bb0816a-e29]
+    - link "Analytics" [disabled] [@3e26ece29f5c4f7fbf28f5471bb0816a-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@3e26ece29f5c4f7fbf28f5471bb0816a-e31]
+    - link "1. Calling the API" [@3e26ece29f5c4f7fbf28f5471bb0816a-e32]
+    - link "Install" [@3e26ece29f5c4f7fbf28f5471bb0816a-e33]
+    - link "Setup" [@3e26ece29f5c4f7fbf28f5471bb0816a-e34]
+    - link "Request parameters" [@3e26ece29f5c4f7fbf28f5471bb0816a-e35]
+    - link "2. Authentication" [@3e26ece29f5c4f7fbf28f5471bb0816a-e36]
+    - link "API Key" [@3e26ece29f5c4f7fbf28f5471bb0816a-e37]
+    - link "3. Queue" [@3e26ece29f5c4f7fbf28f5471bb0816a-e38]
+    - link "Submit and wait" [@3e26ece29f5c4f7fbf28f5471bb0816a-e39]
+    - link "Explicit lifecycle control" [@3e26ece29f5c4f7fbf28f5471bb0816a-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@3e26ece29f5c4f7fbf28f5471bb0816a-e41]
+  - heading "Setup"
+  - button "Copy code" [@3e26ece29f5c4f7fbf28f5471bb0816a-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt. Minimum length: 1."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 5. Maximum: 15."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""2K""
+      - cell "Resolution. Options: 2K."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""auto""
+      - cell "Aspect ratio. Options: auto, adaptive, 21:9, 16:9, 4:3, 1:1, 3:4, 9:16."
+    - row
+      - cell "aigc_watermark"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell "AIGC watermark."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@3e26ece29f5c4f7fbf28f5471bb0816a-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@3e26ece29f5c4f7fbf28f5471bb0816a-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@3e26ece29f5c4f7fbf28f5471bb0816a-e45]
+- region "Notifications alt+T"

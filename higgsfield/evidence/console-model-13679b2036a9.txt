@@ -1,0 +1,171 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Kling 3.0
+Motion Control (Pro)
+Explore
+/
+Kling 3.0
+50% OFF
+Video
+from
+0.084 / s
+0.168
+KLING 3.0
+Motion Control (Pro)
+
+Kling 3.0 Motion Control (Pro) generates videos by animating a source image according to the motion in a provided video. Users can control character orientation and choose to retain the original video's sound for customized motion-driven video creation.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "kling-video/v3/motion-control/pro",
+9
+  {
+10
+    input: {
+11
+      "prompt": "",
+12
+      "image_url": "https://example.com/input.jpg",
+13
+      "video_url": "https://example.com/input.mp4",
+14
+      "keep_original_sound": "yes",
+15
+      "character_orientation": "video"
+16
+    },
+17
+    withPolling: true,
+18
+  },
+19
+);
+20
+21
+console.log(result);
+Copy for agent
+Explore
+/
+Kling 3.0
+Motion Control (Pro)
+Playground
+API
+Requests
+Analytics
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+
+Kling 3.0 uses the model ID kling-video/v3/motion-control/pro. Kling 3.0 Motion Control (Pro) generates videos by animating a source image according to the motion in a provided video. Users can control character orientation and choose to retain the original video's sound for customized motion-driven video creation.
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/kling-video/v3/motion-control/pro with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+prompt	string	No	""	Prompt.
+image_url	string	Yes	—	Image URL.
+video_url	string	Yes	—	Video URL.
+keep_original_sound	string	No	"yes"	Keep original sound. Options: yes, no.
+character_orientation	string	No	"video"	Generate the orientation of the characters in the video, which can be selected to match the image or the video. Options: image, video.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns the generated file in the video field.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "kling-video/v3/motion-control/pro",
+  {
+    input: {
+      "prompt": "",
+      "image_url": "https://example.com/input.jpg",
+      "video_url": "https://example.com/input.mp4",
+      "keep_original_sound": "yes",
+      "character_orientation": "video"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)

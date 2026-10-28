@@ -1,0 +1,98 @@
+page: Kling 2.5 Turbo Pro — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@611cec95f295456581fad7b37f162737-e1]
+  - button "Collapse sidebar" [expanded=true] [@611cec95f295456581fad7b37f162737-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@611cec95f295456581fad7b37f162737-e3]
+    - link "Explore models" [@611cec95f295456581fad7b37f162737-e4]
+    - link "Quick start" [@611cec95f295456581fad7b37f162737-e5]
+    - link "Documentation" [@611cec95f295456581fad7b37f162737-e6]
+    - link "Pricing UP TO 75% OFF" [@611cec95f295456581fad7b37f162737-e7]
+    - button "Playground" [expanded=true] [@611cec95f295456581fad7b37f162737-e8]
+    - link "API keys" [@611cec95f295456581fad7b37f162737-e9]
+    - link "Cashback" [@611cec95f295456581fad7b37f162737-e10]
+    - link "Analytics" [@611cec95f295456581fad7b37f162737-e11]
+    - link "Billing" [@611cec95f295456581fad7b37f162737-e12]
+  - link "Contact sales" [@611cec95f295456581fad7b37f162737-e13]
+  - link "Status" [@611cec95f295456581fad7b37f162737-e14]
+  - link "Pricing" [@611cec95f295456581fad7b37f162737-e15]
+  - link "Log in" [@611cec95f295456581fad7b37f162737-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@611cec95f295456581fad7b37f162737-e17]
+  - heading "KLING 2.5 TURBO PRO"
+  - button "Select model variant: Image-to-Video (Pro)" [expanded=false] [@611cec95f295456581fad7b37f162737-e18]
+  - button "Copy agent prompt" [@611cec95f295456581fad7b37f162737-e19]
+  - status
+  - link "View docs" [@611cec95f295456581fad7b37f162737-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@611cec95f295456581fad7b37f162737-e21]
+  - button "Copy for agent" [@611cec95f295456581fad7b37f162737-e22]
+  - navigation "Model sections"
+    - link "Playground" [@611cec95f295456581fad7b37f162737-e23]
+    - link "API" [disabled] [@611cec95f295456581fad7b37f162737-e24]
+    - link "Requests" [disabled] [@611cec95f295456581fad7b37f162737-e25]
+    - link "Analytics" [disabled] [@611cec95f295456581fad7b37f162737-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@611cec95f295456581fad7b37f162737-e27]
+    - link "1. Calling the API" [@611cec95f295456581fad7b37f162737-e28]
+    - link "Install" [@611cec95f295456581fad7b37f162737-e29]
+    - link "Setup" [@611cec95f295456581fad7b37f162737-e30]
+    - link "Request parameters" [@611cec95f295456581fad7b37f162737-e31]
+    - link "2. Authentication" [@611cec95f295456581fad7b37f162737-e32]
+    - link "API Key" [@611cec95f295456581fad7b37f162737-e33]
+    - link "3. Queue" [@611cec95f295456581fad7b37f162737-e34]
+    - link "Submit and wait" [@611cec95f295456581fad7b37f162737-e35]
+    - link "Explicit lifecycle control" [@611cec95f295456581fad7b37f162737-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@611cec95f295456581fad7b37f162737-e37]
+  - heading "Setup"
+  - button "Copy code" [@611cec95f295456581fad7b37f162737-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Options: 5, 10."
+    - row
+      - cell "cfg_scale"
+      - cell "number"
+      - cell "No"
+      - cell "0.5"
+      - cell "CFG Scale. Minimum: 0. Maximum: 1."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "negative_prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Negative Prompt."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@611cec95f295456581fad7b37f162737-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@611cec95f295456581fad7b37f162737-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@611cec95f295456581fad7b37f162737-e41]
+- region "Notifications alt+T"

@@ -1,0 +1,108 @@
+page: Recraft V4.1 Utility — API reference | Higgsfield API — https://open.higgsfield.ai/models/recraft/v4.1/utility/text-to-image/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@f80b0ff358f94449a7987bf6d02187c6-e1]
+  - button "Collapse sidebar" [expanded=true] [@f80b0ff358f94449a7987bf6d02187c6-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@f80b0ff358f94449a7987bf6d02187c6-e3]
+    - link "Explore models" [@f80b0ff358f94449a7987bf6d02187c6-e4]
+    - link "Quick start" [@f80b0ff358f94449a7987bf6d02187c6-e5]
+    - link "Documentation" [@f80b0ff358f94449a7987bf6d02187c6-e6]
+    - link "Pricing UP TO 75% OFF" [@f80b0ff358f94449a7987bf6d02187c6-e7]
+    - button "Playground" [expanded=true] [@f80b0ff358f94449a7987bf6d02187c6-e8]
+    - link "API keys" [@f80b0ff358f94449a7987bf6d02187c6-e9]
+    - link "Cashback" [@f80b0ff358f94449a7987bf6d02187c6-e10]
+    - link "Analytics" [@f80b0ff358f94449a7987bf6d02187c6-e11]
+    - link "Billing" [@f80b0ff358f94449a7987bf6d02187c6-e12]
+  - link "Contact sales" [@f80b0ff358f94449a7987bf6d02187c6-e13]
+  - link "Status" [@f80b0ff358f94449a7987bf6d02187c6-e14]
+  - link "Pricing" [@f80b0ff358f94449a7987bf6d02187c6-e15]
+  - link "Log in" [@f80b0ff358f94449a7987bf6d02187c6-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@f80b0ff358f94449a7987bf6d02187c6-e17]
+  - button "Select model variant: Utility Text-to-Image" [expanded=false] [@f80b0ff358f94449a7987bf6d02187c6-e18]
+  - link "Explore" [@f80b0ff358f94449a7987bf6d02187c6-e19]
+  - heading "RECRAFT V4.1 UTILITY"
+  - button "Select model variant: Utility Text-to-Image" [expanded=false] [@f80b0ff358f94449a7987bf6d02187c6-e20]
+  - button "Copy agent prompt" [@f80b0ff358f94449a7987bf6d02187c6-e21]
+  - status
+  - link "View docs" [@f80b0ff358f94449a7987bf6d02187c6-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@f80b0ff358f94449a7987bf6d02187c6-e23]
+  - button "Copy for agent" [@f80b0ff358f94449a7987bf6d02187c6-e24]
+  - link "Explore" [@f80b0ff358f94449a7987bf6d02187c6-e25]
+  - button "Select model variant: Utility Text-to-Image" [expanded=false] [@f80b0ff358f94449a7987bf6d02187c6-e26]
+  - navigation "Model sections"
+    - link "Playground" [@f80b0ff358f94449a7987bf6d02187c6-e27]
+    - link "API" [disabled] [@f80b0ff358f94449a7987bf6d02187c6-e28]
+    - link "Requests" [disabled] [@f80b0ff358f94449a7987bf6d02187c6-e29]
+    - link "Analytics" [disabled] [@f80b0ff358f94449a7987bf6d02187c6-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@f80b0ff358f94449a7987bf6d02187c6-e31]
+    - link "1. Calling the API" [@f80b0ff358f94449a7987bf6d02187c6-e32]
+    - link "Install" [@f80b0ff358f94449a7987bf6d02187c6-e33]
+    - link "Setup" [@f80b0ff358f94449a7987bf6d02187c6-e34]
+    - link "Request parameters" [@f80b0ff358f94449a7987bf6d02187c6-e35]
+    - link "2. Authentication" [@f80b0ff358f94449a7987bf6d02187c6-e36]
+    - link "API Key" [@f80b0ff358f94449a7987bf6d02187c6-e37]
+    - link "3. Queue" [@f80b0ff358f94449a7987bf6d02187c6-e38]
+    - link "Submit and wait" [@f80b0ff358f94449a7987bf6d02187c6-e39]
+    - link "Explicit lifecycle control" [@f80b0ff358f94449a7987bf6d02187c6-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@f80b0ff358f94449a7987bf6d02187c6-e41]
+  - heading "Setup"
+  - button "Copy code" [@f80b0ff358f94449a7987bf6d02187c6-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "colors"
+      - cell "array[object]"
+      - cell "No"
+      - cell "—"
+      - cell "Colors."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt. Minimum length: 1. Maximum length: 10000."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""1k""
+      - cell "Resolution. Options: 1k."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""1:1""
+      - cell "Aspect ratio. Options: 1:1, 2:1, 1:2, 3:2, 2:3, 4:3, 3:4, 5:4, 4:5, 6:10, 14:10, 10:14, 16:9, 9:16."
+    - row
+      - cell "output_format"
+      - cell "string"
+      - cell "No"
+      - cell ""jpg""
+      - cell "Output format. Options: jpg, png, webp."
+    - row
+      - cell "background_color"
+      - cell "object"
+      - cell "No"
+      - cell "—"
+      - cell "Background color."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@f80b0ff358f94449a7987bf6d02187c6-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@f80b0ff358f94449a7987bf6d02187c6-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@f80b0ff358f94449a7987bf6d02187c6-e45]
+- region "Notifications alt+T"

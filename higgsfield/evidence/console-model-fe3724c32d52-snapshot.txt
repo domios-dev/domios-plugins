@@ -1,0 +1,102 @@
+page: Happy Horse 1.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/alibaba/happy-horse/reference-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@3e8b97d52a2542ffbe71518ef2fbc49a-e1]
+  - button "Collapse sidebar" [expanded=true] [@3e8b97d52a2542ffbe71518ef2fbc49a-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@3e8b97d52a2542ffbe71518ef2fbc49a-e3]
+    - link "Explore models" [@3e8b97d52a2542ffbe71518ef2fbc49a-e4]
+    - link "Quick start" [@3e8b97d52a2542ffbe71518ef2fbc49a-e5]
+    - link "Documentation" [@3e8b97d52a2542ffbe71518ef2fbc49a-e6]
+    - link "Pricing UP TO 75% OFF" [@3e8b97d52a2542ffbe71518ef2fbc49a-e7]
+    - button "Playground" [expanded=true] [@3e8b97d52a2542ffbe71518ef2fbc49a-e8]
+    - link "API keys" [@3e8b97d52a2542ffbe71518ef2fbc49a-e9]
+    - link "Cashback" [@3e8b97d52a2542ffbe71518ef2fbc49a-e10]
+    - link "Analytics" [@3e8b97d52a2542ffbe71518ef2fbc49a-e11]
+    - link "Billing" [@3e8b97d52a2542ffbe71518ef2fbc49a-e12]
+  - link "Contact sales" [@3e8b97d52a2542ffbe71518ef2fbc49a-e13]
+  - link "Status" [@3e8b97d52a2542ffbe71518ef2fbc49a-e14]
+  - link "Pricing" [@3e8b97d52a2542ffbe71518ef2fbc49a-e15]
+  - link "Log in" [@3e8b97d52a2542ffbe71518ef2fbc49a-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@3e8b97d52a2542ffbe71518ef2fbc49a-e17]
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@3e8b97d52a2542ffbe71518ef2fbc49a-e18]
+  - link "Explore" [@3e8b97d52a2542ffbe71518ef2fbc49a-e19]
+  - heading "HAPPY HORSE 1.0"
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@3e8b97d52a2542ffbe71518ef2fbc49a-e20]
+  - button "Copy agent prompt" [@3e8b97d52a2542ffbe71518ef2fbc49a-e21]
+  - status
+  - link "View docs" [@3e8b97d52a2542ffbe71518ef2fbc49a-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@3e8b97d52a2542ffbe71518ef2fbc49a-e23]
+  - button "Copy for agent" [@3e8b97d52a2542ffbe71518ef2fbc49a-e24]
+  - link "Explore" [@3e8b97d52a2542ffbe71518ef2fbc49a-e25]
+  - button "Select model variant: Reference-to-Video" [expanded=false] [@3e8b97d52a2542ffbe71518ef2fbc49a-e26]
+  - navigation "Model sections"
+    - link "Playground" [@3e8b97d52a2542ffbe71518ef2fbc49a-e27]
+    - link "API" [disabled] [@3e8b97d52a2542ffbe71518ef2fbc49a-e28]
+    - link "Requests" [disabled] [@3e8b97d52a2542ffbe71518ef2fbc49a-e29]
+    - link "Analytics" [disabled] [@3e8b97d52a2542ffbe71518ef2fbc49a-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@3e8b97d52a2542ffbe71518ef2fbc49a-e31]
+    - link "1. Calling the API" [@3e8b97d52a2542ffbe71518ef2fbc49a-e32]
+    - link "Install" [@3e8b97d52a2542ffbe71518ef2fbc49a-e33]
+    - link "Setup" [@3e8b97d52a2542ffbe71518ef2fbc49a-e34]
+    - link "Request parameters" [@3e8b97d52a2542ffbe71518ef2fbc49a-e35]
+    - link "2. Authentication" [@3e8b97d52a2542ffbe71518ef2fbc49a-e36]
+    - link "API Key" [@3e8b97d52a2542ffbe71518ef2fbc49a-e37]
+    - link "3. Queue" [@3e8b97d52a2542ffbe71518ef2fbc49a-e38]
+    - link "Submit and wait" [@3e8b97d52a2542ffbe71518ef2fbc49a-e39]
+    - link "Explicit lifecycle control" [@3e8b97d52a2542ffbe71518ef2fbc49a-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@3e8b97d52a2542ffbe71518ef2fbc49a-e41]
+  - heading "Setup"
+  - button "Copy code" [@3e8b97d52a2542ffbe71518ef2fbc49a-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Minimum: 1. Maximum: 2147483646."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 2. Maximum: 15."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "Yes"
+      - cell "—"
+      - cell
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Options: 720p, 1080p."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@3e8b97d52a2542ffbe71518ef2fbc49a-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@3e8b97d52a2542ffbe71518ef2fbc49a-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@3e8b97d52a2542ffbe71518ef2fbc49a-e45]
+- region "Notifications alt+T"

@@ -1,0 +1,211 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+AI Influencer
+Explore
+/
+AI Influencer
+Image
+from
+0.05 / img
+AI INFLUENCER
+
+Create one AI influencer character sheet. Human and animal modes. $0.05 per sheet.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "higgsfield/ai-influencer",
+9
+  {
+10
+    input: {
+11
+      "seed": null,
+12
+      "tier": "normal",
+13
+      "brief": "",
+14
+      "image_url": null,
+15
+      "selection": {},
+16
+      "trait_variants": null,
+17
+      "item_image_urls": [],
+18
+      "variation_index": 0
+19
+    },
+20
+    withPolling: true,
+21
+  },
+22
+);
+23
+24
+console.log(result);
+Copy for agent
+Explore
+/
+AI Influencer
+Playground
+API
+Requests
+Analytics
+
+AI Influencer
+
+1.
+Quick start
+2.
+Character types
+3.
+Inputs
+Identity photo and item references
+4.
+Appearance options
+5.
+Animal variations
+6.
+Advanced trait overrides
+
+Create a character reference sheet with a close-up portrait and a full-body view. Choose a human or animal character, customize its appearance, and optionally supply an identity photo and clothing or item references.
+
+Each request produces one 2K image at 16:9, with Medium quality. The price is $0.05 per sheet for every character type, before any account-specific discounts. Resolution, aspect ratio and quality are fixed.
+
+QUICK START
+
+Send a JSON request to POST https://api.higgsfield.ai/higgsfield/ai-influencer with your API key:
+
+curl --request POST 'https://api.higgsfield.ai/higgsfield/ai-influencer' \
+  --header "Authorization: Key ${HF_API_KEY}" \
+  --header 'Content-Type: application/json' \
+  --data '{"tier":"normal","selection":{"gender":["female"],"body_type":["body_athletic"],"height":["h_tall"]},"seed":42817}'
+
+Set HF_API_KEY to your key-id:secret. All input fields are optional; the default character type is normal.
+
+Generation is asynchronous. The response includes request_id, status, status_url and cancel_url. Poll the returned status_url with the same authorization header. When status is completed, the generated sheet is available at images[0].url.
+
+CHARACTER TYPES
+tier	Playground label	Character
+normal	Average	Human with natural appearance; default
+freak	Bold	Human with more unusual appearance traits
+total	Extreme	Human with stronger appearance transformations
+insects	Insect	Insect character
+frogs	Frog	Frog character
+cats	Cat	Cat character
+dogs	Dog	Dog character
+capybaras	Rodent	Capybara character
+birds	Bird	Bird character
+
+Use the API values in the first column, not the display labels.
+
+INPUTS
+Parameter	Type / default	Usage
+tier	string, "normal"	One of the nine character types above.
+selection	object, {}	Category keys mapped to arrays of option keys. Up to 18 categories; each category has its own selection limit. Discover current keys through the options endpoint below.
+image_url	URL or null, null	One identity reference photo. This is separate from item references.
+item_image_urls	URL array, []	Up to three clothing, footwear or item references, in order.
+brief	string, ""	Optional character direction, up to 4,000 characters. Supported by the API even though hidden in the playground form.
+seed	integer or null, null	Character-selection seed from 1 to 1,000,000. Omit it for an automatically generated seed.
+variation_index	integer, 0	Animal sequence position from 0 to 2,147,483,647. Human types require 0.
+body_color	string or null	Optional animal body color as #RRGGBB. Human types require omission or null.
+pinned_species	string or null	Optional valid insect species ID, 1–64 characters, to keep the species fixed while varying its look. Only supported with tier="insects". Unknown IDs are rejected.
+trait_variants	object or null, null	Advanced overrides for selected appearance traits; normally omit this field. See below.
+
+Image URLs must be reachable by the API and point to non-animated JPEG, PNG or WebP files. The download limit is 64 MiB per image; images must also pass decoding and image validation. Upload local files first and pass their URLs, rather than file objects or base64 data.
+
+Identity photo and item references
+
+image_url is the Upload your photo field. item_image_urls is Add elements or references. The identity photo does not count toward the three-item limit.
+
+{
+  "tier": "normal",
+  "image_url": "https://example.com/identity.jpg",
+  "item_image_urls": [
+    "https://example.com/jacket.png",
+    "https://example.com/shoes.png"
+  ],
+  "seed": 42817
+}
+
+Replace these example URLs with your uploaded images. The identity reference guides the character's likeness; item references guide clothing or other items.
+
+APPEARANCE OPTIONS
+
+Fetch GET https://api.higgsfield.ai/models/higgsfield/ai-influencer/options to discover the current catalog. This endpoint does not require authentication when the model is visible and publicly available; it returns 404 while the model is hidden or unavailable in the public catalog. Generation always requires authentication and model access.
+
+The response contains config_revision and categories. Each category provides key, label, tiers, max and options. Each option provides key, label, nullable img, nullable color, nullable tiers, nullable slot and exclusive.
+
+To build a selection:
+
+Keep categories whose tiers include the selected character type. Human and animal categories can share a key; choose the matching tier's category.
+If an option has a non-null tiers list, show it only for those types.
+Send category and option keys in selection, with at most max options per category. Select at most one option for each non-null facial slot. An exclusive option must be selected alone in its category.
+Use img for previews, color for color swatches, and labels when no visual is provided. A null preview does not mean the option is invalid. Preserve catalog order and refresh cached choices when config_revision changes.
+
+For example:
+
+{
+  "tier": "normal",
+  "selection": {
+    "gender": ["female"],
+    "body_type": ["body_athletic"],
+    "height": ["h_tall"]
+  }
+}
+
+The catalog includes human settings such as gender, ethnicity, age, skin tone, height, body type, proportions, eyes, hair, distinctive features, style and accessories. Available options depend on the character type. Rebuild or filter selections when switching between human and animal types; stale or incompatible keys are rejected.
+
+ANIMAL VARIATIONS
+
+Keep seed and tier fixed and increment variation_index for successive animal selections:
+
+{
+  "tier": "cats",
+  "seed": 42817,
+  "variation_index": 0,
+  "body_color": "#D9A066"
+}
+
+Use index 1 for the next request, then 2, and so on. Species cycle through the available set without repeats within a cycle, while appearance components vary independently. Explicit selections and trait overrides can constrain the variation; pinning an insect species keeps that species fixed.
+
+The seed controls character selection, not exact output pixels. Repeating a seed and index does not guarantee an identical rendered image, and catalog changes can affect future selections. An automatically generated seed is not returned as additional response metadata; supply and store your own seed when you need a sequence. Use the standard Idempotency-Key header to deduplicate retries, with a new key for each new variation.
+
+ADVANCED TRAIT OVERRIDES
+
+When supplying trait_variants, include "version": "appearance-v2" and a choices object mapping eligible selected trait keys to their supported variant IDs. General variants are original and v1–v5; the current schema additionally permits v1–v10 for pr_centaur. Variants must be supported by the current trait catalog.
+
+For animals, optional animal_choices maps eligible selected animal option keys to integer indices 0–4. This field must be omitted or null for human types. Unspecified eligible traits use their original/default variant when an override object is supplied. The public options endpoint does not expose the internal trait-variant or insect-species catalogs; omit these advanced overrides unless you already have valid identifiers.

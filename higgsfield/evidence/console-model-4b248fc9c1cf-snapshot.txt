@@ -1,0 +1,120 @@
+page: PixVerse V6 — API reference | Higgsfield API — https://open.higgsfield.ai/models/pixverse/v6/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@25c4c409283e4dcaa18c24ae0d4cb85c-e1]
+  - button "Collapse sidebar" [expanded=true] [@25c4c409283e4dcaa18c24ae0d4cb85c-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@25c4c409283e4dcaa18c24ae0d4cb85c-e3]
+    - link "Explore models" [@25c4c409283e4dcaa18c24ae0d4cb85c-e4]
+    - link "Quick start" [@25c4c409283e4dcaa18c24ae0d4cb85c-e5]
+    - link "Documentation" [@25c4c409283e4dcaa18c24ae0d4cb85c-e6]
+    - link "Pricing UP TO 75% OFF" [@25c4c409283e4dcaa18c24ae0d4cb85c-e7]
+    - button "Playground" [expanded=true] [@25c4c409283e4dcaa18c24ae0d4cb85c-e8]
+    - link "API keys" [@25c4c409283e4dcaa18c24ae0d4cb85c-e9]
+    - link "Cashback" [@25c4c409283e4dcaa18c24ae0d4cb85c-e10]
+    - link "Analytics" [@25c4c409283e4dcaa18c24ae0d4cb85c-e11]
+    - link "Billing" [@25c4c409283e4dcaa18c24ae0d4cb85c-e12]
+  - link "Contact sales" [@25c4c409283e4dcaa18c24ae0d4cb85c-e13]
+  - link "Status" [@25c4c409283e4dcaa18c24ae0d4cb85c-e14]
+  - link "Pricing" [@25c4c409283e4dcaa18c24ae0d4cb85c-e15]
+  - link "Log in" [@25c4c409283e4dcaa18c24ae0d4cb85c-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@25c4c409283e4dcaa18c24ae0d4cb85c-e17]
+  - button "Select model variant: Image-to-Video" [expanded=false] [@25c4c409283e4dcaa18c24ae0d4cb85c-e18]
+  - link "Explore" [@25c4c409283e4dcaa18c24ae0d4cb85c-e19]
+  - heading "PIXVERSE V6"
+  - button "Select model variant: Image-to-Video" [expanded=false] [@25c4c409283e4dcaa18c24ae0d4cb85c-e20]
+  - button "Copy agent prompt" [@25c4c409283e4dcaa18c24ae0d4cb85c-e21]
+  - status
+  - link "View docs" [@25c4c409283e4dcaa18c24ae0d4cb85c-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@25c4c409283e4dcaa18c24ae0d4cb85c-e23]
+  - button "Copy for agent" [@25c4c409283e4dcaa18c24ae0d4cb85c-e24]
+  - link "Explore" [@25c4c409283e4dcaa18c24ae0d4cb85c-e25]
+  - button "Select model variant: Image-to-Video" [expanded=false] [@25c4c409283e4dcaa18c24ae0d4cb85c-e26]
+  - navigation "Model sections"
+    - link "Playground" [@25c4c409283e4dcaa18c24ae0d4cb85c-e27]
+    - link "API" [disabled] [@25c4c409283e4dcaa18c24ae0d4cb85c-e28]
+    - link "Requests" [disabled] [@25c4c409283e4dcaa18c24ae0d4cb85c-e29]
+    - link "Analytics" [disabled] [@25c4c409283e4dcaa18c24ae0d4cb85c-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@25c4c409283e4dcaa18c24ae0d4cb85c-e31]
+    - link "1. Calling the API" [@25c4c409283e4dcaa18c24ae0d4cb85c-e32]
+    - link "Install" [@25c4c409283e4dcaa18c24ae0d4cb85c-e33]
+    - link "Setup" [@25c4c409283e4dcaa18c24ae0d4cb85c-e34]
+    - link "Request parameters" [@25c4c409283e4dcaa18c24ae0d4cb85c-e35]
+    - link "2. Authentication" [@25c4c409283e4dcaa18c24ae0d4cb85c-e36]
+    - link "API Key" [@25c4c409283e4dcaa18c24ae0d4cb85c-e37]
+    - link "3. Queue" [@25c4c409283e4dcaa18c24ae0d4cb85c-e38]
+    - link "Submit and wait" [@25c4c409283e4dcaa18c24ae0d4cb85c-e39]
+    - link "Explicit lifecycle control" [@25c4c409283e4dcaa18c24ae0d4cb85c-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@25c4c409283e4dcaa18c24ae0d4cb85c-e41]
+  - heading "Setup"
+  - button "Copy code" [@25c4c409283e4dcaa18c24ae0d4cb85c-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Seed. Minimum: 0. Maximum: 2147483647."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt. Minimum length: 1. Maximum length: 5000."
+    - row
+      - cell "duration"
+      - cell "number"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 1. Maximum: 15."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "First frame."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Resolution. Options: 360p, 540p, 720p, 1080p."
+    - row
+      - cell "end_image_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Last frame."
+    - row
+      - cell "generate_audio"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Generate audio."
+    - row
+      - cell "negative_prompt"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Negative prompt. Minimum length: 1. Maximum length: 2048."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@25c4c409283e4dcaa18c24ae0d4cb85c-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@25c4c409283e4dcaa18c24ae0d4cb85c-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@25c4c409283e4dcaa18c24ae0d4cb85c-e45]
+- region "Notifications alt+T"

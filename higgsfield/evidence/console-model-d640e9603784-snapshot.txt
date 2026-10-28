@@ -1,0 +1,57 @@
+page: Marketing Studio Image — API reference | Higgsfield API — https://open.higgsfield.ai/models/marketing-studio/image/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@1ab7fbc351fb451bbb794aa91b4b1197-e1]
+  - button "Collapse sidebar" [expanded=true] [@1ab7fbc351fb451bbb794aa91b4b1197-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@1ab7fbc351fb451bbb794aa91b4b1197-e3]
+    - link "Explore models" [@1ab7fbc351fb451bbb794aa91b4b1197-e4]
+    - link "Quick start" [@1ab7fbc351fb451bbb794aa91b4b1197-e5]
+    - link "Documentation" [@1ab7fbc351fb451bbb794aa91b4b1197-e6]
+    - link "Pricing UP TO 75% OFF" [@1ab7fbc351fb451bbb794aa91b4b1197-e7]
+    - button "Playground" [expanded=true] [@1ab7fbc351fb451bbb794aa91b4b1197-e8]
+    - link "API keys" [@1ab7fbc351fb451bbb794aa91b4b1197-e9]
+    - link "Cashback" [@1ab7fbc351fb451bbb794aa91b4b1197-e10]
+    - link "Analytics" [@1ab7fbc351fb451bbb794aa91b4b1197-e11]
+    - link "Billing" [@1ab7fbc351fb451bbb794aa91b4b1197-e12]
+  - link "Contact sales" [@1ab7fbc351fb451bbb794aa91b4b1197-e13]
+  - link "Status" [@1ab7fbc351fb451bbb794aa91b4b1197-e14]
+  - link "Pricing" [@1ab7fbc351fb451bbb794aa91b4b1197-e15]
+  - link "Log in" [@1ab7fbc351fb451bbb794aa91b4b1197-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@1ab7fbc351fb451bbb794aa91b4b1197-e17]
+  - button "Select model variant: 2.0 Alpha" [expanded=false] [@1ab7fbc351fb451bbb794aa91b4b1197-e18]
+  - link "Explore" [@1ab7fbc351fb451bbb794aa91b4b1197-e19]
+  - heading "MARKETING STUDIO IMAGE"
+  - button "Select model variant: 2.0 Alpha" [expanded=false] [@1ab7fbc351fb451bbb794aa91b4b1197-e20]
+  - button "Copy agent prompt" [@1ab7fbc351fb451bbb794aa91b4b1197-e21]
+  - status
+  - link "View docs" [@1ab7fbc351fb451bbb794aa91b4b1197-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@1ab7fbc351fb451bbb794aa91b4b1197-e23]
+  - button "Copy for agent" [@1ab7fbc351fb451bbb794aa91b4b1197-e24]
+  - link "Explore" [@1ab7fbc351fb451bbb794aa91b4b1197-e25]
+  - button "Select model variant: 2.0 Alpha" [expanded=false] [@1ab7fbc351fb451bbb794aa91b4b1197-e26]
+  - navigation "Model sections"
+    - link "Playground" [@1ab7fbc351fb451bbb794aa91b4b1197-e27]
+    - link "API" [disabled] [@1ab7fbc351fb451bbb794aa91b4b1197-e28]
+    - link "Requests" [disabled] [@1ab7fbc351fb451bbb794aa91b4b1197-e29]
+    - link "Analytics" [disabled] [@1ab7fbc351fb451bbb794aa91b4b1197-e30]
+  - navigation "API reference contents"
+    - link "1. Direct generation or editing" [@1ab7fbc351fb451bbb794aa91b4b1197-e31]
+    - link "2. Preset enhancement" [@1ab7fbc351fb451bbb794aa91b4b1197-e32]
+    - link "Get a preset UUID" [@1ab7fbc351fb451bbb794aa91b4b1197-e33]
+    - link "Send the enhanced request" [@1ab7fbc351fb451bbb794aa91b4b1197-e34]
+    - link "3. Request behavior" [@1ab7fbc351fb451bbb794aa91b4b1197-e35]
+    - link "4. Authentication and queue" [@1ab7fbc351fb451bbb794aa91b4b1197-e36]
+  - heading "1. DIRECT GENERATION OR EDITING"
+  - button "Copy code" [@1ab7fbc351fb451bbb794aa91b4b1197-e37]
+  - heading "2. PRESET ENHANCEMENT"
+  - heading "Get a preset UUID"
+  - button "Copy code" [@1ab7fbc351fb451bbb794aa91b4b1197-e38]
+  - button "Copy code" [@1ab7fbc351fb451bbb794aa91b4b1197-e39]
+  - heading "Send the enhanced request"
+  - button "Copy code" [@1ab7fbc351fb451bbb794aa91b4b1197-e40]
+  - heading "3. REQUEST BEHAVIOR"
+  - heading "4. AUTHENTICATION AND QUEUE"
+- region "Notifications alt+T"

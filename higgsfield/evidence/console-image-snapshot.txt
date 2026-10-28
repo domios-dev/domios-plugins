@@ -1,0 +1,94 @@
+page: Open Higgsfield AI | Official Higgsfield API Platform — https://open.higgsfield.ai/explore?tab=image
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@442895d28e354b5cb1ad383f4fea6e58-e1]
+  - button "Collapse sidebar" [expanded=true] [@442895d28e354b5cb1ad383f4fea6e58-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@442895d28e354b5cb1ad383f4fea6e58-e3]
+    - link "Explore models" [@442895d28e354b5cb1ad383f4fea6e58-e4]
+    - link "Quick start" [@442895d28e354b5cb1ad383f4fea6e58-e5]
+    - link "Documentation" [@442895d28e354b5cb1ad383f4fea6e58-e6]
+    - link "Pricing UP TO 75% OFF" [@442895d28e354b5cb1ad383f4fea6e58-e7]
+    - button "Playground" [expanded=true] [@442895d28e354b5cb1ad383f4fea6e58-e8]
+    - link "API keys" [@442895d28e354b5cb1ad383f4fea6e58-e9]
+    - link "Cashback" [@442895d28e354b5cb1ad383f4fea6e58-e10]
+    - link "Analytics" [@442895d28e354b5cb1ad383f4fea6e58-e11]
+    - link "Billing" [@442895d28e354b5cb1ad383f4fea6e58-e12]
+  - link "Contact sales" [@442895d28e354b5cb1ad383f4fea6e58-e13]
+  - link "Status" [@442895d28e354b5cb1ad383f4fea6e58-e14]
+  - link "Pricing" [@442895d28e354b5cb1ad383f4fea6e58-e15]
+  - link "Log in" [@442895d28e354b5cb1ad383f4fea6e58-e16]
+  - separator "Resize sidebar"
+- main
+  - region "Featured models"
+    - link "Explore Seedance 2.5" [@442895d28e354b5cb1ad383f4fea6e58-e17]
+    - heading "SEEDANCE 2.5"
+    - button "Show Kling 4.0" [@442895d28e354b5cb1ad383f4fea6e58-e18]
+    - button "Show Seedance 2.5" [@442895d28e354b5cb1ad383f4fea6e58-e19]
+    - button "Show Genjutsu" [@442895d28e354b5cb1ad383f4fea6e58-e20]
+    - button "Show Genjutsu Light" [@442895d28e354b5cb1ad383f4fea6e58-e21]
+    - button "Show Marketing Studio Image" [@442895d28e354b5cb1ad383f4fea6e58-e22]
+    - group "Select featured model"
+      - button "Show Kling 4.0" [@442895d28e354b5cb1ad383f4fea6e58-e23]
+      - button "Show Seedance 2.5" [@442895d28e354b5cb1ad383f4fea6e58-e24]
+      - button "Show Genjutsu" [@442895d28e354b5cb1ad383f4fea6e58-e25]
+      - button "Show Genjutsu Light" [@442895d28e354b5cb1ad383f4fea6e58-e26]
+      - button "Show Marketing Studio Image" [@442895d28e354b5cb1ad383f4fea6e58-e27]
+  - tab "All models" [selected=false] [@442895d28e354b5cb1ad383f4fea6e58-e28]
+  - tab "Image" [focused] [selected=true] [@442895d28e354b5cb1ad383f4fea6e58-e29]
+  - tab "Video" [selected=false] [@442895d28e354b5cb1ad383f4fea6e58-e30]
+  - searchbox "Search models" [@442895d28e354b5cb1ad383f4fea6e58-e31]
+  - button "Filter" [expanded=false] [@442895d28e354b5cb1ad383f4fea6e58-e32]
+  - image "Generates images and makes precise edits while preserving image details and visual consistency."
+  - link "Open Grok Imagine 2.0 in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e33]
+  - link "xai / Grok Imagine 2.0" [@442895d28e354b5cb1ad383f4fea6e58-e34]
+    - heading "xai / Grok Imagine 2.0"
+  - image "Creates and edits campaign images up to 4K from text or images."
+  - link "Open Marketing Studio Image in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e35]
+  - link "Marketing Studio Image 3 modes" [@442895d28e354b5cb1ad383f4fea6e58-e36]
+    - heading "Marketing Studio Image"
+  - image "Create one AI influencer character sheet. Human and animal modes. $0.05 per sheet."
+  - link "Open AI Influencer in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e37]
+  - link "higgsfield / AI Influencer" [@442895d28e354b5cb1ad383f4fea6e58-e38]
+    - heading "higgsfield / AI Influencer"
+  - image "Generates realistic portraits and fashion images, with natural textures and curated editorial styles"
+  - link "Open Soul 2 in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e39]
+  - link "higgsfield / Soul 2 2 modes" [@442895d28e354b5cb1ad383f4fea6e58-e40]
+    - heading "higgsfield / Soul 2"
+  - image "Generates and edits images with multilingual text for posters, packaging and other graphic layouts."
+  - link "Open Ideogram 4.0 in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e41]
+  - link "ideogram / Ideogram 4.0" [@442895d28e354b5cb1ad383f4fea6e58-e42]
+    - heading "ideogram / Ideogram 4.0"
+  - image "Generates images and illustrations using custom palettes and background colors to fit your brand."
+  - link "Open Recraft 4.1 in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e43]
+  - link "recraft / Recraft 4.1 4 modes" [@442895d28e354b5cb1ad383f4fea6e58-e44]
+    - heading "recraft / Recraft 4.1"
+  - image "Generates fashion and lifestyle photos from text, with style presets for editorial and social conten"
+  - link "Open Soul Standard in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e45]
+  - link "higgsfield / Soul Standard" [@442895d28e354b5cb1ad383f4fea6e58-e46]
+    - heading "higgsfield / Soul Standard"
+  - image "From a simple brief to ready-to-use ads. Bring your product, describe your vision, and let Ads Studi"
+  - link "Open Ads Studio workflow" [@442895d28e354b5cb1ad383f4fea6e58-e47]
+  - link "higgsfield / Ads Studio" [@442895d28e354b5cb1ad383f4fea6e58-e48]
+    - heading "higgsfield / Ads Studio"
+  - image "Generates images from English or Chinese text, with enhanced prompts and resolution up to 2K."
+  - link "Open Qwen Image 3 in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e49]
+  - link "alibaba / Qwen Image 3 2 modes" [@442895d28e354b5cb1ad383f4fea6e58-e50]
+    - heading "alibaba / Qwen Image 3"
+  - image "Generates images quickly with clear Chinese and English text rendering and PNG output up to 2K."
+  - link "Open Z-Image Turbo in Image mode" [@442895d28e354b5cb1ad383f4fea6e58-e51]
+  - link "alibaba / Z-Image Turbo" [@442895d28e354b5cb1ad383f4fea6e58-e52]
+    - heading "alibaba / Z-Image Turbo"
+  - image "Turns product photos into campaign images with presets for composition, lighting and visual style."
+  - link "Open Product shots workflow" [@442895d28e354b5cb1ad383f4fea6e58-e53]
+  - link "Product shots" [@442895d28e354b5cb1ad383f4fea6e58-e54]
+    - heading "Product shots"
+  - image "Creates ad creatives from a product photo, with presets that guide layout, typography and colors."
+  - link "Open Graphic ads workflow" [@442895d28e354b5cb1ad383f4fea6e58-e55]
+  - link "Graphic ads" [@442895d28e354b5cb1ad383f4fea6e58-e56]
+    - heading "Graphic ads"
+  - image "Creates listing images from a product photo, with preset styles designed for marketplace catalogs."
+  - link "Open Marketplace design workflow" [@442895d28e354b5cb1ad383f4fea6e58-e57]
+  - link "Marketplace design" [@442895d28e354b5cb1ad383f4fea6e58-e58]
+    - heading "Marketplace design"
+- region "Notifications alt+T"

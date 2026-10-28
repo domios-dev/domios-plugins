@@ -1,0 +1,772 @@
+[
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/ai-influencer/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-ai-influencer.txt",
+    "sha256": "275760d94558fb47eb98ee4718c277850e29c7fab5fa4ee40eab9428dca1c84c"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/explore",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-explore.txt",
+    "sha256": "f627bfecd8cbab0e4717c1729914d27b09f78f5ad5ca2f4afc5da1b5bba54e15"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/motion-transfer/v1.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-genjutsu-light-motion.txt",
+    "sha256": "7267d1341ed5c34cf7af0f73580ffee1f8ff13d32ba6ff24ff4117ba0bf66615"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/genjutsu-light/object-swap/v1.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-genjutsu-light-swap.txt",
+    "sha256": "884cb425ce5384b71101eb80980079b249be8e9c4e884c083662013af236a713"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/workflows/graphic-ads/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-graphic-ads.txt",
+    "sha256": "8ea287a130a8d718087ae8061d8898b9eb7b2d07d770a4dea136d76ac0579d98"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/explore?tab=image",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-image.txt",
+    "sha256": "9d1fe40d8e3220d5dac02ffde8cb79396e97281efe09df0acae7b439bd014728"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v4.0/video-edit/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-kling-4-edit.txt",
+    "sha256": "3fd07747b76603d455a17fccc74732cce93d7763da062ba8b9a8c7a6496c2bac"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v4.0/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-kling-4-i2v.txt",
+    "sha256": "de1cc61d5cbe54bda17b35c16f4148ede8515ddc51d02e024fefca78182d24b7"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v4.0/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-kling-4-r2v.txt",
+    "sha256": "ce6f06a6f6f76f5e327218ab0b25910bdbfe3a3b92a2c2e7a3e617bfd17a7600"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v4.0/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-kling-4-t2v.txt",
+    "sha256": "c6c119f56f79b7ac940d30f820fe12160ae5689a9ea79b1496dc036afb1372dc"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/workflows/marketplace-design/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-marketplace-design.txt",
+    "sha256": "c93a2ce36aa9f5659e63aabd9298231e596f26a66a0f343494a8cfe977fa6c61"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-00a50416e97f.txt",
+    "sha256": "b2f175d43091e59ef530b25c4da0009b51695a042ea934052d4dd18bf3f7237f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-060af9436ed1.txt",
+    "sha256": "5565a48975c8168d081eefe37767d09e7f8916efc221030c14babb485e10a019"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/cinema-studio/4.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-06805306f62e.txt",
+    "sha256": "e3f060fa9c4d9d8a8bcd18a2260598d2d98a3f7b0415081786e06433918a5989"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/wan/v2.7/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-0bbb3408e2cf.txt",
+    "sha256": "ac84172b3514c2c84bc73a95ba5b97b6239da582eb1cc6e3f02dfff0c219568c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/happy-horse/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-0cb8c0c5fc4c.txt",
+    "sha256": "353e0107539b3544f2a72fe0eb5c49d15567efd72636083724bbce784ec40a18"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/fast/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-0fb71746e4a6.txt",
+    "sha256": "a4411998c37988759c72639539b1369e99a1bce2c1d919d635f218538679b28a"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0/pro/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-11fd3e7c1f92.txt",
+    "sha256": "cd18d9455114315b06090ff5b3e3a90e547ec300874b00f03717ac4024be5b87"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3/motion-control/pro/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-13679b2036a9.txt",
+    "sha256": "d43fd79c6f286e6c645f9cd615b6296d4a657e4a6137815684194f205427dcd0"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-147460da03b7.txt",
+    "sha256": "aafaf63d871f6982eb133ab90fd9588f0a94a9e9d47788d2aeb2374ee158462d"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/wan-3.0/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-14b423f33505.txt",
+    "sha256": "a32cd5525fc012398313f53373bd15fa78d12f26b50b16f3f471a8a235f3f997"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/z-image/turbo/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-1814b1b348b5.txt",
+    "sha256": "a5069b17234a16da9bfe644d60cbff0d4c50154a8b62eccd7e641e852f09c5bf"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/o3/video-edit/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-1b43b0aa3efd.txt",
+    "sha256": "8641573194ec4ee9a6ee5148074bdad9783e35aa709fa796cd02e3e82341c339"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-edit/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-1ecbe2ff7314.txt",
+    "sha256": "7978bcf66b1553a079e29c9526f20dd98674dfc019b017903a29ad2832bef46c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/image-to-video/pro/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-21463b62dcce.txt",
+    "sha256": "b46a8d9764a75517aa72516ab5ac88120286357dff28b6d7218c78df0ce3132a"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-26d88e7bc0fe.txt",
+    "sha256": "2937d725f7ac303c912532c9fc560a7b55d7a01d8c52c63bbded1e653e5540da"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/wan/v2.7/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-3bb52bb48b33.txt",
+    "sha256": "6cf716aaa3a5c55be5f82dcc61495b34e194643fb8a8e8985d0034bb56ad1e48"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-3cccca5429c9.txt",
+    "sha256": "3bf9b424edcfea911b1ee17b4a4ecbb4bc95d3c7cedc6d46b713ba3228a87299"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/wan/v2.7/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-3d654c6cfdf3.txt",
+    "sha256": "6762af9ea9851748e99e5c3ceda197df565ee9f07338fdf36b32242021b884ce"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/wan/v2.6/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-408f1aca7332.txt",
+    "sha256": "8f922ab0bfdafa319b6c6831430ddffedc072e9f1d052a095ba36de2269591d5"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/minimax/h3/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-47726725af4e.txt",
+    "sha256": "0ff101f207017adcc7f6b8cd8d0474019d34c9465b789f98a114aa7b3242a52a"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0/pro/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-47e3fdc93422.txt",
+    "sha256": "22fcee0148a9459f926c02dfea40d8d62c8cc453fc30ca6267734613e1a4e780"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/pixverse/v6/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-4b248fc9c1cf.txt",
+    "sha256": "f095aedc84f7f78398b910714a91cab8bdcf6a9fc1ab72d51a3f8b925c84aed3"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/omni/first-last-frame/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-4d49a405859e.txt",
+    "sha256": "b99d4ab99ee7ca0429ca832b1f3dc6092e363da2fd3a216a20e33fb82461f93c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/o3/image-reference/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-4d6db6d5acfa.txt",
+    "sha256": "11b82457b16467b6ce6add71d3276fbe9bee9fb70b65421f996ca736e4427792"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/xai/grok-imagine-video/v1.5/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-550421b4ab67.txt",
+    "sha256": "87dccb8dfa8662497134199c6bea728cc68253261c9621c5f0bce1a0e55cbc28"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/minimax/h3/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-5558e9d91202.txt",
+    "sha256": "14c176da3049a00046251fd511e8e4f37cd74034eddf05a8e258407e7207242f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-5601d5591a24.txt",
+    "sha256": "b7c86c2c146f6abac5dc77b872d8d7d26d5a894ec96bef80a124d39f76824e85"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/o3/first-last-frame/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-5ae2bc6076c9.txt",
+    "sha256": "ccf6eec5e8a4e44cc5a96ec146c5adc5e8dbeaf5935f1cdb1c1702d0d618be16"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/wan/v2.6/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-5eda0326c892.txt",
+    "sha256": "52edd5466784e210807b31d795a326f2717381c3417550504ab398b09c0ba5eb"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/minimax/hailuo-2.3/standard/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-5f5a7aa80f91.txt",
+    "sha256": "ff8e25c347389d3781c623dd75c6c94f335c83aa41a7ac447583d4fe143e1b32"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/genjutsu/object-swap/v1.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-6282d9ccdad0.txt",
+    "sha256": "3871cdd93692694abe0d6a05738a5e05e9d37ec232bedb76a7b72b81b9430997"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/qwen-image-3/edit/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-6583cb5f9485.txt",
+    "sha256": "67d2bcd9ab4625c114764d69dbdf676ca001836ee8e6be05bfd1d90b12374727"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/recraft/v4.1/utility/text-to-image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-673cf1734314.txt",
+    "sha256": "d7963da8d71d9539391660711385f1dcbaf4cde197b3df1253ab82d1a41dfe27"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/o3/video-reference/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-6d7cd0b55aee.txt",
+    "sha256": "cd6caf3792476bb2f44a5ff87456419c7fc6e10b4943aea75526b215f2a2c30f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/motion-control/std/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-6dd0ff86519c.txt",
+    "sha256": "bf4a07f48a7db46cd604314c819d6e6e3ddec95577343dd1f5b5b056fd705b55"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/wan-3.0/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-6f9f38b07d8e.txt",
+    "sha256": "2f4892a2d66834be8b2a53e26c2ad882f2a37063e8649d0034897c0a7c05a6e5"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-7027c958db8f.txt",
+    "sha256": "21a537eb657c6dd0b1097ba518dcdece069d4f6d21c76f8c890d294f305c2c5b"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0-turbo/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-727ddc68d8d6.txt",
+    "sha256": "8b0b748f13401e97953a4cbea405953d28569621816bc364d0ee9779213f136f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-746ee8a23f8c.txt",
+    "sha256": "e55e51902e0d518af6331083dba87a69bde83386e15ee3b551b61d3373005be5"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/ideogram/v4.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-75636eaa9dc8.txt",
+    "sha256": "897deb4382f120102bab53423c1249e22dee81c6f123612f36e6855b89f46436"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/wan-3.0/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-7608dcbf62d8.txt",
+    "sha256": "5ba45ae157470c9ba7cfd48f3674c00cebe64917eab5c4bbeda61b00ceb4743f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-7b0108ecdd02.txt",
+    "sha256": "454c7cf01d1261a35e3317994df354d1a5ac948f242d331bc75246341b2ada64"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/ads-studio/v1.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-7ba35a60ded4.txt",
+    "sha256": "06bba894fe0ffde22af54ae33a7e1f1d81eab8d859bb76cd40d7e3f0a9bad79c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/recraft/v4.1/text-to-image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-8d000a35726b.txt",
+    "sha256": "68db1661023dfc23a1fc738b4b1825656eebdb55e89cccf0e97764324dd19d04"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/cinema/playground",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-9226f37ad978.txt",
+    "sha256": "4d775c79ca608794a9a47cf19e77db2b07a317faf9f19b2e393f5eb3658ee3e8"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0/std/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-9482e4b0a165.txt",
+    "sha256": "5bb7b74232047654537f70949be2ad53e1d8b5d3f7169590fe8d2a9a1e6a6033"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/standard/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-9c5279679139.txt",
+    "sha256": "9525e9a53da0500c72ba06e2cac9d935201e0f37eca705175652de79d4a03fe2"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/recraft/v4.1/pro/text-to-image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-9efbf6229599.txt",
+    "sha256": "bf2b119781ba934ad0f35dbd58f2e3af3045d8e24da5520a976d62a17442f159"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/omni/video-edit/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-a1146fc0126c.txt",
+    "sha256": "89c7b38c6f21078cd5c1893fb6fe85f969bef73c91d6a8ad8614e0b47b03ed8c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-a68563276755.txt",
+    "sha256": "7848470073b267b227d9c8a70ee1ef271fbb7dffe887e2220c010606200ee51e"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3/motion-control/std/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-adb68f0a0cf1.txt",
+    "sha256": "4716f64556a91905498d7358a6dd7d7537cd8e25515120d4e5aa933ff434d749"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0/4k/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-adf7c9b875cb.txt",
+    "sha256": "97716e763c478f1c6545f93ad35553d4af221fe285ac9d25d42040232e0c3f1c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/pixverse/v6/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-af37fd632f64.txt",
+    "sha256": "27a6f4e0607856720ee187821bdd75700958f7523d9a760790bb1bd0e5941746"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-b0e570d39bad.txt",
+    "sha256": "f62774f2f2ab6c3dc3386b00a5cdfed95df682927d69aa2af500c0ee8ea7ff2d"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/genjutsu/motion-transfer/v1.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-b26743c8299c.txt",
+    "sha256": "d0037548ef174374dee479d890aea0a56ed35eed2e861abfbb3b620188786fa3"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/recraft/v4.1/utility/pro/text-to-image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-b5ed6c6eb3e1.txt",
+    "sha256": "8b6fc60dddc266e74a49a805e44e559eb715fa152a6a513a3684ac03dc06867f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/omni/video-reference/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-b743bed7861a.txt",
+    "sha256": "5ea734046e1f304d605e95030f3b9b3914c108cf859b2a4d991d37675859cd3c"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/standard/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-b7e436a96854.txt",
+    "sha256": "84209f8a5e8f8a6b81c08e1b5f1cfe5550ac564e785286f61b008130a7c7b39e"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v2.6/pro/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-bcc2f87f454e.txt",
+    "sha256": "6076e24fbea24ab18354096d290adac6970f10db6ee0adb3507a6d2f8269ab47"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0/std/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-bddf5efcf238.txt",
+    "sha256": "dd0c8da1facc3844c13eaf62c7bd9ee89ef50f5c153fcde6047fa4555f9a24b0"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-c04601ce6070.txt",
+    "sha256": "06b2e9b7909c806528d24ec3b4dd491bb0b4d209c19a5b0e89b0a1eed3895f43"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-c61919c585c7.txt",
+    "sha256": "6a8d93329f0234f1dcb06a176063fe91ca8af55469b4ff6aadda491127d27680"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/wan-3.0-prime/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-c70bda8526b8.txt",
+    "sha256": "026459dd163fcbd60de286d125384694a12fa8a86f21b14d0ff73b1e693571d6"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/minimax/h3/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-ca247701e41d.txt",
+    "sha256": "866f8da35d9ae40a6319ac0a0945fd698371356e56b33691b0a27aae885c6c1b"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/xai/grok-imagine-image-2.0/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-cd71548a1b9f.txt",
+    "sha256": "34ff6520195048eb1c7cfde2502031a7816ba3df14ed4c6c8921d93892a81915"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0/4k/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-cf60cc890409.txt",
+    "sha256": "d566fb8822e6748205d7f2b1284f8f4bf7b3031384dbb9db7439d59c8d3f9742"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/marketing-studio/image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-d640e9603784.txt",
+    "sha256": "598b9f0564d6d7bda9d7035409ef22999f32630b56bbb8fe684e5c783e2c6ebc"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/marketing-studio/image/sunburst/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-d9b8ab95d64d.txt",
+    "sha256": "ce3fd952d9d5481b818bb0ff4f1ae960f128f5d737e7023bcffeb0eeb0d07798"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/happy-horse/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-da5bcc812729.txt",
+    "sha256": "83dfbb89ea515b89101f43003e7266d9ae899fed257afdc970fe539846e36cbd"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/omni/image-reference/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-da7d3f0653b6.txt",
+    "sha256": "32d5c81656da61a8fd7ccaabc881c17598eac1748a506226f98bc6ae0566e3ee"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/image-to-video/fast/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-dc011c843f91.txt",
+    "sha256": "1931b7a89143ded9290a8a163a14e43a40b7c0474c03c65b3662b953d27158ea"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.0/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-dd7f6ba0ed10.txt",
+    "sha256": "6b40250581ab4584470461e0f1efbacf8d2de887087b6437cd86e1096c54a683"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-de4a16e37856.txt",
+    "sha256": "7f45f59b64c5f68a3c1884057473e040301132e846e63591e83f8306eb8c0ac9"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-extend/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-e2653d1cb0a0.txt",
+    "sha256": "b0a474a3969cec3a447916ac8b23dc66e8d91e69c06d4df0c4f01e67f5a4c22f"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/qwen-image-3/text-to-image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-e37dead9d7a6.txt",
+    "sha256": "c095c983e7380c0aa093b2fdb40ed4eac4bd5fe70634f7dc75ef9943283f34b3"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/lightricks/ltx-2.5/text-to-video/pro/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-e56ce6aee4a2.txt",
+    "sha256": "1855a2edfec01daff40e5948965ce1bf3b7c740b8278237a7a23305240b8f2eb"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/motion-control/pro/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-eb444256b811.txt",
+    "sha256": "7f4c186be1b13c641a47c95e8c8b9c2b780bfe10780308c1cf1f669ae2c6bd92"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/happy-horse/v1.1/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-eb5d7e5e0c32.txt",
+    "sha256": "9cf76c015b2ced789e6917c5f0fcfd73422528b45072297f5a73427d92bfaa84"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/kling-video/v3.0-turbo/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-efff958f4d8e.txt",
+    "sha256": "22cbdce7b9a9291cd4f0433f73a9ca6924bba0c6642821a3345658d812152f0a"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/marketing-studio/image/flare/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-f0c364017bca.txt",
+    "sha256": "6560d142c038863ed21937249a3f6177f2ecb72390c65775a30e4a0a126025b4"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/wan/v2.6/text-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-f15fc7c95f03.txt",
+    "sha256": "9431e1d53267cefdbae505f196e9a8265e9f004f33f4c6640da519d52685eec1"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/image-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-f7612b24c261.txt",
+    "sha256": "15f932381344d229f0768a8dfa939013dcfd2e518a24c44e5fedc627a1553f00"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/alibaba/happy-horse/reference-to-video/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-model-fe3724c32d52.txt",
+    "sha256": "4bfd2194df0395b0dc48d0ee753b02ea2d73295835c5277f1d507ab745e39d86"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/pricing",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-pricing-expanded-page1.txt",
+    "sha256": "f0505b8e80caa1179a7436c2d3d542a336fe3b6eaa80d450f15db6ed61fcf4c1"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/pricing?page=2",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-pricing-expanded-page2.txt",
+    "sha256": "650c1f9156cff7809cde4d5fbfc80684ba4e6b7e609d64d3c4436e61ad525f35"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/pricing?page=3",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-pricing-expanded-page3.txt",
+    "sha256": "c3641cdf99c9870d0fc39567bc290062745b1da7e352874a3ff1ae6526063396"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/pricing?page=4",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-pricing-expanded-page4.txt",
+    "sha256": "1d0c9ff6880de5f54b444a0b491107b9e2e033c167ce61b2a2f0d27ce5d9021d"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/pricing",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-pricing-page1.txt",
+    "sha256": "38c7e3db39c9249137febe90afdbddc068a5ae07bc1505b07545678453780ac8"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/pricing",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-pricing.txt",
+    "sha256": "cef110aa653a4963a765d73597adceb8f5999be01ab534faeef1b766b12e5f8b"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/workflows/product-shots/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-product-shots.txt",
+    "sha256": "9bdcd2f5e52c4c2da86ba61796e43baeca0729093563f23a54cfa9dd758b3d4a"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/image-to-image/api-reference#model-api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-soul-2-i2i.txt",
+    "sha256": "981bfc691233d62d5a01d7af1e59d1ff8dc777aca73f3ffbb59453c8b00176df"
+  },
+  {
+    "kind": "console-model",
+    "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/api-reference",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-soul-2-t2i.txt",
+    "sha256": "0107175ede29900462fd968c54e1efb777488454cc5e64ce865b68fcca68629c"
+  },
+  {
+    "kind": "console-catalog",
+    "url": "https://open.higgsfield.ai/explore?tab=video",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/console-video.txt",
+    "sha256": "dac14c5c6cd1608e564e7d3ba7842ccc6b07c88b3a00e92a095f7238f1f1b396"
+  },
+  {
+    "kind": "host-cli-receipt",
+    "url": "domios CLI",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/browser-owner-tab-tree.txt",
+    "sha256": "3c09e95d50ffb86ef77765922a8d812d63e71f89390ec28d8e09e06573a6873c"
+  },
+  {
+    "kind": "host-cli-receipt",
+    "url": "domios CLI",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/running-host.txt",
+    "sha256": "9c93fe581dc142b4055321491825f2fce41ebc3f9832594ee2d4eb74450f4ba7"
+  },
+  {
+    "kind": "host-cli-receipt",
+    "url": "domios CLI",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host-doc-BLUEPRINTS.md",
+    "sha256": "dc8fa1946bd11c3bcbe4f544d0ca5311a84e566a0addbf7b696ae7f2ee53a7d3"
+  },
+  {
+    "kind": "host-cli-receipt",
+    "url": "domios CLI",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host-doc-BROWSER.md",
+    "sha256": "f746ac007f5e0ea3e3a7ce95b1c50997cc334e48d61c0c3e09bc10c3ab8ec5be"
+  },
+  {
+    "kind": "host-cli-receipt",
+    "url": "domios CLI",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host-doc-INTEGRATIONS.md",
+    "sha256": "807baaa24c557dbd725d852057b003dec5a7878376e3eb8cfcc83228e1df7795"
+  },
+  {
+    "kind": "host-cli-receipt",
+    "url": "domios CLI",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host-doc-SURFACES.md",
+    "sha256": "1d54b483ed4a0a622a3e0fe354124e459a68440122554b1a34c3d0e8c8005ad9"
+  }
+]

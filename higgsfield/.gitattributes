@@ -1,0 +1,2 @@
+# Evidence hashes describe retrieved bytes, independent of checkout EOL policy.
+evidence/** -text

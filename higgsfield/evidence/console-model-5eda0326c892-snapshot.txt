@@ -1,0 +1,122 @@
+page: Wan 2.6 — API reference | Higgsfield API — https://open.higgsfield.ai/models/wan/v2.6/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@42ba700bb6df4a1fa491b4b5805c70f8-e1]
+  - button "Collapse sidebar" [expanded=true] [@42ba700bb6df4a1fa491b4b5805c70f8-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@42ba700bb6df4a1fa491b4b5805c70f8-e3]
+    - link "Explore models" [@42ba700bb6df4a1fa491b4b5805c70f8-e4]
+    - link "Quick start" [@42ba700bb6df4a1fa491b4b5805c70f8-e5]
+    - link "Documentation" [@42ba700bb6df4a1fa491b4b5805c70f8-e6]
+    - link "Pricing UP TO 75% OFF" [@42ba700bb6df4a1fa491b4b5805c70f8-e7]
+    - button "Playground" [expanded=true] [@42ba700bb6df4a1fa491b4b5805c70f8-e8]
+    - link "API keys" [@42ba700bb6df4a1fa491b4b5805c70f8-e9]
+    - link "Cashback" [@42ba700bb6df4a1fa491b4b5805c70f8-e10]
+    - link "Analytics" [@42ba700bb6df4a1fa491b4b5805c70f8-e11]
+    - link "Billing" [@42ba700bb6df4a1fa491b4b5805c70f8-e12]
+  - link "Contact sales" [@42ba700bb6df4a1fa491b4b5805c70f8-e13]
+  - link "Status" [@42ba700bb6df4a1fa491b4b5805c70f8-e14]
+  - link "Pricing" [@42ba700bb6df4a1fa491b4b5805c70f8-e15]
+  - link "Log in" [@42ba700bb6df4a1fa491b4b5805c70f8-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@42ba700bb6df4a1fa491b4b5805c70f8-e17]
+  - heading "WAN 2.6"
+  - button "Select model variant: Image-to-Video" [expanded=false] [@42ba700bb6df4a1fa491b4b5805c70f8-e18]
+  - button "Copy agent prompt" [@42ba700bb6df4a1fa491b4b5805c70f8-e19]
+  - status
+  - link "View docs" [@42ba700bb6df4a1fa491b4b5805c70f8-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@42ba700bb6df4a1fa491b4b5805c70f8-e21]
+  - button "Copy for agent" [@42ba700bb6df4a1fa491b4b5805c70f8-e22]
+  - navigation "Model sections"
+    - link "Playground" [@42ba700bb6df4a1fa491b4b5805c70f8-e23]
+    - link "API" [disabled] [@42ba700bb6df4a1fa491b4b5805c70f8-e24]
+    - link "Requests" [disabled] [@42ba700bb6df4a1fa491b4b5805c70f8-e25]
+    - link "Analytics" [disabled] [@42ba700bb6df4a1fa491b4b5805c70f8-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@42ba700bb6df4a1fa491b4b5805c70f8-e27]
+    - link "1. Calling the API" [@42ba700bb6df4a1fa491b4b5805c70f8-e28]
+    - link "Install" [@42ba700bb6df4a1fa491b4b5805c70f8-e29]
+    - link "Setup" [@42ba700bb6df4a1fa491b4b5805c70f8-e30]
+    - link "Request parameters" [@42ba700bb6df4a1fa491b4b5805c70f8-e31]
+    - link "2. Authentication" [@42ba700bb6df4a1fa491b4b5805c70f8-e32]
+    - link "API Key" [@42ba700bb6df4a1fa491b4b5805c70f8-e33]
+    - link "3. Queue" [@42ba700bb6df4a1fa491b4b5805c70f8-e34]
+    - link "Submit and wait" [@42ba700bb6df4a1fa491b4b5805c70f8-e35]
+    - link "Explicit lifecycle control" [@42ba700bb6df4a1fa491b4b5805c70f8-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@42ba700bb6df4a1fa491b4b5805c70f8-e37]
+  - heading "Setup"
+  - button "Copy code" [@42ba700bb6df4a1fa491b4b5805c70f8-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "—"
+      - cell "Minimum: -1. Maximum: 10000000."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Options: 5, 10, 15."
+    - row
+      - cell "audio_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Audio URL."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Options: 480p, 720p, 1080p."
+    - row
+      - cell "multi_shots"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell
+    - row
+      - cell "prompt_extend"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell
+    - row
+      - cell "negative_prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Negative prompt."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@42ba700bb6df4a1fa491b4b5805c70f8-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@42ba700bb6df4a1fa491b4b5805c70f8-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@42ba700bb6df4a1fa491b4b5805c70f8-e41]
+- region "Notifications alt+T"

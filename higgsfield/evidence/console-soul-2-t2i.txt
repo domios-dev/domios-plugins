@@ -1,0 +1,240 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Soul 2
+Text-to-Image
+Explore
+/
+Soul 2
+Image
+from
+0.0032 / img
+SOUL 2
+Text-to-Image
+
+Generates realistic portraits and fashion images, with natural textures and curated editorial styles.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "higgsfield-ai/soul/v2/standard",
+9
+  {
+10
+    input: {
+11
+      "seed": null,
+12
+      "prompt": "A cinematic scene at sunset",
+13
+      "batch_size": 1,
+14
+      "resolution": "720p",
+15
+      "aspect_ratio": "4:3",
+16
+      "enhance_prompt": true,
+17
+      "custom_reference_id": null,
+18
+      "custom_reference_strength": 1.0
+19
+    },
+20
+    withPolling: true,
+21
+  },
+22
+);
+23
+24
+console.log(result);
+Copy for agent
+Explore
+/
+Soul 2
+Text-to-Image
+Playground
+API
+Requests
+Analytics
+
+About
+
+TypeScript
+1.
+Calling the API
+Install
+Setup
+Request parameters
+2.
+Authentication
+API Key
+3.
+Queue
+Submit and wait
+Explicit lifecycle control
+4.
+Custom references (Soul ID)
+Create a Soul ID for Soul 2
+Wait until the reference is ready
+Generate with your Soul ID
+
+Soul 2 uses the model ID higgsfield-ai/soul/v2/standard. Soul V2 Standard generates images from text prompts with customizable style, resolution, aspect ratio, and batch size. Users can enhance prompts and set a seed for reproducibility, making it suitable for varied creative visual outputs.
+
+1. CALLING THE API
+
+Send requests to https://api.higgsfield.ai/higgsfield-ai/soul/v2/standard with a JSON body matching the parameters below.
+
+Install
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+Setup
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+Request parameters
+Parameter	Type	Required	Default	Description
+seed	integer	No	null	Seed. Minimum: 1. Maximum: 1000000.
+prompt	string	Yes	—	Prompt.
+style_id	string	No	—	Soul Style.
+custom_reference_id	string (UUID) or null	No	null	Completed Soul ID trained for Soul 2 in the same API account. See Custom references below.
+custom_reference_strength	number	No	1.0	Soul ID strength, from 0 to 1. Used with custom_reference_id.
+batch_size	integer	No	1	Result images. Options: 1, 4.
+resolution	string	No	"720p"	Resolution. Options: 720p, 1080p.
+aspect_ratio	string	No	"4:3"	Aspect Ratio. Options: 9:16, 16:9, 4:3, 3:4, 1:1, 2:3, 3:2.
+enhance_prompt	boolean	No	true	Enhance Prompt.
+2. AUTHENTICATION
+
+The official SDKs read credentials from the server environment and send the required Authorization: Key KEY_ID:KEY_SECRET header.
+
+API Key
+
+Never expose the secret in browser-side code or commit it to source control. The TypeScript SDK is server-side only. For direct HTTP calls, use:
+
+Authorization: Key $HF_KEY
+3. QUEUE
+
+subscribe submits the asynchronous request and waits for a terminal result. The TypeScript SDK polls automatically when withPolling: true; the Python SDK's synchronous subscribe call also waits. A completed request returns generated files in the images array.
+
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "higgsfield-ai/soul/v2/standard",
+  {
+    input: {
+      "prompt": "A cinematic scene at sunset",
+      "batch_size": 1,
+      "resolution": "720p",
+      "aspect_ratio": "4:3",
+      "enhance_prompt": true
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+Explicit lifecycle control
+
+Use the Python SDK when a worker needs explicit status, result, or cancellation control for an existing request. The TypeScript v2 client currently exposes automatic polling through subscribe.
+
+import higgsfield_client
+
+request_id = "{request_id}"
+status = higgsfield_client.status(request_id=request_id)
+result = higgsfield_client.result(request_id=request_id)
+higgsfield_client.cancel(request_id=request_id)
+4. CUSTOM REFERENCES (SOUL ID)
+
+A Soul ID is a trained custom reference that lets you reuse a person's identity in Soul 2 generations. Create it once, wait for training to finish, and pass its ID as custom_reference_id.
+
+Create a Soul ID for Soul 2
+
+Send POST /v1/custom-references with a name, 1–100 input images, and model_version: "v2". The default model version is v1, so explicitly select v2 for Soul 2. Replace the example URLs with accessible images of the person you want to use.
+
+curl --request POST \
+  --url 'https://api.higgsfield.ai/v1/custom-references' \
+  --header "Authorization: Key $HF_KEY" \
+  --header "Content-Type: application/json" \
+  --data @- <<'JSON'
+{
+  "name": "My Soul 2 character",
+  "model_version": "v2",
+  "input_images": [
+    {"type": "image_url", "image_url": "https://example.com/portrait-1.jpg"},
+    {"type": "image_url", "image_url": "https://example.com/portrait-2.jpg"}
+  ]
+}
+JSON
+
+Save the response's id. This is the Soul ID to use as custom_reference_id; it is not a generation request_id.
+
+Wait until the reference is ready
+REFERENCE_ID="YOUR_SOUL_ID"
+curl --request GET \
+  --url "https://api.higgsfield.ai/v1/custom-references/${REFERENCE_ID}" \
+  --header "Authorization: Key $HF_KEY"
+
+Repeat the GET request at intervals until status is completed. If it is failed, training did not produce a usable reference. You can find existing Soul IDs with GET /v1/custom-references/list?page=1&page_size=20.
+
+Use credentials belonging to the same API account for creation and generation. References belonging to another account, missing references, and references whose status is not completed cannot be used.
+
+Generate with your Soul ID
+
+Replace YOUR_COMPLETED_SOUL_ID with the UUID returned when creating the reference. custom_reference_strength is optional, defaults to 1.0, and accepts values from 0 to 1.
+
+curl --request POST \
+  --url 'https://api.higgsfield.ai/higgsfield-ai/soul/v2/standard' \
+  --header "Authorization: Key $HF_KEY" \
+  --header "Content-Type: application/json" \
+  --data @- <<'JSON'
+{
+  "prompt": "A natural portrait of this person in soft window light",
+  "custom_reference_id": "YOUR_COMPLETED_SOUL_ID",
+  "custom_reference_strength": 1.0,
+  "enhance_prompt": true,
+  "resolution": "720p",
+  "aspect_ratio": "1:1",
+  "batch_size": 1
+}
+JSON
+
+The generation response contains request_id and status_url. Poll status_url until completion and read the generated image URLs from images.

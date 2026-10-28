@@ -1,0 +1,120 @@
+page: Kling 3.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v3.0/4k/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@f87842e5928b4cc08fa0325fd03d22af-e1]
+  - button "Collapse sidebar" [expanded=true] [@f87842e5928b4cc08fa0325fd03d22af-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@f87842e5928b4cc08fa0325fd03d22af-e3]
+    - link "Explore models" [@f87842e5928b4cc08fa0325fd03d22af-e4]
+    - link "Quick start" [@f87842e5928b4cc08fa0325fd03d22af-e5]
+    - link "Documentation" [@f87842e5928b4cc08fa0325fd03d22af-e6]
+    - link "Pricing UP TO 75% OFF" [@f87842e5928b4cc08fa0325fd03d22af-e7]
+    - button "Playground" [expanded=true] [@f87842e5928b4cc08fa0325fd03d22af-e8]
+    - link "API keys" [@f87842e5928b4cc08fa0325fd03d22af-e9]
+    - link "Cashback" [@f87842e5928b4cc08fa0325fd03d22af-e10]
+    - link "Analytics" [@f87842e5928b4cc08fa0325fd03d22af-e11]
+    - link "Billing" [@f87842e5928b4cc08fa0325fd03d22af-e12]
+  - link "Contact sales" [@f87842e5928b4cc08fa0325fd03d22af-e13]
+  - link "Status" [@f87842e5928b4cc08fa0325fd03d22af-e14]
+  - link "Pricing" [@f87842e5928b4cc08fa0325fd03d22af-e15]
+  - link "Log in" [@f87842e5928b4cc08fa0325fd03d22af-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@f87842e5928b4cc08fa0325fd03d22af-e17]
+  - button "Select model variant: Text-to-Video (4K)" [expanded=false] [@f87842e5928b4cc08fa0325fd03d22af-e18]
+  - link "Explore" [@f87842e5928b4cc08fa0325fd03d22af-e19]
+  - heading "KLING 3.0"
+  - button "Select model variant: Text-to-Video (4K)" [expanded=false] [@f87842e5928b4cc08fa0325fd03d22af-e20]
+  - button "Copy agent prompt" [@f87842e5928b4cc08fa0325fd03d22af-e21]
+  - status
+  - link "View docs" [@f87842e5928b4cc08fa0325fd03d22af-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@f87842e5928b4cc08fa0325fd03d22af-e23]
+  - button "Copy for agent" [@f87842e5928b4cc08fa0325fd03d22af-e24]
+  - link "Explore" [@f87842e5928b4cc08fa0325fd03d22af-e25]
+  - button "Select model variant: Text-to-Video (4K)" [expanded=false] [@f87842e5928b4cc08fa0325fd03d22af-e26]
+  - navigation "Model sections"
+    - link "Playground" [@f87842e5928b4cc08fa0325fd03d22af-e27]
+    - link "API" [disabled] [@f87842e5928b4cc08fa0325fd03d22af-e28]
+    - link "Requests" [disabled] [@f87842e5928b4cc08fa0325fd03d22af-e29]
+    - link "Analytics" [disabled] [@f87842e5928b4cc08fa0325fd03d22af-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@f87842e5928b4cc08fa0325fd03d22af-e31]
+    - link "1. Calling the API" [@f87842e5928b4cc08fa0325fd03d22af-e32]
+    - link "Install" [@f87842e5928b4cc08fa0325fd03d22af-e33]
+    - link "Setup" [@f87842e5928b4cc08fa0325fd03d22af-e34]
+    - link "Request parameters" [@f87842e5928b4cc08fa0325fd03d22af-e35]
+    - link "2. Authentication" [@f87842e5928b4cc08fa0325fd03d22af-e36]
+    - link "API Key" [@f87842e5928b4cc08fa0325fd03d22af-e37]
+    - link "3. Queue" [@f87842e5928b4cc08fa0325fd03d22af-e38]
+    - link "Submit and wait" [@f87842e5928b4cc08fa0325fd03d22af-e39]
+    - link "Explicit lifecycle control" [@f87842e5928b4cc08fa0325fd03d22af-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@f87842e5928b4cc08fa0325fd03d22af-e41]
+  - heading "Setup"
+  - button "Copy code" [@f87842e5928b4cc08fa0325fd03d22af-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "sound"
+      - cell "string"
+      - cell "No"
+      - cell ""on""
+      - cell "Generate sound. Options: on, off."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 3. Maximum: 15."
+    - row
+      - cell "elements"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell
+    - row
+      - cell "cfg_scale"
+      - cell "number"
+      - cell "No"
+      - cell "0.5"
+      - cell "CFG Scale. Minimum: 0. Maximum: 1."
+    - row
+      - cell "multi_shots"
+      - cell "boolean"
+      - cell "No"
+      - cell "false"
+      - cell
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""16:9""
+      - cell "Aspect ratio. Options: 16:9, 9:16, 1:1."
+    - row
+      - cell "multi_prompt"
+      - cell "array[object]"
+      - cell "No"
+      - cell "—"
+      - cell
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@f87842e5928b4cc08fa0325fd03d22af-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@f87842e5928b4cc08fa0325fd03d22af-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@f87842e5928b4cc08fa0325fd03d22af-e45]
+- region "Notifications alt+T"

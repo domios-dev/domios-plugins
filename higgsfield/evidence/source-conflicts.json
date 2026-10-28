@@ -1,0 +1,228 @@
+{
+  "snapshotDate": "2026-10-29",
+  "conflicts": [
+    {
+      "id": "bytedance/seedance-2.5/image-to-video",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/image-to-video.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:00.176458+00:00",
+        "snapshot": "evidence/docs-models__seedance-2-5__image-to-video.md",
+        "sha256": "ab3fb9153ac06a0b2ea71aa4a10d33327dd5f51ac77ac9a472b0a774a3bc0355"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/image-to-video/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-f7612b24c261.txt",
+        "sha256": "15f932381344d229f0768a8dfa939013dcfd2e518a24c44e5fedc627a1553f00"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "bitrate_mode"
+          ]
+        },
+        {
+          "kind": "console-fields-absent-from-docs-schema",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    },
+    {
+      "id": "bytedance/seedance-2.5/reference-to-video",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/reference-to-video.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:57.751873+00:00",
+        "snapshot": "evidence/docs-models__seedance-2-5__reference-to-video.md",
+        "sha256": "46c8fb14dce0db63645a4fa580edc6ec6e314924460468fa7797358b70c4c9a4"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/reference-to-video/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-c61919c585c7.txt",
+        "sha256": "6a8d93329f0234f1dcb06a176063fe91ca8af55469b4ff6aadda491127d27680"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "bitrate_mode"
+          ]
+        },
+        {
+          "kind": "console-fields-absent-from-docs-schema",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    },
+    {
+      "id": "bytedance/seedance-2.5/text-to-video",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/text-to-video.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:59.936360+00:00",
+        "snapshot": "evidence/docs-models__seedance-2-5__text-to-video.md",
+        "sha256": "4c24fe51251e8c482acc10ec30a192132a101b1948f1af887e7fc8a0eb2c8a9d"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/text-to-video/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-a68563276755.txt",
+        "sha256": "7848470073b267b227d9c8a70ee1ef271fbb7dffe887e2220c010606200ee51e"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "bitrate_mode"
+          ]
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    },
+    {
+      "id": "bytedance/seedance-2.5/video-edit",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-edit.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:00.748654+00:00",
+        "snapshot": "evidence/docs-models__seedance-2-5__video-edit.md",
+        "sha256": "49c6adb72759843db9fa96ca0cdbc822bff6270772074a6af3e3e84974694b96"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-edit/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-1ecbe2ff7314.txt",
+        "sha256": "7978bcf66b1553a079e29c9526f20dd98674dfc019b017903a29ad2832bef46c"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "bitrate_mode"
+          ]
+        },
+        {
+          "kind": "console-fields-absent-from-docs-schema",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    },
+    {
+      "id": "bytedance/seedance-2.5/video-extend",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/seedance-2-5/video-extend.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:20:59.876029+00:00",
+        "snapshot": "evidence/docs-models__seedance-2-5__video-extend.md",
+        "sha256": "a05b78c79ce9bbe4ea6745d8d0c45df53e7f79b82fac64256fe742acb3d7f547"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/bytedance/seedance-2.5/video-extend/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-e2653d1cb0a0.txt",
+        "sha256": "b0a474a3969cec3a447916ac8b23dc66e8d91e69c06d4df0c4f01e67f5a4c22f"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "bitrate_mode"
+          ]
+        },
+        {
+          "kind": "console-fields-absent-from-docs-schema",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    },
+    {
+      "id": "higgsfield-ai/soul/v2/standard",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/soul-2/generate.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:04.823319+00:00",
+        "snapshot": "evidence/docs-models__soul-2__generate.md",
+        "sha256": "038864f4f4d00ccf134d4925544f97ecbcec7c302c3261800d3b442d8b081926"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/standard/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-b0e570d39bad.txt",
+        "sha256": "f62774f2f2ab6c3dc3386b00a5cdfed95df682927d69aa2af500c0ee8ea7ff2d"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "style_strength"
+          ]
+        },
+        {
+          "kind": "null-default-on-nonnullable-schema",
+          "field": "seed"
+        },
+        {
+          "kind": "default-conflict",
+          "field": "aspect_ratio",
+          "docs": "1:1",
+          "consoleDisplay": "\"4:3\""
+        },
+        {
+          "kind": "default-conflict",
+          "field": "enhance_prompt",
+          "docs": false,
+          "consoleDisplay": "true"
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    },
+    {
+      "id": "higgsfield-ai/soul/standard",
+      "docs": {
+        "url": "https://docs.higgsfield.ai/docs/models/soul-standard/generate.md",
+        "retrievedDate": "2026-10-29",
+        "retrievedAt": "2026-10-28T23:21:00.686644+00:00",
+        "snapshot": "evidence/docs-models__soul-standard__generate.md",
+        "sha256": "91c0bc0737d84eec3e28db70c3e514e95c5549ad364418516a7f64d3c04a13cc"
+      },
+      "console": {
+        "url": "https://open.higgsfield.ai/models/higgsfield-ai/soul/standard/api-reference#model-api-reference",
+        "retrievedDate": "2026-10-29",
+        "snapshot": "evidence/console-model-b7e436a96854.txt",
+        "sha256": "84209f8a5e8f8a6b81c08e1b5f1cfe5550ac564e785286f61b008130a7c7b39e"
+      },
+      "differences": [
+        {
+          "kind": "docs-fields-absent-from-console-table",
+          "fields": [
+            "custom_reference_id",
+            "custom_reference_strength",
+            "image_reference_url"
+          ]
+        },
+        {
+          "kind": "default-conflict",
+          "field": "enhance_prompt",
+          "docs": false,
+          "consoleDisplay": "true"
+        }
+      ],
+      "disposition": "vendor clarification required; no silent substitution/default parity claim"
+    }
+  ]
+}

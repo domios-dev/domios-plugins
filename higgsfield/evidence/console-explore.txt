@@ -1,0 +1,422 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+30% OFF
+ByteDance
+SEEDANCE 2.5
+
+Generates videos up to 30 seconds from text, image, video, or audio.
+
+Explore model
+from
+0.144 / s
+0.206 / s
+All models
+Image
+Video
+Filter
+All models
+Image
+Video
+Filter
+Video
+bytedance / Seedance 2.5
+5 modes
+
+Generates videos up to 30 seconds from text, image, video, or audio.
+
+30% OFF
+from
+0.144 / s
+0.206
+Video
+Higgsfield Exclusive
+higgsfield / Genjutsu Light
+2 modes
+
+Transfer motion to reference characters and scenes. Uses the first 15 seconds of the source video and preserves source audio.
+
+50% OFF
+from
+0.025 / s
+0.050
+Video
+Higgsfield Exclusive
+higgsfield / Genjutsu
+2 modes
+
+Swaps characters, locations, and styles in a video, keeping its motion.
+
+50% OFF
+from
+0.159 / s
+0.318
+Video
+kling / Kling 4.0
+4 modes
+
+Create videos with Kling 4.0 from text, images, and video references. Generate up to 30-second clips in 1080p, guide keyframes, and edit existing videos.
+
+30% OFF
+from
+0.110 / s
+0.157
+Video
+minimax / MiniMax H3
+3 modes
+
+Generates 2K videos up to 15 seconds using text, image, video, and optional audio reference files.
+
+50% OFF
+0.065 / s
+0.130
+Video
+alibaba / Wan 3.0 Prime
+3 modes
+
+Generates videos from text or media references with fast processing and clips up to 30 seconds.
+
+60% OFF
+from
+0.027 / s
+0.068
+Image
+xai / Grok Imagine 2.0
+
+Generates images and makes precise edits while preserving image details and visual consistency.
+
+from
+0.040 / img
+Image
+Marketing Studio Image
+3 modes
+
+Creates and edits campaign images up to 4K from text or images.
+
+15% OFF
+from
+0.014 / img
+0.016
+Image
+
+Explore the latest in text-to-image generation
+
+Image
+xai / Grok Imagine 2.0
+
+Generates images and makes precise edits while preserving image details and visual consistency.
+
+from
+0.040 / img
+Image
+Marketing Studio Image
+3 modes
+
+Creates and edits campaign images up to 4K from text or images.
+
+15% OFF
+from
+0.014 / img
+0.016
+Image
+Higgsfield Exclusive
+higgsfield / AI Influencer
+
+Create one AI influencer character sheet. Human and animal modes. $0.05 per sheet.
+
+0.050 / img
+Image
+Higgsfield Exclusive
+higgsfield / Soul 2
+2 modes
+
+Generates realistic portraits and fashion images, with natural textures and curated editorial styles.
+
+from
+0.003 / img
+Image
+ideogram / Ideogram 4.0
+
+Generates and edits images with multilingual text for posters, packaging and other graphic layouts.
+
+0.030 / img
+Image
+recraft / Recraft 4.1
+4 modes
+
+Generates images and illustrations using custom palettes and background colors to fit your brand.
+
+0.035 / img
+Image
+Higgsfield Exclusive
+higgsfield / Soul Standard
+
+Generates fashion and lifestyle photos from text, with style presets for editorial and social content.
+
+from
+0.094 / img
+Workflow
+Higgsfield Exclusive
+higgsfield / Ads Studio
+
+From a simple brief to ready-to-use ads. Bring your product, describe your vision, and let Ads Studio handle the creative.
+
+from
+0.084 / img
+Image
+alibaba / Qwen Image 3
+2 modes
+
+Generates images from English or Chinese text, with enhanced prompts and resolution up to 2K.
+
+from
+0.040 / img
+Image
+alibaba / Z-Image Turbo
+
+Generates images quickly with clear Chinese and English text rendering and PNG output up to 2K.
+
+0.015 / img
+Workflow
+Product shots
+
+Turns product photos into campaign images with presets for composition, lighting and visual style.
+
+15% OFF
+from
+0.014 / img
+0.016
+Workflow
+Graphic ads
+
+Creates ad creatives from a product photo, with presets that guide layout, typography and colors.
+
+15% OFF
+from
+0.014 / img
+0.016
+Workflow
+Marketplace design
+
+Creates listing images from a product photo, with preset styles designed for marketplace catalogs.
+
+15% OFF
+from
+0.014 / img
+0.016
+Video
+
+Turn prompts, stills and storyboards into moving footage
+
+Video
+bytedance / Seedance 2.5
+5 modes
+
+Generates videos up to 30 seconds from text, image, video, or audio.
+
+30% OFF
+from
+0.144 / s
+0.206
+Video
+Higgsfield Exclusive
+higgsfield / Genjutsu Light
+2 modes
+
+Transfer motion to reference characters and scenes. Uses the first 15 seconds of the source video and preserves source audio.
+
+50% OFF
+from
+0.025 / s
+0.050
+Video
+Higgsfield Exclusive
+higgsfield / Genjutsu
+2 modes
+
+Swaps characters, locations, and styles in a video, keeping its motion.
+
+50% OFF
+from
+0.159 / s
+0.318
+Video
+kling / Kling 4.0
+4 modes
+
+Create videos with Kling 4.0 from text, images, and video references. Generate up to 30-second clips in 1080p, guide keyframes, and edit existing videos.
+
+30% OFF
+from
+0.110 / s
+0.157
+Video
+minimax / MiniMax H3
+3 modes
+
+Generates 2K videos up to 15 seconds using text, image, video, and optional audio reference files.
+
+50% OFF
+0.065 / s
+0.130
+Video
+alibaba / Wan 3.0 Prime
+3 modes
+
+Generates videos from text or media references with fast processing and clips up to 30 seconds.
+
+60% OFF
+from
+0.027 / s
+0.068
+Video
+bytedance / Seedance 2.0
+3 modes
+
+Creates 4K video from text or media references. Supports up to 15 seconds with optional sound.
+
+30% OFF
+from
+0.099 / s
+0.141
+Video
+Higgsfield Exclusive
+higgsfield / Cinema Studio 4.0
+
+Generates cinematic videos up to 30 seconds with automatic scene direction.
+
+from
+0.206 / s
+Workflow
+Higgsfield Exclusive
+higgsfield / Genjutsu
+2 modes
+
+Transfer motion from a reference video to your characters, products, or clothes.
+
+50% OFF
+from
+0.159 / s
+0.318
+Video
+kling / Kling 3.0
+10 modes
+
+Generates multi-shot videos from text or images, with native audio and durations up to 15 seconds.
+
+50% OFF
+0.042 / s
+0.084
+Video
+alibaba / Wan 3.0
+3 modes
+
+Generates videos from text or images with native audio and adjustable duration up to 30 seconds.
+
+60% OFF
+from
+0.020 / s
+0.050
+Video
+lightricks / LTX 2.5 Fast
+2 modes
+
+Generates videos from text or images with native audio, camera motion controls and 4K resolution.
+
+from
+0.090 / s
+Video
+lightricks / LTX 2.5 Pro
+2 modes
+
+Generates videos from text or images with native audio, camera motion controls and 1080p output.
+
+from
+0.120 / s
+Video
+xai / Grok Imagine Video 1.5
+
+Creates videos from text prompts or still images, with 1080p resolution and clips up to 15 seconds.
+
+from
+0.080 / s
+Video
+alibaba / Wan 2.7
+3 modes
+
+Generates videos from text or images with native audio and consistent characters across scenes.
+
+50% OFF
+from
+0.050 / s
+0.100
+Workflows
+
+Launch ads and campaigns
+
+Workflow
+Higgsfield Exclusive
+higgsfield / Ads Studio
+
+From a simple brief to ready-to-use ads. Bring your product, describe your vision, and let Ads Studio handle the creative.
+
+from
+0.084 / img
+Workflow
+Higgsfield Exclusive
+higgsfield / Genjutsu
+
+Transfer motion from a reference video to your characters, products, or clothes.
+
+50% OFF
+from
+0.159 / s
+0.318
+Workflow
+Higgsfield Exclusive
+higgsfield / Cinema Studio 4.0
+
+Cinematic video generation with automatic scene direction and optional references
+
+from
+0.206 / s
+Workflow
+Product shots
+
+Turns product photos into campaign images with presets for composition, lighting and visual style.
+
+15% OFF
+from
+0.014 / img
+0.016
+Workflow
+Graphic ads
+
+Creates ad creatives from a product photo, with presets that guide layout, typography and colors.
+
+15% OFF
+from
+0.014 / img
+0.016
+Workflow
+Marketplace design
+
+Creates listing images from a product photo, with preset styles designed for marketplace catalogs.
+
+15% OFF
+from
+0.014 / img
+0.016

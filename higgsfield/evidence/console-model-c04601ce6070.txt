@@ -1,0 +1,307 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Genjutsu
+Restyle
+Explore
+/
+Genjutsu
+Video
+GENJUTSU
+Restyle
+
+Restyle a video with a selected visual preset while preserving its motion and source audio.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "higgsfield/genjutsu/restyle/v1.0",
+9
+  {
+10
+    input: {
+11
+      "prompt": "",
+12
+      "preset_id": "string",
+13
+      "video_url": "https://example.com/input.mp4",
+14
+      "image_urls": [],
+15
+      "resolution": "720p"
+16
+    },
+17
+    withPolling: true,
+18
+  },
+19
+);
+20
+21
+console.log(result);
+Copy for agent
+Explore
+/
+Genjutsu
+Restyle
+Playground
+API
+Requests
+Analytics
+
+Genjutsu Restyle
+
+1.
+Authentication
+2.
+Get the available styles
+3.
+Input parameters
+`video_url`
+`preset_id`
+`image_urls`
+`prompt`
+`resolution`
+4.
+Generate a video
+Minimal request: restyle the existing source subjects
+Full request: include a character reference
+5.
+Retrieve the generated video
+6.
+Input checklist
+
+Restyle a source video using a selectable visual style while retaining its motion, shot composition, and source audio. You can restyle the subjects already present in the video or supply optional character reference images. Each request produces one video.
+
+Model: higgsfield/genjutsu/restyle/v1.0
+Base URL: https://api.higgsfield.ai
+Generate: POST /higgsfield/genjutsu/restyle/v1.0
+List styles: GET /models/higgsfield/genjutsu/restyle/v1.0/presets
+
+AUTHENTICATION
+
+Use the same API key for listing styles, generating a video, and checking its status:
+
+Authorization: Key YOUR_API_KEY_ID:YOUR_API_KEY_SECRET
+
+For the shell examples below, set HF_API_KEY_ID and HF_API_KEY_SECRET to your credentials. Send JSON generation requests with Content-Type: application/json.
+
+GET THE AVAILABLE STYLES
+
+Styles are called presets in the API. Fetch the catalog before selecting a style:
+
+curl --fail-with-body --silent --show-error \
+  'https://api.higgsfield.ai/models/higgsfield/genjutsu/restyle/v1.0/presets' \
+  -H "Authorization: Key ${HF_API_KEY_ID}:${HF_API_KEY_SECRET}"
+
+No request body, query parameters, or pagination parameters are needed. The endpoint requires authentication and access to the Restyle model. It returns all currently selectable system presets, ordered by name and ID. Hidden or unusable presets are omitted; personal/custom styles are not included.
+
+Example response, shortened to one item:
+
+{
+  "model": "higgsfield/genjutsu/restyle/v1.0",
+  "items": [
+    {
+      "id": "c2143317-f28d-4c3c-a0b8-39bd547e08a7",
+      "name": "Cel-Shaded CG Anime",
+      "preview_url": "https://cdn.higgsfield.ai/restyle_presets/259d7ddb-4201-49f7-8a91-cee5bce28715.webp"
+    }
+  ]
+}
+Response field	Meaning
+model	The generation model to which this catalog belongs.
+items	Array of available styles. Treat an empty array as no selectable styles.
+items[].id	Style UUID. Copy this value into the generation request's preset_id.
+items[].name	Human-readable style name for a menu or style picker.
+items[].preview_url	Style preview image for display. This is not the value of preset_id and does not need to be sent in image_urls.
+
+Select exactly one item. Use its id, not its name, list position, or preview URL. The example ID above was available when this documentation was written; always use the current catalog in your application. If a saved selection disappears, refresh the list and select an available style.
+
+In Playground, the preset_id field uses the restylePreset widget. A custom client can show each item's name and preview and submit the selected UUID.
+
+INPUT PARAMETERS
+
+The JSON body has five model input fields:
+
+Parameter	Type	Required	Default	Limits / allowed values
+video_url	string (URL)	Yes	None	Downloadable source video; at least 4 seconds; at most 200 MiB. Videos longer than 30 seconds use only their first 30 seconds.
+preset_id	string (UUID)	Yes	None	One currently available style ID from the presets endpoint.
+image_urls	array of URL strings	No	[]	0–5 character reference images; at most 64 MiB per image.
+prompt	string	No	""	Additional instructions, up to 10,000 characters.
+resolution	string	No	"720p"	Exactly "480p", "720p", or "1080p".
+
+Defaults apply when a field is omitted. Send [] for no character references and "" for no additional prompt; null is not a supported value for these fields.
+
+video_url
+
+The video that supplies the motion, camera movement, composition, and source scene. Supply a direct URL to the media file, not a page containing a video player.
+
+The server must be able to download the file without browser cookies or custom authentication headers. A publicly reachable HTTPS URL, including an unexpired signed download URL, is suitable.
+The downloaded video must be at least 4 seconds long. Shorter clips fail input preparation.
+The download limit is 200 MiB (209,715,200 bytes). A longer video must still fit within this file-size limit before it can be trimmed.
+Videos over 30 seconds are automatically trimmed to their first 30 seconds, including audio. Trim your source before uploading if you need a different segment; this model has no start-time/end-time input.
+The source must be a decodable video. MP4 is a practical choice for uploads.
+The source audio is retained in the finished video when present. Restyle does not expose an option to generate a new soundtrack or replace the source audio.
+Framing is derived from the source; there is no separate aspect_ratio input. The selected style can also determine output animation cadence, so output FPS need not equal input FPS. Exact frame count and duration are not guaranteed to match the source byte-for-byte.
+
+Keep the URL valid while the service fetches the input. A download link that expires or requires authentication can cause the request to fail.
+
+preset_id
+
+Selects the visual style for the entire request. This field is required even when you provide prompt or image_urls.
+
+Call GET /models/higgsfield/genjutsu/restyle/v1.0/presets.
+Choose an item by its name and preview.
+Copy items[].id into preset_id.
+
+For example:
+
+{
+  "preset_id": "c2143317-f28d-4c3c-a0b8-39bd547e08a7"
+}
+
+The style applies to the subject and scene. You cannot combine multiple preset IDs in one request, send a style name instead of a UUID, or upload a custom style through this field. An unavailable or hidden preset fails input preparation; it does not silently fall back to another style.
+
+image_urls
+
+Optional character appearance references. These images supply the appearance of characters to use with the motion from video_url. They do not select the visual style; preset_id selects the style.
+
+Omitted or []: Restyle uses a frame from the source video to establish the styled appearance of the existing subject and scene. No external character reference is needed. Use this when you want to restyle the subjects already in the clip.
+
+One or more URLs: Each supplied character image is restyled with the selected preset. The source scene's background is prepared separately and restyled, then the styled characters and scene guide the resulting video. Use this when you want explicit character appearance references alongside the source motion.
+
+Send an array, even for one image: ["https://cdn.example.com/character.png"].
+The maximum is 5 images per request; the empty array is valid.
+Each URL must point directly to a downloadable image, with the same reachability requirements as video_url.
+Each image download is limited to 64 MiB (67,108,864 bytes).
+Use clear, decodable images; JPEG or PNG are practical choices. Images are normalized for generation, so their original pixel dimensions are not the output video dimensions.
+Keep references in a stable order. The public API does not expose a per-image subject index or an explicit reference-to-person mapping. For multi-character scenes, describe the intended roles in prompt; this provides guidance rather than a guaranteed mapping.
+Use character images here, not style thumbnails or background-only images. There is no separate background-image input for this model.
+
+Example:
+
+{
+  "image_urls": [
+    "https://cdn.example.com/character-a.png",
+    "https://cdn.example.com/character-b.jpg"
+  ]
+}
+prompt
+
+Optional instructions that guide the final video alongside the selected style, source motion, and any character references. The default empty string lets the model work from those inputs alone.
+
+Maximum length: 10,000 characters.
+Describe the visual intent, subject roles, or details that should remain consistent.
+For example: "Preserve the original camera movement and keep the character's pink hair and earrings consistent across shots."
+prompt supplements the chosen preset; it does not replace preset_id or create a custom preset.
+It does not set resolution, duration, frame rate, or audio behavior. Those are not controlled by writing parameter-like text in the prompt.
+Instructions guide a generative result; exact preservation of every visual detail is not guaranteed.
+resolution
+
+Selects the output resolution tier and its per-second price. Accepted strings are case-sensitive:
+
+Value	Meaning	Approximate price per source-video second
+"480p"	Lower-resolution output	$0.318
+"720p"	Default output tier	$0.681
+"1080p"	Higher-resolution output	$1.632
+
+These are approximate per-second rates, not an exact total quote. Source-video duration is rounded up to whole seconds for billing after any trimming to 30 seconds. For example, an 8.1-second source is billed as 9 seconds. Dimensions depend on the source framing; the resolution setting does not select an aspect ratio or output FPS.
+
+Send "720p", not 720, "720", or "HD".
+
+GENERATE A VIDEO
+Minimal request: restyle the existing source subjects
+
+Replace the example media URL with your downloadable video and choose a current preset ID:
+
+curl --fail-with-body --silent --show-error \
+  -X POST 'https://api.higgsfield.ai/higgsfield/genjutsu/restyle/v1.0' \
+  -H "Authorization: Key ${HF_API_KEY_ID}:${HF_API_KEY_SECRET}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "video_url": "https://cdn.example.com/source.mp4",
+    "preset_id": "c2143317-f28d-4c3c-a0b8-39bd547e08a7"
+  }'
+
+This uses image_urls: [], prompt: "", and resolution: "720p".
+
+Full request: include a character reference
+curl --fail-with-body --silent --show-error \
+  -X POST 'https://api.higgsfield.ai/higgsfield/genjutsu/restyle/v1.0' \
+  -H "Authorization: Key ${HF_API_KEY_ID}:${HF_API_KEY_SECRET}" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "video_url": "https://cdn.example.com/source.mp4",
+    "preset_id": "c2143317-f28d-4c3c-a0b8-39bd547e08a7",
+    "image_urls": ["https://cdn.example.com/character.png"],
+    "prompt": "Preserve the original movement and camera composition. Keep the referenced character consistent across shots.",
+    "resolution": "1080p"
+  }'
+
+Generation is asynchronous. An accepted response contains a request_id and URLs for checking or cancelling that request; it is not the completed video.
+
+{
+  "status": "queued",
+  "request_id": "REQUEST_ID",
+  "status_url": "https://api.higgsfield.ai/requests/REQUEST_ID/status",
+  "cancel_url": "https://api.higgsfield.ai/requests/REQUEST_ID/cancel"
+}
+RETRIEVE THE GENERATED VIDEO
+
+Poll the returned status_url using the same account's credentials. For example, set REQUEST_ID to the value returned by generation:
+
+curl --fail-with-body --silent --show-error \
+  "https://api.higgsfield.ai/requests/${REQUEST_ID}/status" \
+  -H "Authorization: Key ${HF_API_KEY_ID}:${HF_API_KEY_SECRET}"
+
+While processing, the status can be queued or in_progress. On success, read video.url from the completed response. Simplified successful response:
+
+{
+  "status": "completed",
+  "request_id": "REQUEST_ID",
+  "video": {
+    "url": "https://cdn.example.com/generated-restyle.mp4"
+  }
+}
+
+Media download, preset lookup, and other preparation errors may appear after the generation request has been accepted. Stop polling on a terminal failure and inspect its returned error information; acceptance alone does not mean generation succeeded.
+
+INPUT CHECKLIST
+video_url and a current preset_id are always required.
+Choose the style with preset_id; use image_urls only for optional character references.
+Use downloadable media URLs, not local paths, HTML pages, or inline base64 data.
+Keep the source at least 4 seconds long and within 200 MiB. Longer clips are limited to the first 30 seconds.
+Send at most 5 character images and at most 10,000 prompt characters.
+Use one of the three supported resolution strings.
+Send only the five model inputs documented above. This endpoint does not expose batch size, duration, aspect ratio, FPS, scene mode, background-image selection, seed, or provider selection.

@@ -1,0 +1,144 @@
+page: Soul 2 — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield-ai/soul/v2/image-to-image/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@ee6e08416682496ab595cf15631d9f00-e1]
+  - button "Collapse sidebar" [expanded=true] [@ee6e08416682496ab595cf15631d9f00-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@ee6e08416682496ab595cf15631d9f00-e3]
+    - link "Explore models" [@ee6e08416682496ab595cf15631d9f00-e4]
+    - link "Quick start" [@ee6e08416682496ab595cf15631d9f00-e5]
+    - link "Documentation" [@ee6e08416682496ab595cf15631d9f00-e6]
+    - link "Pricing UP TO 75% OFF" [@ee6e08416682496ab595cf15631d9f00-e7]
+    - button "Playground" [expanded=true] [@ee6e08416682496ab595cf15631d9f00-e8]
+    - link "API keys" [@ee6e08416682496ab595cf15631d9f00-e9]
+    - link "Cashback" [@ee6e08416682496ab595cf15631d9f00-e10]
+    - link "Analytics" [@ee6e08416682496ab595cf15631d9f00-e11]
+    - link "Billing" [@ee6e08416682496ab595cf15631d9f00-e12]
+  - link "Contact sales" [@ee6e08416682496ab595cf15631d9f00-e13]
+  - link "Status" [@ee6e08416682496ab595cf15631d9f00-e14]
+  - link "Pricing" [@ee6e08416682496ab595cf15631d9f00-e15]
+  - link "Log in" [@ee6e08416682496ab595cf15631d9f00-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@ee6e08416682496ab595cf15631d9f00-e17]
+  - button "Select model variant: Image-to-Image" [expanded=false] [@ee6e08416682496ab595cf15631d9f00-e18]
+  - link "Explore" [@ee6e08416682496ab595cf15631d9f00-e19]
+  - heading "SOUL 2"
+  - button "Select model variant: Image-to-Image" [expanded=false] [@ee6e08416682496ab595cf15631d9f00-e20]
+  - button "Copy agent prompt" [@ee6e08416682496ab595cf15631d9f00-e21]
+  - status
+  - link "View docs" [@ee6e08416682496ab595cf15631d9f00-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@ee6e08416682496ab595cf15631d9f00-e23]
+  - button "Copy for agent" [@ee6e08416682496ab595cf15631d9f00-e24]
+  - link "Explore" [@ee6e08416682496ab595cf15631d9f00-e25]
+  - button "Select model variant: Image-to-Image" [expanded=false] [@ee6e08416682496ab595cf15631d9f00-e26]
+  - navigation "Model sections"
+    - link "Playground" [@ee6e08416682496ab595cf15631d9f00-e27]
+    - link "API" [disabled] [@ee6e08416682496ab595cf15631d9f00-e28]
+    - link "Requests" [disabled] [@ee6e08416682496ab595cf15631d9f00-e29]
+    - link "Analytics" [disabled] [@ee6e08416682496ab595cf15631d9f00-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@ee6e08416682496ab595cf15631d9f00-e31]
+    - link "1. Calling the API" [@ee6e08416682496ab595cf15631d9f00-e32]
+    - link "Install" [@ee6e08416682496ab595cf15631d9f00-e33]
+    - link "Setup" [@ee6e08416682496ab595cf15631d9f00-e34]
+    - link "Request parameters" [@ee6e08416682496ab595cf15631d9f00-e35]
+    - link "2. Authentication" [@ee6e08416682496ab595cf15631d9f00-e36]
+    - link "API Key" [@ee6e08416682496ab595cf15631d9f00-e37]
+    - link "3. Queue" [@ee6e08416682496ab595cf15631d9f00-e38]
+    - link "Submit and wait" [@ee6e08416682496ab595cf15631d9f00-e39]
+    - link "Explicit lifecycle control" [@ee6e08416682496ab595cf15631d9f00-e40]
+    - link "4. Custom references (Soul ID)" [@ee6e08416682496ab595cf15631d9f00-e41]
+    - link "Create a Soul ID for Soul 2" [@ee6e08416682496ab595cf15631d9f00-e42]
+    - link "Wait until the reference is ready" [@ee6e08416682496ab595cf15631d9f00-e43]
+    - link "Generate with your Soul ID" [@ee6e08416682496ab595cf15631d9f00-e44]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e45]
+  - heading "Setup"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e46]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "seed"
+      - cell "integer"
+      - cell "No"
+      - cell "null"
+      - cell "Seed. Minimum: 1. Maximum: 1000000."
+    - row
+      - cell "image_url"
+      - cell "string (URL)"
+      - cell "Yes"
+      - cell "—"
+      - cell "Publicly accessible reference image URL. Required even when using a Soul ID."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "style_id"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Soul Style."
+    - row
+      - cell "custom_reference_id"
+      - cell "string (UUID) or null"
+      - cell "No"
+      - cell "null"
+      - cell "Completed Soul ID trained for Soul 2 in the same API account. See Custom references below."
+    - row
+      - cell "custom_reference_strength"
+      - cell "number"
+      - cell "No"
+      - cell "1.0"
+      - cell "Soul ID strength, from 0 to 1. Used with custom_reference_id."
+    - row
+      - cell "batch_size"
+      - cell "integer"
+      - cell "No"
+      - cell "1"
+      - cell "Result images. Options: 1, 4."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Resolution. Options: 720p, 1080p."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""4:3""
+      - cell "Aspect Ratio. Options: 9:16, 16:9, 4:3, 3:4, 1:1, 2:3, 3:2."
+    - row
+      - cell "enhance_prompt"
+      - cell "boolean"
+      - cell "No"
+      - cell "true"
+      - cell "Reference-image prompt processing is always enabled for this model."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e47]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e48]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e49]
+  - heading "4. CUSTOM REFERENCES (SOUL ID)"
+  - link "Soul ID" [@ee6e08416682496ab595cf15631d9f00-e50]
+  - heading "Create a Soul ID for Soul 2"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e51]
+  - heading "Wait until the reference is ready"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e52]
+  - heading "Generate with your Soul ID"
+  - button "Copy code" [@ee6e08416682496ab595cf15631d9f00-e53]
+- region "Notifications alt+T"

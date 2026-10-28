@@ -1,0 +1,628 @@
+page: Pricing | Higgsfield API — https://open.higgsfield.ai/pricing
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@6aadb715e08544acacea75e87569f7ad-e1]
+  - button "Collapse sidebar" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@6aadb715e08544acacea75e87569f7ad-e3]
+    - link "Explore models" [@6aadb715e08544acacea75e87569f7ad-e4]
+    - link "Quick start" [@6aadb715e08544acacea75e87569f7ad-e5]
+    - link "Documentation" [@6aadb715e08544acacea75e87569f7ad-e6]
+    - link "Pricing UP TO 75% OFF" [@6aadb715e08544acacea75e87569f7ad-e7]
+    - button "Playground" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e8]
+    - link "API keys" [@6aadb715e08544acacea75e87569f7ad-e9]
+    - link "Cashback" [@6aadb715e08544acacea75e87569f7ad-e10]
+    - link "Analytics" [@6aadb715e08544acacea75e87569f7ad-e11]
+    - link "Billing" [@6aadb715e08544acacea75e87569f7ad-e12]
+  - link "Contact sales" [@6aadb715e08544acacea75e87569f7ad-e13]
+  - link "Status" [@6aadb715e08544acacea75e87569f7ad-e14]
+  - link "Pricing" [@6aadb715e08544acacea75e87569f7ad-e15]
+  - link "Log in" [@6aadb715e08544acacea75e87569f7ad-e16]
+  - separator "Resize sidebar"
+- main
+  - heading "MODELS API PRICING"
+  - tab "All models" [selected=true] [@6aadb715e08544acacea75e87569f7ad-e17]
+  - tab "Video" [selected=false] [@6aadb715e08544acacea75e87569f7ad-e18]
+  - tab "Image" [selected=false] [@6aadb715e08544acacea75e87569f7ad-e19]
+  - searchbox "Search models" [@6aadb715e08544acacea75e87569f7ad-e20]
+  - button "Compare prices with others" [@6aadb715e08544acacea75e87569f7ad-e21]
+  - table
+    - row
+      - columnheader "Model name"
+      - columnheader "Resolution"
+      - columnheader "Duration"
+      - columnheader "List price"
+      - columnheader "leads to"
+      - columnheader "Max-discount price"
+      - columnheader "Max-discount selection"
+    - row
+      - cell "Collapse Genjutsu, 2 modes Genjutsu, 2 modes"
+        - button "Collapse Genjutsu, 2 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e22]
+        - link "Genjutsu, 2 modes" [@6aadb715e08544acacea75e87569f7ad-e23]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.318/s"
+      - cell
+      - cell "50% OFF from $0.159/s"
+      - cell "Compare Genjutsu with other providers"
+        - button "Compare Genjutsu with other providers" [@6aadb715e08544acacea75e87569f7ad-e24]
+    - row
+      - cell "Genjutsu, Motion Transfer"
+        - link "Genjutsu, Motion Transfer" [@6aadb715e08544acacea75e87569f7ad-e25]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.318/s"
+      - cell
+      - cell "50% OFF from $0.159/s"
+      - cell "Compare Genjutsu with other providers"
+        - button "Compare Genjutsu with other providers" [@6aadb715e08544acacea75e87569f7ad-e26]
+    - row
+      - cell "Genjutsu, Object Swap"
+        - link "Genjutsu, Object Swap" [@6aadb715e08544acacea75e87569f7ad-e27]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.318/s"
+      - cell
+      - cell "50% OFF from $0.159/s"
+      - cell "Compare Genjutsu with other providers"
+        - button "Compare Genjutsu with other providers" [@6aadb715e08544acacea75e87569f7ad-e28]
+    - row
+      - cell "Collapse Genjutsu Light, 2 modes Genjutsu Light, 2 modes"
+        - button "Collapse Genjutsu Light, 2 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e29]
+        - link "Genjutsu Light, 2 modes" [@6aadb715e08544acacea75e87569f7ad-e30]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.050/s"
+      - cell
+      - cell "50% OFF from $0.025/s"
+      - cell "Compare Genjutsu Light with other providers"
+        - button "Compare Genjutsu Light with other providers" [@6aadb715e08544acacea75e87569f7ad-e31]
+    - row
+      - cell "Genjutsu Light, Motion Transfer"
+        - link "Genjutsu Light, Motion Transfer" [@6aadb715e08544acacea75e87569f7ad-e32]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.050/s"
+      - cell
+      - cell "50% OFF from $0.025/s"
+      - cell "Compare Genjutsu Light with other providers"
+        - button "Compare Genjutsu Light with other providers" [@6aadb715e08544acacea75e87569f7ad-e33]
+    - row
+      - cell "Genjutsu Light, Object Swap"
+        - link "Genjutsu Light, Object Swap" [@6aadb715e08544acacea75e87569f7ad-e34]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.050/s"
+      - cell
+      - cell "50% OFF from $0.025/s"
+      - cell "Compare Genjutsu Light with other providers"
+        - button "Compare Genjutsu Light with other providers" [@6aadb715e08544acacea75e87569f7ad-e35]
+    - row
+      - cell "Collapse Seedance 2.5, 5 modes Seedance 2.5, 5 modes"
+        - button "Collapse Seedance 2.5, 5 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e36]
+        - link "Seedance 2.5, 5 modes" [@6aadb715e08544acacea75e87569f7ad-e37]
+      - cell "up to 1080p"
+      - cell "4–30s"
+      - cell "from $0.206/s"
+      - cell
+      - cell "30% OFF from $0.144/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e38]
+    - row
+      - cell "Seedance 2.5, Text to Video"
+        - link "Seedance 2.5, Text to Video" [@6aadb715e08544acacea75e87569f7ad-e39]
+      - cell "up to 1080p"
+      - cell "4–30s"
+      - cell "from $0.206/s"
+      - cell
+      - cell "30% OFF from $0.144/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e40]
+    - row
+      - cell "Seedance 2.5, Reference to Video (with video reference)"
+        - link "Seedance 2.5, Reference to Video (with video reference)" [@6aadb715e08544acacea75e87569f7ad-e41]
+      - cell "up to 1080p"
+      - cell "4–30s"
+      - cell "from $0.247/s"
+      - cell
+      - cell "30% OFF from $0.173/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e42]
+    - row
+      - cell "Seedance 2.5, Video Edit"
+        - link "Seedance 2.5, Video Edit" [@6aadb715e08544acacea75e87569f7ad-e43]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.247/s"
+      - cell
+      - cell "30% OFF from $0.173/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e44]
+    - row
+      - cell "Seedance 2.5, Image to Video"
+        - link "Seedance 2.5, Image to Video" [@6aadb715e08544acacea75e87569f7ad-e45]
+      - cell "up to 1080p"
+      - cell "4–30s"
+      - cell "from $0.206/s"
+      - cell
+      - cell "30% OFF from $0.144/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e46]
+    - row
+      - cell "Seedance 2.5, Video Extend"
+        - link "Seedance 2.5, Video Extend" [@6aadb715e08544acacea75e87569f7ad-e47]
+      - cell "up to 1080p"
+      - cell "4–30s"
+      - cell "from $0.247/s"
+      - cell
+      - cell "30% OFF from $0.173/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e48]
+    - row
+      - cell "Collapse Seedance 2.0, 3 modes Seedance 2.0, 3 modes"
+        - button "Collapse Seedance 2.0, 3 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e49]
+        - link "Seedance 2.0, 3 modes" [@6aadb715e08544acacea75e87569f7ad-e50]
+      - cell "up to 4k"
+      - cell "4–15s"
+      - cell "from $0.141/s"
+      - cell
+      - cell "30% OFF from $0.099/s"
+      - cell "Compare Seedance 2.0 with other providers"
+        - button "Compare Seedance 2.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e51]
+    - row
+      - cell "Seedance 2.0, Text to Video"
+        - link "Seedance 2.0, Text to Video" [@6aadb715e08544acacea75e87569f7ad-e52]
+      - cell "up to 4k"
+      - cell "4–15s"
+      - cell "from $0.141/s"
+      - cell
+      - cell "30% OFF from $0.099/s"
+      - cell "Compare Seedance 2.0 with other providers"
+        - button "Compare Seedance 2.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e53]
+    - row
+      - cell "Seedance 2.0, Reference to Video (with video reference)"
+        - link "Seedance 2.0, Reference to Video (with video reference)" [@6aadb715e08544acacea75e87569f7ad-e54]
+      - cell "up to 4k"
+      - cell "4–15s"
+      - cell "from $0.169/s"
+      - cell
+      - cell "30% OFF from $0.118/s"
+      - cell "Compare Seedance 2.0 with other providers"
+        - button "Compare Seedance 2.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e55]
+    - row
+      - cell "Seedance 2.0, Image to Video"
+        - link "Seedance 2.0, Image to Video" [@6aadb715e08544acacea75e87569f7ad-e56]
+      - cell "up to 4k"
+      - cell "4–15s"
+      - cell "from $0.141/s"
+      - cell
+      - cell "30% OFF from $0.099/s"
+      - cell "Compare Seedance 2.0 with other providers"
+        - button "Compare Seedance 2.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e57]
+    - row
+      - cell "Collapse Wan 3.0 Prime, 3 modes Wan 3.0 Prime, 3 modes"
+        - button "Collapse Wan 3.0 Prime, 3 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e58]
+        - link "Wan 3.0 Prime, 3 modes" [@6aadb715e08544acacea75e87569f7ad-e59]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.068/s"
+      - cell
+      - cell "60% OFF from $0.027/s"
+      - cell "Compare Wan 3.0 Prime with other providers"
+        - button "Compare Wan 3.0 Prime with other providers" [@6aadb715e08544acacea75e87569f7ad-e60]
+    - row
+      - cell "Wan 3.0 Prime, Image to Video"
+        - link "Wan 3.0 Prime, Image to Video" [@6aadb715e08544acacea75e87569f7ad-e61]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.068/s"
+      - cell
+      - cell "60% OFF from $0.027/s"
+      - cell "Compare Wan 3.0 Prime with other providers"
+        - button "Compare Wan 3.0 Prime with other providers" [@6aadb715e08544acacea75e87569f7ad-e62]
+    - row
+      - cell "Wan 3.0 Prime, Reference to Video"
+        - link "Wan 3.0 Prime, Reference to Video" [@6aadb715e08544acacea75e87569f7ad-e63]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.068/s"
+      - cell
+      - cell "60% OFF from $0.027/s"
+      - cell "Compare Wan 3.0 Prime with other providers"
+        - button "Compare Wan 3.0 Prime with other providers" [@6aadb715e08544acacea75e87569f7ad-e64]
+    - row
+      - cell "Wan 3.0 Prime, Text to Video"
+        - link "Wan 3.0 Prime, Text to Video" [@6aadb715e08544acacea75e87569f7ad-e65]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.068/s"
+      - cell
+      - cell "60% OFF from $0.027/s"
+      - cell "Compare Wan 3.0 Prime with other providers"
+        - button "Compare Wan 3.0 Prime with other providers" [@6aadb715e08544acacea75e87569f7ad-e66]
+    - row
+      - cell "Collapse Wan 3.0, 3 modes Wan 3.0, 3 modes"
+        - button "Collapse Wan 3.0, 3 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e67]
+        - link "Wan 3.0, 3 modes" [@6aadb715e08544acacea75e87569f7ad-e68]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.050/s"
+      - cell
+      - cell "60% OFF from $0.020/s"
+      - cell "Compare Wan 3.0 with other providers"
+        - button "Compare Wan 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e69]
+    - row
+      - cell "Wan 3.0, Image to Video"
+        - link "Wan 3.0, Image to Video" [@6aadb715e08544acacea75e87569f7ad-e70]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.050/s"
+      - cell
+      - cell "60% OFF from $0.020/s"
+      - cell "Compare Wan 3.0 with other providers"
+        - button "Compare Wan 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e71]
+    - row
+      - cell "Wan 3.0, Text to Video"
+        - link "Wan 3.0, Text to Video" [@6aadb715e08544acacea75e87569f7ad-e72]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.050/s"
+      - cell
+      - cell "60% OFF from $0.020/s"
+      - cell "Compare Wan 3.0 with other providers"
+        - button "Compare Wan 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e73]
+    - row
+      - cell "Wan 3.0, Reference to Video"
+        - link "Wan 3.0, Reference to Video" [@6aadb715e08544acacea75e87569f7ad-e74]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.050/s"
+      - cell
+      - cell "60% OFF from $0.020/s"
+      - cell "Compare Wan 3.0 with other providers"
+        - button "Compare Wan 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e75]
+    - row
+      - cell "Collapse Kling 4.0, 4 modes Kling 4.0, 4 modes"
+        - button "Collapse Kling 4.0, 4 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e76]
+        - link "Kling 4.0, 4 modes" [@6aadb715e08544acacea75e87569f7ad-e77]
+      - cell "up to 1080p"
+      - cell "3–30s"
+      - cell "from $0.094/s"
+      - cell
+      - cell "30% OFF from $0.066/s"
+      - cell "Compare Kling 4.0 with other providers"
+        - button "Compare Kling 4.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e78]
+    - row
+      - cell "Kling 4.0, Text to Video"
+        - link "Kling 4.0, Text to Video" [@6aadb715e08544acacea75e87569f7ad-e79]
+      - cell "up to 1080p"
+      - cell "3–30s"
+      - cell "from $0.157/s"
+      - cell
+      - cell "30% OFF from $0.110/s"
+      - cell "Compare Kling 4.0 with other providers"
+        - button "Compare Kling 4.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e80]
+    - row
+      - cell "Kling 4.0, Video Edit"
+        - link "Kling 4.0, Video Edit" [@6aadb715e08544acacea75e87569f7ad-e81]
+      - cell "up to 1080p"
+      - cell "3–30s"
+      - cell "from $0.094/s"
+      - cell
+      - cell "30% OFF from $0.066/s"
+      - cell "Compare Kling 4.0 with other providers"
+        - button "Compare Kling 4.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e82]
+    - row
+      - cell "Kling 4.0, Reference to Video"
+        - link "Kling 4.0, Reference to Video" [@6aadb715e08544acacea75e87569f7ad-e83]
+      - cell "up to 1080p"
+      - cell "3–30s"
+      - cell "from $0.094/s"
+      - cell
+      - cell "30% OFF from $0.066/s"
+      - cell "Compare Kling 4.0 with other providers"
+        - button "Compare Kling 4.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e84]
+    - row
+      - cell "Kling 4.0, Image to Video"
+        - link "Kling 4.0, Image to Video" [@6aadb715e08544acacea75e87569f7ad-e85]
+      - cell "up to 1080p"
+      - cell "3–30s"
+      - cell "from $0.157/s"
+      - cell
+      - cell "30% OFF from $0.110/s"
+      - cell "Compare Kling 4.0 with other providers"
+        - button "Compare Kling 4.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e86]
+    - row
+      - cell "Collapse Kling 3.0, 10 modes Kling 3.0, 10 modes"
+        - button "Collapse Kling 3.0, 10 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e87]
+        - link "Kling 3.0, 10 modes" [@6aadb715e08544acacea75e87569f7ad-e88]
+      - cell "up to 1080p"
+      - cell "3–15s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling 3.0 with other providers"
+        - button "Compare Kling 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e89]
+    - row
+      - cell "Kling 3.0, Text to Video (4K)"
+        - link "Kling 3.0, Text to Video (4K)" [@6aadb715e08544acacea75e87569f7ad-e90]
+      - cell "—"
+      - cell "3–15s"
+      - cell "$0.420/s"
+      - cell
+      - cell "50% OFF $0.210/s"
+      - cell "Compare Kling 3.0 with other providers"
+        - button "Compare Kling 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e91]
+    - row
+      - cell "Kling 3.0 Pro, Image to Video (Pro)"
+        - link "Kling 3.0 Pro, Image to Video (Pro)" [@6aadb715e08544acacea75e87569f7ad-e92]
+      - cell "—"
+      - cell "3–15s"
+      - cell "from $0.112/s"
+      - cell
+      - cell "50% OFF from $0.056/s"
+      - cell "Compare Kling 3.0 Pro with other providers"
+        - button "Compare Kling 3.0 Pro with other providers" [@6aadb715e08544acacea75e87569f7ad-e93]
+    - row
+      - cell "Kling 3.0 Standard, Text to Video (Standard)"
+        - link "Kling 3.0 Standard, Text to Video (Standard)" [@6aadb715e08544acacea75e87569f7ad-e94]
+      - cell "—"
+      - cell "3–15s"
+      - cell "$0.084/s"
+      - cell
+      - cell "50% OFF $0.042/s"
+      - cell "Compare Kling 3.0 Standard with other providers"
+        - button "Compare Kling 3.0 Standard with other providers" [@6aadb715e08544acacea75e87569f7ad-e95]
+    - row
+      - cell "Kling 3.0 Standard, Image to Video (Standard)"
+        - link "Kling 3.0 Standard, Image to Video (Standard)" [@6aadb715e08544acacea75e87569f7ad-e96]
+      - cell "—"
+      - cell "3–15s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling 3.0 Standard with other providers"
+        - button "Compare Kling 3.0 Standard with other providers" [@6aadb715e08544acacea75e87569f7ad-e97]
+    - row
+      - cell "Kling 3.0 Turbo, Text to Video (Turbo)"
+        - link "Kling 3.0 Turbo, Text to Video (Turbo)" [@6aadb715e08544acacea75e87569f7ad-e98]
+      - cell "up to 1080p"
+      - cell "3–15s"
+      - cell "from $0.112/s"
+      - cell
+      - cell "50% OFF from $0.056/s"
+      - cell "Compare Kling 3.0 Turbo with other providers"
+        - button "Compare Kling 3.0 Turbo with other providers" [@6aadb715e08544acacea75e87569f7ad-e99]
+    - row
+      - cell "Kling 3.0 Pro, Text to Video (Pro)"
+        - link "Kling 3.0 Pro, Text to Video (Pro)" [@6aadb715e08544acacea75e87569f7ad-e100]
+      - cell "—"
+      - cell "3–15s"
+      - cell "from $0.112/s"
+      - cell
+      - cell "50% OFF from $0.056/s"
+      - cell "Compare Kling 3.0 Pro with other providers"
+        - button "Compare Kling 3.0 Pro with other providers" [@6aadb715e08544acacea75e87569f7ad-e101]
+    - row
+      - cell "Kling 3.0 Turbo, Image to Video (Turbo)"
+        - link "Kling 3.0 Turbo, Image to Video (Turbo)" [@6aadb715e08544acacea75e87569f7ad-e102]
+      - cell "up to 1080p"
+      - cell "3–15s"
+      - cell "from $0.112/s"
+      - cell
+      - cell "50% OFF from $0.056/s"
+      - cell "Compare Kling 3.0 Turbo with other providers"
+        - button "Compare Kling 3.0 Turbo with other providers" [@6aadb715e08544acacea75e87569f7ad-e103]
+    - row
+      - cell "Kling 3.0 4k, Image to Video (4K)"
+        - link "Kling 3.0 4k, Image to Video (4K)" [@6aadb715e08544acacea75e87569f7ad-e104]
+      - cell "—"
+      - cell "3–15s"
+      - cell "$0.420/s"
+      - cell
+      - cell "50% OFF $0.210/s"
+      - cell "Compare Kling 3.0 4k with other providers"
+        - button "Compare Kling 3.0 4k with other providers" [@6aadb715e08544acacea75e87569f7ad-e105]
+    - row
+      - cell "Kling 3.0, Motion Control (Standard)"
+        - link "Kling 3.0, Motion Control (Standard)" [@6aadb715e08544acacea75e87569f7ad-e106]
+      - cell "—"
+      - cell "—"
+      - cell "$0.126/s"
+      - cell
+      - cell "50% OFF $0.063/s"
+      - cell "Compare Kling 3.0 with other providers"
+        - button "Compare Kling 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e107]
+    - row
+      - cell "Kling 3.0, Motion Control (Pro)"
+        - link "Kling 3.0, Motion Control (Pro)" [@6aadb715e08544acacea75e87569f7ad-e108]
+      - cell "—"
+      - cell "—"
+      - cell "$0.168/s"
+      - cell
+      - cell "50% OFF $0.084/s"
+      - cell "Compare Kling 3.0 with other providers"
+        - button "Compare Kling 3.0 with other providers" [@6aadb715e08544acacea75e87569f7ad-e109]
+    - row
+      - cell "Collapse Kling 2.6, 4 modes Kling 2.6, 4 modes"
+        - button "Collapse Kling 2.6, 4 modes" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e110]
+        - link "Kling 2.6, 4 modes" [@6aadb715e08544acacea75e87569f7ad-e111]
+      - cell "—"
+      - cell "5s / 10s"
+      - cell "from $0.070/s"
+      - cell
+      - cell "50% OFF from $0.035/s"
+      - cell "Compare Kling 2.6 with other providers"
+        - button "Compare Kling 2.6 with other providers" [@6aadb715e08544acacea75e87569f7ad-e112]
+    - row
+      - cell "Kling 2.6 Pro, Image to Video (Pro)"
+        - link "Kling 2.6 Pro, Image to Video (Pro)" [@6aadb715e08544acacea75e87569f7ad-e113]
+      - cell "—"
+      - cell "5s / 10s"
+      - cell "from $0.070/s"
+      - cell
+      - cell "50% OFF from $0.035/s"
+      - cell "Compare Kling 2.6 Pro with other providers"
+        - button "Compare Kling 2.6 Pro with other providers" [@6aadb715e08544acacea75e87569f7ad-e114]
+    - row
+      - cell "Kling 2.6 Pro, Text to Video (Pro)"
+        - link "Kling 2.6 Pro, Text to Video (Pro)" [@6aadb715e08544acacea75e87569f7ad-e115]
+      - cell "—"
+      - cell "5s / 10s"
+      - cell "from $0.070/s"
+      - cell
+      - cell "50% OFF from $0.035/s"
+      - cell "Compare Kling 2.6 Pro with other providers"
+        - button "Compare Kling 2.6 Pro with other providers" [@6aadb715e08544acacea75e87569f7ad-e116]
+    - row
+      - cell "Kling 2.6, Motion Control (Standard)"
+        - link "Kling 2.6, Motion Control (Standard)" [@6aadb715e08544acacea75e87569f7ad-e117]
+      - cell "—"
+      - cell "—"
+      - cell "$0.070/s"
+      - cell
+      - cell "50% OFF $0.035/s"
+      - cell "Compare Kling 2.6 with other providers"
+        - button "Compare Kling 2.6 with other providers" [@6aadb715e08544acacea75e87569f7ad-e118]
+    - row
+      - cell "Kling 2.6, Motion Control (Pro)"
+        - link "Kling 2.6, Motion Control (Pro)" [@6aadb715e08544acacea75e87569f7ad-e119]
+      - cell "—"
+      - cell "—"
+      - cell "$0.112/s"
+      - cell
+      - cell "50% OFF $0.056/s"
+      - cell "Compare Kling 2.6 with other providers"
+        - button "Compare Kling 2.6 with other providers" [@6aadb715e08544acacea75e87569f7ad-e120]
+    - row
+      - cell "Collapse Kling 2.5, 3 modes Kling 2.5, 3 modes"
+        - button "Collapse Kling 2.5, 3 modes" [focused] [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e121]
+        - link "Kling 2.5, 3 modes" [@6aadb715e08544acacea75e87569f7ad-e122]
+      - cell "up to 1080p"
+      - cell "5s / 10s"
+      - cell "from $0.042/s"
+      - cell
+      - cell "50% OFF from $0.021/s"
+      - cell "Compare Kling 2.5 with other providers"
+        - button "Compare Kling 2.5 with other providers" [@6aadb715e08544acacea75e87569f7ad-e123]
+    - row
+      - cell "Kling 2.5 Turbo Standard, Image to Video (Standard)"
+        - link "Kling 2.5 Turbo Standard, Image to Video (Standard)" [@6aadb715e08544acacea75e87569f7ad-e124]
+      - cell "up to 720p"
+      - cell "5s / 10s"
+      - cell "$0.042/s"
+      - cell
+      - cell "50% OFF $0.021/s"
+      - cell "Compare Kling 2.5 Turbo Standard with other providers"
+        - button "Compare Kling 2.5 Turbo Standard with other providers" [@6aadb715e08544acacea75e87569f7ad-e125]
+    - row
+      - cell "Kling 2.5 Turbo Pro, Image to Video (Pro)"
+        - link "Kling 2.5 Turbo Pro, Image to Video (Pro)" [@6aadb715e08544acacea75e87569f7ad-e126]
+      - cell "up to 1080p"
+      - cell "5s / 10s"
+      - cell "$0.070/s"
+      - cell
+      - cell "50% OFF $0.035/s"
+      - cell "Compare Kling 2.5 Turbo Pro with other providers"
+        - button "Compare Kling 2.5 Turbo Pro with other providers" [@6aadb715e08544acacea75e87569f7ad-e127]
+    - row
+      - cell "Kling 2.5 Turbo Pro, Text to Video (Pro)"
+        - link "Kling 2.5 Turbo Pro, Text to Video (Pro)" [@6aadb715e08544acacea75e87569f7ad-e128]
+      - cell "up to 1080p"
+      - cell "5s / 10s"
+      - cell "$0.070/s"
+      - cell
+      - cell "50% OFF $0.035/s"
+      - cell "Compare Kling 2.5 Turbo Pro with other providers"
+        - button "Compare Kling 2.5 Turbo Pro with other providers" [@6aadb715e08544acacea75e87569f7ad-e129]
+  - navigation "Pricing pages"
+    - button "Page 1" [@6aadb715e08544acacea75e87569f7ad-e130]
+    - button "Page 2" [@6aadb715e08544acacea75e87569f7ad-e131]
+    - button "Page 3" [@6aadb715e08544acacea75e87569f7ad-e132]
+    - button "Page 4" [@6aadb715e08544acacea75e87569f7ad-e133]
+  - region "Price comparison"
+    - heading "COMPARE WITH OTHERS"
+    - tab "All models" [selected=true] [@6aadb715e08544acacea75e87569f7ad-e134]
+    - tab "Video" [selected=false] [@6aadb715e08544acacea75e87569f7ad-e135]
+    - tab "Image" [selected=false] [@6aadb715e08544acacea75e87569f7ad-e136]
+    - searchbox "Search models" [@6aadb715e08544acacea75e87569f7ad-e137]
+    - button "Compare prices with Fal" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e138]
+    - table
+      - row
+        - columnheader "Model name"
+        - columnheader "Higgsfield"
+        - columnheader "Fal"
+      - row
+        - cell "Kling 3.0 4K · Text to Video · Image to Video"
+          - link "Kling 3.0 4K · Text to Video · Image to Video" [@6aadb715e08544acacea75e87569f7ad-e139]
+        - cell "$0.210/s $0.420 50% lower"
+        - cell "$0.420/s"
+      - row
+        - cell "Kling 3.0 Pro · Text to Video · Image to Video"
+          - link "Kling 3.0 Pro · Text to Video · Image to Video" [@6aadb715e08544acacea75e87569f7ad-e140]
+        - cell "$0.084/s $0.168 50% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "Kling 3.0 Standard · Image to Video"
+          - link "Kling 3.0 Standard · Image to Video" [@6aadb715e08544acacea75e87569f7ad-e141]
+        - cell "$0.063/s $0.126 50% lower"
+        - cell "$0.126/s"
+      - row
+        - cell "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p"
+          - link "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p" [@6aadb715e08544acacea75e87569f7ad-e142]
+        - cell "$0.070/s $0.140 50% lower"
+        - cell "$0.140/s"
+      - row
+        - cell "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p"
+          - link "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p" [@6aadb715e08544acacea75e87569f7ad-e143]
+        - cell "$0.090/s $0.180 50% lower"
+        - cell "$0.180/s"
+      - row
+        - cell "Seedance 2.5 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.5 · Text to Video · Image to Video — 480p" [@6aadb715e08544acacea75e87569f7ad-e144]
+        - cell "$0.145/s $0.207 30% lower"
+        - cell "$0.207/s"
+      - row
+        - cell "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p"
+          - link "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p" [@6aadb715e08544acacea75e87569f7ad-e145]
+        - cell "$0.174/s $0.248 30% lower"
+        - cell "$0.248/s"
+      - row
+        - cell "Seedance 2.0 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.0 · Text to Video · Image to Video — 480p" [@6aadb715e08544acacea75e87569f7ad-e146]
+        - cell "$0.099/s $0.141 30% lower"
+        - cell "$0.141/s"
+      - row
+        - cell "Seedance 2.0 · Reference to Video — 480p"
+          - link "Seedance 2.0 · Reference to Video — 480p" [@6aadb715e08544acacea75e87569f7ad-e147]
+        - cell "$0.118/s $0.168 30% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K"
+          - link "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K" [@6aadb715e08544acacea75e87569f7ad-e148]
+        - cell "$0.065/s $0.130 50% lower"
+        - cell "$0.130/s"
+    - navigation "Pricing pages"
+      - button "Page 1" [@6aadb715e08544acacea75e87569f7ad-e149]
+      - button "Page 2" [@6aadb715e08544acacea75e87569f7ad-e150]
+  - region "Concurrency limits"
+    - heading "Concurrency limits"
+    - button "Learn more" [@6aadb715e08544acacea75e87569f7ad-e151]
+    - heading "2 concurrent generations"
+    - button "Add funds" [@6aadb715e08544acacea75e87569f7ad-e152]
+    - progressbar "Progress to the next concurrency tier": 0
+    - button "Contact sales" [@6aadb715e08544acacea75e87569f7ad-e153]
+  - region "FAQ"
+    - heading "FAQ"
+    - button "What is Higgsfield API?" [expanded=true] [@6aadb715e08544acacea75e87569f7ad-e154]
+    - button "How does Higgsfield API pricing work?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e155]
+    - button "What's included in the Higgsfield API launch offer?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e156]
+    - button "Do I need to talk to sales to start using Higgsfield API?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e157]
+    - button "How do I integrate Higgsfield API?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e158]
+    - button "Can I migrate from fal or Replicate to Higgsfield API?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e159]
+    - button "Can AI agents use Higgsfield API?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e160]
+    - button "What are the Higgsfield API rate limits?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e161]
+    - button "How do I keep Higgsfield API spending under control?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e162]
+    - button "How do teams use Higgsfield API?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e163]
+    - button "Which models are available through Higgsfield API?" [expanded=false] [@6aadb715e08544acacea75e87569f7ad-e164]
+- region "Notifications alt+T"

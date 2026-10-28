@@ -1,0 +1,57 @@
+page: Marketing Studio Image — API reference | Higgsfield API — https://open.higgsfield.ai/models/marketing-studio/image/flare/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@b41852cd31fc4dd8aafb5e0733412360-e1]
+  - button "Collapse sidebar" [expanded=true] [@b41852cd31fc4dd8aafb5e0733412360-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@b41852cd31fc4dd8aafb5e0733412360-e3]
+    - link "Explore models" [@b41852cd31fc4dd8aafb5e0733412360-e4]
+    - link "Quick start" [@b41852cd31fc4dd8aafb5e0733412360-e5]
+    - link "Documentation" [@b41852cd31fc4dd8aafb5e0733412360-e6]
+    - link "Pricing UP TO 75% OFF" [@b41852cd31fc4dd8aafb5e0733412360-e7]
+    - button "Playground" [expanded=true] [@b41852cd31fc4dd8aafb5e0733412360-e8]
+    - link "API keys" [@b41852cd31fc4dd8aafb5e0733412360-e9]
+    - link "Cashback" [@b41852cd31fc4dd8aafb5e0733412360-e10]
+    - link "Analytics" [@b41852cd31fc4dd8aafb5e0733412360-e11]
+    - link "Billing" [@b41852cd31fc4dd8aafb5e0733412360-e12]
+  - link "Contact sales" [@b41852cd31fc4dd8aafb5e0733412360-e13]
+  - link "Status" [@b41852cd31fc4dd8aafb5e0733412360-e14]
+  - link "Pricing" [@b41852cd31fc4dd8aafb5e0733412360-e15]
+  - link "Log in" [@b41852cd31fc4dd8aafb5e0733412360-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@b41852cd31fc4dd8aafb5e0733412360-e17]
+  - button "Select model variant: 2.5 Flare" [expanded=false] [@b41852cd31fc4dd8aafb5e0733412360-e18]
+  - link "Explore" [@b41852cd31fc4dd8aafb5e0733412360-e19]
+  - heading "MARKETING STUDIO IMAGE"
+  - button "Select model variant: 2.5 Flare" [expanded=false] [@b41852cd31fc4dd8aafb5e0733412360-e20]
+  - button "Copy agent prompt" [@b41852cd31fc4dd8aafb5e0733412360-e21]
+  - status
+  - link "View docs" [@b41852cd31fc4dd8aafb5e0733412360-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@b41852cd31fc4dd8aafb5e0733412360-e23]
+  - button "Copy for agent" [@b41852cd31fc4dd8aafb5e0733412360-e24]
+  - link "Explore" [@b41852cd31fc4dd8aafb5e0733412360-e25]
+  - button "Select model variant: 2.5 Flare" [expanded=false] [@b41852cd31fc4dd8aafb5e0733412360-e26]
+  - navigation "Model sections"
+    - link "Playground" [@b41852cd31fc4dd8aafb5e0733412360-e27]
+    - link "API" [disabled] [@b41852cd31fc4dd8aafb5e0733412360-e28]
+    - link "Requests" [disabled] [@b41852cd31fc4dd8aafb5e0733412360-e29]
+    - link "Analytics" [disabled] [@b41852cd31fc4dd8aafb5e0733412360-e30]
+  - navigation "API reference contents"
+    - link "1. Direct generation or editing" [@b41852cd31fc4dd8aafb5e0733412360-e31]
+    - link "2. Preset enhancement" [@b41852cd31fc4dd8aafb5e0733412360-e32]
+    - link "Get a preset UUID" [@b41852cd31fc4dd8aafb5e0733412360-e33]
+    - link "Send the enhanced request" [@b41852cd31fc4dd8aafb5e0733412360-e34]
+    - link "3. Request behavior" [@b41852cd31fc4dd8aafb5e0733412360-e35]
+    - link "4. Authentication and queue" [@b41852cd31fc4dd8aafb5e0733412360-e36]
+  - heading "1. DIRECT GENERATION OR EDITING"
+  - button "Copy code" [@b41852cd31fc4dd8aafb5e0733412360-e37]
+  - heading "2. PRESET ENHANCEMENT"
+  - heading "Get a preset UUID"
+  - button "Copy code" [@b41852cd31fc4dd8aafb5e0733412360-e38]
+  - button "Copy code" [@b41852cd31fc4dd8aafb5e0733412360-e39]
+  - heading "Send the enhanced request"
+  - button "Copy code" [@b41852cd31fc4dd8aafb5e0733412360-e40]
+  - heading "3. REQUEST BEHAVIOR"
+  - heading "4. AUTHENTICATION AND QUEUE"
+- region "Notifications alt+T"

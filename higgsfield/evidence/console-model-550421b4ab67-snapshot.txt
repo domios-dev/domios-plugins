@@ -1,0 +1,111 @@
+page: Grok Imagine Video 1.5 — API reference | Higgsfield API — https://open.higgsfield.ai/models/xai/grok-imagine-video/v1.5/reference-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@ce0afb3df7444183905c2173e9d72f33-e1]
+  - button "Collapse sidebar" [expanded=true] [@ce0afb3df7444183905c2173e9d72f33-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@ce0afb3df7444183905c2173e9d72f33-e3]
+    - link "Explore models" [@ce0afb3df7444183905c2173e9d72f33-e4]
+    - link "Quick start" [@ce0afb3df7444183905c2173e9d72f33-e5]
+    - link "Documentation" [@ce0afb3df7444183905c2173e9d72f33-e6]
+    - link "Pricing UP TO 75% OFF" [@ce0afb3df7444183905c2173e9d72f33-e7]
+    - button "Playground" [expanded=true] [@ce0afb3df7444183905c2173e9d72f33-e8]
+    - link "API keys" [@ce0afb3df7444183905c2173e9d72f33-e9]
+    - link "Cashback" [@ce0afb3df7444183905c2173e9d72f33-e10]
+    - link "Analytics" [@ce0afb3df7444183905c2173e9d72f33-e11]
+    - link "Billing" [@ce0afb3df7444183905c2173e9d72f33-e12]
+  - link "Contact sales" [@ce0afb3df7444183905c2173e9d72f33-e13]
+  - link "Status" [@ce0afb3df7444183905c2173e9d72f33-e14]
+  - link "Pricing" [@ce0afb3df7444183905c2173e9d72f33-e15]
+  - link "Log in" [@ce0afb3df7444183905c2173e9d72f33-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@ce0afb3df7444183905c2173e9d72f33-e17]
+  - link "Explore" [@ce0afb3df7444183905c2173e9d72f33-e18]
+  - heading "GROK IMAGINE VIDEO 1.5"
+  - button "Copy agent prompt" [@ce0afb3df7444183905c2173e9d72f33-e19]
+  - status
+  - link "View docs" [@ce0afb3df7444183905c2173e9d72f33-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@ce0afb3df7444183905c2173e9d72f33-e21]
+  - button "Copy for agent" [@ce0afb3df7444183905c2173e9d72f33-e22]
+  - link "Explore" [@ce0afb3df7444183905c2173e9d72f33-e23]
+  - navigation "Model sections"
+    - link "Playground" [@ce0afb3df7444183905c2173e9d72f33-e24]
+    - link "API" [disabled] [@ce0afb3df7444183905c2173e9d72f33-e25]
+    - link "Requests" [disabled] [@ce0afb3df7444183905c2173e9d72f33-e26]
+    - link "Analytics" [disabled] [@ce0afb3df7444183905c2173e9d72f33-e27]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@ce0afb3df7444183905c2173e9d72f33-e28]
+    - link "1. Calling the API" [@ce0afb3df7444183905c2173e9d72f33-e29]
+    - link "Install" [@ce0afb3df7444183905c2173e9d72f33-e30]
+    - link "Setup" [@ce0afb3df7444183905c2173e9d72f33-e31]
+    - link "Request parameters" [@ce0afb3df7444183905c2173e9d72f33-e32]
+    - link "2. Authentication" [@ce0afb3df7444183905c2173e9d72f33-e33]
+    - link "API Key" [@ce0afb3df7444183905c2173e9d72f33-e34]
+    - link "3. Queue" [@ce0afb3df7444183905c2173e9d72f33-e35]
+    - link "Submit and wait" [@ce0afb3df7444183905c2173e9d72f33-e36]
+    - link "Explicit lifecycle control" [@ce0afb3df7444183905c2173e9d72f33-e37]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@ce0afb3df7444183905c2173e9d72f33-e38]
+  - heading "Setup"
+  - button "Copy code" [@ce0afb3df7444183905c2173e9d72f33-e39]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 1. Maximum: 15."
+    - row
+      - cell "audio_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Reference audio."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "First-frame image."
+    - row
+      - cell "image_urls"
+      - cell "array[string]"
+      - cell "No"
+      - cell "—"
+      - cell "Reference images."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""480p""
+      - cell "Resolution. Options: 480p, 720p, 1080p."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell ""auto""
+      - cell "Options: auto, 1:1, 16:9, 9:16, 4:3, 3:4, 3:2, 2:3."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@ce0afb3df7444183905c2173e9d72f33-e40]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@ce0afb3df7444183905c2173e9d72f33-e41]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@ce0afb3df7444183905c2173e9d72f33-e42]
+- region "Notifications alt+T"

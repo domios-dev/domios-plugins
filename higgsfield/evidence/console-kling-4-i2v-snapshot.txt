@@ -1,0 +1,112 @@
+page: Kling 4.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v4.0/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@e7c1cb300d7b424c87a88e13a9be45c9-e1]
+  - button "Collapse sidebar" [expanded=true] [@e7c1cb300d7b424c87a88e13a9be45c9-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@e7c1cb300d7b424c87a88e13a9be45c9-e3]
+    - link "Explore models" [@e7c1cb300d7b424c87a88e13a9be45c9-e4]
+    - link "Quick start" [@e7c1cb300d7b424c87a88e13a9be45c9-e5]
+    - link "Documentation" [@e7c1cb300d7b424c87a88e13a9be45c9-e6]
+    - link "Pricing UP TO 75% OFF" [@e7c1cb300d7b424c87a88e13a9be45c9-e7]
+    - button "Playground" [expanded=true] [@e7c1cb300d7b424c87a88e13a9be45c9-e8]
+    - link "API keys" [@e7c1cb300d7b424c87a88e13a9be45c9-e9]
+    - link "Cashback" [@e7c1cb300d7b424c87a88e13a9be45c9-e10]
+    - link "Analytics" [@e7c1cb300d7b424c87a88e13a9be45c9-e11]
+    - link "Billing" [@e7c1cb300d7b424c87a88e13a9be45c9-e12]
+  - link "Contact sales" [@e7c1cb300d7b424c87a88e13a9be45c9-e13]
+  - link "Status" [@e7c1cb300d7b424c87a88e13a9be45c9-e14]
+  - link "Pricing" [@e7c1cb300d7b424c87a88e13a9be45c9-e15]
+  - link "Log in" [@e7c1cb300d7b424c87a88e13a9be45c9-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@e7c1cb300d7b424c87a88e13a9be45c9-e17]
+  - button "Select model variant: Image-to-Video" [expanded=false] [@e7c1cb300d7b424c87a88e13a9be45c9-e18]
+  - link "Explore" [@e7c1cb300d7b424c87a88e13a9be45c9-e19]
+  - heading "KLING 4.0"
+  - button "Select model variant: Image-to-Video" [expanded=false] [@e7c1cb300d7b424c87a88e13a9be45c9-e20]
+  - button "Copy agent prompt" [@e7c1cb300d7b424c87a88e13a9be45c9-e21]
+  - status
+  - link "View docs" [@e7c1cb300d7b424c87a88e13a9be45c9-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@e7c1cb300d7b424c87a88e13a9be45c9-e23]
+  - button "Copy for agent" [@e7c1cb300d7b424c87a88e13a9be45c9-e24]
+  - link "Explore" [@e7c1cb300d7b424c87a88e13a9be45c9-e25]
+  - button "Select model variant: Image-to-Video" [expanded=false] [@e7c1cb300d7b424c87a88e13a9be45c9-e26]
+  - navigation "Model sections"
+    - link "Playground" [@e7c1cb300d7b424c87a88e13a9be45c9-e27]
+    - link "API" [disabled] [@e7c1cb300d7b424c87a88e13a9be45c9-e28]
+    - link "Requests" [disabled] [@e7c1cb300d7b424c87a88e13a9be45c9-e29]
+    - link "Analytics" [disabled] [@e7c1cb300d7b424c87a88e13a9be45c9-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@e7c1cb300d7b424c87a88e13a9be45c9-e31]
+    - link "1. Calling the API" [@e7c1cb300d7b424c87a88e13a9be45c9-e32]
+    - link "SDK setup" [@e7c1cb300d7b424c87a88e13a9be45c9-e33]
+    - link "2. Request parameters" [@e7c1cb300d7b424c87a88e13a9be45c9-e34]
+    - link "3. Using this model" [@e7c1cb300d7b424c87a88e13a9be45c9-e35]
+    - link "Frame order" [@e7c1cb300d7b424c87a88e13a9be45c9-e36]
+    - link "Output framing" [@e7c1cb300d7b424c87a88e13a9be45c9-e37]
+    - link "4. Request examples" [@e7c1cb300d7b424c87a88e13a9be45c9-e38]
+    - link "Submit and wait" [@e7c1cb300d7b424c87a88e13a9be45c9-e39]
+    - link "First, middle, and end frames" [@e7c1cb300d7b424c87a88e13a9be45c9-e40]
+    - link "5. Results and polling" [@e7c1cb300d7b424c87a88e13a9be45c9-e41]
+    - link "6. Validation notes" [@e7c1cb300d7b424c87a88e13a9be45c9-e42]
+  - heading "1. CALLING THE API"
+  - heading "SDK setup"
+  - button "Copy code" [@e7c1cb300d7b424c87a88e13a9be45c9-e43]
+  - button "Copy code" [@e7c1cb300d7b424c87a88e13a9be45c9-e44]
+  - heading "2. REQUEST PARAMETERS"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "First frame. A non-empty image URL is always required."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Describe the desired action, transitions, and camera movement. May be omitted."
+    - row
+      - cell "image_urls"
+      - cell "string[]"
+      - cell "No"
+      - cell "—"
+      - cell "Middle frames, in sequence order. Maximum 8 images, even when the end frame is omitted. These are in"
+    - row
+      - cell "end_image_url"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Optional end frame. Does not replace the required first frame."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "10"
+      - cell "Output duration in seconds. Integer from 3 to 30."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell "1080p"
+      - cell "Output resolution: 720p or 1080p."
+  - heading "3. USING THIS MODEL"
+  - heading "Frame order"
+  - heading "Output framing"
+  - heading "4. REQUEST EXAMPLES"
+  - heading "Submit and wait"
+  - button "Copy code" [@e7c1cb300d7b424c87a88e13a9be45c9-e45]
+  - heading "First, middle, and end frames"
+  - button "Copy code" [@e7c1cb300d7b424c87a88e13a9be45c9-e46]
+  - heading "5. RESULTS AND POLLING"
+  - button "Copy code" [@e7c1cb300d7b424c87a88e13a9be45c9-e47]
+  - heading "6. VALIDATION NOTES"
+- region "Notifications alt+T"

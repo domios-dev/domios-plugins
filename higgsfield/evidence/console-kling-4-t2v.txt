@@ -1,0 +1,179 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Kling 4.0
+Text-to-Video
+Explore
+/
+Kling 4.0
+30% OFF
+Video
+from
+0.1099 / s
+0.157
+KLING 4.0
+Text-to-Video
+
+Create videos with Kling 4.0 from text, images, and video references. Generate up to 30-second clips in 1080p, guide keyframes, and edit existing videos.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "kling-video/v4.0/text-to-video",
+9
+  {
+10
+    input: {
+11
+      "prompt": "A cinematic scene at sunset",
+12
+      "duration": 10,
+13
+      "resolution": "1080p",
+14
+      "aspect_ratio": "16:9"
+15
+    },
+16
+    withPolling: true,
+17
+  },
+18
+);
+19
+20
+console.log(result);
+Copy for agent
+Explore
+/
+Kling 4.0
+Text-to-Video
+Playground
+API
+Requests
+Analytics
+
+Kling 4.0 — Text to Video
+
+TypeScript
+1.
+Calling the API
+SDK setup
+2.
+Request parameters
+3.
+Using this model
+4.
+Request examples
+Submit and wait
+5.
+Results and polling
+6.
+Validation notes
+
+Generate a video from a text prompt. Describe the subject, action, scene, lighting, and camera movement. This endpoint uses text input and does not expose image or video reference parameters.
+
+Model ID: kling-video/v4.0/text-to-video
+
+1. CALLING THE API
+
+Send a JSON POST request to https://api.higgsfield.ai/kling-video/v4.0/text-to-video. Authenticate with Authorization: Key KEY_ID:KEY_SECRET.
+
+SDK setup
+
+Install an official server-side SDK. cURL needs no package.
+
+npm install @higgsfield/client
+
+Keep credentials in server-side environment variables. The SDKs accept the same KEY_ID:KEY_SECRET value under their documented variable names.
+
+export HF_CREDENTIALS="YOUR_KEY_ID:YOUR_KEY_SECRET" # TypeScript
+export HF_KEY="YOUR_KEY_ID:YOUR_KEY_SECRET"         # Python and cURL
+
+Keep API credentials on your server and out of browser code and source control.
+
+2. REQUEST PARAMETERS
+Parameter	Type	Required	Default	Description
+prompt	string	Yes	—	A non-empty description of the video to generate.
+duration	integer	No	10	Output duration in seconds. Integer from 3 to 30.
+resolution	string	No	1080p	Output resolution: 720p or 1080p.
+aspect_ratio	string	No	16:9	Output aspect ratio: 21:9, 16:9, 9:16, or 1:1. adaptive is not supported by this endpoint.
+
+Defaults apply when a field is omitted. Send media as non-empty URLs accessible to the service, not local file paths. Replace the example.com URLs in the examples with your own reachable media URLs.
+
+3. USING THIS MODEL
+
+Supply a non-empty prompt. Use concrete motion and camera instructions, for example a tracking shot, a slow pan, or a stationary camera. Select the output framing with aspect_ratio.
+
+To animate existing images, use kling-video/v4.0/image-to-video. To guide a new video with image or video references, use kling-video/v4.0/reference-to-video.
+
+4. REQUEST EXAMPLES
+Submit and wait
+import { config, higgsfield } from "@higgsfield/client/v2";
+
+config({
+  credentials: process.env.HF_CREDENTIALS,
+});
+
+const result = await higgsfield.subscribe(
+  "kling-video/v4.0/text-to-video",
+  {
+    input: {
+      "prompt": "A red tram travels along a rain-soaked street at dusk. Warm windows reflect in the pavement as the camera tracks alongside it.",
+      "duration": 10,
+      "resolution": "1080p",
+      "aspect_ratio": "16:9"
+    },
+    withPolling: true,
+  },
+);
+
+console.log(result);
+5. RESULTS AND POLLING
+
+Generation is asynchronous. A direct HTTP submission returns request_id, status, status_url, and cancel_url. Submission is not the finished video.
+
+The SDK examples above use automatic polling. For direct HTTP integration, send authenticated GET requests to the returned status_url. Continue while status is queued or in_progress; stop on completed, failed, nsfw, or canceled. A completed video result exposes the generated URL as video.url. If generation fails, inspect the returned error before retrying.
+
+curl --request GET \
+  --url "$STATUS_URL" \
+  --header "Authorization: Key $HF_KEY"
+
+Set STATUS_URL to the URL returned by submission. Keep the same API credentials for subsequent requests.
+
+6. VALIDATION NOTES
+
+Use the exact field names and values listed above. duration must be an integer from 3 to 30, and resolution must be 720p or 1080p. Omit unused media fields instead of sending empty strings or nulls.
+
+The schema permits additional properties, but undocumented keys do not create new model controls. Use only the parameters documented for this endpoint.
+
+A non-empty prompt is required. Use one of the four listed aspect ratios; adaptive is not allowed for Text to Video.

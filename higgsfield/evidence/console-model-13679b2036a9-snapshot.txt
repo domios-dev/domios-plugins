@@ -1,0 +1,102 @@
+page: Kling 3.0 — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v3/motion-control/pro/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@3fe43722255c496d84543423f189bbb0-e1]
+  - button "Collapse sidebar" [expanded=true] [@3fe43722255c496d84543423f189bbb0-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@3fe43722255c496d84543423f189bbb0-e3]
+    - link "Explore models" [@3fe43722255c496d84543423f189bbb0-e4]
+    - link "Quick start" [@3fe43722255c496d84543423f189bbb0-e5]
+    - link "Documentation" [@3fe43722255c496d84543423f189bbb0-e6]
+    - link "Pricing UP TO 75% OFF" [@3fe43722255c496d84543423f189bbb0-e7]
+    - button "Playground" [expanded=true] [@3fe43722255c496d84543423f189bbb0-e8]
+    - link "API keys" [@3fe43722255c496d84543423f189bbb0-e9]
+    - link "Cashback" [@3fe43722255c496d84543423f189bbb0-e10]
+    - link "Analytics" [@3fe43722255c496d84543423f189bbb0-e11]
+    - link "Billing" [@3fe43722255c496d84543423f189bbb0-e12]
+  - link "Contact sales" [@3fe43722255c496d84543423f189bbb0-e13]
+  - link "Status" [@3fe43722255c496d84543423f189bbb0-e14]
+  - link "Pricing" [@3fe43722255c496d84543423f189bbb0-e15]
+  - link "Log in" [@3fe43722255c496d84543423f189bbb0-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@3fe43722255c496d84543423f189bbb0-e17]
+  - button "Select model variant: Motion Control (Pro)" [expanded=false] [@3fe43722255c496d84543423f189bbb0-e18]
+  - link "Explore" [@3fe43722255c496d84543423f189bbb0-e19]
+  - heading "KLING 3.0"
+  - button "Select model variant: Motion Control (Pro)" [expanded=false] [@3fe43722255c496d84543423f189bbb0-e20]
+  - button "Copy agent prompt" [@3fe43722255c496d84543423f189bbb0-e21]
+  - status
+  - link "View docs" [@3fe43722255c496d84543423f189bbb0-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@3fe43722255c496d84543423f189bbb0-e23]
+  - button "Copy for agent" [@3fe43722255c496d84543423f189bbb0-e24]
+  - link "Explore" [@3fe43722255c496d84543423f189bbb0-e25]
+  - button "Select model variant: Motion Control (Pro)" [expanded=false] [@3fe43722255c496d84543423f189bbb0-e26]
+  - navigation "Model sections"
+    - link "Playground" [@3fe43722255c496d84543423f189bbb0-e27]
+    - link "API" [disabled] [@3fe43722255c496d84543423f189bbb0-e28]
+    - link "Requests" [disabled] [@3fe43722255c496d84543423f189bbb0-e29]
+    - link "Analytics" [disabled] [@3fe43722255c496d84543423f189bbb0-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@3fe43722255c496d84543423f189bbb0-e31]
+    - link "1. Calling the API" [@3fe43722255c496d84543423f189bbb0-e32]
+    - link "Install" [@3fe43722255c496d84543423f189bbb0-e33]
+    - link "Setup" [@3fe43722255c496d84543423f189bbb0-e34]
+    - link "Request parameters" [@3fe43722255c496d84543423f189bbb0-e35]
+    - link "2. Authentication" [@3fe43722255c496d84543423f189bbb0-e36]
+    - link "API Key" [@3fe43722255c496d84543423f189bbb0-e37]
+    - link "3. Queue" [@3fe43722255c496d84543423f189bbb0-e38]
+    - link "Submit and wait" [@3fe43722255c496d84543423f189bbb0-e39]
+    - link "Explicit lifecycle control" [@3fe43722255c496d84543423f189bbb0-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@3fe43722255c496d84543423f189bbb0-e41]
+  - heading "Setup"
+  - button "Copy code" [@3fe43722255c496d84543423f189bbb0-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Prompt."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "video_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Video URL."
+    - row
+      - cell "keep_original_sound"
+      - cell "string"
+      - cell "No"
+      - cell ""yes""
+      - cell "Keep original sound. Options: yes, no."
+    - row
+      - cell "character_orientation"
+      - cell "string"
+      - cell "No"
+      - cell ""video""
+      - cell "Generate the orientation of the characters in the video, which can be selected to match the image or"
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@3fe43722255c496d84543423f189bbb0-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@3fe43722255c496d84543423f189bbb0-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@3fe43722255c496d84543423f189bbb0-e45]
+- region "Notifications alt+T"

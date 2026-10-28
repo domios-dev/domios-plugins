@@ -1,0 +1,338 @@
+[
+  {
+    "path": "packages/plugin-sdk/src/host.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/packages__plugin-sdk__src__host.ts",
+    "sha256": "35038ef61e9a4e1f117968a404d5480c3cf0c8b4182cb80b32ed1e00af5dd3b6"
+  },
+  {
+    "path": "packages/plugin-sdk/src/capabilities.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/packages__plugin-sdk__src__capabilities.ts",
+    "sha256": "f7c84e648a9d38f81b54bacc37c99fa83c267c4cc8ba76787c5c435a6242ce0c"
+  },
+  {
+    "path": "packages/plugin-sdk/src/mediaDelivery.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/packages__plugin-sdk__src__mediaDelivery.ts",
+    "sha256": "518a1b688dbb1ed7025da4250d1dea4c420b7295ee6ed7f927354c79c66fa350"
+  },
+  {
+    "path": "src/components/Extensions/PluginView.tsx",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src__components__Extensions__PluginView.tsx",
+    "sha256": "644b2eba406da1dd246532c87a89084f0b664fe6300e4d962e2899f8feb9482e"
+  },
+  {
+    "path": "src/components/Extensions/usePluginDocument.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src__components__Extensions__usePluginDocument.ts",
+    "sha256": "a19003466eaf0267ececb621aec025841865dc23898dafc334e186d86c6a877b"
+  },
+  {
+    "path": "src/lib/pluginDocument.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src__lib__pluginDocument.ts",
+    "sha256": "c88cf32ea9a05d2df07883694e6ae9d8062e68b039ad55102ed2066196c8118e"
+  },
+  {
+    "path": "src/components/Sidebar/surfaceAttachmentModel.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src__components__Sidebar__surfaceAttachmentModel.ts",
+    "sha256": "7c67b339ce3e93346307cffda93eee80dd6ae6329a815503ecf610fa27d88cf9"
+  },
+  {
+    "path": "src/lib/surfaceActivity.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src__lib__surfaceActivity.ts",
+    "sha256": "fb0b09c02f9ce4d29560ceafde94664caa3e5bc08927b4c145b103cf6be99b6c"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-api/src/web_plugin_routes.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-api__src__web_plugin_routes.rs",
+    "sha256": "b82b4101b0401c19bd74d5252c0402bea48fc2de3c2d3a20a3d8fd80c170b047"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-api/src/web_routes.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-api__src__web_routes.rs",
+    "sha256": "9c8b1ff8c6cb0d6f010ddd7151e612d2c4f4ddb9f7ba75f4c891e1bf239f66a1"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-commands/src/commands/plugins/view.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-commands__src__commands__plugins__view.rs",
+    "sha256": "3b610c0a12dfa3b0f419817208f31e6ceeecda83089774292addb8711ca5222e"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/view.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__view.rs",
+    "sha256": "2bea6141a49d2aea1ccf570c18ecb5746b743aca0a936af5bbf265ea3992565f"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/host_net.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__host_net.rs",
+    "sha256": "cc1f14dd10226ea1e706c5a8031e7dfe43e44957db18a0ec20d839e5204bf394"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/host_surface.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__host_surface.rs",
+    "sha256": "0a94b643cc95375ec29208362da42f370cd656c3c62ec8e7cd2011bc1c954e68"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/host_api.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__host_api.rs",
+    "sha256": "e96eb3125ec73983299d1f611f86d718aa1410d171d95542066bd9536fe51230"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/parity_test/media_delivery.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__parity_test__media_delivery.rs",
+    "sha256": "372ebe6facaad080af67a57e839ec7e5570fb1ca2ae8ac857774e18d2a52a6de"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/media_delivery.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__media_delivery.rs",
+    "sha256": "d27823f798ff20443fc03b2cefc6ee33cbab5d54dbe351afc03f86452c85d959"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-api/src/plugin_media_routes.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-api__src__plugin_media_routes.rs",
+    "sha256": "a3be68e6e15166e9a1ac28e7e6226f58ee5f9c9e0b76ff745779d634a190d663"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/view_host.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__view_host.rs",
+    "sha256": "8167e8f871ede6161014e8b176cd3c90aff9bf13441b85c321e6143395a8019d"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/surfaces.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__surfaces.rs",
+    "sha256": "58edd8f40afea95f72bd93e26a19b6951a8a26e1973877e25e60d4c13fe8f767"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugins/src/agent_surface.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugins__src__agent_surface.rs",
+    "sha256": "b0c3df8b3f603af90e5f0235ada2d267c5dc83a321812072efc3d4196ab2c7e6"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-surface/src/surface/mod.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-surface__src__surface__mod.rs",
+    "sha256": "40c5b5493eed1ce2fb4489f687ac99561231e4215a84d65e7d2ece9141faaef4"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-surface/src/surface/browser/verbs.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-surface__src__surface__browser__verbs.rs",
+    "sha256": "d4888234b98536be512bb0124b967e1b16b143547a00c403dd07bd41d1a6b871"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-surface/src/surface/browser/sessions.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-surface__src__surface__browser__sessions.rs",
+    "sha256": "178803ad61e296e24a67d90f8d0ccfe74f97379a5b15dcb8831a2c8f5396fb0b"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-surface/src/surface/runtime.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-surface__src__surface__runtime.rs",
+    "sha256": "128924a012d6735304fca03de7b6e0cc20aee991cbc8f5a685e57bf0e202fc6b"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/transcribe_adapter.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__transcribe_adapter.rs",
+    "sha256": "275b087247729c0198fcbf1b662f47f0fecd7e51c2ab1966f11745be1a74110b"
+  },
+  {
+    "path": "packages/chat-core/src/localArtifactDirective.ts",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/packages__chat-core__src__localArtifactDirective.ts",
+    "sha256": "5d943e97408b0e898dc0bc1f2a27821106aa7f0194bdaa44fa646c461bb00978"
+  },
+  {
+    "path": "packages/chat-ui/src/LocalImageGallery.tsx",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/packages__chat-ui__src__LocalImageGallery.tsx",
+    "sha256": "1fdff6c79f55455500e7adaed0a048d5f42ee8cd6e1dc1ff6095864502f5545c"
+  },
+  {
+    "path": "docs/architecture/plugin-media-delivery.md",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/docs__architecture__plugin-media-delivery.md",
+    "sha256": "a4247c362073c2201ad882cb4764e652416c2f538a398e379b576c0803182fb8"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/surface/agent_call.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__surface__agent_call.rs",
+    "sha256": "c16d094cd6af5658015d113376edf2a1129cb02f0dc294967f40442cd6ae85c2"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/surface/view.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__surface__view.rs",
+    "sha256": "7b4b7e4329334e4f4a3ab4e4e6330d36ecff788f67083fc731b5fbc1f3a7a2ef"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/surface/activity.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__surface__activity.rs",
+    "sha256": "3b77137a22c80804ef6b2df4f58830a069e09db4d22e034d74f535ea3a7d00ee"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/plugin_host.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__plugin_host.rs",
+    "sha256": "dcecbb3292d9584a7b6f567be2f9f6831a71edf7c893800064bb35faacf5bcb8"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-bridge/src/transcribe/mod.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-bridge__src__transcribe__mod.rs",
+    "sha256": "6b69bfa3cd93599e6d60691be119bfead34766a41593a4accd52b4fc5a28b0fb"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/transcriber.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__transcriber.rs",
+    "sha256": "a78628c6108e106fbd4cf30621990937ba9861c223c13b0cecacdb254573ead6"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/transcribe.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__transcribe.rs",
+    "sha256": "e9988bc9e6e0b346226460e79c31ac1dec7677330c034792abae6f3ab3a0c5cc"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/surface/ops.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__surface__ops.rs",
+    "sha256": "4634afcc35af4c79bc5a85cc998ad3891a37c2daf60c46c5ffde6ba3f7a5726b"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/surface/resume.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__surface__resume.rs",
+    "sha256": "2440433d2d3eab66ddd84c612698091669ca34645f8869395cf163be8ce50d57"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/js_runtime/vm.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__js_runtime__vm.rs",
+    "sha256": "ac11cce62a265d9601221202d83850608ace9ec225a6dd36ea12b21a5d15c3be"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-util/src/secret_file.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-util__src__secret_file.rs",
+    "sha256": "ca8124c89624a76412da2f5027091b0a297736104f9a0e1c623d439c2f28e6eb"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-plugin/src/media_delivery/format.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-plugin__src__media_delivery__format.rs",
+    "sha256": "c404732cbaf0d9c38b78ee34a6ed4fffdcfcf618ed708d5e264144f261ed87ca"
+  },
+  {
+    "path": "src/lib/pluginViewHostActions.ts",
+    "sha": "317d6b3e07cdf63336e16c3389d9c5acb49c801f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/iris-candidate__src__lib__pluginViewHostActions.ts",
+    "sha256": "a750c636fed77e0ce362db766e80c6c3409d00dbbdcbd51261de47e54e5b0a51"
+  },
+  {
+    "path": "src/lib/pluginViewHostDeps.ts",
+    "sha": "317d6b3e07cdf63336e16c3389d9c5acb49c801f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/iris-candidate__src__lib__pluginViewHostDeps.ts",
+    "sha256": "eb2529ac026fa3921f762c15c8f61c3043d2b2efad0e0f298f86b5f288457511"
+  },
+  {
+    "path": "packages/plugin-sdk/src/capabilities.ts",
+    "sha": "317d6b3e07cdf63336e16c3389d9c5acb49c801f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/iris-candidate__packages__plugin-sdk__src__capabilities.ts",
+    "sha256": "2ce94c86f598c438aa5ff581b7450a5b70153d573145c1697f85ad0ced01fdc8"
+  },
+  {
+    "path": "src/components/Extensions/PluginView.tsx",
+    "sha": "317d6b3e07cdf63336e16c3389d9c5acb49c801f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/iris-candidate__src__components__Extensions__PluginView.tsx",
+    "sha256": "9ffb5062888a268304125d37bd633b3fa0ee7f62c394ba1ec1f5c8981ef3196c"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-api/src/web_plugin_routes.rs",
+    "sha": "317d6b3e07cdf63336e16c3389d9c5acb49c801f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/iris-candidate__src-tauri__crates__codeterm-api__src__web_plugin_routes.rs",
+    "sha256": "5173dd8181c37b2a69230147eb3993694eb3dcbe5e61ff35ed9d8f0ccfee2cb8"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-bridge/src/chatpipeline/mod.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-bridge__src__chatpipeline__mod.rs",
+    "sha256": "e62f3249dec9f9d0071accbb977d986249c31c3f186068ef1225b21f40bf5b96"
+  },
+  {
+    "path": "src-tauri/crates/codeterm-service-core/src/service/surface/model.rs",
+    "sha": "2ba2c145669b80211bfa34dc253c2ee9aa478c0f",
+    "retrievedDate": "2026-10-29",
+    "file": "evidence/host/src-tauri__crates__codeterm-service-core__src__service__surface__model.rs",
+    "sha256": "fdcab6fea5889f69f0cb6d30ef7da480667b4d5bf94e4be3d97c1d31357b5f0b"
+  }
+]

@@ -1,0 +1,96 @@
+page: Kling 3.0 Turbo — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v3.0-turbo/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@c8464e21eed643e49601151f3de963bd-e1]
+  - button "Collapse sidebar" [expanded=true] [@c8464e21eed643e49601151f3de963bd-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@c8464e21eed643e49601151f3de963bd-e3]
+    - link "Explore models" [@c8464e21eed643e49601151f3de963bd-e4]
+    - link "Quick start" [@c8464e21eed643e49601151f3de963bd-e5]
+    - link "Documentation" [@c8464e21eed643e49601151f3de963bd-e6]
+    - link "Pricing UP TO 75% OFF" [@c8464e21eed643e49601151f3de963bd-e7]
+    - button "Playground" [expanded=true] [@c8464e21eed643e49601151f3de963bd-e8]
+    - link "API keys" [@c8464e21eed643e49601151f3de963bd-e9]
+    - link "Cashback" [@c8464e21eed643e49601151f3de963bd-e10]
+    - link "Analytics" [@c8464e21eed643e49601151f3de963bd-e11]
+    - link "Billing" [@c8464e21eed643e49601151f3de963bd-e12]
+  - link "Contact sales" [@c8464e21eed643e49601151f3de963bd-e13]
+  - link "Status" [@c8464e21eed643e49601151f3de963bd-e14]
+  - link "Pricing" [@c8464e21eed643e49601151f3de963bd-e15]
+  - link "Log in" [@c8464e21eed643e49601151f3de963bd-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@c8464e21eed643e49601151f3de963bd-e17]
+  - button "Select model variant: Image-to-Video (Turbo)" [expanded=false] [@c8464e21eed643e49601151f3de963bd-e18]
+  - link "Explore" [@c8464e21eed643e49601151f3de963bd-e19]
+  - heading "KLING 3.0 TURBO"
+  - button "Select model variant: Image-to-Video (Turbo)" [expanded=false] [@c8464e21eed643e49601151f3de963bd-e20]
+  - button "Copy agent prompt" [@c8464e21eed643e49601151f3de963bd-e21]
+  - status
+  - link "View docs" [@c8464e21eed643e49601151f3de963bd-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@c8464e21eed643e49601151f3de963bd-e23]
+  - button "Copy for agent" [@c8464e21eed643e49601151f3de963bd-e24]
+  - link "Explore" [@c8464e21eed643e49601151f3de963bd-e25]
+  - button "Select model variant: Image-to-Video (Turbo)" [expanded=false] [@c8464e21eed643e49601151f3de963bd-e26]
+  - navigation "Model sections"
+    - link "Playground" [@c8464e21eed643e49601151f3de963bd-e27]
+    - link "API" [disabled] [@c8464e21eed643e49601151f3de963bd-e28]
+    - link "Requests" [disabled] [@c8464e21eed643e49601151f3de963bd-e29]
+    - link "Analytics" [disabled] [@c8464e21eed643e49601151f3de963bd-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@c8464e21eed643e49601151f3de963bd-e31]
+    - link "1. Calling the API" [@c8464e21eed643e49601151f3de963bd-e32]
+    - link "Install" [@c8464e21eed643e49601151f3de963bd-e33]
+    - link "Setup" [@c8464e21eed643e49601151f3de963bd-e34]
+    - link "Request parameters" [@c8464e21eed643e49601151f3de963bd-e35]
+    - link "2. Authentication" [@c8464e21eed643e49601151f3de963bd-e36]
+    - link "API Key" [@c8464e21eed643e49601151f3de963bd-e37]
+    - link "3. Queue" [@c8464e21eed643e49601151f3de963bd-e38]
+    - link "Submit and wait" [@c8464e21eed643e49601151f3de963bd-e39]
+    - link "Explicit lifecycle control" [@c8464e21eed643e49601151f3de963bd-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@c8464e21eed643e49601151f3de963bd-e41]
+  - heading "Setup"
+  - button "Copy code" [@c8464e21eed643e49601151f3de963bd-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Minimum: 3. Maximum: 15."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "resolution"
+      - cell "string"
+      - cell "No"
+      - cell ""720p""
+      - cell "Resolution. Options: 720p, 1080p."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@c8464e21eed643e49601151f3de963bd-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@c8464e21eed643e49601151f3de963bd-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@c8464e21eed643e49601151f3de963bd-e45]
+- region "Notifications alt+T"

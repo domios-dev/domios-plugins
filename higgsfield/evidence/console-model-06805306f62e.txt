@@ -1,0 +1,136 @@
+Higgsfield API
+Dashboard
+Explore models
+Quick start
+Documentation
+Pricing
+UP TO 75% OFF
+Playground
+API keys
+Cashback
+Analytics
+Billing
+Contact sales
+Status
+Pricing
+Log in
+Explore
+/
+Cinema Studio 4.0
+Explore
+/
+Cinema Studio 4.0
+Video
+from
+0.2057 / s
+CINEMA STUDIO 4.0
+
+Generates cinematic videos up to 30 seconds with automatic scene direction.
+
+Copy agent prompt
+Paste into your agent
+View docs
+TypeScript
+1
+import { config, higgsfield } from "@higgsfield/client/v2";
+2
+3
+config({
+4
+  credentials: process.env.HF_CREDENTIALS,
+5
+});
+6
+7
+const result = await higgsfield.subscribe(
+8
+  "higgsfield/cinema-studio/4.0",
+9
+  {
+10
+    input: {
+11
+      "prompt": "A cinematic scene at sunset",
+12
+      "duration": 5,
+13
+      "resolution": "720p",
+14
+      "aspect_ratio": "16:9",
+15
+      "generate_audio": true
+16
+    },
+17
+    withPolling: true,
+18
+  },
+19
+);
+20
+21
+console.log(result);
+Copy for agent
+Explore
+/
+Cinema Studio 4.0
+Playground
+API
+Requests
+Analytics
+
+About
+
+JavaScript
+1.
+Calling the API
+Install
+Setup
+2.
+Authentication
+API Key
+3.
+Queue
+Submit
+Fetch
+1. CALLING THE API
+
+Use the Higgsfield client to call Cinema Studio 4.0 from your application.
+
+Install
+
+Choose the installation method for your selected client. cURL does not require a client package.
+
+npm
+yarn
+pnpm
+bun
+npm install @higgsfield-ai/client
+Setup
+
+Create a client and submit input to the model endpoint.
+
+import { HiggsfieldClient } from '@higgsfield-ai/client'
+
+const client = new HiggsfieldClient({
+  apiKey: process.env.HIGGSFIELD_API_KEY,
+})
+2. AUTHENTICATION
+API Key
+
+Pass your API key through the client configuration or the authorization header.
+
+Authorization: Bearer $HIGGSFIELD_API_KEY
+
+Keep API keys on the server and never expose them in browser code.
+
+3. QUEUE
+
+Model requests run asynchronously. Submit a request, then fetch it until it reaches a terminal state.
+
+Submit
+const request = await client.submit('higgsfield/cinema-studio/4.0', {
+  prompt: 'A cinematic portrait in soft natural light',
+})
+Fetch
+const result = await client.requests.get(request.id)

@@ -1,0 +1,238 @@
+page: Pricing | Higgsfield API — https://open.higgsfield.ai/pricing
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@12c8e251708846b1bb06e47728257d33-e1]
+  - button "Collapse sidebar" [expanded=true] [@12c8e251708846b1bb06e47728257d33-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@12c8e251708846b1bb06e47728257d33-e3]
+    - link "Explore models" [@12c8e251708846b1bb06e47728257d33-e4]
+    - link "Quick start" [@12c8e251708846b1bb06e47728257d33-e5]
+    - link "Documentation" [@12c8e251708846b1bb06e47728257d33-e6]
+    - link "Pricing UP TO 75% OFF" [@12c8e251708846b1bb06e47728257d33-e7]
+    - button "Playground" [expanded=true] [@12c8e251708846b1bb06e47728257d33-e8]
+    - link "API keys" [@12c8e251708846b1bb06e47728257d33-e9]
+    - link "Cashback" [@12c8e251708846b1bb06e47728257d33-e10]
+    - link "Analytics" [@12c8e251708846b1bb06e47728257d33-e11]
+    - link "Billing" [@12c8e251708846b1bb06e47728257d33-e12]
+  - link "Contact sales" [@12c8e251708846b1bb06e47728257d33-e13]
+  - link "Status" [@12c8e251708846b1bb06e47728257d33-e14]
+  - link "Pricing" [@12c8e251708846b1bb06e47728257d33-e15]
+  - link "Log in" [@12c8e251708846b1bb06e47728257d33-e16]
+  - separator "Resize sidebar"
+- main
+  - heading "MODELS API PRICING"
+  - tab "All models" [selected=true] [@12c8e251708846b1bb06e47728257d33-e17]
+  - tab "Video" [selected=false] [@12c8e251708846b1bb06e47728257d33-e18]
+  - tab "Image" [selected=false] [@12c8e251708846b1bb06e47728257d33-e19]
+  - searchbox "Search models" [@12c8e251708846b1bb06e47728257d33-e20]
+  - button "Compare prices with others" [@12c8e251708846b1bb06e47728257d33-e21]
+  - table
+    - row
+      - columnheader "Model name"
+      - columnheader "Resolution"
+      - columnheader "Duration"
+      - columnheader "List price"
+      - columnheader "leads to"
+      - columnheader "Max-discount price"
+      - columnheader "Max-discount selection"
+    - row
+      - cell "Expand Genjutsu, 2 modes Genjutsu, 2 modes"
+        - button "Expand Genjutsu, 2 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e22]
+        - link "Genjutsu, 2 modes" [@12c8e251708846b1bb06e47728257d33-e23]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.318/s"
+      - cell
+      - cell "50% OFF from $0.159/s"
+      - cell "Compare Genjutsu with other providers"
+        - button "Compare Genjutsu with other providers" [@12c8e251708846b1bb06e47728257d33-e24]
+    - row
+      - cell "Expand Genjutsu Light, 2 modes Genjutsu Light, 2 modes"
+        - button "Expand Genjutsu Light, 2 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e25]
+        - link "Genjutsu Light, 2 modes" [@12c8e251708846b1bb06e47728257d33-e26]
+      - cell "up to 1080p"
+      - cell "—"
+      - cell "from $0.050/s"
+      - cell
+      - cell "50% OFF from $0.025/s"
+      - cell "Compare Genjutsu Light with other providers"
+        - button "Compare Genjutsu Light with other providers" [@12c8e251708846b1bb06e47728257d33-e27]
+    - row
+      - cell "Expand Seedance 2.5, 5 modes Seedance 2.5, 5 modes"
+        - button "Expand Seedance 2.5, 5 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e28]
+        - link "Seedance 2.5, 5 modes" [@12c8e251708846b1bb06e47728257d33-e29]
+      - cell "up to 1080p"
+      - cell "4–30s"
+      - cell "from $0.206/s"
+      - cell
+      - cell "30% OFF from $0.144/s"
+      - cell "Compare Seedance 2.5 with other providers"
+        - button "Compare Seedance 2.5 with other providers" [@12c8e251708846b1bb06e47728257d33-e30]
+    - row
+      - cell "Expand Seedance 2.0, 3 modes Seedance 2.0, 3 modes"
+        - button "Expand Seedance 2.0, 3 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e31]
+        - link "Seedance 2.0, 3 modes" [@12c8e251708846b1bb06e47728257d33-e32]
+      - cell "up to 4k"
+      - cell "4–15s"
+      - cell "from $0.141/s"
+      - cell
+      - cell "30% OFF from $0.099/s"
+      - cell "Compare Seedance 2.0 with other providers"
+        - button "Compare Seedance 2.0 with other providers" [@12c8e251708846b1bb06e47728257d33-e33]
+    - row
+      - cell "Expand Wan 3.0 Prime, 3 modes Wan 3.0 Prime, 3 modes"
+        - button "Expand Wan 3.0 Prime, 3 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e34]
+        - link "Wan 3.0 Prime, 3 modes" [@12c8e251708846b1bb06e47728257d33-e35]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.068/s"
+      - cell
+      - cell "60% OFF from $0.027/s"
+      - cell "Compare Wan 3.0 Prime with other providers"
+        - button "Compare Wan 3.0 Prime with other providers" [@12c8e251708846b1bb06e47728257d33-e36]
+    - row
+      - cell "Expand Wan 3.0, 3 modes Wan 3.0, 3 modes"
+        - button "Expand Wan 3.0, 3 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e37]
+        - link "Wan 3.0, 3 modes" [@12c8e251708846b1bb06e47728257d33-e38]
+      - cell "up to 1080p"
+      - cell "2–30s"
+      - cell "from $0.050/s"
+      - cell
+      - cell "60% OFF from $0.020/s"
+      - cell "Compare Wan 3.0 with other providers"
+        - button "Compare Wan 3.0 with other providers" [@12c8e251708846b1bb06e47728257d33-e39]
+    - row
+      - cell "Expand Kling 4.0, 4 modes Kling 4.0, 4 modes"
+        - button "Expand Kling 4.0, 4 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e40]
+        - link "Kling 4.0, 4 modes" [@12c8e251708846b1bb06e47728257d33-e41]
+      - cell "up to 1080p"
+      - cell "3–30s"
+      - cell "from $0.094/s"
+      - cell
+      - cell "30% OFF from $0.066/s"
+      - cell "Compare Kling 4.0 with other providers"
+        - button "Compare Kling 4.0 with other providers" [@12c8e251708846b1bb06e47728257d33-e42]
+    - row
+      - cell "Expand Kling 3.0, 10 modes Kling 3.0, 10 modes"
+        - button "Expand Kling 3.0, 10 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e43]
+        - link "Kling 3.0, 10 modes" [@12c8e251708846b1bb06e47728257d33-e44]
+      - cell "up to 1080p"
+      - cell "3–15s"
+      - cell "from $0.084/s"
+      - cell
+      - cell "50% OFF from $0.042/s"
+      - cell "Compare Kling 3.0 with other providers"
+        - button "Compare Kling 3.0 with other providers" [@12c8e251708846b1bb06e47728257d33-e45]
+    - row
+      - cell "Expand Kling 2.6, 4 modes Kling 2.6, 4 modes"
+        - button "Expand Kling 2.6, 4 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e46]
+        - link "Kling 2.6, 4 modes" [@12c8e251708846b1bb06e47728257d33-e47]
+      - cell "—"
+      - cell "5s / 10s"
+      - cell "from $0.070/s"
+      - cell
+      - cell "50% OFF from $0.035/s"
+      - cell "Compare Kling 2.6 with other providers"
+        - button "Compare Kling 2.6 with other providers" [@12c8e251708846b1bb06e47728257d33-e48]
+    - row
+      - cell "Expand Kling 2.5, 3 modes Kling 2.5, 3 modes"
+        - button "Expand Kling 2.5, 3 modes" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e49]
+        - link "Kling 2.5, 3 modes" [@12c8e251708846b1bb06e47728257d33-e50]
+      - cell "up to 1080p"
+      - cell "5s / 10s"
+      - cell "from $0.042/s"
+      - cell
+      - cell "50% OFF from $0.021/s"
+      - cell "Compare Kling 2.5 with other providers"
+        - button "Compare Kling 2.5 with other providers" [@12c8e251708846b1bb06e47728257d33-e51]
+  - navigation "Pricing pages"
+    - button "Page 1" [@12c8e251708846b1bb06e47728257d33-e52]
+    - button "Page 2" [@12c8e251708846b1bb06e47728257d33-e53]
+    - button "Page 3" [@12c8e251708846b1bb06e47728257d33-e54]
+    - button "Page 4" [@12c8e251708846b1bb06e47728257d33-e55]
+  - region "Price comparison"
+    - heading "COMPARE WITH OTHERS"
+    - tab "All models" [selected=true] [@12c8e251708846b1bb06e47728257d33-e56]
+    - tab "Video" [selected=false] [@12c8e251708846b1bb06e47728257d33-e57]
+    - tab "Image" [selected=false] [@12c8e251708846b1bb06e47728257d33-e58]
+    - searchbox "Search models" [@12c8e251708846b1bb06e47728257d33-e59]
+    - button "Compare prices with Fal" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e60]
+    - table
+      - row
+        - columnheader "Model name"
+        - columnheader "Higgsfield"
+        - columnheader "Fal"
+      - row
+        - cell "Kling 3.0 4K · Text to Video · Image to Video"
+          - link "Kling 3.0 4K · Text to Video · Image to Video" [@12c8e251708846b1bb06e47728257d33-e61]
+        - cell "$0.210/s $0.420 50% lower"
+        - cell "$0.420/s"
+      - row
+        - cell "Kling 3.0 Pro · Text to Video · Image to Video"
+          - link "Kling 3.0 Pro · Text to Video · Image to Video" [@12c8e251708846b1bb06e47728257d33-e62]
+        - cell "$0.084/s $0.168 50% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "Kling 3.0 Standard · Image to Video"
+          - link "Kling 3.0 Standard · Image to Video" [@12c8e251708846b1bb06e47728257d33-e63]
+        - cell "$0.063/s $0.126 50% lower"
+        - cell "$0.126/s"
+      - row
+        - cell "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p"
+          - link "Kling 3.0 Turbo · Text to Video · Image to Video — 1080p" [@12c8e251708846b1bb06e47728257d33-e64]
+        - cell "$0.070/s $0.140 50% lower"
+        - cell "$0.140/s"
+      - row
+        - cell "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p"
+          - link "Happy Horse 1.1 · Text to Video · Image to Video · Reference to Video — 1080p" [@12c8e251708846b1bb06e47728257d33-e65]
+        - cell "$0.090/s $0.180 50% lower"
+        - cell "$0.180/s"
+      - row
+        - cell "Seedance 2.5 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.5 · Text to Video · Image to Video — 480p" [@12c8e251708846b1bb06e47728257d33-e66]
+        - cell "$0.145/s $0.207 30% lower"
+        - cell "$0.207/s"
+      - row
+        - cell "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p"
+          - link "Seedance 2.5 · Reference to Video · Video Edit · Video Extend — 480p" [@12c8e251708846b1bb06e47728257d33-e67]
+        - cell "$0.174/s $0.248 30% lower"
+        - cell "$0.248/s"
+      - row
+        - cell "Seedance 2.0 · Text to Video · Image to Video — 480p"
+          - link "Seedance 2.0 · Text to Video · Image to Video — 480p" [@12c8e251708846b1bb06e47728257d33-e68]
+        - cell "$0.099/s $0.141 30% lower"
+        - cell "$0.141/s"
+      - row
+        - cell "Seedance 2.0 · Reference to Video — 480p"
+          - link "Seedance 2.0 · Reference to Video — 480p" [@12c8e251708846b1bb06e47728257d33-e69]
+        - cell "$0.118/s $0.168 30% lower"
+        - cell "$0.168/s"
+      - row
+        - cell "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K"
+          - link "MiniMax H3 · Text to Video · Image to Video · Reference to Video — 2K" [@12c8e251708846b1bb06e47728257d33-e70]
+        - cell "$0.065/s $0.130 50% lower"
+        - cell "$0.130/s"
+    - navigation "Pricing pages"
+      - button "Page 1" [@12c8e251708846b1bb06e47728257d33-e71]
+      - button "Page 2" [@12c8e251708846b1bb06e47728257d33-e72]
+  - region "Concurrency limits"
+    - heading "Concurrency limits"
+    - button "Learn more" [@12c8e251708846b1bb06e47728257d33-e73]
+    - heading "2 concurrent generations"
+    - button "Add funds" [@12c8e251708846b1bb06e47728257d33-e74]
+    - progressbar "Progress to the next concurrency tier": 0
+    - button "Contact sales" [@12c8e251708846b1bb06e47728257d33-e75]
+  - region "FAQ"
+    - heading "FAQ"
+    - button "What is Higgsfield API?" [expanded=true] [@12c8e251708846b1bb06e47728257d33-e76]
+    - button "How does Higgsfield API pricing work?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e77]
+    - button "What's included in the Higgsfield API launch offer?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e78]
+    - button "Do I need to talk to sales to start using Higgsfield API?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e79]
+    - button "How do I integrate Higgsfield API?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e80]
+    - button "Can I migrate from fal or Replicate to Higgsfield API?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e81]
+    - button "Can AI agents use Higgsfield API?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e82]
+    - button "What are the Higgsfield API rate limits?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e83]
+    - button "How do I keep Higgsfield API spending under control?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e84]
+    - button "How do teams use Higgsfield API?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e85]
+    - button "Which models are available through Higgsfield API?" [expanded=false] [@12c8e251708846b1bb06e47728257d33-e86]
+- region "Notifications alt+T"

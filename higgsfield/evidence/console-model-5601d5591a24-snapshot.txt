@@ -1,0 +1,104 @@
+page: Kling 2.6 Pro — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v2.6/pro/image-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@60f5f7885fae42ddbb22a684ef54eda9-e1]
+  - button "Collapse sidebar" [expanded=true] [@60f5f7885fae42ddbb22a684ef54eda9-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@60f5f7885fae42ddbb22a684ef54eda9-e3]
+    - link "Explore models" [@60f5f7885fae42ddbb22a684ef54eda9-e4]
+    - link "Quick start" [@60f5f7885fae42ddbb22a684ef54eda9-e5]
+    - link "Documentation" [@60f5f7885fae42ddbb22a684ef54eda9-e6]
+    - link "Pricing UP TO 75% OFF" [@60f5f7885fae42ddbb22a684ef54eda9-e7]
+    - button "Playground" [expanded=true] [@60f5f7885fae42ddbb22a684ef54eda9-e8]
+    - link "API keys" [@60f5f7885fae42ddbb22a684ef54eda9-e9]
+    - link "Cashback" [@60f5f7885fae42ddbb22a684ef54eda9-e10]
+    - link "Analytics" [@60f5f7885fae42ddbb22a684ef54eda9-e11]
+    - link "Billing" [@60f5f7885fae42ddbb22a684ef54eda9-e12]
+  - link "Contact sales" [@60f5f7885fae42ddbb22a684ef54eda9-e13]
+  - link "Status" [@60f5f7885fae42ddbb22a684ef54eda9-e14]
+  - link "Pricing" [@60f5f7885fae42ddbb22a684ef54eda9-e15]
+  - link "Log in" [@60f5f7885fae42ddbb22a684ef54eda9-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@60f5f7885fae42ddbb22a684ef54eda9-e17]
+  - heading "KLING 2.6 PRO"
+  - button "Select model variant: Image-to-Video (Pro)" [expanded=false] [@60f5f7885fae42ddbb22a684ef54eda9-e18]
+  - button "Copy agent prompt" [@60f5f7885fae42ddbb22a684ef54eda9-e19]
+  - status
+  - link "View docs" [@60f5f7885fae42ddbb22a684ef54eda9-e20]
+  - combobox "Code language": TypeScript [expanded=false] [@60f5f7885fae42ddbb22a684ef54eda9-e21]
+  - button "Copy for agent" [@60f5f7885fae42ddbb22a684ef54eda9-e22]
+  - navigation "Model sections"
+    - link "Playground" [@60f5f7885fae42ddbb22a684ef54eda9-e23]
+    - link "API" [disabled] [@60f5f7885fae42ddbb22a684ef54eda9-e24]
+    - link "Requests" [disabled] [@60f5f7885fae42ddbb22a684ef54eda9-e25]
+    - link "Analytics" [disabled] [@60f5f7885fae42ddbb22a684ef54eda9-e26]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@60f5f7885fae42ddbb22a684ef54eda9-e27]
+    - link "1. Calling the API" [@60f5f7885fae42ddbb22a684ef54eda9-e28]
+    - link "Install" [@60f5f7885fae42ddbb22a684ef54eda9-e29]
+    - link "Setup" [@60f5f7885fae42ddbb22a684ef54eda9-e30]
+    - link "Request parameters" [@60f5f7885fae42ddbb22a684ef54eda9-e31]
+    - link "2. Authentication" [@60f5f7885fae42ddbb22a684ef54eda9-e32]
+    - link "API Key" [@60f5f7885fae42ddbb22a684ef54eda9-e33]
+    - link "3. Queue" [@60f5f7885fae42ddbb22a684ef54eda9-e34]
+    - link "Submit and wait" [@60f5f7885fae42ddbb22a684ef54eda9-e35]
+    - link "Explicit lifecycle control" [@60f5f7885fae42ddbb22a684ef54eda9-e36]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@60f5f7885fae42ddbb22a684ef54eda9-e37]
+  - heading "Setup"
+  - button "Copy code" [@60f5f7885fae42ddbb22a684ef54eda9-e38]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "sound"
+      - cell "string"
+      - cell "No"
+      - cell ""on""
+      - cell "Generate sound. Options: on, off."
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Options: 5, 10."
+    - row
+      - cell "cfg_scale"
+      - cell "number"
+      - cell "No"
+      - cell "0.5"
+      - cell "CFG Scale. Minimum: 0. Maximum: 1."
+    - row
+      - cell "image_url"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Image URL."
+    - row
+      - cell "aspect_ratio"
+      - cell "string"
+      - cell "No"
+      - cell "—"
+      - cell "Aspect ratio. Options: 16:9, 9:16, 1:1."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@60f5f7885fae42ddbb22a684ef54eda9-e39]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@60f5f7885fae42ddbb22a684ef54eda9-e40]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@60f5f7885fae42ddbb22a684ef54eda9-e41]
+- region "Notifications alt+T"

@@ -1,0 +1,62 @@
+page: Ads Studio — API reference | Higgsfield API — https://open.higgsfield.ai/models/higgsfield/ads-studio/v1.0/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@e565973977474c1a83922b8df7ca72c6-e1]
+  - button "Collapse sidebar" [expanded=true] [@e565973977474c1a83922b8df7ca72c6-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@e565973977474c1a83922b8df7ca72c6-e3]
+    - link "Explore models" [@e565973977474c1a83922b8df7ca72c6-e4]
+    - link "Quick start" [@e565973977474c1a83922b8df7ca72c6-e5]
+    - link "Documentation" [@e565973977474c1a83922b8df7ca72c6-e6]
+    - link "Pricing UP TO 75% OFF" [@e565973977474c1a83922b8df7ca72c6-e7]
+    - button "Playground" [expanded=true] [@e565973977474c1a83922b8df7ca72c6-e8]
+    - link "API keys" [@e565973977474c1a83922b8df7ca72c6-e9]
+    - link "Cashback" [@e565973977474c1a83922b8df7ca72c6-e10]
+    - link "Analytics" [@e565973977474c1a83922b8df7ca72c6-e11]
+    - link "Billing" [@e565973977474c1a83922b8df7ca72c6-e12]
+  - link "Contact sales" [@e565973977474c1a83922b8df7ca72c6-e13]
+  - link "Status" [@e565973977474c1a83922b8df7ca72c6-e14]
+  - link "Pricing" [@e565973977474c1a83922b8df7ca72c6-e15]
+  - link "Log in" [@e565973977474c1a83922b8df7ca72c6-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@e565973977474c1a83922b8df7ca72c6-e17]
+  - heading "ADS STUDIO"
+  - button "Copy agent prompt" [@e565973977474c1a83922b8df7ca72c6-e18]
+  - status
+  - link "View docs" [@e565973977474c1a83922b8df7ca72c6-e19]
+  - combobox "Code language": TypeScript [expanded=false] [@e565973977474c1a83922b8df7ca72c6-e20]
+  - button "Copy for agent" [@e565973977474c1a83922b8df7ca72c6-e21]
+  - navigation "Model sections"
+    - link "Playground" [@e565973977474c1a83922b8df7ca72c6-e22]
+    - link "API" [disabled] [@e565973977474c1a83922b8df7ca72c6-e23]
+    - link "Requests" [disabled] [@e565973977474c1a83922b8df7ca72c6-e24]
+    - link "Analytics" [disabled] [@e565973977474c1a83922b8df7ca72c6-e25]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@e565973977474c1a83922b8df7ca72c6-e26]
+    - link "1. Calling the API" [@e565973977474c1a83922b8df7ca72c6-e27]
+    - link "Install" [@e565973977474c1a83922b8df7ca72c6-e28]
+    - link "Setup" [@e565973977474c1a83922b8df7ca72c6-e29]
+    - link "2. Authentication" [@e565973977474c1a83922b8df7ca72c6-e30]
+    - link "API Key" [@e565973977474c1a83922b8df7ca72c6-e31]
+    - link "3. Queue" [@e565973977474c1a83922b8df7ca72c6-e32]
+    - link "Submit" [@e565973977474c1a83922b8df7ca72c6-e33]
+    - link "Fetch" [@e565973977474c1a83922b8df7ca72c6-e34]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "npm" [@e565973977474c1a83922b8df7ca72c6-e35]
+  - button "yarn" [@e565973977474c1a83922b8df7ca72c6-e36]
+  - button "pnpm" [@e565973977474c1a83922b8df7ca72c6-e37]
+  - button "bun" [@e565973977474c1a83922b8df7ca72c6-e38]
+  - button "Copy code" [@e565973977474c1a83922b8df7ca72c6-e39]
+  - heading "Setup"
+  - button "Copy code" [@e565973977474c1a83922b8df7ca72c6-e40]
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@e565973977474c1a83922b8df7ca72c6-e41]
+  - heading "3. QUEUE"
+  - heading "Submit"
+  - button "Copy code" [@e565973977474c1a83922b8df7ca72c6-e42]
+  - heading "Fetch"
+  - button "Copy code" [@e565973977474c1a83922b8df7ca72c6-e43]
+- region "Notifications alt+T"

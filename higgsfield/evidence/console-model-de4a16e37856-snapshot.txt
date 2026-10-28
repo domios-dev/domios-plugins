@@ -1,0 +1,96 @@
+page: Kling 2.5 Turbo Pro — API reference | Higgsfield API — https://open.higgsfield.ai/models/kling-video/v2.5-turbo/pro/text-to-video/api-reference#model-api-reference
+- complementary "Primary navigation"
+  - image "Higgsfield"
+  - button "Search" [@f9d0e9009658451d9abf2dafbe22e554-e1]
+  - button "Collapse sidebar" [expanded=true] [@f9d0e9009658451d9abf2dafbe22e554-e2]
+  - navigation "Primary navigation"
+    - link "Dashboard" [@f9d0e9009658451d9abf2dafbe22e554-e3]
+    - link "Explore models" [@f9d0e9009658451d9abf2dafbe22e554-e4]
+    - link "Quick start" [@f9d0e9009658451d9abf2dafbe22e554-e5]
+    - link "Documentation" [@f9d0e9009658451d9abf2dafbe22e554-e6]
+    - link "Pricing UP TO 75% OFF" [@f9d0e9009658451d9abf2dafbe22e554-e7]
+    - button "Playground" [expanded=true] [@f9d0e9009658451d9abf2dafbe22e554-e8]
+    - link "API keys" [@f9d0e9009658451d9abf2dafbe22e554-e9]
+    - link "Cashback" [@f9d0e9009658451d9abf2dafbe22e554-e10]
+    - link "Analytics" [@f9d0e9009658451d9abf2dafbe22e554-e11]
+    - link "Billing" [@f9d0e9009658451d9abf2dafbe22e554-e12]
+  - link "Contact sales" [@f9d0e9009658451d9abf2dafbe22e554-e13]
+  - link "Status" [@f9d0e9009658451d9abf2dafbe22e554-e14]
+  - link "Pricing" [@f9d0e9009658451d9abf2dafbe22e554-e15]
+  - link "Log in" [@f9d0e9009658451d9abf2dafbe22e554-e16]
+  - separator "Resize sidebar"
+- main
+  - link "Explore" [@f9d0e9009658451d9abf2dafbe22e554-e17]
+  - button "Select model variant: Text-to-Video (Pro)" [expanded=false] [@f9d0e9009658451d9abf2dafbe22e554-e18]
+  - link "Explore" [@f9d0e9009658451d9abf2dafbe22e554-e19]
+  - heading "KLING 2.5 TURBO PRO"
+  - button "Select model variant: Text-to-Video (Pro)" [expanded=false] [@f9d0e9009658451d9abf2dafbe22e554-e20]
+  - button "Copy agent prompt" [@f9d0e9009658451d9abf2dafbe22e554-e21]
+  - status
+  - link "View docs" [@f9d0e9009658451d9abf2dafbe22e554-e22]
+  - combobox "Code language": TypeScript [expanded=false] [@f9d0e9009658451d9abf2dafbe22e554-e23]
+  - button "Copy for agent" [@f9d0e9009658451d9abf2dafbe22e554-e24]
+  - link "Explore" [@f9d0e9009658451d9abf2dafbe22e554-e25]
+  - button "Select model variant: Text-to-Video (Pro)" [expanded=false] [@f9d0e9009658451d9abf2dafbe22e554-e26]
+  - navigation "Model sections"
+    - link "Playground" [@f9d0e9009658451d9abf2dafbe22e554-e27]
+    - link "API" [disabled] [@f9d0e9009658451d9abf2dafbe22e554-e28]
+    - link "Requests" [disabled] [@f9d0e9009658451d9abf2dafbe22e554-e29]
+    - link "Analytics" [disabled] [@f9d0e9009658451d9abf2dafbe22e554-e30]
+  - navigation "API reference contents"
+    - button "Select API language" [expanded=false] [@f9d0e9009658451d9abf2dafbe22e554-e31]
+    - link "1. Calling the API" [@f9d0e9009658451d9abf2dafbe22e554-e32]
+    - link "Install" [@f9d0e9009658451d9abf2dafbe22e554-e33]
+    - link "Setup" [@f9d0e9009658451d9abf2dafbe22e554-e34]
+    - link "Request parameters" [@f9d0e9009658451d9abf2dafbe22e554-e35]
+    - link "2. Authentication" [@f9d0e9009658451d9abf2dafbe22e554-e36]
+    - link "API Key" [@f9d0e9009658451d9abf2dafbe22e554-e37]
+    - link "3. Queue" [@f9d0e9009658451d9abf2dafbe22e554-e38]
+    - link "Submit and wait" [@f9d0e9009658451d9abf2dafbe22e554-e39]
+    - link "Explicit lifecycle control" [@f9d0e9009658451d9abf2dafbe22e554-e40]
+  - heading "1. CALLING THE API"
+  - heading "Install"
+  - button "Copy code" [@f9d0e9009658451d9abf2dafbe22e554-e41]
+  - heading "Setup"
+  - button "Copy code" [@f9d0e9009658451d9abf2dafbe22e554-e42]
+  - heading "Request parameters"
+  - table
+    - row
+      - columnheader "Parameter"
+      - columnheader "Type"
+      - columnheader "Required"
+      - columnheader "Default"
+      - columnheader "Description"
+    - row
+      - cell "prompt"
+      - cell "string"
+      - cell "Yes"
+      - cell "—"
+      - cell "Prompt."
+    - row
+      - cell "duration"
+      - cell "integer"
+      - cell "No"
+      - cell "5"
+      - cell "Duration. Options: 5, 10."
+    - row
+      - cell "cfg_scale"
+      - cell "number"
+      - cell "No"
+      - cell "0.5"
+      - cell "CFG Scale. Minimum: 0. Maximum: 1."
+    - row
+      - cell "negative_prompt"
+      - cell "string"
+      - cell "No"
+      - cell """"
+      - cell "Negative Prompt."
+  - heading "2. AUTHENTICATION"
+  - heading "API Key"
+  - button "Copy code" [@f9d0e9009658451d9abf2dafbe22e554-e43]
+  - heading "3. QUEUE"
+  - heading "Submit and wait"
+  - button "Copy code" [@f9d0e9009658451d9abf2dafbe22e554-e44]
+  - heading "Explicit lifecycle control"
+  - button "Copy code" [@f9d0e9009658451d9abf2dafbe22e554-e45]
+- region "Notifications alt+T"

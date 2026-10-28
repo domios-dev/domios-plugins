@@ -1,0 +1,5 @@
+  cli       {"build_sha":"d926b1bac70534665a38f19bbe17cb0dd5cab81a","version":"1.15.2"}
+  features  multiplexer, agent-detection, notifications
+  name      Domios
+  platform  windows
+  version   1.15.2
