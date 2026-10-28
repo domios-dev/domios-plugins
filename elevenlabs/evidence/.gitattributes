@@ -1,0 +1,2 @@
+# Source digests are over retrieved bytes; never normalize evidence on checkout.
+* -text
