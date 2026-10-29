@@ -6,7 +6,8 @@ import type { SurfaceContext, ViewContext, CommandPorts } from '../../src/comman
 import type { Effect } from '../../src/service';
 export const soul = 'higgsfield-ai/soul/v2/standard';
 export const providerId = 'd7e6c0f3-6699-4f6c-bb45-2ad7fd9158ff';
-export function fixture(initialNow = 10) {
+export function fixture(initialNow = 10, quoteValidityMs = 100) {
+  if (!Number.isSafeInteger(quoteValidityMs) || quoteValidityMs < 1 || quoteValidityMs > 60000) throw new Error('invalid_fixture_quote_validity');
   const partitions = new Map<string, Partition>();
   const store: JobStore = { transact(owner, workspace, edit) {
     const key = owner + ':' + workspace;
@@ -21,7 +22,7 @@ export function fixture(initialNow = 10) {
     client: new HiggsfieldClient({ secret: { pluginBucketVerified: true, available: () => true },
       transport: { send: () => { sends++; return { kind: 'pending', correlation: 'fixture-only' }; } } }),
     attest: () => true,
-    quote: (_a, _r, binding) => ({ amount: 10, unit: 'usd_micro', binding, safe: true, basis: 'synthetic-only', tariffRevision: 'fixture', issuedAt: now, validUntilMs: now + 100 }),
+    quote: (_a, _r, binding) => ({ amount: 10, unit: 'usd_micro', binding, safe: true, basis: 'synthetic-only', tariffRevision: 'fixture', issuedAt: now, validUntilMs: now + quoteValidityMs }),
     output: { allowed: u => u === 'https://media.example.org/fixture.png', save: () => [{ kind: 'artifact', id: 'fixture-media', contentType: 'image/png' }] },
   });
   const surface = { call(verb: string, argsJson: string) { calls.push({ verb, argsJson }); return JSON.stringify({ result: 'host-owned-child' }); },
@@ -50,5 +51,5 @@ export function fixture(initialNow = 10) {
       body: effect.action === 'cancel' ? '' : JSON.stringify({ request_id: providerId, status, ...extra }) });
   }
   return { service, store, ports, contexts, surfaceContext, viewContext, actor, admit, receive, invalidations, calls,
-    sends: () => sends, tick: () => { now += 101; }, now: () => now, effect: () => effect };
+    sends: () => sends, tick: () => { now += quoteValidityMs + 1; }, now: () => now, effect: () => effect };
 }

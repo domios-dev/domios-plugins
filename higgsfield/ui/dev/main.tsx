@@ -35,6 +35,7 @@ function PreviewHost() {
   const innerQuery = new URLSearchParams(query); innerQuery.set('frame', '1');
   return <><section className="fixture-controls" aria-label="Fixture controls">
     <strong>Local fixture · no provider network · no native-host evidence</strong>
+    {query.get('scenario') === 'pipeline-ready' && <p>Synthetic quote: 60 seconds. Read-only three-job fixture; submission and approval are unavailable.</p>}
     <p>Submission count: {metrics?.submissions ?? 'Loading'}</p>
     <p role="status" data-testid="viewport-metrics">{metrics ? `Requested: ${metrics.requested}px; innerWidth: ${metrics.innerWidth}px; document client/scroll: ${metrics.clientWidth}/${metrics.scrollWidth}px; body client/scroll: ${metrics.bodyClientWidth}/${metrics.bodyScrollWidth}px; mobile media query: ${metrics.mobile}; owner: ${metrics.owner}` : 'Waiting for actual iframe viewport metrics…'}</p>
     <button className="ct-btn" onClick={() => control('complete')}>Complete job (fixture only)</button>
@@ -64,7 +65,7 @@ function FixtureDocument() {
       if (command === 'owner' && owner && ['A', 'B', 'user'].includes(owner)) void selectFixtureOwner(fixture, controller, owner);
       else if (command === 'complete') fixture.complete();
       else if (command === 'unknown') fixture.unknown();
-      else if (command === 'reset') { localStorage.removeItem('higgs-ui-fixture-v1'); location.reload(); }
+      else if (command === 'reset') { if (query.get('scenario') !== 'pipeline-ready') localStorage.removeItem('higgs-ui-fixture-v1'); location.reload(); }
       else if (command === 'reload') location.reload();
       report();
     };

@@ -10,10 +10,12 @@ import type { StudioController } from '../src/controller';
 /** Dev entry only. All state here is synthetic, no account/host/Courier proof. */
 export function fixtureTransport(options: { scenario?: string; now?: number; load?: () => string | null; save?: (value: string) => void } = {}) {
   const now = options.now ?? Date.now();
-  const f = fixture(now), listeners = new Set<() => void>();
+  const ready = options.scenario === 'pipeline-ready', pipeline = options.scenario === 'pipeline' || ready;
+  const persistence: Pick<typeof options, 'load' | 'save'> = ready ? {} : options;
+  const f = fixture(now, 60000), listeners = new Set<() => void>();
   const original = f.store.transact.bind(f.store);
   let submissions = 0, sequence = 0, owner = 'A';
-  try { const saved = JSON.parse(options.load?.() ?? 'null'); if (saved?.partition && Number.isSafeInteger(saved.submissions)) {
+  try { const saved = JSON.parse(persistence.load?.() ?? 'null'); if (saved?.partition && Number.isSafeInteger(saved.submissions)) {
     original('A', 'workspace', p => {
       Object.assign(p, saved.partition);
       // Migrate only the obsolete synthetic epoch clock; preserve IDs, states and submission count.
@@ -23,7 +25,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
   } } catch { /* Invalid local fixture storage is discarded; no production fallback. */ }
   f.store.transact = (o, w, edit) => {
     const result = original(o, w, edit);
-    if (o === 'A') options.save?.(JSON.stringify({ partition: original('A', 'workspace', p => p), submissions, sequence }));
+    if (o === 'A') persistence.save?.(JSON.stringify({ partition: original('A', 'workspace', p => p), submissions, sequence }));
     return result;
   };
   const context = f.viewContext('A');
@@ -35,11 +37,12 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       if (before.state === 'waiting') service.approve(access, id, { amount: 10, unit: 'usd_micro' });
       const result = f.admit(service, access, id, action);
       if (f.sends() > 0 && before.state === 'waiting' && result.state !== 'waiting') submissions++;
-      options.save?.(JSON.stringify({ partition: original('A', 'workspace', p => p), submissions, sequence }));
+      persistence.save?.(JSON.stringify({ partition: original('A', 'workspace', p => p), submissions, sequence }));
       return result;
     }
     return f.admit(service, access, id, action);
   };
+  if (ready) { f.ports.admit = undefined; f.ports.proof = undefined; }
   const commands = new HiggsfieldCommands(f.service, f.ports);
   const humanA = f.contexts.get(context)!;
   const midnight = new Date(now); midnight.setHours(0, 0, 0, 0);
@@ -59,7 +62,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
     } catch { /* Existing persisted fixtures are retained. */ }
   };
   {
-    if (options.scenario === 'pipeline') {
+    if (pipeline) {
       seed('run-one', 'generated', 'run', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }] });
       seed('run-two', 'failed', 'run'); seed('run-three', 'waiting', 'run', { waitReason: 'owner_confirmation' });
     } else {
@@ -79,17 +82,18 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       seed('image-older', 'generated', 'you', image, previousDay(3) - 1000);
     }
   }
+  if (ready) f.service.estimate(f.actor('A', 'run'), 'run-three'); // Actual free injected estimator; no approval/submission.
   const notify = () => listeners.forEach(fn => fn());
   const invalidate = f.ports.surface.invalidate;
   f.ports.surface.invalidate = identity => { const result = invalidate(identity); notify(); return result; };
   const transport: UITransport = {
     async call<K extends keyof Methods>(method: K, args: Methods[K]['args']): Promise<Methods[K]['result']> {
+      if (ready && ['prepare', 'submit'].includes(method)) throw new Error('ready_fixture_read_only');
       // Exact same commands, authorized document DTO and service as production.
       const result = commands.viewCall(method, args, context) as any;
       if (result?.error) throw new Error(result.error);
       if (result?.kind === 'unavailable') return result;
-      if (method === 'estimate') original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === (args as { id: string }).id); if (j?.quote) j.quote.validUntilMs = f.now() + 600000; return null; });
-      if (['ui.snapshot', 'ui.details'].includes(method) && options.scenario === 'pipeline') {
+      if (['ui.snapshot', 'ui.details'].includes(method) && pipeline) {
         const access = f.contexts.get(context)!;
         const sourceJob = f.service.history(access).find(j => j.id === 'run-one' && j.scope.actor.kind === 'run');
         const source = sourceJob ? uiItem(sourceJob, f.now()) : undefined;
