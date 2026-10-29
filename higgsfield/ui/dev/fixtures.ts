@@ -2,7 +2,8 @@ import { HiggsfieldCommands } from '../../src/commands';
 import { fixture, soul } from '../../tests/fixtures/commands';
 import type { Job } from '../../../media-shared/src/contracts';
 import type { UITransport, Methods } from '../src/transport';
-import type { UISnapshot } from '../../src/ui';
+import { uiItem } from '../../src/ui';
+import type { UISnapshot, UIDetails } from '../../src/ui';
 import type { MediaViewPort } from '../src/App';
 import type { StudioController } from '../src/controller';
 
@@ -44,6 +45,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
   const midnight = new Date(now); midnight.setHours(0, 0, 0, 0);
   const today = Math.floor(now - Math.min((now - midnight.getTime()) / 2, 2 * 3600000));
   const previousDay = (days: number) => { const day = new Date(now); day.setDate(day.getDate() - days); day.setHours(15, 0, 0, 0); return day.getTime(); };
+  const pipelinePrompts: Record<string, string> = { 'run-one': 'A quiet garden cover', 'run-two': 'A matching garden variation', 'run-three': 'A final garden cover' };
   const seed = (id: string, state: Job['state'], actor: 'you' | 'agent' | 'run', extra: Partial<Job> = {}, at = now - 60000) => {
     const a = actor === 'you' ? humanA : f.actor('A', actor);
     if (a.scope.actor.kind === 'run') a.scope.actor = { ...a.scope.actor, label: 'Daily covers run #12' };
@@ -52,7 +54,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === id)!; j.at = at; j.updatedAt = at; if (j.scope.actor.kind === 'run') j.scope.actor.label = 'Daily covers run #12'; return null; });
       return;
     }
-    try { f.service.intent(a, id, soul, { prompt: `Fixture ${id}: a quiet garden` });
+    try { f.service.intent(a, id, soul, { prompt: pipelinePrompts[id] ?? `Fixture ${id}: a quiet garden` });
       original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === id)!; Object.assign(j, { state, ...extra, at, updatedAt: at }); return null; });
     } catch { /* Existing persisted fixtures are retained. */ }
   };
@@ -87,8 +89,18 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       if (result?.error) throw new Error(result.error);
       if (result?.kind === 'unavailable') return result;
       if (method === 'estimate') original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === (args as { id: string }).id); if (j?.quote) j.quote.validUntilMs = f.now() + 600000; return null; });
-      if (method === 'ui.snapshot' && options.scenario === 'pipeline') {
-        for (const i of (result as UISnapshot).items) { i.runLink = '#fixture-existing-run'; if (i.id === 'run-two') i.from = 'run-one'; }
+      if (['ui.snapshot', 'ui.details'].includes(method) && options.scenario === 'pipeline') {
+        const access = f.contexts.get(context)!;
+        const sourceJob = f.service.history(access).find(j => j.id === 'run-one' && j.scope.actor.kind === 'run');
+        const source = sourceJob ? uiItem(sourceJob, f.now()) : undefined;
+        const items = method === 'ui.snapshot' ? (result as UISnapshot).items : [(result as UIDetails).item];
+        for (const item of items) if (source?.actor.kind === 'run' && item.actor.kind === 'run' && item.actor.runId === source.actor.runId) {
+          item.runLink = '#fixture-existing-run';
+          if (item.id === 'run-two') {
+            const subject = Array.from(source.title.replace(/^Fixture [A-Za-z0-9_-]+: /, '')).slice(0, 32).join('');
+            item.source = { id: source.id, label: Array.from(`'${subject}' · ${source.modelLabel ?? 'Model unavailable'}`).slice(0, 96).join('') };
+          }
+        }
       }
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.id === 'expired') i.notice = 'Expired · Synthetic file loss; settings remain.';
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.outputs.some(output => output.id === 'fixture-video-metadata')) i.notice = 'Synthetic video metadata · Playback not supplied.';

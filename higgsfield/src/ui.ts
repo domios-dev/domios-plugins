@@ -7,7 +7,7 @@ import type { HiggsfieldService } from './service';
 import type { StudioItem, InputSchema } from '../../media-shared/ui/src/types';
 export type UISnapshot = { items: StudioItem[]; next: number | null; total: number; capacity: number;
   catalog: { id: string; label: string; category: string; unavailable: string | null }[];
-  activity: string[]; capabilities: { estimate: boolean; submit: boolean; reconcile: boolean; cancelQueued: boolean } };
+  activity: string[]; activitySummary?: string; capabilities: { estimate: boolean; submit: boolean; reconcile: boolean; cancelQueued: boolean } };
 export type UIDetails = { item: StudioItem; params: Record<string, Json>; schema: InputSchema; inputs: { id: string; contentType: string }[] };
 export type UIUnavailable = { kind: 'unavailable'; code: 'ui_snapshot_too_large' | 'ui_schema_too_large' | 'ui_schema_unsupported' | 'ui_details_too_large' | 'ui_details_unsupported'; message: string };
 export type UISchema = { revision: string; schema: InputSchema; unavailable: string | null };
@@ -84,6 +84,14 @@ function documentActor(job: Job): Actor {
   const label = typeof actor.label === 'string' ? actor.label.trim() : '';
   return { ...actor, label: !label || label === actor.runId || label === job.scope.runId ? 'Pipeline run' : label };
 }
+function privateRunSummary(jobs: Job[]): string | undefined {
+  const first = jobs[0];
+  if (!first || jobs.length < 2 || jobs.length > 8 || first.scope.actor.kind !== 'run') return;
+  const runId = first.scope.actor.runId;
+  if (!jobs.every(job => job.scope.actor.kind === 'run' && job.scope.actor.runId === runId && job.scope.runId === first.scope.runId)) return;
+  // Entire authorized activity set fits the expansion. Count recorded preparations only; no spend/submission total inferred.
+  return `${actorLabel(documentActor(first))} prepared ${jobs.length} jobs`;
+}
 const id = (v: unknown): v is string => typeof v === 'string' && /^[A-Za-z0-9_./-]{1,255}$/.test(v);
 export function validateUIArgs(value: unknown, allowed: string[]): asserts value is Record<string, any> {
   if (!value || typeof value !== 'object' || Array.isArray(value) ||
@@ -123,11 +131,12 @@ export function documentUI(service: HiggsfieldService, access: Access, method: s
     const offset = value.offset ?? 0, limit = value.limit ?? 20;
     if (!Number.isSafeInteger(offset) || offset < 0 || offset > 10000 || !Number.isSafeInteger(limit) || limit < 1 || limit > 50) throw new Error('ui_refused');
     const sorted = [...history].sort((a, b) => b.at - a.at || a.id.localeCompare(b.id));
+    const activityJobs = sorted.filter(j => j.scope.actor.kind !== 'you');
     return boundedResponse({ items: sorted.slice(offset, offset + limit).map(j => uiItem(j, now)), total: sorted.length,
       next: offset + limit < sorted.length ? offset + limit : null, capacity: service.historyCapacity(),
       catalog: models.map(m => ({ id: m.id, label: displayModel(m.id), category: m.category.charAt(0).toUpperCase() + m.category.slice(1),
         unavailable: limitation(m.id)?.detail ?? (!service.canEstimate(m.id) ? 'no pricing from provider' : null) })),
-      activity: sorted.filter(j => j.scope.actor.kind !== 'you').slice(0, 8).map(privateActivity), capabilities }, uiBounds.snapshot, 'ui_snapshot_too_large');
+      activity: activityJobs.slice(0, 8).map(privateActivity), activitySummary: privateRunSummary(activityJobs), capabilities }, uiBounds.snapshot, 'ui_snapshot_too_large');
   }
   if (method === 'ui.schema') {
     validateUIArgs(value, ['operation']);
