@@ -1,13 +1,11 @@
 import { MediaCore } from '../../media-shared/src/core';
 import { quoteState, totals } from '../../media-shared/src/cost';
 import { bindingOf, clone } from '../../media-shared/src/contracts';
-import { reopen, humanAction } from '../../media-shared/src/media';
 import type { Access, Artifact, Continuation, JobStore, Quote, Request, Scope, Submission } from '../../media-shared/src/contracts';
-import type { MediaPorts } from '../../media-shared/src/media';
 import { operation, disposition, validateRequest, validateResponse, schemaFor, catalog, modelCatalog } from './catalog';
 import type { Parameters } from './catalog';
 
-export { catalog, modelCatalog, reopen, humanAction };
+export { catalog, modelCatalog };
 export type WireRequest = {
   url: string; method: string; params: Parameters; inputs: Request['inputs'];
   body?: {kind:'json'; data:unknown} | {kind:'multipart'; parts:({kind:'text';name:string;value:string}|{kind:'file';name:string;input:number})[]};
@@ -22,6 +20,9 @@ export function utf8Size(text: string): number {
 }
 export type Reply = { status: number; contentType: string; json?: unknown; bytes?: Uint8Array };
 export type Chunk = { kind: 'bytes'; bytes: Uint8Array } | { kind: 'complete'; status: number; contentType: string };
+/** Backend-only pure plan, never an approval or bearer capability. Entry revalidates the persisted binding and descriptor. */
+export type EffectPlan = {intentId:string;binding:string;revision:string;wire:WireRequest};
+export type ReadPlan = {binding:string;request:Request;wire:WireRequest};
 /** Injection contracts, NOT declarations of available host SDK APIs. No defaults to network/shell/global storage. */
 export interface ServicePorts {
   store: JobStore;
@@ -40,17 +41,6 @@ export interface ServicePorts {
 }
 function synchronous<T>(value: T): T {
   if (value && typeof (value as any).then === 'function') throw new Error('explicit_host_continuation_required');
-  return value;
-}
-function clean(value: any, depth = 0): any {
-  if (depth > 30) throw new Error('response_too_deep');
-  if (typeof value === 'string') return /https?:\/\/|bearer\s|xi-api-key/i.test(value) ? '[redacted]' : value;
-  if (Array.isArray(value)) return value.map(v => clean(v, depth + 1));
-  if (value && typeof value === 'object') {
-    const result: Record<string, any> = {};
-    for (const [key,v] of Object.entries(value)) if (!/secret|token|api.?key|authorization|password|url|__proto__|constructor|prototype/i.test(key)) result[key] = clean(v, depth + 1);
-    return result;
-  }
   return value;
 }
 export class ElevenLabsService {
@@ -97,26 +87,41 @@ export class ElevenLabsService {
   approve(caller: unknown, id: string, maximum: { amount: number; unit: Request['unit'] }) {
     const {access, core} = this.job(caller, id); return core.approve(access, id, maximum);
   }
+  /** Effect-free, authorized preparation of one already-persisted intent. No arbitrary transport envelope accepted. */
+  prepare(caller: unknown, id: string): EffectPlan {
+    const {job} = this.job(caller, id);
+    return {intentId:job.id,binding:job.binding,revision:job.request.revision,wire:this.wire(job.request)};
+  }
+  /** Effect-free read descriptor; the same closed operation/schema and fresh policy apply on callback. */
+  prepareRead(caller: unknown, request: Request): ReadPlan {
+    if (!validateRequest(request) || operation(request.operation).method !== 'GET') throw new Error('invalid_read');
+    this.access(caller, request);
+    return {binding:bindingOf(request),request:clone(request),wire:this.wire(request)};
+  }
   /** Synchronous transition boundary for a future reviewed durable host transport wrapper. */
-  enter(caller: unknown, id: string): { job: ReturnType<MediaCore['history']>[number]; action?: Submission } {
+  enter(caller: unknown, id: string, prepared?: EffectPlan): { job: ReturnType<MediaCore['history']>[number]; action?: Submission; plan?:EffectPlan } {
     const {access, job, core} = this.job(caller, id);
+    const plan:EffectPlan = {intentId:job.id,binding:job.binding,revision:job.request.revision,wire:this.wire(job.request)};
+    if (prepared && JSON.stringify(prepared) !== JSON.stringify(plan)) throw new Error('intent_conflict');
     const claim = core.beginStart(access, id, !!this.ports.save);
     if (!claim.continuation) return { job: claim.job };
     const token = claim.continuation;
     try {
       const reserved = core.reserve(this.access(caller, job.request), token);
       if (reserved.state === 'waiting') return { job: reserved };
-      return core.enter(this.access(caller, job.request), token);
+      const boundary = core.enter(this.access(caller, job.request), token);
+      return {...boundary,...(boundary.action ? {plan:clone(plan)} : {})};
     } catch { core.releasePreflight(token); throw new Error('preflight_denied'); }
   }
-  /** Fixture/host driver. All methods return synchronously; no arbitrary Promise export. */
+  /** Synchronous fixture driver only. Real host wrappers use prepare/enter and explicit callback receipt. */
   start(caller: unknown, id: string) {
     const {job} = this.job(caller, id), stream = operation(job.request.operation).transport.kind === 'http-stream';
     if (stream ? !this.ports.stream : !this.ports.http) throw new Error('transport_unavailable');
-    const wire = this.wire(job.request); // Pure preflight; unsupported serialization cannot enter a paid effect.
-    const boundary = this.enter(caller, id);
+    const prepared = this.prepare(caller, id);
+    const boundary = this.enter(caller, id, prepared);
     if (!boundary.action) return boundary.job;
     const action = boundary.action;
+    const wire = boundary.plan!.wire;
     try {
       let reply: Reply;
       if (stream) {
@@ -135,7 +140,7 @@ export class ElevenLabsService {
         reply = { ...completed, bytes };
       } else reply = synchronous(this.ports.http!(wire));
       return this.receipt(action, reply);
-    } catch { return this.core(action.request).unknown(action.continuation); }
+    } catch { return this.uncertain(action); }
   }
   private wire(request: Request): WireRequest {
     const row = operation(request.operation);
@@ -192,7 +197,14 @@ export class ElevenLabsService {
       !validateResponse(operation(request.operation), reply.status, reply.contentType, reply.json)) throw new Error('invalid_response');
     // Timestamp JSON/base64 needs a reviewed media decoder, not persistence of a remote URL as media.
     if (request.operation === 'speech_to_text' && (typeof (reply.json as any)?.text !== 'string' || !(reply.json as any).text.trim())) throw new Error('empty_transcript');
-    return { json:clean(reply.json) };
+    // Schema-valid prose, cursors and preview URLs are DATA, not authority. Keep them exact in backend DTOs.
+    // Credential-issuing operations are refused by exact operation policy; transport errors use fixed reasons.
+    return { json:clone(reply.json) };
+  }
+  /** Backend callback error path; no transport replay, no inferred refund/cancellation. */
+  uncertain(action: Submission) {
+    if (bindingOf(action.request) !== action.continuation.binding) throw new Error('intent_conflict');
+    return this.core(action.request).unknown(action.continuation);
   }
   receipt(action: Submission, reply: Reply) {
     if (bindingOf(action.request) !== action.continuation.binding) throw new Error('intent_conflict');
@@ -210,16 +222,14 @@ export class ElevenLabsService {
     });
   }
   read(caller: unknown, request: Request) {
-    if (!validateRequest(request) || operation(request.operation).method !== 'GET') throw new Error('invalid_read');
-    this.access(caller, request);
+    const prepared = this.prepareRead(caller,request);
     if (!this.ports.http) throw new Error('transport_unavailable');
-    try { return this.checked(synchronous(this.ports.http(this.wire(request))), request); }
+    try { return this.readReceipt(caller,prepared,synchronous(this.ports.http(prepared.wire))); }
     catch { throw new Error('read_unavailable'); }
   }
-  /** Free saved-file reacquisition, sharing the common media authority checks. */
-  reopen(caller: unknown, id: string, artifactId: string, media: MediaPorts) {
-    const {job} = this.job(caller, id), artifact = job.outputs.find(a => a.id === artifactId);
-    if (!artifact) throw new Error('media_unavailable');
-    return reopen(media, artifact);
+  readReceipt(caller:unknown, prepared:ReadPlan, reply:Reply) {
+    const current = this.prepareRead(caller,prepared.request);
+    if (JSON.stringify(current) !== JSON.stringify(prepared)) throw new Error('intent_conflict');
+    return this.checked(reply,current.request);
   }
 }

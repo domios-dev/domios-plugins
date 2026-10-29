@@ -33,6 +33,8 @@ export function disposition(row: Operation) {
   const source = row.sources[0];
   let limitation: string | null = null;
   if (row.transport.kind.startsWith('websocket')) limitation = 'Session/listener transport and JWT/commit lifecycle are not delivered; see PLATFORM-GAPS.md.';
+  else if (['get_conversation_signed_link','get_signed_url_deprecated','get_livekit_token','get_service_account_api_keys_route'].includes(row.id))
+    limitation = 'This exact operation issues or lists credentials/session authority, not ordinary metadata; no reviewed confined session/key consumer is available. See its saved response schema/source.';
   else if (row.transport.kind === 'http-stream' && !row.transport.response_types?.some(mime => mime.startsWith('audio/')))
     limitation = 'Structured event/timestamp stream needs its exact bounded decoder; raw byte completion cannot establish that protocol. See the saved operation schema/source.';
   else if (row.transport.response_types?.includes('multipart/mixed'))
@@ -42,24 +44,23 @@ export function disposition(row: Operation) {
   else if (row.method !== 'GET' && !synchronousEffects.has(row.id)) limitation = 'No owner authorization for this mutation or reviewed exact lifecycle adapter; schema remains inspectable. See contracts.json#/safety and this operation source.';
   return { id: row.id, family: row.family, source, schema: row.schema, limitation,
     parameterPolicy: { source: row.schema.source_id, pointer: row.schema.pointer,
-      limitation:'Only the bounded closed schema subset executes: no Any/open maps, unsupported formats, URLs/credentials, custom headers, structured query serialization or undocumented multipart JSON encoding. Rejected parameter variants remain unavailable; defaults are never inserted.' },
+      limitation:'Only the bounded closed schema subset executes: no Any/open maps, unsupported formats, custom transport credentials/headers/endpoints, structured query serialization or undocumented multipart JSON encoding. Normal prose and declared cursors are data. Remote Scribe inputs/webhooks are unavailable under the selected-input batch contract. Rejected variants remain unavailable; defaults are never inserted.' },
     responsePolicy: {source:row.schema.source_id, limitation:'Only source-declared JSON or finite audio/video/image MIME responses are consumed. Wildcard music audio requires an explicit documented mp3 output_format; other wildcard, multipart, empty and unsupported MIME variants remain unavailable.'},
     prerequisites: ['trusted-owner-input-context','account-entitlement','confined-transport',
       ...(row.method === 'GET' ? [] : ['safe-fresh-account-price','independent-owner-approval'])] };
 }
-function safeValues(value: unknown, depth = 0): boolean {
+function boundedData(value: unknown, depth = 0): boolean {
   if (depth > 40) return false;
-  if (typeof value === 'string') return !/[\u0000-\u001f]/.test(value) &&
-    !/https?:\/\/|file:|data:|bearer\s|xi-api-key/i.test(value);
-  if (Array.isArray(value)) return value.length <= 1000 && value.every(v => safeValues(v, depth + 1));
+  if (typeof value === 'string') return value.length <= 100000;
+  if (Array.isArray(value)) return value.length <= 1000 && value.every(v => boundedData(v, depth + 1));
   if (value && typeof value === 'object') return Object.entries(value).every(([k,v]) =>
-    !/secret|api.?key|authorization|token|password|source_url|cloud_storage_url|webhook|callback|redirect/i.test(k) && safeValues(v, depth + 1));
+    !['__proto__','constructor','prototype'].includes(k) && boundedData(v, depth + 1));
   return value === null || typeof value === 'boolean' || typeof value === 'number' && Number.isFinite(value);
 }
 export function validateParameters(row: Operation, params: Parameters, inputCount = 0): boolean {
   try {
     if (!params || typeof params !== 'object' || Array.isArray(params) ||
-      Object.keys(params).some(k => !['path','query','body'].includes(k)) || JSON.stringify(params).length > 131072 || !safeValues(params)) return false;
+      Object.keys(params).some(k => !['path','query','body'].includes(k)) || JSON.stringify(params).length > 131072 || !boundedData(params)) return false;
     const schema = schemaFor(row);
     if (!schema) return false;
     for (const location of ['path','query']) {
@@ -85,6 +86,7 @@ export function validateParameters(row: Operation, params: Parameters, inputCoun
     if (row.id === 'speech_to_text') {
       const b = params.body;
       if (!b?.file || !['scribe_v2','scribe_v2_medical'].includes(b.model_id) || b.use_multi_channel || b.use_speaker_library) return false;
+      if (b.source_url != null || b.cloud_storage_url != null || b.webhook || b.webhook_id != null || b.webhook_metadata != null) return false;
       if (b.transcript_edit && (b.transcript_edit.length > 2000 || b.entity_detection || b.entity_redaction)) return false;
       if (b.diarization_threshold != null && (!b.diarize || b.num_speakers != null)) return false;
       if (b.detect_speaker_roles && !b.diarize) return false;
@@ -102,6 +104,7 @@ export function validateParameters(row: Operation, params: Parameters, inputCoun
     if (row.id.startsWith('text_to_dialogue')) {
       const b = params.body;
       if (!b?.inputs?.length || b.inputs.reduce((n: number,v: any) => n + [...v.text].length, 0) > 2000) return false;
+      if (!['eleven_v3','eleven_v4','eleven_v4_turbo','eleven_v3_conversational'].includes(b.model_id ?? 'eleven_v3')) return false;
       // Restrictive documented bound while v4 speaker-count sources conflict.
       if (new Set(b.inputs.map((v: any) => v.voice_id)).size > 1) return false;
     }
@@ -119,7 +122,10 @@ export function validateParameters(row: Operation, params: Parameters, inputCoun
       const b = params.body;
       // Persisted settings never change; JSON-string overrides need their own nested validation, not raw passthrough.
       if (b.voice_settings != null || b.seed != null && (b.seed < 0 || b.seed > 4294967295)) return false;
+      if (!['eleven_english_sts_v2','eleven_multilingual_sts_v2'].includes(b.model_id ?? 'eleven_english_sts_v2')) return false;
     }
+    if (['get_user_voices_v2','get_library_voices'].includes(row.id) && params.query?.page_size != null &&
+      (params.query.page_size < 1 || params.query.page_size > 100)) return false;
     return true;
   } catch { return false; }
 }
@@ -129,17 +135,44 @@ export function validateRequest(request: Request): boolean {
 }
 export function catalog() { return operations.map(disposition); }
 export function modelCatalog() {
-  return { models: models.models, display: models.catalog_display_models, unresolved: models.unresolved_catalogs };
+  return { models: models.models.map(model => ({...model, execution:modelAvailability(model.id)})),
+    display: models.catalog_display_models, unresolved: models.unresolved_catalogs };
+}
+/** Consumer adapter availability, distinct from source selector membership and live account entitlement. */
+export function modelAvailability(id: string) {
+  const model = models.models.find(m => m.id === id);
+  if (!model) throw new Error('model_unavailable');
+  const routes: Record<string, string[]> = {
+    eleven_v3:['text_to_speech_full','text_to_dialogue'],
+    eleven_multilingual_v2:['text_to_speech_full'],eleven_flash_v2:['text_to_speech_full'],eleven_flash_v2_5:['text_to_speech_full'],
+    eleven_v4:['text_to_dialogue'],eleven_v4_turbo:['text_to_dialogue'],eleven_v3_conversational:['text_to_dialogue'],
+    eleven_english_sts_v2:['speech_to_speech_full'],eleven_multilingual_sts_v2:['speech_to_speech_full'],
+    scribe_v2:['speech_to_text'],scribe_v2_medical:['speech_to_text'],
+    eleven_text_to_sound_v2:['sound_generation'],eleven_text_to_sound_v3:['sound_generation'],
+    music_v1:['generate'],music_v2:['generate'],music_v2_5:['generate'],
+  };
+  const deprecated = model.availability === 'deprecated';
+  const supported = deprecated ? [] : routes[id] ?? [];
+  let limitation: string | null = supported.length ? null :
+    'Source selector/overview membership only: this exact model has no reviewed compatible executable adapter. Its original schema context is retained; it is not a global generation model ID.';
+  if (deprecated) limitation = 'Deprecated by the saved model overview; retained as a selector/catalog entry, unavailable for execution. No automatic alias or successor substitution.';
+  else if (['scribe_v2_realtime','eleven_realtime_v1_mini','eleven_realtime_v1_max'].includes(id))
+    limitation = 'Realtime/session model: requires its documented session/configuration contract; the batch/synchronous service cannot execute it.';
+  else if (['eleven_ttv_v3','eleven_multilingual_ttv_v2'].includes(id))
+    limitation = 'Voice design requires separate explicit owner approval; protected voice/design operations are unavailable in this service.';
+  return {status:supported.length ? 'adapter-supported' : 'limited',operations:supported,limitation,deprecated,
+    sources:model.sources,prerequisites:['account-model-entitlement','safe-fresh-exact-price','independent-owner-approval','delivered-host-ports']};
 }
 /** A selector is valid only at its saved schema pointer; this never grants endpoint/model entitlement. */
 export function modelSelection(id: string, value: unknown) {
   const model = models.models.find(m => m.id === id);
   if (!model) throw new Error('model_unavailable');
   const bindings = model.schema_bindings ?? [];
-  if (!bindings.length) return { valid:false, limitation:'Overview-only model: no closed selector schema. Account capability/endpoint mapping required.', sources:model.sources };
+  if (!bindings.length) return { selectorMembership:false,
+    limitation:'Overview-only model: no closed selector schema. See separate explicit adapter availability.', sources:model.sources,execution:modelAvailability(id) };
   const results = bindings.map(binding => {
     const root = binding.source_id === 'openapi.json' ? openapi : asyncapi.documents.find(d => d.source_id === binding.source_id)?.spec;
     return !!root && validateSchema(root, pointer(root, '#' + binding.pointer), value);
   });
-  return {valid:results.some(Boolean), limitation:null, sources:model.sources};
+  return {selectorMembership:results.some(Boolean),limitation:null,sources:model.sources,execution:modelAvailability(id)};
 }

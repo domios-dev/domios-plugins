@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { ElevenLabsService, catalog, modelCatalog, utf8Size } from '../src/client';
 import type { ServicePorts, Reply, WireRequest } from '../src/client';
-import { operations, operation, disposition, revision, validateParameters, validateRequest, schemaFor, modelSelection } from '../src/catalog';
+import { operations, operation, disposition, revision, validateParameters, validateRequest, schemaFor, modelSelection, modelAvailability } from '../src/catalog';
 import { pointer, validateSchema } from '../src/schema';
 import { createScribe } from '../src/scribe';
 import plugin from '../src/plugin';
@@ -62,15 +62,47 @@ for (const row of operations) test(`catalog ${row.id}`, () => {
 for (const model of modelCatalog().models) test(`model schema ${model.id}`, () => {
   const result = modelSelection(model.id,model.id);
   assert.ok(result.sources.length);
+  assert.equal('valid' in result,false);
+  assert.deepEqual(result.execution,model.execution);
+  assert.ok(result.execution.operations.length || result.execution.limitation);
   if (model.schema_bindings?.length) {
-    assert.equal(result.valid,true);
-    assert.equal(modelSelection(model.id,{invented:'model'}).valid,false);
+    assert.equal(result.selectorMembership,true);
+    assert.equal(modelSelection(model.id,{invented:'model'}).selectorMembership,false);
   } else assert.match(result.limitation!,/Overview-only/);
 });
 for (const model of modelCatalog().display) test(`display limitation ${model.id}`, () => {
   assert.equal(model.vendor_api_model_id,null);
   assert.ok(model.availability.limitation);
   assert.ok(model.sources[0].url);
+});
+for (const model of modelCatalog().models.filter(m=>m.execution.status==='adapter-supported')) {
+  for(const id of model.execution.operations) test(`runnable model ${model.id} -> ${id} keeps exact compatible operation`, () => {
+    let r:Request;
+    if(id==='text_to_speech_full') {r=request();(r.params as any).body.model_id=model.id;}
+    else if(id==='text_to_dialogue') r={operation:id,revision,inputs:[],unit:'usd_micro',params:{body:{model_id:model.id,inputs:[{text:'Hello',voice_id:'Rollo'}]}}};
+    else if(id==='speech_to_text') {r=scribeRequest();(r.params as any).body.model_id=model.id;}
+    else if(id==='speech_to_speech_full') r={operation:id,revision,inputs:[{kind:'artifact',id:'immutable-audio',contentType:'audio/wav'}],unit:'usd_micro',params:{path:{voice_id:'Rollo'},body:{model_id:model.id,audio:{input:0}}}};
+    else if(id==='sound_generation') r={operation:id,revision,inputs:[],unit:'usd_micro',params:{body:{model_id:model.id,text:'A bell',duration_seconds:1}}};
+    else if(id==='generate') r={operation:id,revision,inputs:[],unit:'usd_micro',params:{query:{output_format:'mp3_44100_128'},body:{model_id:model.id,prompt:'A bell melody',music_length_ms:3000}}};
+    else throw new Error('Missing explicit runnable-model fixture');
+    const f=fixture();assert.equal(validateRequest(r),true);f.ready('model',r);
+    if(id==='speech_to_text')f.setReply({status:200,contentType:'application/json',json:{text:'Hello',language_code:'en',language_probability:1,words:[]}});
+    assert.equal(f.service.start(scope(),'model').state,'generated');assert.equal(f.calls.length,1);
+    assert.equal(f.calls[0].params.body.model_id,model.id);assert.equal(f.service.history(scope())[0].request.operation,id);
+  });
+}
+test('selector membership is distinct from runnable models, deprecated aliases and realtime limitations', () => {
+  for(const id of ['eleven_turbo_v2','eleven_turbo_v2_5','scribe_v1']) {
+    const availability=modelAvailability(id);assert.equal(availability.deprecated,true);assert.equal(availability.status,'limited');assert.deepEqual(availability.operations,[]);
+    assert.match(availability.limitation!,/Deprecated/);
+  }
+  assert.equal(modelSelection('eleven_turbo_v2','eleven_turbo_v2').selectorMembership,true);
+  assert.equal(modelSelection('eleven_turbo_v2','eleven_turbo_v2').execution.status,'limited');
+  for(const id of ['turbo','v4','flash']) {assert.equal(modelSelection(id,id).selectorMembership,true);assert.equal(modelAvailability(id).status,'limited');}
+  assert.deepEqual(modelAvailability('eleven_v4').operations,['text_to_dialogue']);
+  const incompatible=request();(incompatible.params as any).body.model_id='eleven_v4';assert.equal(validateRequest(incompatible),false);
+  const deprecated=request();(deprecated.params as any).body.model_id='eleven_turbo_v2';assert.equal(validateRequest(deprecated),false);
+  for(const id of ['scribe_v2_realtime','eleven_realtime_v1_mini','eleven_realtime_v1_max'])assert.match(modelAvailability(id).limitation!,/Realtime\/session/);
 });
 
 test('finite catalog and every operation family/transport/method retained', () => {
@@ -107,6 +139,29 @@ test('valid speech, dialogue, Scribe and reads retain separate schema/operation 
     {diarization_threshold:0.2},{keyterms:['x'.repeat(50)]},{transcript_edit:'x',entity_detection:'all'}]) {
     assert.equal(validateParameters(operation('speech_to_text'),{body:{...(r.params as any).body,...extra}},1),false);
   }
+});
+test('multiline/tab prose and literal URL, bearer, token and API-key words are spoken as exact data', () => {
+  const f=fixture(),r=request(),text='First paragraph.\n\n\tVisit https://example.org/a?token=demo\nSay bearer token and xi-api-key literally.';
+  (r.params as any).body.text=text;
+  f.ready('prose',r);const prepared=f.service.prepare(scope(),'prose');
+  assert.equal((prepared.wire.body as any).data.text,text);assert.equal(f.calls.length,0);
+  assert.equal(f.service.start(scope(),'prose').state,'generated');
+  assert.equal((f.calls[0].params.body as any).text,text);
+  assert.equal((f.service.history(scope())[0].request.params as any).body.text,text);
+});
+test('transport authority injection remains denied by exact fields/schema despite unrestricted prose', () => {
+  const f=fixture();
+  for(const injected of [{headers:{authorization:'Bearer injected'}},{credential:{name:'foreign'}},{url:'https://evil.invalid'},
+    {endpoint:'https://evil.invalid'},{method:'DELETE'}]) {
+    const r=request();r.params={...(r.params as any),...injected};assert.throws(()=>f.service.intent(scope(),'inject',r),/invalid_request/);
+  }
+  for(const field of ['authorization','xi-api-key','cookie','api_key','endpoint']) {
+    const r=request();(r.params as any).query={[field]:'https://evil.invalid'};assert.equal(validateRequest(r),false);
+  }
+  for(const field of ['source_url','cloud_storage_url']) {
+    const r=scribeRequest();(r.params as any).body[field]='https://evil.invalid/audio.wav';assert.equal(validateRequest(r),false);
+  }
+  assert.equal(f.calls.length,0);
 });
 const input = {kind:'artifact' as const,id:'immutable-audio-sha256-identity',contentType:'audio/wav'};
 for (const example of [
@@ -180,6 +235,38 @@ test('explicit durable continuation recovery preserves effect identity without r
   assert.equal(reloaded.start(scope(),'one').state,'unknown'); assert.equal(f.calls.length,0);
   assert.throws(() => f.service.receipt(entered.action!,{status:200,contentType:'audio/mpeg',bytes:new Uint8Array([1])}),/stale_continuation/);
 });
+test('effect-free persisted plan supports an explicit fixture marker and one callback receipt after resume', () => {
+  const f=fixture(),r=request();f.ready('explicit',r);
+  const plan=f.service.prepare(scope(),'explicit');assert.equal(f.calls.length,0);assert.equal(f.service.history(scope()).length,1);
+  assert.equal(plan.binding,JSON.stringify(r));assert.deepEqual(plan.wire.inputs,r.inputs);
+  const forged=structuredClone(plan);forged.wire.url='https://evil.invalid';
+  assert.throws(()=>f.service.enter(scope(),'explicit',forged),/intent_conflict/);
+  assert.equal(f.service.history(scope())[0].state,'waiting');
+  const boundary=f.service.enter(scope(),'explicit',plan);assert.ok(boundary.action);assert.deepEqual(boundary.plan,plan);
+  assert.equal(f.service.enter(scope(),'explicit',plan).action,undefined);
+  let paidEntries=0;
+  // Test-only marker/queue. It models an explicit returned marker; it is not a claimed host SDK implementation.
+  function fakeTransfer(wire:typeof plan.wire) {paidEntries++;assert.deepEqual(wire,plan.wire);return {fixtureMarker:'pending',continuation:boundary.action!};}
+  const marker=fakeTransfer(boundary.plan!.wire);assert.equal(marker.fixtureMarker,'pending');assert.equal(paidEntries,1);
+  const resumed=new ElevenLabsService(f.ports);
+  const generated=resumed.receipt(marker.continuation,{status:200,contentType:'audio/mpeg',bytes:new Uint8Array([1,2])});
+  assert.equal(generated.state,'generated');assert.equal(f.files.size,1);
+  assert.throws(()=>resumed.receipt(marker.continuation,{status:200,contentType:'audio/mpeg',bytes:new Uint8Array([1,2])}),/effect_not_entered/);
+  assert.equal(resumed.enter(scope(),'explicit',resumed.prepare(scope(),'explicit')).action,undefined);
+  assert.equal(resumed.history(scope()).length,1);assert.equal(paidEntries,1);
+  assert.throws(()=>resumed.prepare(scope('B'),'explicit'),/job_unavailable/);
+});
+test('explicit callback error/suppressed callback retains Unknown and cannot replay its effect', () => {
+  for(const lost of [false,true]) {
+    const f=fixture();f.ready();const boundary=f.service.enter(scope(),'one',f.service.prepare(scope(),'one'));
+    assert.ok(boundary.action);
+    const resumed=new ElevenLabsService(f.ports);
+    if(lost)resumed.recover(scope());else resumed.uncertain(boundary.action!);
+    assert.equal(resumed.history(scope())[0].state,'unknown');
+    assert.equal(resumed.enter(scope(),'one',resumed.prepare(scope(),'one')).action,undefined);
+    assert.equal(resumed.ledger(scope()).unknown,1);assert.equal(f.calls.length,0);
+  }
+});
 test('bounded stream requires explicit terminal event, no bytes after completion, no replay', () => {
   for (const variant of ['success','truncated','oversize','after-complete','bad-status']) {
     const f=fixture({maxBytes:4}); f.ready('stream',request('text_to_speech_stream')); let calls=0;
@@ -252,6 +339,53 @@ test('GET read is effect-free and refuses response/schema/secret-bearing failure
   f.setReply({status:200,contentType:'application/json',json:{access_token:'private'}});assert.throws(()=>f.service.read(scope(),r),/read_unavailable/);
   assert.throws(()=>f.service.read(scope(),request()),/invalid_read/);
 });
+function sourceExample(name:string) {return structuredClone((openapi as any).components.schemas[name].example);}
+for(const [id, schema,query] of [
+  ['get_voices','GetVoicesResponseModel',{}],
+  ['get_library_voices','GetLibraryVoicesResponseModel',{}],
+  ['get_user_subscription_info','ExtendedSubscriptionResponseModel',{}],
+  ['usage_characters','UsageCharactersResponseModel',{start_unix:1738252091000,end_unix:1739404800000}],
+] as const) test(`positive source response DTO ${id}: exact nonempty data, read-only transport`, () => {
+  const f=fixture(),body=sourceExample(schema),r:Request={operation:id,revision,params:{query},inputs:[],unit:'usd_micro'};
+  assert.ok(body&&Object.keys(body).length);if('voices' in body)assert.ok(body.voices.length);
+  f.setReply({status:200,contentType:'application/json',json:body});
+  const result=f.service.read(scope(),r);assert.deepEqual(result,{json:body});assert.equal(f.calls.length,1);assert.equal(f.calls[0].method,'GET');
+  assert.equal(f.service.history(scope()).length,0);assert.equal(f.files.size,0);
+  if('voices' in body)assert.equal((result as any).json.voices[0].preview_url,body.voices[0].preview_url);
+  if(id==='get_user_subscription_info') {
+    assert.equal((result as any).json.character_count,1000);assert.equal((result as any).json.character_limit,10000);
+    assert.deepEqual((result as any).json.current_overage,{amount:'0',currency:'usd'}); // exact vendor DTO; no inferred account balance/credit conversion
+  }
+  const invalid=structuredClone(body);
+  const mandatory=id==='usage_characters'?'time':id==='get_user_subscription_info'?'character_limit':'voices';
+  delete invalid[mandatory];f.setReply({status:200,contentType:'application/json',json:invalid});
+  assert.throws(()=>f.service.read(scope(),r),/read_unavailable/);
+});
+test('voice-list cursor and preview metadata roundtrip through prepareRead/receipt without becoming transport authority', () => {
+  const f=fixture(),voice=sourceExample('VoiceResponseModel'),cursor='page-token:abc+/= bearer https://cursor.example/';
+  const dto={voices:[voice],has_more:true,total_count:2,next_page_token:cursor};
+  const r:Request={operation:'get_user_voices_v2',revision,params:{query:{page_size:1}},inputs:[],unit:'usd_micro'};
+  const plan=f.service.prepareRead(scope(),r);assert.equal(f.calls.length,0);
+  const result=f.service.readReceipt(scope(),plan,{status:200,contentType:'application/json',json:dto});
+  assert.deepEqual(result,{json:dto});
+  const next={...r,params:{query:{page_size:1,next_page_token:(result as any).json.next_page_token}}};
+  f.setReply({status:200,contentType:'application/json',json:{...dto,has_more:false,next_page_token:null}});
+  assert.equal((f.service.read(scope(),next) as any).json.next_page_token,null);
+  assert.equal(f.calls.length,1);assert.ok(f.calls[0].url.startsWith('https://api.elevenlabs.io/v2/voices?'));
+  assert.ok(f.calls[0].url.includes('next_page_token='+encodeURIComponent(cursor)));
+  assert.equal(f.calls[0].params.query!.next_page_token,cursor);assert.deepEqual(f.calls[0].credential,{plugin:'elevenlabs',name:'elevenlabs-api-key'});
+  assert.throws(()=>f.service.prepareRead(scope(),{...r,params:{query:{page_size:101}}}),/invalid_read/);
+  const forged=structuredClone(plan);forged.wire.url=voice.preview_url;
+  assert.throws(()=>f.service.readReceipt(scope(),forged,{status:200,contentType:'application/json',json:dto}),/intent_conflict/);
+});
+test('exact credential/session issuer operations have sourced limitations, not blanket token stripping', () => {
+  const f=fixture();
+  for(const id of ['get_conversation_signed_link','get_signed_url_deprecated','get_livekit_token','get_service_account_api_keys_route']) {
+    assert.match(disposition(operation(id)).limitation!,/credentials\/session authority/);
+  }
+  const r:Request={operation:'get_livekit_token',revision,params:{query:{agent_id:'agent_safe'}},inputs:[],unit:'usd_micro'};
+  assert.throws(()=>f.service.prepareRead(scope(),r));assert.equal(f.calls.length,0);
+});
 test('credential resolution is confined to the transport at the pinned origin; no secret in requests/jobs/errors', () => {
   const f=fixture();const fakeSecret='fixture-secret-never-returned';let resolutions=0;
   f.setHttp(wire=>{
@@ -288,6 +422,16 @@ test('every voice mutation denies before network, including design/cloning and e
   }
   assert.equal(f.calls.length,0);
 });
+test('schema-valid existing settings, cloning and persistent creation requests are denied before admission', () => {
+  const f=fixture();
+  const requests:Request[]=[
+    {operation:'edit_voice_settings',revision,unit:'usd_micro',inputs:[],params:{path:{voice_id:'Rollo'},body:sourceExample('VoiceResponseModel').settings}},
+    {operation:'add_voice',revision,unit:'usd_micro',inputs:[{kind:'artifact',id:'immutable-test-audio',contentType:'audio/wav'}],params:{body:{name:'Denied clone',files:[{input:0}]}}},
+    {operation:'create_voice',revision,unit:'usd_micro',inputs:[],params:{body:{voice_name:'Denied creation',voice_description:'A description with at least twenty characters',generated_voice_id:'source-preview-id'}}},
+  ];
+  for(const r of requests) {assert.equal(validateRequest(r),true);assert.throws(()=>f.service.intent(scope(),r.operation,r),/protected_voice/);}
+  assert.equal(f.calls.length,0);assert.equal(f.service.history(scope()).length,0);
+});
 function scribeRequest():Request { return {operation:'speech_to_text',revision,unit:'usd_micro',
   inputs:[{kind:'artifact',id:'immutable-audio-sha256-identity',contentType:'audio/wav'}],
   params:{body:{model_id:'scribe_v2',file:{input:0},language_code:'en'}}}; }
@@ -305,6 +449,13 @@ test('existing selectable Scribe contract: preserves local/remote backend until 
   assert.deepEqual(invoke(),{text:'Hello',language:'en'});assert.equal(f.calls.length,1);
   assert.equal(local,1);assert.equal(remote,1);assert.equal((scribe.transcribe('audio','fr') as any).code,'denied');
 });
+test('Scribe preserves exact transcript prose containing tabs/newlines, URL, bearer and API-key words', () => {
+  const f=fixture(),r=scribeRequest(),text='\tOpen https://example.org/?token=read\nSay bearer token and xi-api-key, then pause.\n';
+  f.ready('content',r);f.setReply({status:200,contentType:'application/json',json:{text,language_code:'en',language_probability:1,words:[]}});
+  const scribe=createScribe(f.service,{available:()=>true,resolve:()=>({caller:scope(),intent:'content',request:r}),text:(_c,id)=>f.files.get(id)?.json});
+  assert.deepEqual(scribe.transcribe('fixture-only-binding','en'),{text,language:'en'});assert.equal(f.files.get('A:content').json.text,text);
+  assert.deepEqual(scribe.transcribe('fixture-only-binding','en'),{text,language:'en'});assert.equal(f.calls.length,1);
+});
 test('Scribe status is free; absent input/budget/transport/error stays typed and sanitized', () => {
   const f=fixture(), r=scribeRequest();
   const scribe=createScribe(f.service,{available:()=>true,resolve:()=>({caller:scope(),intent:'note',request:r}),text:()=>null});
@@ -315,16 +466,11 @@ test('Scribe status is free; absent input/budget/transport/error stays typed and
   const result=scribe.transcribe('audio','en');assert.equal((result as any).code,'unknown');assert.ok(!JSON.stringify(result).includes('private'));
   assert.equal(plugin.transcribeStatus().state,'unavailable');assert.ok('error' in plugin.transcribe('audio'));
 });
-test('production imports common core/cost/media and never the async fixture controller; no existing transcriber edits', () => {
+test('production uses common backend core/cost/contracts and leaves Promise media helpers to browser code', () => {
   const source=readFileSync(new URL('../src/client.ts',import.meta.url),'utf8');
-  for(const module of ['core','cost','contracts','media']) assert.ok(source.includes(`../../media-shared/src/${module}`));
+  for(const module of ['core','cost','contracts']) assert.ok(source.includes(`../../media-shared/src/${module}`));
+  assert.ok(!source.includes('../../media-shared/src/media'));assert.ok(!source.includes('humanAction'));assert.ok(!source.includes('reopen'));
   assert.ok(!source.includes('MediaController'));assert.ok(!source.includes('host.exec'));assert.ok(!source.includes('host.fetch'));
   assert.ok(!source.includes('apiKey:'));assert.ok(!source.includes('setInterval'));
-});
-test('saved-media free reopen uses shared frame checks and never regenerates output', async () => {
-  const f=fixture();f.ready();const job=f.service.start(scope(),'one');let acquisitions=0;
-  const frame=await f.service.reopen(scope(),'one',job.outputs[0].id,{mounted:()=>true,now:()=>100,
-    acquire:async()=>{acquisitions++;return {kind:'frame',handle:'a'.repeat(64),expiresAt:200,url:'scoped-playback'};}});
-  assert.ok(frame);assert.equal(acquisitions,1);assert.equal(f.calls.length,1);
-  assert.throws(()=>f.service.reopen(scope('B'),'one',job.outputs[0].id,{} as any),/job_unavailable/);
+  const f=fixture();assert.equal('reopen' in f.service,false);assert.equal('humanAction' in f.service,false);
 });
