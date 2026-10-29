@@ -195,14 +195,13 @@ test('write-once job identity refuses foreign status and never replaces persiste
 });
 
 test('queued cancel stays Canceling until request returns, then unknown until exact confirmation; no inferred refund', async () => {
-  const h = harness(); const f = ticketFixture(h.now); const gate = deferred<void>();
+  const h = harness(); const f = ticketFixture(h.now); const gate = deferred<void>(); const entered = deferred<void>();
   const adapter = f.adapter as Extract<Adapter, { kind: 'async' }>;
-  adapter.cancel!.request = async () => gate.promise;
+  adapter.cancel!.request = async () => { entered.resolve(); await gate.promise; };
   const c = new MediaController(h.ports, adapter);
   await ready(c, h); await c.start(h.agentCaller, 'one');
   const pending = c.cancel(h.agentCaller, 'one');
-  // Await an explicit observable journal flag, not a timer or a guessed transport completion.
-  for (let i = 0; i < 12 && !h.data().jobs[0].cancelRequested; i++) await Promise.resolve();
+  await entered.promise; // The injected adapter is entered only after the cancel lease is committed.
   assert.equal(h.data().jobs[0].cancelRequested, true);
   await assert.rejects(c.reconcile(h.agentCaller, 'one'), /reconcile_unavailable/);
   gate.resolve(); const unknown = await pending;
@@ -222,11 +221,11 @@ test('running cancellation absent, real progress absent, and restart never submi
 });
 
 test('refresh operation lease prevents stale quote races or submission while estimator is active', async () => {
-  const h = harness(); const f = ticketFixture(h.now); const gate = deferred<Quote | null>();
-  f.adapter.estimate = () => gate.promise;
+  const h = harness(); const f = ticketFixture(h.now); const gate = deferred<Quote | null>(); const entered = deferred<void>();
+  f.adapter.estimate = () => { entered.resolve(); return gate.promise; };
   const c = new MediaController(h.ports, f.adapter); await c.intent(h.agentCaller, 'one', request());
   const pending = c.estimate(h.agentCaller, 'one');
-  for (let i = 0; i < 12 && !h.data().jobs[0].lease; i++) await Promise.resolve();
+  await entered.promise; // Estimator entry proves its persisted operation lease has been acquired.
   await assert.rejects(c.estimate(h.agentCaller, 'one'), /intent_busy/);
   await assert.rejects(c.start(h.agentCaller, 'one'), /intent_busy/);
   gate.resolve(null); await pending; assert.equal(h.data().jobs[0].lease, undefined); assert.equal(f.stats().posts, 0);
@@ -256,8 +255,91 @@ test('owner-triggered start preserves original run output lineage and rechecks r
   await c.intent(h.agentCaller, 'two', { ...request(), inputs: [{ kind: 'artifact', id: 'owned-input', contentType: 'audio/mpeg' }] });
   await c.estimate(h.agentCaller, 'two'); await c.approve(h.owner, 'two', { amount: 12, unit: 'usd_micro' });
   h.ports.inputs = { authorize: async () => false };
-  assert.equal((await c.start(h.agentCaller, 'two')).state, 'unknown');
+  await assert.rejects(c.start(h.agentCaller, 'two'), /input_unavailable/);
+  const refused = h.data().jobs.find(j => j.id === 'two')!;
+  assert.equal(refused.state, 'waiting'); assert.equal(refused.reservation, undefined); assert.equal(refused.accounting, undefined);
   assert.equal(f.stats().calls, 1);
+});
+
+for (const transport of ['async', 'sync', 'stream'] as const) {
+  for (const outcome of ['expired', 'revoked-input', 'revoked-authority'] as const) {
+    test(`${transport}: deferred preflight ${outcome} refuses before paid entry without a budget hold`, async () => {
+      const h = harness(); const f = transport === 'async' ? ticketFixture(h.now) : byteFixture(h.now, transport === 'stream');
+      const c = new MediaController(h.ports, f.adapter);
+      h.ports.inputs = { authorize: async () => true };
+      await c.intent(h.runCaller, 'one', { ...request(), inputs: [{ kind: 'artifact', id: 'owned', contentType: 'audio/mpeg' }] });
+      await c.estimate(h.runCaller, 'one'); await c.approve(h.owner, 'one', { amount: 12, unit: 'usd_micro' });
+      const entered = deferred<void>(); const release = deferred<boolean>();
+      h.ports.inputs = { authorize: () => { entered.resolve(); return release.promise; } };
+      const pending = c.start(h.runCaller, 'one');
+      await entered.promise;
+      assert.equal(h.data().jobs[0].lease, 'preflight');
+      assert.deepEqual(totals(h.data().jobs, 'run-1'), { spent: {}, reserved: {}, unknown: 0 });
+      const duplicate = await c.start(h.runCaller, 'one'); assert.equal(duplicate.state, 'starting');
+      if (outcome === 'expired') h.tick(1100);
+      if (outcome === 'revoked-authority') h.revoke();
+      release.resolve(outcome !== 'revoked-input');
+      if (outcome === 'expired') {
+        const result = await pending; assert.equal(result.state, 'waiting'); assert.equal(result.waitReason, 'price_stale');
+      } else await assert.rejects(pending, outcome === 'revoked-input' ? /input_unavailable/ : /stale_authority/);
+      assert.equal(h.data().jobs[0].state, 'waiting'); assert.equal(h.data().jobs[0].lease, undefined);
+      assert.equal(h.data().jobs[0].reservation, undefined); assert.equal(h.data().jobs[0].accounting, undefined);
+      assert.deepEqual(totals(h.data().jobs, 'run-1'), { spent: {}, reserved: {}, unknown: 0 });
+      assert.equal(transport === 'async' ? (f as ReturnType<typeof ticketFixture>).stats().posts : (f as ReturnType<typeof byteFixture>).stats().calls, 0);
+    });
+  }
+  for (const outcome of ['expired', 'revoked-authority'] as const) test(`${transport}: final awaited authority ${outcome} releases the reservation before adapter entry`, async () => {
+    const h = harness(); const f = transport === 'async' ? ticketFixture(h.now) : byteFixture(h.now, transport === 'stream');
+    const c = new MediaController(h.ports, f.adapter); await ready(c, h, 'one', h.runCaller);
+    const originalCurrent = h.ports.authority!.current;
+    const entered = deferred<void>(); const release = deferred<boolean>();
+    h.ports.authority!.current = scope => {
+      if (h.data().jobs[0].accounting === 'reserved') { entered.resolve(); return release.promise; }
+      return originalCurrent(scope);
+    };
+    const pending = c.start(h.runCaller, 'one'); await entered.promise;
+    assert.equal(h.data().jobs[0].reservation!.amount, transport === 'async' ? 12 : 4);
+    if (outcome === 'expired') {
+      h.tick(1100); release.resolve(true);
+      const result = await pending;
+      assert.equal(result.state, 'waiting'); assert.equal(result.waitReason, 'price_stale');
+    } else {
+      release.resolve(false); await assert.rejects(pending, /stale_authority/);
+      assert.equal(h.data().jobs[0].state, 'waiting');
+    }
+    assert.deepEqual(totals(h.data().jobs, 'run-1'), { spent: {}, reserved: {}, unknown: 0 });
+    assert.equal(transport === 'async' ? (f as ReturnType<typeof ticketFixture>).stats().posts : (f as ReturnType<typeof byteFixture>).stats().calls, 0);
+  });
+}
+
+for (const change of ['request', 'approval'] as const) test(`final transaction rechecks persisted ${change} after deferred preflight`, async () => {
+  const h = harness(); const f = ticketFixture(h.now); const c = new MediaController(h.ports, f.adapter);
+  h.ports.inputs = { authorize: async () => true };
+  await c.intent(h.runCaller, 'one', { ...request(), inputs: [{ kind: 'artifact', id: 'owned', contentType: 'image/png' }] });
+  await c.estimate(h.runCaller, 'one'); await c.approve(h.owner, 'one', { amount: 12, unit: 'usd_micro' });
+  const entered = deferred<void>(); const release = deferred<boolean>();
+  h.ports.inputs = { authorize: () => { entered.resolve(); return release.promise; } };
+  const pending = c.start(h.runCaller, 'one'); await entered.promise;
+  if (change === 'request') h.data().jobs[0].request.revision = 'other';
+  else h.data().jobs[0].approval = undefined;
+  release.resolve(true);
+  if (change === 'request') await assert.rejects(pending, /intent_conflict/);
+  else assert.equal((await pending).waitReason, 'owner_confirmation');
+  assert.equal(h.data().jobs[0].state, 'waiting');
+  assert.deepEqual(totals(h.data().jobs, 'run-1'), { spent: {}, reserved: {}, unknown: 0 }); assert.equal(f.stats().posts, 0);
+});
+
+test('authority revocation after paid adapter entry never clears the uncertain effect reservation', async () => {
+  const h = harness(); const f = ticketFixture(h.now);
+  const adapter = f.adapter as Extract<Adapter, { kind: 'async' }>;
+  const entered = deferred<void>(); const release = deferred<void>(); let posts = 0;
+  adapter.submit = async () => { posts++; entered.resolve(); await release.promise; throw Error('uncertain receipt'); };
+  const c = new MediaController(h.ports, adapter); await ready(c, h, 'one', h.runCaller);
+  const pending = c.start(h.runCaller, 'one'); await entered.promise;
+  h.revoke(); release.resolve();
+  const unknown = await pending;
+  assert.equal(unknown.state, 'unknown'); assert.equal(unknown.accounting, 'unknown'); assert.equal(unknown.reservation!.amount, 12);
+  assert.deepEqual(totals(h.data().jobs, 'run-1'), { spent: {}, reserved: { usd_micro: 12 }, unknown: 1 }); assert.equal(posts, 1);
 });
 
 test('quote evidence checks guard nonfinite clock, timestamps and exact binding', () => {

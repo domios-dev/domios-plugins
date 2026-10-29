@@ -24,7 +24,7 @@ export type Job = {
   ceilingException?: boolean; jobId?: string; cancelRequested?: boolean;
   reservation?: Amount; accounting?: 'reserved' | 'unknown' | 'spent';
   outputs: Artifact[]; progress?: number; providerState?: string;
-  lease?: 'estimate' | 'reconcile' | 'cancel';
+  lease?: 'preflight' | 'estimate' | 'reconcile' | 'cancel';
 };
 export type Partition = { jobs: Job[]; ceilings: Partial<Record<Unit, number>> };
 /** Must be durable, atomic and serialized across controller instances/processes for this owner/workspace. */

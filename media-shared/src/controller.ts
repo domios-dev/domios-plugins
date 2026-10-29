@@ -108,28 +108,52 @@ export class MediaController {
       if (job.waitReason) return { job: clone(job), execute: false };
       if (!this.ports.outputs) throw new Error('output_storage_unavailable');
       job.state = 'starting';
-      job.reservation = { amount: job.quote!.amount, unit: job.quote!.unit };
-      job.accounting = 'reserved';
+      job.lease = 'preflight';
       job.updatedAt = this.ports.now();
       return { job: clone(job), execute: true };
     });
     if (!claim.execute) return claim.job;
-    const job = claim.job;
+    let job = claim.job;
+    let entered = false;
     try {
-      if (!await this.ports.authority!.current(scope)) throw new Error('stale_authority');
       if (job.request.inputs.length && (!this.ports.inputs || !await this.ports.inputs.authorize(job.scope, job.request.inputs)))
         throw new Error('input_unavailable');
+      const final = await this.tx(scope, d => {
+        const current = this.owned(d, scope, id);
+        if (current.state !== 'starting' || current.lease !== 'preflight' || current.binding !== job.binding ||
+            bindingOf(current.request) !== job.binding) throw new Error('intent_conflict');
+        current.waitReason = waitReason(d, current, this.ports.now());
+        if (current.waitReason) {
+          current.state = 'waiting'; current.lease = undefined;
+          return { job: clone(current), execute: false };
+        }
+        current.reservation = { amount: current.quote!.amount, unit: current.quote!.unit };
+        current.accounting = 'reserved';
+        current.lease = undefined;
+        if (this.adapter.kind === 'stream') current.state = 'generating';
+        return { job: clone(current), execute: true };
+      });
+      if (!final.execute) return final.job;
+      job = final.job;
+      const effectRequest = clone(job.request);
+      // Last awaited host preflight: no more awaits before the first paid adapter invocation.
+      if (!await this.ports.authority!.current(scope)) throw new Error('stale_authority');
+      if (bindingOf(effectRequest) !== job.binding || !job.approval || !validAmount(job.approval) ||
+          job.approval.unit !== job.request.unit || job.approval.amount < job.quote!.amount) throw new Error('intent_conflict');
+      if (quoteState(job.quote, job.binding, job.request.unit, this.ports.now()) !== 'ready')
+        return this.releasePreflight(scope, id);
+      // From here even a synchronous throw may mean an effect crossed the boundary. Never release it.
+      entered = true;
       if (this.adapter.kind === 'async') {
-        return await this.observe(scope, job, await this.adapter.submit(clone(job.request), job.id));
+        return await this.observe(scope, job, await this.adapter.submit(effectRequest, job.id));
       }
       let outputs: Output[];
-      if (this.adapter.kind === 'sync') outputs = await this.adapter.execute(clone(job.request), job.id);
+      if (this.adapter.kind === 'sync') outputs = await this.adapter.execute(effectRequest, job.id);
       else {
-        await this.update(scope, id, j => { j.state = 'generating'; });
         const chunks: Uint8Array[] = [];
         let size = 0;
         let contentType: string | undefined;
-        for await (const event of this.adapter.stream(clone(job.request), job.id)) {
+        for await (const event of this.adapter.stream(effectRequest, job.id)) {
           if (contentType) throw new Error('stream_after_completion');
           if (event.kind === 'complete') contentType = event.contentType;
           else {
@@ -147,9 +171,22 @@ export class MediaController {
       const saved = await this.save(scope, job, outputs);
       return await this.update(scope, id, j => { j.state = 'generated'; j.outputs = saved; });
       // Successful delivery alone does not prove billed amount; reservation remains until billing evidence.
-    } catch {
+    } catch (error) {
+      if (!entered) {
+        await this.releasePreflight(scope, id);
+        throw error;
+      }
       return this.update(scope, id, j => { j.state = 'unknown'; j.accounting = 'unknown'; });
     }
+  }
+  private async releasePreflight(scope: Scope, id: string): Promise<Job> {
+    // Known non-entry: cleanup must survive revoked authority, without claiming a paid uncertainty.
+    return this.ports.store!.transact(scope.owner, scope.workspace, d => {
+      const job = this.owned(d, scope, id);
+      job.state = 'waiting'; job.lease = undefined; job.reservation = undefined; job.accounting = undefined;
+      job.waitReason = waitReason(d, job, this.ports.now()); job.updatedAt = this.ports.now();
+      return clone(job);
+    });
   }
   private async save(scope: Scope, job: Job, outputs: Output[]) {
     if (!outputs.length || outputs.length > 64) throw new Error('invalid_outputs');
@@ -225,7 +262,10 @@ export class MediaController {
     const scope = await this.scope(caller);
     return this.tx(scope, d => {
       for (const job of d.jobs.filter(j => visible(scope, j))) {
-        if (job.state === 'starting' || job.state === 'generating' && !job.jobId || job.lease === 'cancel' || job.lease === 'reconcile') {
+        if (job.lease === 'preflight') {
+          job.state = 'waiting'; job.reservation = undefined; job.accounting = undefined;
+          job.waitReason = waitReason(d, job, this.ports.now());
+        } else if (job.state === 'starting' || job.state === 'generating' && !job.jobId || job.lease === 'cancel' || job.lease === 'reconcile') {
           job.state = 'unknown'; job.accounting = 'unknown';
         }
         job.lease = undefined;
