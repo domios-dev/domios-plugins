@@ -1,14 +1,12 @@
 {
   "id": "higgsfield",
   "version": "0.1.0",
-  "minCodeterm": "1.18.0",
+  "minCodeterm": "1.17.1",
   "hostApi": 2,
   "displayName": "Higgsfield",
-  "description": "Candidate package inputs for the Higgsfield Studio. Target host 1.18.0 is unverified; production wiring and final bundles pending HIG-11.",
-  "license": "PolyForm-Shield-1.0.0",
+  "description": "DEV discovery and document history runtime. Paid generation unavailable; full SDK/minimum-host acceptance retained by HIG-11.",
   "entry": "plugin.js",
   "readme": "README.md",
-  "agentGuide": "guide.md",
   "icon": "icon.svg",
   "capabilities": {
     "view": true,
@@ -32,7 +30,8 @@
           "cancel",
           "reconcile",
           "submit",
-          "metadata"
+          "metadata",
+          "status"
         ],
         "stateInvalidation": true,
         "restore": "relaunch"
@@ -55,16 +54,23 @@
       "copyText",
       "saveAs",
       "reveal"
-    ]
+    ],
+    "agentCommands": true
   },
   "permissions": {
-    "network": {
-      "allow": [
-        "api.higgsfield.ai"
-      ]
-    },
-    "secrets": true,
     "agentCommands": true,
     "surfaces": true
-  }
+  },
+  "agentGuide": "runtime-guide.md",
+  "agentVerbs": [
+    "status",
+    "catalog",
+    "describe --stdin (JSON: operation)",
+    "open",
+    "close",
+    "prepare (unavailable)",
+    "estimate (unavailable)",
+    "submit (unavailable)",
+    "result (unavailable)"
+  ]
 }

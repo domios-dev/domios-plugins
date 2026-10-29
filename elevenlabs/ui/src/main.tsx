@@ -7,5 +7,5 @@ import type {DocumentBridge} from './api';
 import '../../../media-shared/ui/src/studio.css';
 import './style.css';
 const bridge=(window as unknown as {ct?:DocumentBridge}).ct;
-const root=document.getElementById('root');
+const root=document.getElementById('ct-root');
 if(root)createRoot(root).render(<App controller={new StudioController(bridgeTransport(bridge))}/>);

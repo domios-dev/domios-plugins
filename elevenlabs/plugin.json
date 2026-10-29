@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "hostApi": 2,
   "displayName": "ElevenLabs",
-  "description": "Source candidate. Host release/minimum version and final UI/bundle pending HIG-11.",
+  "description": "DEV discovery and document history runtime. Paid speech unavailable; full SDK/minimum-host acceptance retained by HIG-11.",
   "entry": "plugin.js",
   "readme": "AGENTS.md",
-  "license": "PolyForm-Shield-1.0.0",
   "capabilities": {
     "view": true,
     "transcriber": true,
@@ -1130,5 +1129,18 @@
     "view": true,
     "surfaces": true,
     "agentCommands": true
-  }
+  },
+  "minCodeterm": "1.17.1",
+  "agentGuide": "runtime-guide.md",
+  "agentVerbs": [
+    "status",
+    "help",
+    "catalog --stdin (JSON: offset?,limit?)",
+    "models --stdin (JSON: offset?,limit?)",
+    "describe --stdin (JSON: operation)",
+    "open",
+    "close",
+    "generate (unavailable)",
+    "result (unavailable)"
+  ]
 }
