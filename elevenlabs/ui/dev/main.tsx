@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {App} from '../src/App';
+import {FixtureProvider,FixtureControls,FixtureNotice,FixtureExamples,FixtureTools,FixtureSelection} from '../../../media-shared/ui/dev/FixtureSelection';
 import {StudioController} from '../src/controller';
 import {fixtureMedia,fixtureTransport,fixtureVoices,selectFixtureOwner} from './fixtures';
 import {Price} from '../../../media-shared/ui/src';
@@ -28,6 +29,21 @@ function FixtureDocument(){
   const storageKey=`elevenlabs-ui-fixture-v1:${scenario}`;
   const [fixture]=useState(()=>fixtureTransport({scenario,load:()=>localStorage.getItem(storageKey),save:v=>localStorage.setItem(storageKey,v)}));
   const [controller]=useState(()=>new StudioController(fixture.transport));
+  const [,rerender]=useState(0);
+  const traceRef=useRef<HTMLOutputElement>(null);
+  useEffect(()=>{
+    type Entry={key:string;shift:boolean;ctrl:boolean;meta:boolean;before:{start:number;end:number};cached:{start:string|null;end:string|null};beforePrevented:boolean;afterPrevented?:boolean;after?:{start:number;end:number}|null;result?:{start:string|null;end:string|null}|null};
+    const entries:Entry[]=[];
+    const record=(event:KeyboardEvent|MouseEvent,el:HTMLTextAreaElement,key:string)=>{
+      const entry:Entry={key,shift:event.shiftKey,ctrl:event.ctrlKey,meta:event.metaKey,before:{start:el.selectionStart,end:el.selectionEnd},cached:{start:el.dataset.cachedStart??null,end:el.dataset.cachedEnd??null},beforePrevented:event.defaultPrevented};
+      entries.push(entry);if(entries.length>16)entries.shift();
+      requestAnimationFrame(()=>{entry.afterPrevented=event.defaultPrevented;entry.after=el.isConnected?{start:el.selectionStart,end:el.selectionEnd}:null;const panel=document.querySelector<HTMLElement>('main .studio-comment[data-span-start]');entry.result=panel?{start:panel.dataset.spanStart??null,end:panel.dataset.spanEnd??null}:null;if(traceRef.current)traceRef.current.textContent=JSON.stringify(entries);});
+    };
+    const key=(event:KeyboardEvent)=>{const el=event.target;if(!(el instanceof HTMLTextAreaElement)||!el.matches('main .studio-selectable-text[aria-label="Text"]'))return;const allowed=['Home','End','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Shift','Control','Meta','Enter'];const name=allowed.includes(event.key)?event.key:(event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='a'?'SelectAllKey':'Other';record(event,el,name);};
+    const click=(event:MouseEvent)=>{if(!(event.target instanceof Element)||!event.target.closest('main .studio-comment-selection'))return;const el=document.querySelector<HTMLTextAreaElement>('main .studio-selectable-text[aria-label="Text"]');if(el)record(event,el,'CommentOnSelection');};
+    document.addEventListener('keydown',key,true);document.addEventListener('click',click,true);
+    return()=>{document.removeEventListener('keydown',key,true);document.removeEventListener('click',click,true);};
+  },[]);
   useEffect(()=>{
     const report=()=>requestAnimationFrame(()=>{const metrics:Metrics={type:'fixture-metrics',width,innerWidth,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,bodyWidth:document.body.clientWidth,bodyScroll:document.body.scrollWidth,mobile:matchMedia('(max-width:759px)').matches,owner:fixture.owner(),submissions:fixture.submissions()};parent.postMessage(metrics,location.origin);});
     const receive=(e:MessageEvent<Control>)=>{
@@ -36,11 +52,12 @@ function FixtureDocument(){
       else if(e.data.command==='owner'&&e.data.owner&&['A','B','user'].includes(e.data.owner))void selectFixtureOwner(fixture,controller,e.data.owner);
       else if(e.data.command==='reload')location.reload();else if(e.data.command==='reset'){localStorage.removeItem(storageKey);location.reload();}report();
     };
-    const unsubscribe=controller.subscribe(report),observer=new ResizeObserver(report);observer.observe(document.documentElement);observer.observe(document.body);window.addEventListener('message',receive);report();
+    const unsubscribe=controller.subscribe(()=>{rerender(n=>n+1);report();}),observer=new ResizeObserver(report);observer.observe(document.documentElement);observer.observe(document.body);window.addEventListener('message',receive);report();
     return()=>{unsubscribe();observer.disconnect();window.removeEventListener('message',receive);};
   },[controller,fixture,storageKey]);
   const base:EstimateView={gate:{kind:'ready',amount:800,unit:'usd_micro',text:'$0.0008'},count:1,capable:true,available:true,busy:false};
   const prices:EstimateView[]=[base,{...base,estimating:true},{...base,gate:{kind:'stale'}},{...base,gate:{kind:'unavailable'}},{...base,insufficient:{needs:'$0.0008',have:'$0.0004'}}];
-  return <><App controller={controller} media={fixtureMedia} voices={fixtureVoices}/><section className="fixture-matrix"><h2>Synthetic price states</h2>{prices.map((view,i)=><div key={i}><Price view={view} onEstimate={()=>{}} onGenerate={()=>{}}/></div>)}</section><section className="fixture-matrix" id="fixture-existing-run"><h2>Fixture existing run</h2><p>Three synthetic jobs, one failure and one waiting. No real Blueprint approval, host run or media review is represented.</p></section></>;
+  // The fixture follows the current DTO's ' · '-separated voice-label convention.
+  return <><FixtureProvider><App ownerLabel="Rex (fixture)" controls={<FixtureControls/>} stageTools={<FixtureTools/>} fixtureNotice={<FixtureNotice/>} selection={(item,text,children)=>{const target=item.outputs[0]?.id==='fixture-local-tone'?{kind:'audio' as const,revision:'synthetic:'+fixture.owner()+':'+item.id+':tone:'+text,durationMs:4000,text,voice:item.voiceLabel.split(' · ')[0]}:undefined;return target?<FixtureSelection key={target.revision} target={target}>{children}</FixtureSelection>:children;}} controller={controller} media={fixtureMedia} voices={fixtureVoices}/><FixtureExamples/></FixtureProvider><section className="fixture-controls" aria-label="Synthetic native selection diagnostic"><strong>Synthetic native selection diagnostic · offsets only</strong><output ref={traceRef} aria-label="Synthetic native selection trace">[]</output></section><section className="fixture-controls" aria-label="Synthetic owner controls"><strong>Synthetic fixture controls</strong><p>Owner: {fixture.owner()} · Submission count: {fixture.submissions()}</p>{(['A','B','user'] as const).map(owner=><button className="ct-btn" key={owner} onClick={()=>void selectFixtureOwner(fixture,controller,owner)}>View {owner}</button>)}</section><section className="fixture-matrix"><h2>Synthetic price states</h2>{prices.map((view,i)=><div key={i}><Price view={view} onEstimate={()=>{}} onGenerate={()=>{}}/></div>)}</section><section className="fixture-matrix" id="fixture-existing-run"><h2>Fixture existing run</h2><p>Three synthetic jobs, one failure and one waiting. No real Blueprint approval, host run or media review is represented.</p></section></>;
 }
 createRoot(document.getElementById('root')!).render(query.get('frame')==='1'?<FixtureDocument/>:<PreviewHost/>);

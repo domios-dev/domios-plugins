@@ -17,5 +17,15 @@ createServer(async (req, res) => {
   else if (['/fixtures/checker.png', '/fixtures/tone.wav'].includes(path)) {
     res.setHeader('Content-Type', path.endsWith('.png') ? 'image/png' : 'audio/wav');
     res.end(await readFile(new URL('../ui/dev' + path, import.meta.url)));
+  } else if (path === '/fixtures/synthetic-selection-4s.webm') {
+    const bytes = await readFile(new URL('../ui/dev/fixtures/synthetic-selection-4s.webm', import.meta.url));
+    res.setHeader('Content-Type', 'video/webm'); res.setHeader('Accept-Ranges', 'bytes');
+    const header = req.headers.range;
+    if (header) {
+      const match = /^bytes=(\d+)-(\d*)$/.exec(header);
+      const start = match ? Number(match[1]) : NaN, end = match && match[2] ? Number(match[2]) : bytes.length - 1;
+      if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || start >= bytes.length || end < start) { res.statusCode=416; res.setHeader('Content-Range', `bytes */${bytes.length}`); res.end(); return; }
+      const last=Math.min(end,bytes.length-1); res.statusCode=206; res.setHeader('Content-Range', `bytes ${start}-${last}/${bytes.length}`); res.setHeader('Content-Length', last-start+1); res.end(bytes.subarray(start,last+1));
+    } else { res.setHeader('Content-Length', bytes.length); res.end(bytes); }
   } else { res.statusCode = 404; res.end(); }
 }).listen(port, '127.0.0.1', () => process.stdout.write(`Source fixtures only: http://127.0.0.1:${port}\n`));

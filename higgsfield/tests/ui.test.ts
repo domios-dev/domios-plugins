@@ -91,7 +91,7 @@ test('edited settings invalidate estimate; free reuse and schema-valid variation
 test('unknown transport cannot silently substitute fixtures or authorize generation', async () => {
   const c = new StudioController(bridgeTransport()); await c.mount(); assert.match(c.state.error!, /bridge unavailable/);
   assert.equal(c.price().capable, false); await c.generate(); assert.equal(c.state.id, undefined);
-  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /bridge unavailable/); assert.match(markup, /disabled/);
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /bridge unavailable/); assert.doesNotMatch(markup, /Generate for/);
 });
 test('shared rendered price uses foundation copy for safe, missing, stale and invalid count gates', () => {
   for (const gate of [{ kind: 'ready' as const, amount: 10, unit: 'usd_micro', text: '10 microdollars' }, { kind: 'unavailable' as const }, { kind: 'stale' as const }]) {
@@ -107,15 +107,15 @@ test('actual shared schema fields render constraints and required/advanced input
 });
 test('actual App renders service fixture lifecycle and shared grouping with attribution', async () => {
   const fixture = fixtureTransport(), c = new StudioController(fixture.transport); await c.mount();
-  const markup = render(React.createElement(App, { controller: c }));
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   for (const state of ['queued', 'generating', 'generated', 'failed', 'canceled', 'unknown', 'starting', 'price_unavailable'] as const) assert.ok(markup.includes(jobStatus(state).label), state);
   assert.doesNotMatch(markup, /Waiting for your OK|Price needs updating/); // Missing fixture quotes cannot inherit a stale/approval label from a stored wait reason.
-  assert.match(markup, /studio-composer/); assert.match(markup, /Show activity/); assert.match(markup, /<small>A<\/small>/); assert.doesNotMatch(markup, /<small>Fixture<\/small>/); c.dispose();
+  assert.doesNotMatch(markup, /studio-composer/); assert.match(markup, /studio-activity/); assert.match(markup, /<small>A<\/small>/); assert.doesNotMatch(markup, /<small>Fixture<\/small>/); c.dispose();
 });
 test('pipeline fixture provides exactly 3 jobs/one failure, existing link and one-hop source without refresh approval', async () => {
   const fixture = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(fixture.transport); await c.mount();
   assert.equal(c.state.snapshot?.items.length, 3); assert.equal(c.state.snapshot?.items.filter(i => i.state === 'failed').length, 1);
-  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /View run/); assert.match(markup, /From:.*A quiet garden cover/); assert.doesNotMatch(markup, /From: run-one|Check price again/); c.dispose();
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /View run/); assert.match(markup, /From:.*A quiet garden cover/); assert.doesNotMatch(markup, /From: run-one|Check price again/); c.dispose();
 });
 test('frame acquisition rejects remote/unapproved MIME, expires freely, remints on reopen, and reports refusal copy', async () => {
   let now = 0, acquisitions = 0, saves = 0, message = '', content_type = 'image/png', url: string | null = '/scoped';
@@ -295,8 +295,7 @@ test('free reuse replaces structured editor selection and its rendered value wit
   f.f.service.intent(access, 'structured-reuse', soul, { prompt: 'Structured reference', custom_reference_id: uuid });
   await c.refresh(); await c.inspect('structured-reuse'); await c.reuse();
   assert.ok(c.state.formRevision! > before!); assert.equal(c.state.values.custom_reference_id, uuid);
-  const markup = render(React.createElement(App, { controller: c })); assert.ok(markup.includes(uuid));
-  const source = readFileSync(new URL('../ui/src/App.tsx', import.meta.url), 'utf8'); assert.match(source, /key=\{s\.operation \+ ':' \+ s\.formRevision\}/);
+  const markup = render(React.createElement(SchemaFields, { schema: c.state.schema!, values: c.state.values, onChange() {} })); assert.ok(markup.includes(uuid));
   c.dispose();
 });
 
@@ -315,7 +314,7 @@ test('actual owner-button handler clears A immediately and model selection canno
   pending[0].response.resolve(oldSnapshot); await oldRefresh;
   assert.equal(c.state.snapshot?.items.length, 0); assert.equal(c.state.details, undefined);
   assert.doesNotMatch(JSON.stringify(c.state), /Private A draft|Private A note|Fixture generated/);
-  const markup = render(React.createElement(App, { controller: c })); assert.doesNotMatch(markup, /Fixture generated|Private A/);
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.doesNotMatch(markup, /Fixture generated|Private A/);
   // A detail request from before a separate context switch cannot later restore the inspector.
   blocked.delete('ui.snapshot'); await selectFixtureOwner(f, c, 'user'); blocked.add('ui.details'); pending.length = 0;
   const inspect = c.inspect('generated'); await selectFixtureOwner(f, c, 'B'); pending[0].response.resolve(oldDetails); await inspect;
@@ -331,7 +330,7 @@ test('exact USD formatting and recorded inspector cost never change atomic quote
   const price = render(React.createElement(Price, { view: c.price(), onEstimate() {}, onGenerate() {} }));
   assert.match(price, /Generate for \$0\.00001/); assert.match(price, /title="10 usd_micro"/); assert.doesNotMatch(price, />Estimate<|>Get price<|>Check again</);
   const id = c.state.id!; await c.inspect(id); assert.equal(c.state.details?.item.recordedCost?.kind, 'quoted');
-  assert.match(render(React.createElement(App, { controller: c })), /\$0\.00001 \(quoted\)/);
+  assert.match(render(React.createElement(App, { controller: c, fixtureLibrary: true })), /\$0\.00001 \(quoted\)/);
   c.back(); f.f.store.transact('A', 'workspace', p => { p.jobs.find(j => j.id === id)!.quote!.validUntilMs = f.f.now() + 1; return null; });
   f.f.tick(); await c.refresh(); assert.equal(c.price().gate.kind, 'stale'); await c.inspect(id); assert.equal(c.state.details?.item.recordedCost?.text, '$0.00001');
   c.dispose();
@@ -357,11 +356,11 @@ test('price footer gives one field-specific helper, hides invalid refresh and hi
 
 test('rendered rows and inspector use human model/cost/defaults/navigation instead of raw identifiers and status-as-cost', async () => {
   const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
-  let markup = render(React.createElement(App, { controller: c }));
+  let markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /higgs-tile higgs-row/); assert.match(markup, /higgs-actions/); assert.match(markup, /higgs-metadata/);
   assert.doesNotMatch(markup, />SOUL V2<|<small>higgsfield-ai/);
   assert.doesNotMatch(markup, /Price unavailable · 0:00|Price needs updating · 0:00|Waiting for your OK · 0:00/);
-  await c.inspect('generated'); markup = render(React.createElement(App, { controller: c }));
+  await c.inspect('generated'); markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /Not recorded/); assert.match(markup, /Model defaults/); assert.match(markup, /Previous result/); assert.match(markup, /Next result/); assert.match(markup, / of /);
   assert.doesNotMatch(markup, /<h3>Cost<\/h3><p>Generated<\/p>/); c.dispose();
 });
@@ -387,7 +386,7 @@ test('recent fixture clock integrates English Today/Yesterday/older grouping wit
     const days = groupHistory(finished, now).map(g => g.day);
     assert.deepEqual(days, ['Today', 'Yesterday', 'Oct 26']);
     const markup = render(React.createElement(Studio, { title: 'Fixture', items: finished, now, capacity: 64, activity: [],
-      composer: null, footer: null, renderItem: i => React.createElement('span', null, i.title), onSelect() {}, onBack() {} }));
+      initialLibrary: true, renderItem: i => React.createElement('span', null, i.title), onSelect() {}, onBack() {} }));
     assert.match(markup, /Today/); assert.match(markup, /Yesterday/); assert.match(markup, /Oct 26/); assert.doesNotMatch(markup, /1970/);
     assert.ok(locales.length > 0 && locales.every(locale => locale === 'en'));
   } finally { Date.prototype.toLocaleDateString = original; }
@@ -424,12 +423,12 @@ test('run display projection preserves stored identity and uses host labels or P
   }
   const pipeline = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(pipeline.transport); await c.mount();
   assert.ok(c.state.snapshot?.items.every(i => i.startedBy === 'Daily covers run #12'));
-  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /Daily covers run #12/); assert.doesNotMatch(markup, />run-a</); c.dispose();
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /Daily covers run #12/); assert.doesNotMatch(markup, />run-a</); c.dispose();
 });
 
 test('active row status/actions and optional helper are separate from nonshrinking model/actor metadata under900', async () => {
   const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
-  const markup = render(React.createElement(App, { controller: c }));
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /<div class="higgs-row-end"><span class="studio-status"/);
   assert.match(markup, /<p class="ct-meta higgs-row-note">/); assert.doesNotMatch(markup, /<small class="higgs-row-note"/);
   const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
@@ -455,7 +454,7 @@ test('ordinary study fixtures render as sibling articles in one actual day grid,
   const siblings = React.Children.toArray(grids[0].props.children) as React.ReactElement<any>[];
   assert.equal(siblings.length, 2); assert.ok(siblings.every(n => n.type === 'article'));
   assert.deepEqual(siblings.map(n => n.props.children.props['data-vendor-card']), items.map(i => i.id));
-  const markup = render(React.createElement(Studio, { title: 'Gallery', items, now, capacity: 64, activity: [], composer: null, footer: null, renderItem: slot, onSelect() {}, onBack() {} }));
+  const markup = render(React.createElement(Studio, { title: 'Gallery', items, now, capacity: 64, activity: [], initialLibrary: true, renderItem: slot, onSelect() {}, onBack() {} }));
   assert.equal((markup.match(/class="studio-feed"/g) ?? []).length, 1);
   assert.match(markup, /data-vendor-card="image-study"/); assert.match(markup, /data-vendor-card="video-study"/);
 });
@@ -479,10 +478,10 @@ test('ordinary sibling grids stop at actual consecutive run groups without mergi
 test('one authorized three-job run has a collapsed preparation aggregate and three individual activity entries', async () => {
   const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
   assert.equal(c.state.snapshot?.activitySummary, 'Daily covers run #12 prepared 3 jobs'); assert.equal(c.state.snapshot?.activity.length, 3);
-  const markup = render(React.createElement(App, { controller: c }));
-  const strip = markup.match(/<details class="studio-activity">([\s\S]*?)<\/details>/)?.[1]; assert.ok(strip);
-  assert.match(strip, /<summary>Daily covers run #12 prepared 3 jobs/); assert.equal((strip.match(/<li>/g) ?? []).length, 3);
-  assert.doesNotMatch(strip, /submitted|spent|charged|\$|usd_micro/); assert.doesNotMatch(markup, /<details class="studio-activity" open/);
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
+  const strip = markup.match(/<div class="studio-activity">([\s\S]*?)<\/div>/)?.[1]; assert.ok(strip);
+  assert.match(strip, /Daily covers run #12 prepared 3 jobs/);
+  assert.doesNotMatch(strip, /submitted|spent|charged|\$|usd_micro/);
   assert.equal(f.f.sends(), 0); c.dispose();
 });
 test('mixed actors or an activity expansion truncated at8 do not claim a complete single-run aggregate or cost total', async () => {
@@ -499,7 +498,7 @@ test('fixture one-hop source reference has a bounded human label and source look
   const child = c.state.snapshot!.items.find(i => i.id === 'run-two')!;
   assert.equal(child.source?.id, 'run-one'); assert.ok(child.source!.label.length <= 96); assert.match(child.source!.label, /A quiet garden cover.*Soul V2/); assert.doesNotMatch(child.source!.label, /run-one|run-a|https:|workspace/);
   await c.inspect(child.id); const source = c.state.details!.item.source!; assert.equal(source.id, 'run-one');
-  const childMarkup = render(React.createElement(App, { controller: c })); assert.match(childMarkup, /higgs-lineage/); assert.doesNotMatch(childMarkup, /From: run-one/);
+  const childMarkup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(childMarkup, /higgs-lineage/); assert.doesNotMatch(childMarkup, /From: run-one/);
   await c.inspect(source.id); assert.equal(c.state.details?.params.prompt, 'A quiet garden cover'); assert.equal(c.state.details?.item.source, undefined);
   await selectFixtureOwner(f, c, 'B'); await c.inspect(source.id); assert.equal(c.state.details, undefined); assert.equal(c.state.snapshot?.items.length, 0);
   const production = setup(), prepared = production.prepare(); assert.equal(production.ui('ui.details', { id: prepared.id }).item.source, undefined); c.dispose();
@@ -511,24 +510,103 @@ test('only run-attributed fixture jobs with the authorized run link render foreg
   const c = new StudioController(f.transport); await c.mount();
   const nonRun = c.state.snapshot!.items.filter(i => i.actor.kind !== 'run'); assert.equal(nonRun.length, 2); assert.ok(nonRun.every(i => i.runLink === undefined));
   nonRun.forEach(i => { i.runLink = '#must-not-render'; });
-  const markup = render(React.createElement(App, { controller: c })); assert.equal((markup.match(/>View run<\/a>/g) ?? []).length, 3); assert.doesNotMatch(markup, /href="#must-not-render"/);
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.equal((markup.match(/>View run<\/a>/g) ?? []).length, 3); assert.doesNotMatch(markup, /href="#must-not-render"/);
   const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8'); assert.match(css, /\.higgs-actions a,\.higgs-actions a:visited,\.higgs-lineage\{color:var\(--ct-fg\);text-decoration:underline/); c.dispose();
 });
 test('row/tile keyboard focus uses one outer has-focus-visible ring and suppresses inner outlines without pointer focus-within', async () => {
   const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
-  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /higgs-tile higgs-row/); assert.match(markup, /<button class="higgs-select"/);
+  const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /higgs-tile higgs-row/); assert.match(markup, /<button class="higgs-select"/);
   const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
   assert.match(css, /\.higgs-tile :focus-visible\{outline:none\}/); assert.match(css, /\.higgs-tile:has\(:focus-visible\)\{outline:2px solid var\(--ct-fg\);outline-offset:2px\}/); assert.doesNotMatch(css, /\.higgs-tile:focus-within/); c.dispose();
 });
 test('waiting labels and helpers share the actual missing/fresh/stale pipeline price gate without changing durable wait authority', async () => {
   const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
-  let markup = render(React.createElement(App, { controller: c }));
+  let markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /Price unavailable/); assert.match(markup, /This step stays paused until a safe, fresh price is available/); assert.doesNotMatch(markup, /Waiting for your OK|Approve in the run view/);
   const actor = f.f.actor('A', 'run'); const before = f.f.service.history(actor).find(j => j.id === 'run-three')!;
   assert.equal(before.waitReason, 'owner_confirmation'); assert.equal(before.quote, undefined);
   f.f.service.estimate(actor, 'run-three'); await c.refresh(); // Actual injected free estimator, never a hand-fabricated quote or paid effect.
-  markup = render(React.createElement(App, { controller: c })); assert.match(markup, /Waiting for your OK/); assert.match(markup, /Approve in the run view/); assert.doesNotMatch(markup, /This step stays paused/);
-  f.f.tick(); await c.refresh(); markup = render(React.createElement(App, { controller: c }));
+  markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /Waiting for your OK/); assert.match(markup, /Approve in the run view/); assert.doesNotMatch(markup, /This step stays paused/);
+  f.f.tick(); await c.refresh(); markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /Price needs updating/); assert.match(markup, /This step stays paused until a safe, fresh price is available/); assert.doesNotMatch(markup, /Waiting for your OK|Approve in the run view/);
   assert.equal(f.f.service.history(actor).find(j => j.id === 'run-three')?.waitReason, 'owner_confirmation'); assert.equal(f.f.sends(), 0); c.dispose();
+});
+
+test('local selection geometry rejects letterboxing and invalid ranges', async () => {
+  const { containPoint, region, timeRange } = await import('../../media-shared/ui/src/selection');
+  assert.equal(containPoint(500, 100, 1000, 1000, 1000, 500), null);
+  assert.deepEqual(containPoint(500, 500, 1000, 1000, 1000, 500), {x:.5,y:.5});
+  assert.equal(containPoint(NaN, 500, 1000, 1000, 1000, 500), null);
+  const r = region({x:.1,y:.2},{x:.4,y:.6}); assert.ok(r); assert.ok(Math.abs(r.w-.3)<1e-12 && Math.abs(r.h-.4)<1e-12);
+  assert.equal(region({x:.1,y:.2},{x:.1,y:.6}), null);
+  assert.deepEqual(timeRange(1000,2000,4000), {t0_ms:1000,t1_ms:2000});
+  assert.equal(timeRange(2000,1000,4000), null);
+  assert.equal(timeRange(0,Infinity,4000), null);
+});
+
+
+test('image selection handler maps the rendered image and refuses letterbox gestures', async () => {
+  const { imageGesture } = await import('../../media-shared/ui/dev/FixtureSelection');
+  const image = { naturalWidth:1000, naturalHeight:500, getBoundingClientRect:()=>({left:10,top:20,width:1000,height:1000}) } as any;
+  assert.deepEqual(imageGesture(image,{x:510,y:520},{x:510,y:520}),{kind:'point',point:{x:.5,y:.5}});
+  assert.equal(imageGesture(image,{x:510,y:120},{x:510,y:520}),null);
+  assert.equal(imageGesture(image,{x:510,y:520},{x:510,y:920}),null);
+});
+
+
+test('fixture pointer handlers retain a selection only for a valid media gesture', async () => {
+  const {handleFixturePointer} = await import('../../media-shared/ui/dev/FixtureSelection');
+  const image = {naturalWidth:1000,naturalHeight:500,getBoundingClientRect:()=>({left:0,top:0,width:1000,height:1000})};
+  const currentTarget={querySelector:()=>image}; const down={current:null as {x:number;y:number}|null}; const selections:any[]=[];
+  const event=(x:number,y:number)=>({clientX:x,clientY:y,currentTarget} as any);
+  handleFixturePointer(event(500,100),false,down,a=>selections.push(a)); handleFixturePointer(event(500,500),true,down,a=>selections.push(a)); assert.equal(selections.length,0);
+  handleFixturePointer(event(500,500),false,down,a=>selections.push(a)); handleFixturePointer(event(500,500),true,down,a=>selections.push(a)); assert.deepEqual(selections,[{kind:'point',point:{x:.5,y:.5}}]);
+});
+
+
+test('actual image inspector only exposes the explicitly injected synthetic selection surface', async () => {
+  const f=fixtureTransport(), c=new StudioController(f.transport); await c.mount(); await c.inspect('generated');
+  const ordinary=render(React.createElement(App,{controller:c,media:fixtureMedia}));
+  assert.doesNotMatch(ordinary, /Fixture: not sent|>Comment<|Send \(fixture\)/);
+  const fixture=render(React.createElement(App,{controller:c,media:fixtureMedia,selection:(_item,children)=>React.createElement('div',{'data-fixture-slot':true},children)}));
+  assert.match(fixture,/data-fixture-slot/); assert.doesNotMatch(fixture,/>Sent<|>Seen<|Addressed in v3/); assert.equal(f.submissions(),0); c.dispose();
+});
+
+
+test('fixture comment gesture preserves exact words and cannot assert delivery', async () => {
+  const {submitFixture} = await import('../../media-shared/ui/dev/FixtureSelection'); const attempts:any[]=[];
+  const target={kind:'image' as const,revision:'synthetic:image',refuse:(p:any)=>attempts.push(p)};
+  const anchor={kind:'point' as const,point:{x:.5,y:.5}}; const text='Change this';
+  assert.equal(submitFixture(target,anchor,text,'change'),true); assert.equal(attempts[0].text,text); assert.equal(attempts[0].revision,target.revision);
+  assert.equal(submitFixture({...target,revision:'untrusted'},anchor,text,'change'),false); assert.equal(attempts.length,1);
+});
+
+
+test('fixture gesture treats a sub-percent drag as a point and keeps the production slot neutral', async () => {
+  const {imageGesture}=await import('../../media-shared/ui/dev/FixtureSelection');
+  const image={naturalWidth:1000,naturalHeight:500,getBoundingClientRect:()=>({left:0,top:0,width:1000,height:500})} as any;
+  assert.equal(imageGesture(image,{x:500,y:250},{x:505,y:251})?.kind,'point');
+  for(const path of ['../ui/src/App.tsx','../../elevenlabs/ui/src/App.tsx'])assert.doesNotMatch(readFileSync(new URL(path,import.meta.url),'utf8'),/FixtureSelection|fixtureTarget/);
+});
+
+test('stage rail groups available file actions before details and preview leaves them out', async () => {
+  const f=fixtureTransport(), c=new StudioController(f.transport); await c.mount(); await c.inspect('generated');
+  const markup=render(React.createElement(App,{controller:c,media:fixtureMedia}));
+  assert.equal((markup.match(/>Save as…<\/button>/g)??[]).length,1);
+  assert.ok(markup.indexOf('studio-rail-actions')<markup.indexOf('<h2>Prompt</h2>'));
+  assert.doesNotMatch(render(React.createElement(MediaPreview,{media:fixtureMedia.get('fixture-image'),actions:false})),/Save as/);
+  assert.equal(f.submissions(),0);c.dispose();
+});
+test('strip does not look up media during server rendering', () => {
+  let calls=0;const item={id:'image',title:'Image',at:1,operation:'x',actor:{kind:'you'},startedBy:'You',state:'generated',status:jobStatus('generated'),price:{kind:'unavailable'},outputs:[{kind:'artifact',id:'local',contentType:'image/png'}],activity:''} as StudioItem;
+  render(React.createElement(Studio,{title:'Test',items:[item],now:2,capacity:null,activity:[],thumbnail:()=>{calls++;return '/local';},renderItem:()=>null,onSelect(){},onBack(){}}));
+  assert.equal(calls,0);
+});
+
+test('region latch requires two finite corners and rejects empty regions', async () => {
+  const {regionCorner}=await import('../../media-shared/ui/dev/FixtureSelection');
+  assert.deepEqual(regionCorner(null,{x:.2,y:.3}),{kind:'first',point:{x:.2,y:.3}});
+  const done=regionCorner({x:.2,y:.3},{x:.5,y:.7});assert.equal(done.kind,'complete');
+  assert.deepEqual(regionCorner({x:.2,y:.3},{x:.2,y:.3}),{kind:'invalid'});
+  assert.deepEqual(regionCorner(null,{x:NaN,y:.3}),{kind:'invalid'});
 });

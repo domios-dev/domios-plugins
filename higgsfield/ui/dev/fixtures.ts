@@ -76,6 +76,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       const video = { outputs: [{ kind: 'artifact' as const, id: 'fixture-video-metadata', contentType: 'video/mp4' }] };
       seed('image-study', 'generated', 'you', image, today - 1000);
       seed('video-study', 'generated', 'you', video, today - 2000);
+      seed('synthetic-video', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-synthetic-video', contentType: 'video/webm' }] }, today - 3000);
       seed('image-yesterday', 'generated', 'you', image, previousDay(1));
       seed('video-yesterday', 'generated', 'you', video, previousDay(1) - 1000);
       seed('failed-yesterday', 'failed', 'agent', {}, previousDay(1) - 2000);
@@ -106,6 +107,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
           }
         }
       }
+      if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.id === 'synthetic-video') i.notice = 'Synthetic local test-pattern video · not vendor media.';
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.id === 'expired') i.notice = 'Expired · Synthetic file loss; settings remain.';
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.outputs.some(output => output.id === 'fixture-video-metadata')) i.notice = 'Synthetic video metadata · Playback not supplied.';
       return result;
@@ -130,8 +132,8 @@ export function selectFixtureOwner(fixture: Pick<ReturnType<typeof fixtureTransp
   return controller.selectModel(soul); // Must never cancel that independent visibility refresh.
 }
 export const fixtureMedia: MediaViewPort = { get(id) {
-  if (!['fixture-audio', 'fixture-image', 'fixture-media'].includes(id)) return null;
-  const kind = id === 'fixture-audio' ? 'audio' : 'image';
-  const url = kind === 'audio' ? '/fixtures/tone.wav' : '/fixtures/checker.png';
-  return { kind, url, declared: ['saveAs'], availability: { saveAs: true, copyText: false, reveal: false }, save() { const a = document.createElement('a'); a.href = url; a.download = kind === 'audio' ? 'fixture-tone.wav' : 'fixture-checker.png'; a.click(); } };
+  if (!['fixture-audio', 'fixture-image', 'fixture-media', 'fixture-synthetic-video'].includes(id)) return null;
+  const kind = id === 'fixture-audio' ? 'audio' : id === 'fixture-synthetic-video' ? 'video' : 'image';
+  const url = kind === 'audio' ? '/fixtures/tone.wav' : kind === 'video' ? '/fixtures/synthetic-selection-4s.webm' : '/fixtures/checker.png';
+  return { kind, url, declared: ['saveAs'], availability: { saveAs: true, copyText: false, reveal: false }, save() { const a = document.createElement('a'); a.href = url; a.download = kind === 'audio' ? 'fixture-tone.wav' : kind === 'video' ? 'synthetic-selection-4s.webm' : 'fixture-checker.png'; a.click(); } };
 } };
