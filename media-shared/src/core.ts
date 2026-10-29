@@ -211,7 +211,7 @@ export class MediaCore {
     this.authorize(access);
     return this.transaction(access.scope.owner, access.scope.workspace, d => {
       for (const job of d.jobs.filter(j => visible(access.scope, j))) {
-        if (job.phase === 'preflight' || job.lease === 'preflight') {
+        if (job.phase === 'preflight' || job.phase === 'reserved' || job.lease === 'preflight') {
           this.waiting(job); job.waitReason = waitReason(d, job, this.now()); job.epoch = (job.epoch ?? 0) + 1;
         } else if (job.phase || job.state === 'starting' || job.state === 'generating' && !job.jobId || job.lease === 'reconcile' || job.lease === 'cancel') {
           job.state = 'unknown'; job.accounting = 'unknown'; job.phase = undefined; job.pendingReceipt = undefined; job.epoch = (job.epoch ?? 0) + 1;

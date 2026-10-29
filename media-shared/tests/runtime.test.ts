@@ -123,6 +123,19 @@ test('preflight recovery fences old callbacks while submitted recovery cannot re
   assert.throws(() => s.core().releasePreflight(next.continuation!), /effect_already_entered/);
 });
 
+test('reserved recovery releases known non-entry and fences the old submission continuation', () => {
+  const s = setup();
+  const start = plain(s.c.beginStart(s.access, 'one', true));
+  plain(s.c.reserve(s.access, start.continuation!));
+  assert.equal(s.h.data().jobs[0].phase, 'reserved');
+  const recovered = plain(s.core().recover(s.owner));
+  assert.equal(recovered[0].state, 'waiting');
+  assert.equal(recovered[0].reservation, undefined);
+  assert.equal(recovered[0].accounting, undefined);
+  assert.deepEqual(totals(s.h.data().jobs, 'run-1'), { spent: {}, reserved: {}, unknown: 0 });
+  assert.throws(() => s.core().enter(s.access, start.continuation!), /stale_continuation/);
+});
+
 test('sync facade rejects a thenable store result and a Promise-valued schema validator', () => {
   const s = setup();
   const bad = { transact: () => Promise.resolve([]) } as unknown as JobStore;
