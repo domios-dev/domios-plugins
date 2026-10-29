@@ -7,12 +7,18 @@ import type { MediaViewPort } from '../src/App';
 import type { StudioController } from '../src/controller';
 
 /** Dev entry only. All state here is synthetic, no account/host/Courier proof. */
-export function fixtureTransport(options: { scenario?: string; load?: () => string | null; save?: (value: string) => void } = {}) {
-  const f = fixture(), listeners = new Set<() => void>();
+export function fixtureTransport(options: { scenario?: string; now?: number; load?: () => string | null; save?: (value: string) => void } = {}) {
+  const now = options.now ?? Date.now();
+  const f = fixture(now), listeners = new Set<() => void>();
   const original = f.store.transact.bind(f.store);
   let submissions = 0, sequence = 0, owner = 'A';
   try { const saved = JSON.parse(options.load?.() ?? 'null'); if (saved?.partition && Number.isSafeInteger(saved.submissions)) {
-    original('A', 'workspace', p => { Object.assign(p, saved.partition); return null; }); submissions = saved.submissions; sequence = saved.sequence;
+    original('A', 'workspace', p => {
+      Object.assign(p, saved.partition);
+      // Migrate only the obsolete synthetic epoch clock; preserve IDs, states and submission count.
+      for (const job of p.jobs) if (job.at < new Date(2000, 0, 1).getTime()) { job.at = now - 5 * 60000; job.updatedAt = job.at; }
+      return null;
+    }); submissions = saved.submissions; sequence = saved.sequence;
   } } catch { /* Invalid local fixture storage is discarded; no production fallback. */ }
   f.store.transact = (o, w, edit) => {
     const result = original(o, w, edit);
@@ -35,23 +41,40 @@ export function fixtureTransport(options: { scenario?: string; load?: () => stri
   };
   const commands = new HiggsfieldCommands(f.service, f.ports);
   const humanA = f.contexts.get(context)!;
-  const seed = (id: string, state: Job['state'], actor: 'you' | 'agent' | 'run', extra: Partial<Job> = {}) => {
+  const midnight = new Date(now); midnight.setHours(0, 0, 0, 0);
+  const today = Math.floor(now - Math.min((now - midnight.getTime()) / 2, 2 * 3600000));
+  const previousDay = (days: number) => { const day = new Date(now); day.setDate(day.getDate() - days); day.setHours(15, 0, 0, 0); return day.getTime(); };
+  const seed = (id: string, state: Job['state'], actor: 'you' | 'agent' | 'run', extra: Partial<Job> = {}, at = now - 60000) => {
     const a = actor === 'you' ? humanA : f.actor('A', actor);
+    if (a.scope.actor.kind === 'run') a.scope.actor = { ...a.scope.actor, label: 'Daily covers run #12' };
+    const existing = original('A', 'workspace', p => p.jobs.find(j => j.id === id) ?? null);
+    if (existing) {
+      original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === id)!; j.at = at; j.updatedAt = at; if (j.scope.actor.kind === 'run') j.scope.actor.label = 'Daily covers run #12'; return null; });
+      return;
+    }
     try { f.service.intent(a, id, soul, { prompt: `Fixture ${id}: a quiet garden` });
-      original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === id)!; Object.assign(j, { state, ...extra }); return null; });
+      original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === id)!; Object.assign(j, { state, ...extra, at, updatedAt: at }); return null; });
     } catch { /* Existing persisted fixtures are retained. */ }
   };
-  if (original('A', 'workspace', p => p.jobs.length) === 0) {
+  {
     if (options.scenario === 'pipeline') {
       seed('run-one', 'generated', 'run', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }] });
       seed('run-two', 'failed', 'run'); seed('run-three', 'waiting', 'run', { waitReason: 'owner_confirmation' });
     } else {
       seed('queued', 'queued', 'agent'); seed('generating', 'generating', 'agent');
-      seed('generated', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }, { kind: 'artifact', id: 'fixture-audio', contentType: 'audio/wav' }] });
-      seed('failed', 'failed', 'agent'); seed('canceled', 'canceled', 'you'); seed('unknown', 'unknown', 'agent');
+      seed('generated', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }, { kind: 'artifact', id: 'fixture-audio', contentType: 'audio/wav' }] }, today);
+      seed('failed', 'failed', 'agent', {}, today); seed('canceled', 'canceled', 'you', {}, previousDay(1)); seed('unknown', 'unknown', 'agent');
       seed('starting', 'starting', 'you'); seed('price-missing', 'waiting', 'you', { waitReason: 'price_unavailable' });
       seed('price-stale', 'waiting', 'you', { waitReason: 'price_stale' }); seed('waiting-ok', 'waiting', 'run', { waitReason: 'owner_confirmation' });
-      seed('expired', 'generated', 'you');
+      seed('expired', 'generated', 'you', {}, previousDay(3));
+      const image = { outputs: [{ kind: 'artifact' as const, id: 'fixture-image', contentType: 'image/png' }] };
+      const video = { outputs: [{ kind: 'artifact' as const, id: 'fixture-video-metadata', contentType: 'video/mp4' }] };
+      seed('image-study', 'generated', 'you', image, today - 1000);
+      seed('video-study', 'generated', 'you', video, today - 2000);
+      seed('image-yesterday', 'generated', 'you', image, previousDay(1));
+      seed('video-yesterday', 'generated', 'you', video, previousDay(1) - 1000);
+      seed('failed-yesterday', 'failed', 'agent', {}, previousDay(1) - 2000);
+      seed('image-older', 'generated', 'you', image, previousDay(3) - 1000);
     }
   }
   const notify = () => listeners.forEach(fn => fn());
@@ -68,6 +91,7 @@ export function fixtureTransport(options: { scenario?: string; load?: () => stri
         for (const i of (result as UISnapshot).items) { i.runLink = '#fixture-existing-run'; if (i.id === 'run-two') i.from = 'run-one'; }
       }
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.id === 'expired') i.notice = 'Expired · Synthetic file loss; settings remain.';
+      if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.outputs.some(output => output.id === 'fixture-video-metadata')) i.notice = 'Synthetic video metadata · Playback not supplied.';
       return result;
     }, subscribe(fn) { listeners.add(fn); return () => { listeners.delete(fn); }; }
   };
@@ -90,6 +114,7 @@ export function selectFixtureOwner(fixture: Pick<ReturnType<typeof fixtureTransp
   return controller.selectModel(soul); // Must never cancel that independent visibility refresh.
 }
 export const fixtureMedia: MediaViewPort = { get(id) {
+  if (!['fixture-audio', 'fixture-image', 'fixture-media'].includes(id)) return null;
   const kind = id === 'fixture-audio' ? 'audio' : 'image';
   const url = kind === 'audio' ? '/fixtures/tone.wav' : '/fixtures/checker.png';
   return { kind, url, declared: ['saveAs'], availability: { saveAs: true, copyText: false, reveal: false }, save() { const a = document.createElement('a'); a.href = url; a.download = kind === 'audio' ? 'fixture-tone.wav' : 'fixture-checker.png'; a.click(); } };

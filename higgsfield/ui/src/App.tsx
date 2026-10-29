@@ -44,17 +44,17 @@ export function App({ controller: c, media }: { controller: StudioController; me
         <span className="higgs-content">
           <span className="higgs-prompt">{i.title}</span>
           <span className="higgs-metadata"><small>{i.modelLabel ?? 'Model unavailable'}</small><small>{i.startedBy}</small>
-            {active && helper && <small className="higgs-row-note" title={helper}>{helper}</small>}
           </span>
         </span>
-        <span className="studio-status" data-tone={i.status.tone}>{i.status.label}{elapsed ? ' · ' + elapsed : ''}</span>
-        {i.status.progress !== undefined && <progress aria-label="Provider reported progress" max={1} value={i.status.progress} />}
       </button>
+      <div className="higgs-row-end"><span className="studio-status" data-tone={i.status.tone}>{i.status.label}{elapsed ? ' · ' + elapsed : ''}</span>
+      {i.status.progress !== undefined && <progress aria-label="Provider reported progress" max={1} value={i.status.progress} />}
       <div className="higgs-actions">
         {cancel && <button className="ct-btn ct-btn-ghost" onClick={() => void c.action('cancel', i.id)}>{cancel.label}</button>}
         {check && <button className="ct-btn ct-btn-ghost" onClick={() => void c.action('reconcile', i.id)}>{check.label}</button>}
         {i.runLink && <a href={i.runLink}>View run</a>}
-      </div>
+      </div></div>
+      {active && helper && <p className="ct-meta higgs-row-note">{helper}</p>}
       {i.notice && <p className="ct-meta">{i.notice}</p>}
       {i.from && <p className="ct-meta">From: {i.from}</p>}
       {!active && helper && <p className="ct-meta">{helper}</p>}

@@ -6,14 +6,14 @@ import type { SurfaceContext, ViewContext, CommandPorts } from '../../src/comman
 import type { Effect } from '../../src/service';
 export const soul = 'higgsfield-ai/soul/v2/standard';
 export const providerId = 'd7e6c0f3-6699-4f6c-bb45-2ad7fd9158ff';
-export function fixture() {
+export function fixture(initialNow = 10) {
   const partitions = new Map<string, Partition>();
   const store: JobStore = { transact(owner, workspace, edit) {
     const key = owner + ':' + workspace;
     const p = clone(partitions.get(key) ?? { jobs: [], ceilings: { usd_micro: 100 } });
     const r = edit(p); partitions.set(key, p); return clone(r);
   } };
-  let sends = 0, id = 0, now = 10;
+  let sends = 0, id = 0, now = initialNow;
   let effect: Effect | undefined;
   const contexts = new WeakMap<object, Access>();
   const invalidations: unknown[] = [], calls: unknown[] = [];
