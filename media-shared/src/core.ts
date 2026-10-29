@@ -153,7 +153,7 @@ export class MediaCore {
       job.state = 'unknown'; job.accounting = 'unknown'; job.phase = undefined; job.lease = undefined; job.cancelRequested = false; return job;
     });
   }
-  observation(token: Continuation, receipt: Omit<Observation, 'outputs'>): { job: Job; saveOutputs: boolean } {
+  observation(token: Continuation, receipt: Omit<Observation, 'outputs'>, deferFinish = false): { job: Job; saveOutputs: boolean } {
     return this.continued(token, (_d, job) => {
       if (job.phase !== 'submitting' && job.lease !== 'reconcile') throw new Error('effect_not_entered');
       if (!receipt.jobId || job.jobId && job.jobId !== receipt.jobId) {
@@ -163,7 +163,7 @@ export class MediaCore {
       job.jobId = receipt.jobId; // Write once before output acquisition can fail.
       const { jobId: _id, ...header } = receipt;
       job.pendingReceipt = clone(header); job.phase = 'receipt';
-      if (receipt.state !== 'generated') this.finish(job, []);
+      if (receipt.state !== 'generated' && !deferFinish) this.finish(job, []);
       return { job, saveOutputs: receipt.state === 'generated' };
     });
   }
@@ -175,7 +175,9 @@ export class MediaCore {
   }
   complete(token: Continuation, artifacts: Artifact[]): Job {
     return this.continued(token, (_d, job) => {
-      if (job.phase !== 'receipt' || !artifacts.length || artifacts.length > 64 || artifacts.some(a => a.kind !== 'artifact' || !a.id || !a.contentType)) throw new Error('invalid_outputs');
+      const outputsRequired = !job.pendingReceipt || job.pendingReceipt.state === 'generated';
+      if (job.phase !== 'receipt' || outputsRequired && !artifacts.length || !outputsRequired && artifacts.length > 0 ||
+          artifacts.length > 64 || artifacts.some(a => a.kind !== 'artifact' || !a.id || !a.contentType)) throw new Error('invalid_outputs');
       this.finish(job, artifacts); return job;
     });
   }
