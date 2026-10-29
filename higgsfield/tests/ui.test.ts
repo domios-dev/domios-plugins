@@ -11,6 +11,8 @@ import { bridgeTransport } from '../ui/src/transport';
 import { frameMediaView } from '../ui/src/media';
 import { App, MediaPreview } from '../ui/src/App';
 import { Price, Studio, SchemaFields } from '../../media-shared/ui/src';
+import { FinishedFeed } from '../../media-shared/ui/src/Studio';
+import type { StudioItem } from '../../media-shared/ui/src';
 import { jobStatus, studioPrice, groupHistory } from '../../media-shared/src/presentation';
 import type { UIDetails, UISnapshot } from '../src/ui';
 import type { ViewContext } from '../src/commands';
@@ -106,13 +108,14 @@ test('actual shared schema fields render constraints and required/advanced input
 test('actual App renders service fixture lifecycle and shared grouping with attribution', async () => {
   const fixture = fixtureTransport(), c = new StudioController(fixture.transport); await c.mount();
   const markup = render(React.createElement(App, { controller: c }));
-  for (const state of ['queued', 'generating', 'generated', 'failed', 'canceled', 'unknown', 'starting', 'price_unavailable', 'price_stale', 'waiting_ok'] as const) assert.ok(markup.includes(jobStatus(state).label), state);
+  for (const state of ['queued', 'generating', 'generated', 'failed', 'canceled', 'unknown', 'starting', 'price_unavailable'] as const) assert.ok(markup.includes(jobStatus(state).label), state);
+  assert.doesNotMatch(markup, /Waiting for your OK|Price needs updating/); // Missing fixture quotes cannot inherit a stale/approval label from a stored wait reason.
   assert.match(markup, /studio-composer/); assert.match(markup, /Show activity/); assert.match(markup, /<small>A<\/small>/); assert.doesNotMatch(markup, /<small>Fixture<\/small>/); c.dispose();
 });
 test('pipeline fixture provides exactly 3 jobs/one failure, existing link and one-hop source without refresh approval', async () => {
   const fixture = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(fixture.transport); await c.mount();
   assert.equal(c.state.snapshot?.items.length, 3); assert.equal(c.state.snapshot?.items.filter(i => i.state === 'failed').length, 1);
-  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /View run/); assert.match(markup, /From: run-one/); assert.doesNotMatch(markup, /Check price again/); c.dispose();
+  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /View run/); assert.match(markup, /From:.*A quiet garden cover/); assert.doesNotMatch(markup, /From: run-one|Check price again/); c.dispose();
 });
 test('frame acquisition rejects remote/unapproved MIME, expires freely, remints on reopen, and reports refusal copy', async () => {
   let now = 0, acquisitions = 0, saves = 0, message = '', content_type = 'image/png', url: string | null = '/scoped';
@@ -433,4 +436,99 @@ test('active row status/actions and optional helper are separate from nonshrinki
   assert.match(css, /@media\(max-width:899px\)/); assert.match(css, /\.higgs-metadata>small\{flex-shrink:0/);
   assert.match(css, /\.higgs-row-end\{grid-column:1;justify-content:flex-end;flex-wrap:wrap;max-width:100%/);
   assert.match(css, /\.higgs-row>\.higgs-row-note\{grid-column:1;margin:0/); c.dispose();
+});
+
+function hostElements(node: React.ReactNode): React.ReactElement<any>[] {
+  const result: React.ReactElement<any>[] = [];
+  React.Children.forEach(node, child => { if (React.isValidElement(child)) { const element = child as React.ReactElement<any>; result.push(element); result.push(...hostElements(element.props.children)); } });
+  return result;
+}
+test('ordinary study fixtures render as sibling articles in one actual day grid, preserving vendor slots', async () => {
+  const now = new Date(2026, 9, 29, 12).getTime(), f = fixtureTransport({ now });
+  const snapshot = await f.transport.call('ui.snapshot', { limit: 50 }); if ('kind' in snapshot) throw Error(snapshot.code);
+  const items = snapshot.items.filter(i => i.title.includes('study'));
+  assert.equal(items.length, 2);
+  const slot = (item: StudioItem) => React.createElement('button', { 'data-vendor-card': item.id }, item.title);
+  const tree = FinishedFeed({ items, now, renderItem: slot });
+  const grids = hostElements(tree).filter(n => n.props.className === 'studio-feed');
+  assert.equal(grids.length, 1);
+  const siblings = React.Children.toArray(grids[0].props.children) as React.ReactElement<any>[];
+  assert.equal(siblings.length, 2); assert.ok(siblings.every(n => n.type === 'article'));
+  assert.deepEqual(siblings.map(n => n.props.children.props['data-vendor-card']), items.map(i => i.id));
+  const markup = render(React.createElement(Studio, { title: 'Gallery', items, now, capacity: 64, activity: [], composer: null, footer: null, renderItem: slot, onSelect() {}, onBack() {} }));
+  assert.equal((markup.match(/class="studio-feed"/g) ?? []).length, 1);
+  assert.match(markup, /data-vendor-card="image-study"/); assert.match(markup, /data-vendor-card="video-study"/);
+});
+test('ordinary sibling grids stop at actual consecutive run groups without merging separated pipeline buckets', async () => {
+  const now = new Date(2026, 9, 29, 12).getTime(), f = fixtureTransport({ now });
+  const snapshot = await f.transport.call('ui.snapshot', {}); if ('kind' in snapshot) throw Error(snapshot.code);
+  const base = snapshot.items.find(i => i.id === 'generated')!;
+  const you = { kind: 'you' as const }, agent = { kind: 'agent' as const, label: 'Rex' };
+  const run = { kind: 'run' as const, label: 'Daily covers run #12', runId: 'run-private-a' }, secondRun = { kind: 'run' as const, label: 'Product covers run #3', runId: 'run-private-b' };
+  const sequence = [['u1', you], ['a1', agent], ['r1a', run], ['r1b', run], ['u2', you], ['a2', agent], ['r2a', secondRun], ['u3', you], ['r1c', run]] as const;
+  const items: StudioItem[] = sequence.map(([id, actor], n) => ({ ...base, id, actor, title: id, at: now - n * 1000,
+    state: id === 'a2' ? 'failed' : 'generated', status: jobStatus(id === 'a2' ? 'failed' : 'generated') }));
+  const tree = FinishedFeed({ items, now, renderItem: item => React.createElement('div', { className: 'higgs-tile', 'data-state': item.state }, item.title) });
+  const nodes = hostElements(tree), grids = nodes.filter(n => n.props.className === 'studio-feed');
+  assert.deepEqual(grids.map(grid => (React.Children.toArray(grid.props.children) as React.ReactElement<any>[]).map(article => article.props.children.props.children)),
+    [['u1', 'a1'], ['r1a', 'r1b'], ['u2', 'a2'], ['r2a'], ['u3'], ['r1c']]);
+  assert.equal(nodes.filter(n => n.props.className === 'studio-run').length, 3);
+  assert.match(render(tree), /class="higgs-tile" data-state="failed">a2/);
+  assert.equal(items.length, 9); assert.deepEqual(items.map(i => i.id), sequence.map(([id]) => id));
+});
+test('one authorized three-job run has a collapsed preparation aggregate and three individual activity entries', async () => {
+  const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
+  assert.equal(c.state.snapshot?.activitySummary, 'Daily covers run #12 prepared 3 jobs'); assert.equal(c.state.snapshot?.activity.length, 3);
+  const markup = render(React.createElement(App, { controller: c }));
+  const strip = markup.match(/<details class="studio-activity">([\s\S]*?)<\/details>/)?.[1]; assert.ok(strip);
+  assert.match(strip, /<summary>Daily covers run #12 prepared 3 jobs/); assert.equal((strip.match(/<li>/g) ?? []).length, 3);
+  assert.doesNotMatch(strip, /submitted|spent|charged|\$|usd_micro/); assert.doesNotMatch(markup, /<details class="studio-activity" open/);
+  assert.equal(f.f.sends(), 0); c.dispose();
+});
+test('mixed actors or an activity expansion truncated at8 do not claim a complete single-run aggregate or cost total', async () => {
+  const f = fixtureTransport({ scenario: 'pipeline' }); f.f.service.intent(f.f.actor('A'), 'other-agent-job', soul, { prompt: 'Other authorized activity' });
+  const mixed = await f.transport.call('ui.snapshot', {}); if ('kind' in mixed) throw Error(mixed.code);
+  assert.equal(mixed.activitySummary, undefined); assert.equal(mixed.activity.length, 4);
+  const { f: serviceFixture, ui } = setup(); const actor = serviceFixture.actor('A', 'run', 'bounded-run');
+  if (actor.scope.actor.kind === 'run') actor.scope.actor.label = 'Daily covers run #12';
+  for (let n = 0; n < 9; n++) serviceFixture.service.intent(actor, 'bounded-activity-' + n, soul, { prompt: 'Bounded activity' });
+  const bounded = ui('ui.snapshot') as UISnapshot; assert.equal(bounded.activity.length, 8); assert.equal(bounded.activitySummary, undefined);
+});
+test('fixture one-hop source reference has a bounded human label and source lookup obeys current owner authorization', async () => {
+  const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
+  const child = c.state.snapshot!.items.find(i => i.id === 'run-two')!;
+  assert.equal(child.source?.id, 'run-one'); assert.ok(child.source!.label.length <= 96); assert.match(child.source!.label, /A quiet garden cover.*Soul V2/); assert.doesNotMatch(child.source!.label, /run-one|run-a|https:|workspace/);
+  await c.inspect(child.id); const source = c.state.details!.item.source!; assert.equal(source.id, 'run-one');
+  const childMarkup = render(React.createElement(App, { controller: c })); assert.match(childMarkup, /higgs-lineage/); assert.doesNotMatch(childMarkup, /From: run-one/);
+  await c.inspect(source.id); assert.equal(c.state.details?.params.prompt, 'A quiet garden cover'); assert.equal(c.state.details?.item.source, undefined);
+  await selectFixtureOwner(f, c, 'B'); await c.inspect(source.id); assert.equal(c.state.details, undefined); assert.equal(c.state.snapshot?.items.length, 0);
+  const production = setup(), prepared = production.prepare(); assert.equal(production.ui('ui.details', { id: prepared.id }).item.source, undefined); c.dispose();
+});
+test('only run-attributed fixture jobs with the authorized run link render foreground underlined View run', async () => {
+  const f = fixtureTransport({ scenario: 'pipeline' }); const access = f.f.contexts.get(f.context)!;
+  f.f.service.intent(access, 'user-saved-job', soul, { prompt: 'User history beside the run' });
+  f.f.service.intent(f.f.actor('A'), 'agent-saved-job', soul, { prompt: 'Agent history beside the run' });
+  const c = new StudioController(f.transport); await c.mount();
+  const nonRun = c.state.snapshot!.items.filter(i => i.actor.kind !== 'run'); assert.equal(nonRun.length, 2); assert.ok(nonRun.every(i => i.runLink === undefined));
+  nonRun.forEach(i => { i.runLink = '#must-not-render'; });
+  const markup = render(React.createElement(App, { controller: c })); assert.equal((markup.match(/>View run<\/a>/g) ?? []).length, 3); assert.doesNotMatch(markup, /href="#must-not-render"/);
+  const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8'); assert.match(css, /\.higgs-actions a,\.higgs-actions a:visited,\.higgs-lineage\{color:var\(--ct-fg\);text-decoration:underline/); c.dispose();
+});
+test('row/tile keyboard focus uses one outer has-focus-visible ring and suppresses inner outlines without pointer focus-within', async () => {
+  const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
+  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /higgs-tile higgs-row/); assert.match(markup, /<button class="higgs-select"/);
+  const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
+  assert.match(css, /\.higgs-tile :focus-visible\{outline:none\}/); assert.match(css, /\.higgs-tile:has\(:focus-visible\)\{outline:2px solid var\(--ct-fg\);outline-offset:2px\}/); assert.doesNotMatch(css, /\.higgs-tile:focus-within/); c.dispose();
+});
+test('waiting labels and helpers share the actual missing/fresh/stale pipeline price gate without changing durable wait authority', async () => {
+  const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
+  let markup = render(React.createElement(App, { controller: c }));
+  assert.match(markup, /Price unavailable/); assert.match(markup, /This step stays paused until a safe, fresh price is available/); assert.doesNotMatch(markup, /Waiting for your OK|Approve in the run view/);
+  const actor = f.f.actor('A', 'run'); const before = f.f.service.history(actor).find(j => j.id === 'run-three')!;
+  assert.equal(before.waitReason, 'owner_confirmation'); assert.equal(before.quote, undefined);
+  f.f.service.estimate(actor, 'run-three'); await c.refresh(); // Actual injected free estimator, never a hand-fabricated quote or paid effect.
+  markup = render(React.createElement(App, { controller: c })); assert.match(markup, /Waiting for your OK/); assert.match(markup, /Approve in the run view/); assert.doesNotMatch(markup, /This step stays paused/);
+  f.f.tick(); await c.refresh(); markup = render(React.createElement(App, { controller: c }));
+  assert.match(markup, /Price needs updating/); assert.match(markup, /This step stays paused until a safe, fresh price is available/); assert.doesNotMatch(markup, /Waiting for your OK|Approve in the run view/);
+  assert.equal(f.f.service.history(actor).find(j => j.id === 'run-three')?.waitReason, 'owner_confirmation'); assert.equal(f.f.sends(), 0); c.dispose();
 });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Json } from '../../src/contracts';
 import { groupHistory, studioPrice, jobStatus } from '../../src/presentation';
-import type { EstimateView, InputSchema, StudioProps, InspectorNavigation } from './types';
+import type { EstimateView, InputSchema, StudioProps, InspectorNavigation, StudioItem } from './types';
 
 const label = (key: string, schema: InputSchema) => schema.title || (key.charAt(0).toUpperCase() + key.slice(1).replaceAll('_', ' '));
 export function Settings({ schema, values }: { schema: InputSchema; values: Record<string, Json> }) {
@@ -74,6 +74,20 @@ export function Price({ view, onEstimate, onGenerate }: { view: EstimateView; on
     <button type="button" className="ct-btn ct-btn-primary" title={view.gate.kind === 'ready' ? `${view.gate.amount} ${view.gate.unit}` : undefined} disabled={price.disabled || !view.capable || view.busy || view.estimating || !!view.invalid || !!view.insufficient} onClick={onGenerate}>{view.invalid ? view.invalidAction ?? 'Check inputs' : view.estimating ? 'Estimating cost…' : view.busy ? jobStatus('starting').label : price.primary}</button>
     {view.available && view.gate.kind !== 'ready' && !view.invalid && !view.estimating && <button type="button" className="ct-btn ct-btn-ghost" disabled={view.busy} onClick={onEstimate}>{view.refreshLabel ?? price.refresh ?? 'Get price'}</button>}</div>;
 }
+/** DOM composition only. Preserve foundation day/run ordering; merge adjacent ordinary buckets into sibling grids. */
+export function FinishedFeed({ items, now, renderItem }: { items: StudioItem[]; now: number; renderItem: StudioProps['renderItem'] }) {
+  return <>{groupHistory(items, now).map(day => {
+    const blocks: typeof day.runs = [];
+    for (const bucket of day.runs) {
+      const last = blocks[blocks.length - 1];
+      if (bucket.actor.kind !== 'run' && last && last.actor.kind !== 'run') last.items.push(...bucket.items);
+      else blocks.push({ actor: bucket.actor, items: [...bucket.items] });
+    }
+    return <section key={day.day}><h2>{day.day}</h2>{blocks.map((block, n) => block.actor.kind === 'run'
+      ? <div key={n} className="studio-run"><p className="ct-meta">{block.actor.label}</p><div className="studio-feed">{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div></div>
+      : <div key={n} className="studio-feed">{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div>)}</section>;
+  })}</>;
+}
 export function Studio(p: StudioProps) {
   const [pane, setPane] = useState<'compose' | 'results'>('compose');
   const [search, setSearch] = useState('');
@@ -91,10 +105,10 @@ export function Studio(p: StudioProps) {
     if (p.selected && ['ArrowLeft', 'ArrowRight'].includes(event.key)) { const index = filtered.findIndex(i => i.id === p.selected); const next = filtered[index + (event.key === 'ArrowLeft' ? -1 : 1)]; if (next) p.onSelect(next.id); event.preventDefault(); }
   };
   return <main className="studio" data-pane={pane} onKeyDown={navigate}><header className="ct-toolbar"><h1>{p.title}</h1><select aria-label="Show activity from" value={p.filter ?? 'everyone'} onChange={e => p.onFilter?.(e.target.value as NonNullable<StudioProps['filter']>)}><option value="everyone">Everyone</option><option value="you">You</option><option value="agent">Agents</option><option value="run">Pipelines</option></select>{p.toolbar}<input type="search" aria-label="Search prompts" placeholder="Search prompts" value={search} onChange={e => setSearch(e.target.value)} /></header>
-    {p.activity.length > 0 && <details className="studio-activity"><summary>{p.activity[0]} · Show activity ({p.activity.length})</summary><ol>{p.activity.map((line, i) => <li key={i}>{line}</li>)}</ol></details>}
+    {p.activity.length > 0 && <details className="studio-activity"><summary>{p.activitySummary ?? p.activity[0]} · Show activity ({p.activity.length})</summary><ol>{p.activity.map((line, i) => <li key={i}>{line}</li>)}</ol></details>}
     <nav className="studio-mobile studio-segments" aria-label="Studio panes"><button className="ct-btn" aria-pressed={pane === 'compose'} onClick={() => setPane('compose')}>Compose</button><button className="ct-btn" aria-pressed={pane === 'results'} onClick={() => setPane('results')}>Results ({p.items.length})</button></nav>
     <div className="studio-panes"><aside className="studio-composer" aria-label="Composer"><div className="studio-composer-body">{p.composer}</div><footer>{p.footer}</footer></aside><section className="studio-results" aria-label="Results" tabIndex={-1}>
-      {p.selected ? typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}{groupHistory(finished, p.now).map(day => <section key={day.day}><h2>{day.day}</h2>{day.runs.map((run, n) => <div key={n} className={run.actor.kind === 'run' ? 'studio-run' : ''}>{run.actor.kind === 'run' && <p className="ct-meta">{run.actor.label}</p>}<div className="studio-feed">{run.items.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></div>)}</section>)}{filtered.length === 0 && p.empty}{p.next}<p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p></>}
+      {p.selected ? typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}<FinishedFeed items={finished} now={p.now} renderItem={p.renderItem} />{filtered.length === 0 && p.empty}{p.next}<p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p></>}
     </section></div></main>;
 }
 export function Inspector({ onBack, preview, children, navigation }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode; navigation?: InspectorNavigation }) {

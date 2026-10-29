@@ -7,12 +7,12 @@ export type InputSchema = { type?: string | string[]; title?: string; descriptio
   minItems?: number; maxItems?: number; items?: InputSchema; [keyword: string]: unknown };
 export type StudioItem = { id: string; operation: string; title: string; at: number; actor: Actor; startedBy: string;
   state: JobState; status: ReturnType<typeof jobStatus>; price: PriceGate; outputs: Artifact[]; activity: string;
-  from?: string; runLink?: string; notice?: string; priceTTL?: number; modelLabel?: string;
+  source?: { id: string; label: string }; runLink?: string; notice?: string; priceTTL?: number; modelLabel?: string;
   recordedCost?: { text: string; amount: number; unit: string; kind: 'quoted' | 'charged' } };
 export type EstimateView = { gate: PriceGate; count: number; available: boolean; estimating?: boolean;
   insufficient?: { needs: string; have: string }; invalid?: string; invalidAction?: string; refreshLabel?: string; capable: boolean; busy: boolean };
 export type InspectorNavigation = { index: number; total: number; previous?: () => void; next?: () => void };
-export type StudioProps = { title: string; composer: ReactNode; footer: ReactNode; toolbar?: ReactNode; activity: string[];
+export type StudioProps = { title: string; composer: ReactNode; footer: ReactNode; toolbar?: ReactNode; activity: string[]; activitySummary?: string;
   items: StudioItem[]; now: number; capacity: number; selected?: string; inspector?: ReactNode | ((navigation?: InspectorNavigation) => ReactNode);
   renderItem(item: StudioItem): ReactNode; onSelect(id: string): void; onBack(): void; empty?: ReactNode;
   next?: ReactNode; filter?: 'everyone' | 'you' | 'agent' | 'run'; onFilter?(value: 'everyone' | 'you' | 'agent' | 'run'): void };

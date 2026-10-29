@@ -1,6 +1,6 @@
 import type { Json } from '../../../media-shared/src/contracts';
 import type { UIDetails, UISnapshot } from '../../src/ui';
-import type { InputSchema, EstimateView } from '../../../media-shared/ui/src/types';
+import type { InputSchema, EstimateView, StudioItem } from '../../../media-shared/ui/src/types';
 import { validateParams } from '../../src/catalog';
 import { matches } from '../../src/schema';
 import type { UITransport } from './transport';
@@ -86,10 +86,12 @@ export class StudioController {
     try { if (validateParams(this.state.operation, this.state.values)) return; } catch { /* schema not selected */ }
     return { action: 'Check inputs', helper: 'Check the model inputs to get a price' };
   }
+  priceFor(item: StudioItem) {
+    return item.price.kind === 'ready' && Date.now() >= (this.priceDeadlines.get(item.id) ?? 0) ? { kind: 'stale' as const } : item.price;
+  }
   price(): EstimateView {
     const item = this.state.snapshot?.items.find(i => i.id === this.state.id);
-    const gate = item?.price.kind === 'ready' && Date.now() >= (this.priceDeadlines.get(item.id) ?? 0)
-      ? { kind: 'stale' as const } : item?.price;
+    const gate = item ? this.priceFor(item) : undefined;
     const count = typeof this.state.values.batch_size === 'number' ? this.state.values.batch_size : 1;
     const issue = this.inputIssue();
     return { gate: gate ?? { kind: this.state.stale ? 'stale' : 'unavailable' }, count, available: this.state.snapshot?.capabilities.estimate ?? false,
