@@ -25,12 +25,22 @@ export type Job = {
   reservation?: Amount; accounting?: 'reserved' | 'unknown' | 'spent';
   outputs: Artifact[]; progress?: number; providerState?: string;
   lease?: 'preflight' | 'estimate' | 'reconcile' | 'cancel';
+  phase?: 'preflight' | 'reserved' | 'submitting' | 'receipt';
+  epoch?: number;
+  pendingReceipt?: Omit<Observation, 'outputs' | 'jobId'>;
 };
 export type Partition = { jobs: Job[]; ceilings: Partial<Record<Unit, number>> };
-/** Must be durable, atomic and serialized across controller instances/processes for this owner/workspace. */
+/** Must be synchronous, durable, atomic and serialized across instances/processes for this owner/workspace. */
 export interface JobStore {
-  transact<T>(owner: string, workspace: string, edit: (data: Partition) => T): Promise<T>;
+  transact<T>(owner: string, workspace: string, edit: (data: Partition) => T): T;
 }
+/** Trusted HOST-resolved values for this synchronous transition, never UI-supplied authority. */
+export type Access = { scope: Scope; current: boolean; inputsAuthorized?: boolean };
+/** Persist in the host continuation, never use as a client authorization token or a host job id. */
+export type Continuation = { owner: string; workspace: string; id: string; binding: string; epoch: number };
+export type Decision = { job: Job; continuation?: Continuation };
+export type Submission = { kind: 'async' | 'sync' | 'stream'; intentId: string; request: Request; continuation: Continuation };
+/** Async fixture/UI driver port only; production passes fresh HOST-resolved Access to MediaCore. */
 export interface Authority {
   resolve(caller: unknown): Promise<Scope | null>;
   current(scope: Scope): Promise<boolean>;
@@ -60,6 +70,7 @@ export type StreamEvent = { kind: 'bytes'; bytes: Uint8Array } | { kind: 'comple
 export interface OutputStore {
   save(scope: Scope, intentId: string, output: Output): Promise<Artifact>;
 }
+/** Async driver ports, not a QuickJS export or a host SDK declaration. */
 export type Ports = {
   authority?: Authority; store?: JobStore; outputs?: OutputStore; now(): number;
   maxHistory: number; maxOutputBytes: number;
