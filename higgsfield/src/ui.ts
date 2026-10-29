@@ -1,6 +1,7 @@
 import type { Access, Job, Json } from '../../media-shared/src/contracts';
 import { clone } from '../../media-shared/src/contracts';
 import { jobPrice, jobStatus, actorLabel, activityLine } from '../../media-shared/src/presentation';
+import { quoteState } from '../../media-shared/src/cost';
 import { models, revision, limitation, validateParams } from './catalog';
 import type { HiggsfieldService } from './service';
 import type { StudioItem, InputSchema } from '../../media-shared/ui/src/types';
@@ -59,6 +60,23 @@ export function schemaSupported(schema: InputSchema): boolean {
   return !!schema.properties && !Array.isArray(schema.properties) && (schema.type === undefined || schema.type === 'object') && walk(schema, 0, new Set());
 }
 export const unitNames = { one: 'microdollar', other: 'microdollars' };
+/** Exact decimal display only; atomic quote/binding/accounting remain unchanged. */
+export function displayUSD(amount: number): string {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('invalid_display_amount');
+  const whole = Math.floor(amount / 1000000), remainder = amount % 1000000;
+  const fraction = String(remainder).padStart(6, '0').replace(/0+$/, '').padEnd(2, '0');
+  return `$${whole}.${fraction}`;
+}
+export function displayModel(operation: string): string {
+  const title = models.find(m => m.id === operation)?.title;
+  return title ? title.split(' — ')[0].replace(/ API$/, '').replace(/\b[A-Z]{3,}\b/g, word => word[0] + word.slice(1).toLowerCase()) : 'Model unavailable';
+}
+function privateActivity(job: Job): string {
+  const prompt = (job.request.params as Record<string, Json>).prompt;
+  const subject = typeof prompt === 'string' ? prompt.replace(/[\r\n\t]+/g, ' ').slice(0, 24) + (prompt.length > 24 ? '…' : '') : 'generation';
+  // Durable intent preparation is recorded. No submission/event ledger is inferred.
+  return activityLine(job.scope.actor, 'prepared', `'${subject}' · ${displayModel(job.request.operation)}`);
+}
 const id = (v: unknown): v is string => typeof v === 'string' && /^[A-Za-z0-9_./-]{1,255}$/.test(v);
 export function validateUIArgs(value: unknown, allowed: string[]): asserts value is Record<string, any> {
   if (!value || typeof value !== 'object' || Array.isArray(value) ||
@@ -70,11 +88,17 @@ export function uiItem(job: Job, now: number): StudioItem {
   const state = job.state === 'waiting' ? job.waitReason === 'price_stale' ? 'price_stale' :
     job.waitReason === 'price_unavailable' ? 'price_unavailable' : 'waiting_ok' : job.state;
   const params = job.request.params as Record<string, Json>;
+  const gate = jobPrice(job, now, unitNames);
+  const price = gate.kind === 'ready' ? { ...gate, text: displayUSD(gate.amount) } : gate;
+  const charged = job.accounting === 'spent' && job.reservation?.unit === 'usd_micro' ? job.reservation : undefined;
+  const quoted = job.quote && quoteState(job.quote, job.binding, job.request.unit, job.quote.issuedAt) === 'ready' ? job.quote : undefined;
+  const cost = charged ?? quoted;
   return { id: job.id, operation: job.request.operation, title: typeof params.prompt === 'string' ? params.prompt.slice(0, 240) : 'Generation',
     at: job.at, actor: clone(job.scope.actor), status: jobStatus(state, { cancelRequested: job.cancelRequested, progress: job.progress,
       elapsedMs: ['starting', 'queued', 'generating'].includes(state) ? Math.max(0, now - job.at) : undefined }),
-    state, price: jobPrice(job, now, unitNames), priceTTL: job.quote ? Math.max(0, job.quote.validUntilMs - now) : undefined, outputs: clone(job.outputs),
-    activity: activityLine(job.scope.actor, 'updated', job.request.operation), startedBy: actorLabel(job.scope.actor) };
+    state, price, priceTTL: job.quote ? Math.max(0, job.quote.validUntilMs - now) : undefined, outputs: clone(job.outputs), modelLabel: displayModel(job.request.operation),
+    recordedCost: cost ? { amount: cost.amount, unit: cost.unit, text: displayUSD(cost.amount), kind: charged ? 'charged' : 'quoted' } : undefined,
+    activity: privateActivity(job), startedBy: actorLabel(job.scope.actor) };
 }
 export function uiSchema(operation: unknown): InputSchema | UIUnavailable {
   if (!id(operation)) throw new Error('ui_refused');
@@ -94,9 +118,9 @@ export function documentUI(service: HiggsfieldService, access: Access, method: s
     const sorted = [...history].sort((a, b) => b.at - a.at || a.id.localeCompare(b.id));
     return boundedResponse({ items: sorted.slice(offset, offset + limit).map(j => uiItem(j, now)), total: sorted.length,
       next: offset + limit < sorted.length ? offset + limit : null, capacity: service.historyCapacity(),
-      catalog: models.map(m => ({ id: m.id, label: m.title.split(' — ')[0].replace(/ API$/, ''), category: m.category.charAt(0).toUpperCase() + m.category.slice(1),
+      catalog: models.map(m => ({ id: m.id, label: displayModel(m.id), category: m.category.charAt(0).toUpperCase() + m.category.slice(1),
         unavailable: limitation(m.id)?.detail ?? (!service.canEstimate(m.id) ? 'no pricing from provider' : null) })),
-      activity: sorted.filter(j => j.scope.actor.kind !== 'you').slice(0, 8).map(j => activityLine(j.scope.actor, 'updated', j.request.operation)), capabilities }, uiBounds.snapshot, 'ui_snapshot_too_large');
+      activity: sorted.filter(j => j.scope.actor.kind !== 'you').slice(0, 8).map(privateActivity), capabilities }, uiBounds.snapshot, 'ui_snapshot_too_large');
   }
   if (method === 'ui.schema') {
     validateUIArgs(value, ['operation']);
