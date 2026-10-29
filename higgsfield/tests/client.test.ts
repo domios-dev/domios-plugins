@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { models, operations, model, limitation, validateParams, prepare, variation, revision } from '../src/catalog';
 import { matches, publicHttps } from '../src/schema';
-import { HiggsfieldClient, metadataPlan, estimatePlan, submitPlan, parseJson, usdMicro, lifecyclePlan } from '../src/client';
+import { HiggsfieldClient, apiUrl, metadataPlan, estimatePlan, submitPlan, parseJson, usdMicro, lifecyclePlan } from '../src/client';
 import type { Plan, Response } from '../src/client';
 import { HiggsfieldService, operationDisposition, limitations } from '../src/service';
 import type { Effect } from '../src/service';
@@ -117,7 +117,7 @@ function harness(options: { maxHistory?: number; throwSend?: boolean; secret?: b
       assert.deepEqual(policy, { redirect: 'error', retries: 0, maxBytes: 262144,
         credential: { secretName: 'higgsfield-api-key', origin: 'https://api.higgsfield.ai', scheme: 'Key' } });
       // Synthetic host transport owns resolution, after origin/grant checks. Backend never reads a key.
-      assert.equal(new URL(plan.url).origin, policy.credential.origin); reads++; sends++;
+      assert.ok(plan.url.startsWith(policy.credential.origin + '/')); reads++; sends++;
       sent.push({ ...plan, headers: { ...plan.headers, Authorization: 'Key synthetic-id:synthetic-secret' } });
       if (options.throwSend) throw new Error('synthetic-id:synthetic-secret private upstream error');
       return { kind: 'pending', correlation: 'transport-only-not-provider-id' };
@@ -127,7 +127,7 @@ function harness(options: { maxHistory?: number; throwSend?: boolean; secret?: b
     quote: (_access: Access, request: Request, binding: string): Quote => ({ amount: 94000, unit: 'usd_micro',
       binding, safe: true, basis: 'synthetic independently verified account quote', tariffRevision: 'test-tariff', issuedAt: 1000, validUntilMs: 2000 }),
     facts: { save: (_token: unknown, value: unknown) => { facts.push(clone(value)); } },
-    output: { allowed: (url: string) => new URL(url).hostname === 'media.example.org',
+    output: { allowed: (url: string) => url.startsWith('https://media.example.org/'),
       save: (_access: Access, id: string, assets: any[]) => { saved.push(clone(assets)); return assets.map((a,i) => ({ kind: 'artifact' as const, id: `${id}-${i}`, contentType: a.kind.startsWith('audio') ? 'audio/wav' : 'video/mp4' })); } },
   };
   let service = new HiggsfieldService(ports);
@@ -306,7 +306,9 @@ test('persisted params and unsafe approval edits cannot enter; price expiry duri
   h.store.transact(access.scope.owner, access.scope.workspace, d => { (d.jobs[0].request.params as any).seed = 4; });
   assert.throws(() => start(h)); assert.equal(h.sends(), 0);
   const later = harness(); later.ready(); later.ports.attest = () => { later.tick(2000); return true; };
-  assert.throws(() => start(later)); assert.equal(later.sends(), 0); assert.equal(later.service().history(access)[0].reservation, undefined);
+  const waiting = later.service().start(access, 'intent'); assert.ok('job' in waiting);
+  assert.equal(waiting.job.state, 'waiting'); assert.equal(waiting.job.waitReason, 'price_stale');
+  assert.equal(later.sends(), 0); assert.equal(later.service().history(access)[0].reservation, undefined);
 });
 test('untrusted receipt URLs and invented provider states/percentages never enter history', () => {
   for (const extra of [{ status: 'deleted' }, { status_url: 'https://evil.example.org/status' }, { cancel_url: `https://api.higgsfield.ai/requests/${otherUuid}/cancel` }]) {
@@ -324,3 +326,59 @@ test('candidate JSON bound counts UTF8 bytes and callback result stays in retain
   const job = h.service().receive({ ...access, current: false }, effect, response(effect.plan));
   assert.equal(job.jobId, uuid); assert.equal(job.state, 'queued');
 });
+test('backend plans, dispatch and media validation work with URL/URLSearchParams absent', () => {
+  const originalUrl = globalThis.URL, originalQuery = globalThis.URLSearchParams;
+  try {
+    globalThis.URL = undefined as any; globalThis.URLSearchParams = undefined as any;
+    assert.equal(publicHttps('https://media.example.org/a.wav?part=1'), true);
+    assert.equal(validateParams(audio, { audio_urls: ['https://media.example.org/a.wav'] }), true);
+    for (const row of models) if (row.schema && !limitation(row.id)) {
+      const request = prepare(row.id, witness(row.schema));
+      assert.equal(apiUrl(submitPlan(request, 'url-absent').url), true);
+    }
+    assert.equal(apiUrl(metadataPlan('presets.marketing', { search: 'a & b', cursor: 2 }).url), true);
+    const h = harness(); h.ready(); const effect = start(h);
+    assert.equal(h.sends(), 1);
+    const result = h.service().receive(access, effect, response(effect.plan, { request_id: uuid, status: 'completed', video: { url: 'https://media.example.org/v.mp4' } }));
+    assert.equal(result.state, 'generated');
+    for (const url of ['https://api.higgsfield.ai.evil.org/a', 'https://api.higgsfield.ai@evil.org/a', 'https://api.higgsfield.ai:443/a',
+      'https://api.higgsfield.ai/a/../admin', 'https://api.higgsfield.ai/%2e%2e/admin', 'https://api.higgsfield.ai/a\\b',
+      'https://api.higgsfield.ai/a#secret', 'https://api.higgsfield.ai//evil', 'https://api.higgsfield.ai/a?x=%ZZ']) assert.equal(apiUrl(url), false, url);
+    for (const url of ['https://media.example.org@evil.org/a', 'https://media.example.org:444/a', 'https://0x7f.0.0.1/a',
+      'https://media.example.org/a\\b', 'https://media.example.org/a#fragment', 'https://media.example.org/a%ZZ',
+      'https://media.example.org/\nsecret', 'https://media..example.org/a']) assert.equal(publicHttps(url), false, url);
+  } finally { globalThis.URL = originalUrl; globalThis.URLSearchParams = originalQuery; }
+  for (const file of ['client', 'schema', 'response', 'service', 'catalog']) {
+    const source = readFileSync(new URL(`../src/${file}.ts`, import.meta.url), 'utf8');
+    assert.doesNotMatch(source, /new\s+(?:URL|URLSearchParams)\b|host\.url\b/);
+  }
+});
+test('queued nullable expiry succeeds and preserves exact provider identity', () => {
+  const h = harness(); h.ready(); const effect = start(h);
+  const job = h.service().receive(access, effect, response(effect.plan, { request_id: uuid, status: 'queued', expires_at: null }));
+  assert.equal(job.jobId, uuid); assert.equal(job.state, 'queued'); assert.equal((h.facts[0] as any).expiresAt, null);
+  assert.equal(h.sends(), 1);
+});
+for (const state of ['queued', 'completed', 'failed']) for (const auxiliary of [
+  { expires_at: 42 }, { expires_at: 'not-a-date' }, { status_url: 'https://evil.example.org/status' },
+  { cancel_url: `https://api.higgsfield.ai/requests/${otherUuid}/cancel` },
+]) test(`valid ${state} identity survives bad auxiliary ${JSON.stringify(auxiliary)}`, () => {
+  const h = harness(); h.ready(); const effect = start(h);
+  assert.throws(() => h.service().receive(access, effect, response(effect.plan, { request_id: uuid, status: state, ...auxiliary })), /receipt_unknown/);
+  const unknown = h.service().history(access)[0];
+  assert.equal(unknown.jobId, uuid); assert.equal(unknown.state, 'unknown'); assert.equal(unknown.reservation?.amount, 94000);
+  assert.equal(h.facts.length, 0); assert.equal(h.saved.length, 0);
+  h.service().start(access, 'intent'); assert.equal(h.sends(), 1);
+  const inspect = h.service().inspect(access, 'intent');
+  assert.equal(inspect.plan.url, `https://api.higgsfield.ai/requests/${uuid}/status`);
+  const reconciled = h.service().receive(access, inspect, response(inspect.plan, { request_id: uuid, status: 'queued', expires_at: null }));
+  assert.equal(reconciled.jobId, uuid); assert.equal(reconciled.state, 'queued');
+  assert.equal(h.sent.filter(p => p.headers['Idempotency-Key']).length, 1);
+});
+for (const fields of [{ request_id: 'bad-id', status: 'queued' }, { request_id: uuid, status: 'deleted' }])
+  test(`minimum receipt identity/state fails closed ${JSON.stringify(fields)}`, () => {
+    const h = harness(); h.ready(); const effect = start(h);
+    assert.throws(() => h.service().receive(access, effect, response(effect.plan, fields)), /receipt_unknown/);
+    const job = h.service().history(access)[0]; assert.equal(job.jobId, undefined); assert.equal(job.state, 'unknown');
+    assert.equal(h.sends(), 1);
+  });

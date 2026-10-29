@@ -5,7 +5,7 @@ import { totals } from '../../media-shared/src/cost';
 import { validateRequest, prepare, operations, unavailable } from './catalog';
 import { HiggsfieldClient, boundedQuote, lifecyclePlan, metadataPlan, parseJson, submitPlan } from './client';
 import type { Plan, Response, Pending } from './client';
-import { receipt } from './response';
+import { identity, receipt } from './response';
 
 /** Trusted injected consumer contracts, NOT host API signatures. Missing production ports refuse.
  * Attestation verifies exact durable input bytes, model prose/media constraints, account access and
@@ -46,7 +46,8 @@ export class HiggsfieldService {
       if (!this.ports.attest || this.ports.attest(access, clone(d.job.request)) !== true) throw new Error('input_account_schema_unverified');
       plan = submitPlan(d.job.request, d.job.id);
       send = this.ports.client.prepareSend(plan);
-      this.core.reserve(access, token);
+      const reserved = this.core.reserve(access, token);
+      if (reserved.state === 'waiting') return { job: reserved };
     } catch { this.core.releasePreflight(token); throw new Error('submission_preflight_refused'); }
     const entered = this.core.enter(access, token);
     if (!entered.action) return { job: entered.job };
@@ -64,11 +65,12 @@ export class HiggsfieldService {
         return this.core.unknown(effect.token);
       }
       const value = parseJson(response, effect.plan);
+      const normalized = identity(value);
+      const observed = this.core.observation(effect.token, normalized, true);
+      if (observed.job.jobId !== normalized.jobId) return observed.job;
       const head = receipt(value, () => false, false);
-      const observed = this.core.observation(effect.token, head.observation);
-      if (observed.job.jobId !== head.observation.jobId) return observed.job;
       this.ports.facts?.save(effect.token, { requestId: head.observation.jobId, statusUrl: head.statusUrl, cancelUrl: head.cancelUrl, expiresAt: head.expiresAt });
-      if (!observed.saveOutputs) return observed.job;
+      if (!observed.saveOutputs) return this.core.complete(effect.token, []);
       if (!this.ports.output || !access.current || access.scope.owner !== effect.token.owner || access.scope.workspace !== effect.token.workspace ||
           !this.core.history(access).some(j => j.id === effect.token.id)) throw new Error('output_unavailable');
       const body = receipt(value, u => this.ports.output!.allowed(u));

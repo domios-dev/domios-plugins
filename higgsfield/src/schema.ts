@@ -45,10 +45,11 @@ export function matches(schema: Schema, value: unknown, root = schema, depth = 0
 }
 /** Conservative consumer policy; DNS/redirect/actual media checks remain a trusted transport duty. */
 export function publicHttps(value: string): boolean {
-  try {
-    const u = new URL(value);
-    return value.length <= 8192 && u.protocol === 'https:' && !u.username && !u.password && !u.hash &&
-      (!u.port || u.port === '443') && /^[a-z\d.-]+$/i.test(u.hostname) && u.hostname.includes('.') &&
-      !/^\d+(?:\.\d+){3}$/.test(u.hostname) && !/(^|\.)(localhost|local|internal|test|invalid)$/.test(u.hostname);
-  } catch { return false; }
+  if (typeof value !== 'string' || value.length > 8192 || /[^\x21-\x7e]|[\\#]/.test(value) || /%(?![a-f\d]{2})/i.test(value)) return false;
+  const match = /^https:\/\/([a-z\d.-]+)(?::443)?(?:[/?].*)?$/i.exec(value);
+  if (!match) return false;
+  const labels = match[1].toLowerCase().split('.');
+  return labels.length >= 2 && labels.every(label => /^[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?$/.test(label)) &&
+    /^[a-z][a-z\d-]*$/.test(labels[labels.length - 1]) &&
+    !['localhost', 'local', 'internal', 'test', 'invalid'].includes(labels[labels.length - 1]);
 }

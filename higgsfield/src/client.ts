@@ -22,7 +22,13 @@ function issued(plan: Plan): Plan {
   Object.freeze(plan.headers); Object.freeze(plan); plans.add(plan); return plan;
 }
 export function apiUrl(url: string): boolean {
-  try { const u = new URL(url); return u.origin === origin && !u.username && !u.password && !u.hash && !/%(?:2f|5c|2e)/i.test(u.pathname) && !url.includes('\\'); } catch { return false; }
+  // Catalog builders issue canonical ASCII paths/query pairs; no browser URL global exists in QuickJS.
+  if (typeof url !== 'string' || url.length > 8192 || !url.startsWith(origin + '/')) return false;
+  const tail = url.slice(origin.length + 1);
+  const [path, query, extra] = tail.split('?');
+  return extra === undefined && /^[A-Za-z0-9._/-]+$/.test(path) &&
+    !path.split('/').some(segment => !segment || segment === '.' || segment === '..') &&
+    (query === undefined || /^[A-Za-z0-9_.!~*'()%=&-]+$/.test(query) && !/%(?![a-f\d]{2})/i.test(query));
 }
 export function requestUrl(id: string, kind: 'status' | 'cancel'): string {
   if (!/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id)) throw new Error('invalid_provider_identity');
