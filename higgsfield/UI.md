@@ -105,3 +105,7 @@ Iris19 is addressed only on finished vendor tiles: status row12px horizontal pad
 No new worker Node selector, build, server, install or paid call was granted/run for this low-impact fixture/CSS batch. The earlier46/46 source result is historical. Parent preview compilation and actual ready-waiting capture must show Waiting for your OK and Approve in the run view without the missing-price helper, followed by Iris confirmation before final in_review reporting. Native host/paid/media/release exclusions remain HIG-11.
 
 Iris subsequently confirmed19 and the optional lineage polish in source. Her only open item is20 from Watt's merged preview; conditional approval is still not treated as unconditional.
+
+## Stage selection review boundary
+
+The stage result strip exposes authorized history; its order is not a revision graph or evidence of the owning agent's current result. Source lineage is shown only where already present. Host-stamped owner, immutable artifact/text revisions, and an agent selection/feedback channel remain HIG-11 integration dependencies. The local selection example is synthetic fixture evidence only; production does not offer Comment without an authorized channel. The dev WebM is a local test pattern and does not prove vendor or host media delivery.

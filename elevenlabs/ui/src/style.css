@@ -21,3 +21,4 @@
 .eleven-setting .studio-number{flex-wrap:nowrap}.eleven-setting input[type=range]{flex:1;min-width:0;accent-color:var(--ct-fg)}.eleven-setting input[type=number]{width:72px}.eleven-setting input[type=number]:placeholder-shown{width:140px}.eleven-setting small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#eleven-count,.eleven-seek small{font-variant-numeric:tabular-nums}
 @media(max-width:899px){.eleven-row{grid-template-columns:32px minmax(0,1fr)}.eleven-row-end{grid-column:1/-1;justify-content:flex-end;flex-wrap:wrap}}
 .eleven-preview>p.eleven-stage-text{white-space:pre-wrap;overflow:auto;max-height:40vh}
+.studio-stage-shell .eleven-preview{width:min(100%,560px);max-height:100%;min-height:0;margin:auto}.studio-stage-shell .eleven-audio-inspector audio[controls]{width:100%;max-width:560px}

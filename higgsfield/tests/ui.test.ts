@@ -546,7 +546,7 @@ test('local selection geometry rejects letterboxing and invalid ranges', async (
 
 
 test('image selection handler maps the rendered image and refuses letterbox gestures', async () => {
-  const { imageGesture } = await import('../../media-shared/ui/src/FixtureSelection');
+  const { imageGesture } = await import('../../media-shared/ui/dev/FixtureSelection');
   const image = { naturalWidth:1000, naturalHeight:500, getBoundingClientRect:()=>({left:10,top:20,width:1000,height:1000}) } as any;
   assert.deepEqual(imageGesture(image,{x:510,y:520},{x:510,y:520}),{kind:'point',point:{x:.5,y:.5}});
   assert.equal(imageGesture(image,{x:510,y:120},{x:510,y:520}),null);
@@ -555,7 +555,7 @@ test('image selection handler maps the rendered image and refuses letterbox gest
 
 
 test('fixture pointer handlers retain a selection only for a valid media gesture', async () => {
-  const {handleFixturePointer} = await import('../../media-shared/ui/src/FixtureSelection');
+  const {handleFixturePointer} = await import('../../media-shared/ui/dev/FixtureSelection');
   const image = {naturalWidth:1000,naturalHeight:500,getBoundingClientRect:()=>({left:0,top:0,width:1000,height:1000})};
   const currentTarget={querySelector:()=>image}; const down={current:null as {x:number;y:number}|null}; const selections:any[]=[];
   const event=(x:number,y:number)=>({clientX:x,clientY:y,currentTarget} as any);
@@ -568,15 +568,23 @@ test('actual image inspector only exposes the explicitly injected synthetic sele
   const f=fixtureTransport(), c=new StudioController(f.transport); await c.mount(); await c.inspect('generated');
   const ordinary=render(React.createElement(App,{controller:c,media:fixtureMedia}));
   assert.doesNotMatch(ordinary, /Fixture: not sent|>Comment<|Send \(fixture\)/);
-  const fixture=render(React.createElement(App,{controller:c,media:fixtureMedia,fixtureTarget:item=>item.id==='generated'?{kind:'image',revision:'synthetic:image'}:undefined}));
-  assert.match(fixture,/Fixture: not sent/); assert.match(fixture,/>Comment<\/button>/); assert.doesNotMatch(fixture,/>Sent<|>Seen<|Addressed in v3/); assert.equal(f.submissions(),0); c.dispose();
+  const fixture=render(React.createElement(App,{controller:c,media:fixtureMedia,selection:(_item,children)=>React.createElement('div',{'data-fixture-slot':true},children)}));
+  assert.match(fixture,/data-fixture-slot/); assert.doesNotMatch(fixture,/>Sent<|>Seen<|Addressed in v3/); assert.equal(f.submissions(),0); c.dispose();
 });
 
 
 test('fixture comment gesture preserves exact words and cannot assert delivery', async () => {
-  const {submitFixture} = await import('../../media-shared/ui/src/FixtureSelection'); const attempts:any[]=[];
+  const {submitFixture} = await import('../../media-shared/ui/dev/FixtureSelection'); const attempts:any[]=[];
   const target={kind:'image' as const,revision:'synthetic:image',refuse:(p:any)=>attempts.push(p)};
   const anchor={kind:'point' as const,point:{x:.5,y:.5}}; const text='Change this';
   assert.equal(submitFixture(target,anchor,text,'change'),true); assert.equal(attempts[0].text,text); assert.equal(attempts[0].revision,target.revision);
   assert.equal(submitFixture({...target,revision:'untrusted'},anchor,text,'change'),false); assert.equal(attempts.length,1);
+});
+
+
+test('fixture gesture treats a sub-percent drag as a point and keeps the production slot neutral', async () => {
+  const {imageGesture}=await import('../../media-shared/ui/dev/FixtureSelection');
+  const image={naturalWidth:1000,naturalHeight:500,getBoundingClientRect:()=>({left:0,top:0,width:1000,height:500})} as any;
+  assert.equal(imageGesture(image,{x:500,y:250},{x:505,y:251})?.kind,'point');
+  for(const path of ['../ui/src/App.tsx','../../elevenlabs/ui/src/App.tsx'])assert.doesNotMatch(readFileSync(new URL(path,import.meta.url),'utf8'),/FixtureSelection|fixtureTarget/);
 });

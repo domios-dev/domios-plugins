@@ -11,10 +11,10 @@ export function containPoint(x: number, y: number, boxWidth: number, boxHeight: 
 export function region(a: Point, b: Point): Rect | null {
   if (![a.x,a.y,b.x,b.y].every(n => Number.isFinite(n) && n >= 0 && n <= 1)) return null;
   const x = Math.min(a.x,b.x), y = Math.min(a.y,b.y), w = Math.abs(a.x-b.x), h = Math.abs(a.y-b.y);
-  return w > 0 && h > 0 ? { x, y, w, h } : null;
+  return w >= .01 && h >= .01 ? { x, y, w, h } : null;
 }
 export function timeRange(start: number, end: number, duration: number): { t0_ms: number; t1_ms: number } | null {
-  return [start,end,duration].every(Number.isFinite) && duration > 0 && start >= 0 && start < end && end <= duration ? { t0_ms: start, t1_ms: end } : null;
+  return [start,end,duration].every(Number.isFinite) && duration > 0 && start >= 0 && end - start >= 50 && end <= duration ? { t0_ms: start, t1_ms: end } : null;
 }
 export function textSpan(text: string, start: number, end: number): { start: number; end: number; quote: string } | null {
   const points = Array.from(text);

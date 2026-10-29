@@ -1,9 +1,10 @@
 import React,{useEffect,useRef,useState} from 'react';
+import {createPortal} from 'react-dom';
 import {humanActions} from '../../../media-shared/src/presentation';
 import type { LocalAudio, MediaPort } from './media';
 import { PlaybackGroup, seekAudio } from './media';
 export const audioTime=(seconds:number)=>`${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
-export function AudioPlayer({id,media,group,native=false,children}:{id:string;media:MediaPort;group:PlaybackGroup;native?:boolean;children?:React.ReactNode}){
+export function AudioPlayer({id,media,group,native=false,children,actionsTarget}:{id:string;media:MediaPort;group:PlaybackGroup;native?:boolean;children?:React.ReactNode;actionsTarget?:HTMLElement|null}){
   const ref=useRef<HTMLAudioElement>(null),playRef=useRef<HTMLButtonElement>(null),revision=useRef(0);
   const [source,setSource]=useState<LocalAudio|null>(null),[pending,setPending]=useState(false),[failed,setFailed]=useState(false);
   const [playing,setPlaying]=useState(false),[duration,setDuration]=useState(0),[time,setTime]=useState(0);
@@ -46,7 +47,7 @@ export function AudioPlayer({id,media,group,native=false,children}:{id:string;me
     {native&&pending&&<small>Loading audio…</small>}
     {native&&!pending&&(!source?.url||failed)&&<><small>Audio unavailable in this view</small><button className="ct-btn ct-btn-ghost" onClick={()=>{const current=revision.current;setPending(true);void media.acquire(id).then(local=>{if(current===revision.current){setSource(local);setFailed(false);setPending(false);}}).catch(()=>{if(current===revision.current)setPending(false);});}}>Reopen result</button></>}
     {!native&&failed&&<small role="status">Couldn't play audio. Open the result to check file access.</small>}
-    {native&&source?.save&&actions.includes('saveAs')&&<button className="ct-btn ct-btn-ghost" onClick={source.save}>Save as…</button>}
-    {native&&source?.reveal&&actions.includes('reveal')&&<button className="ct-btn ct-btn-ghost" onClick={source.reveal}>Show in folder</button>}
+    {native&&(()=>{const buttons=<>{source?.save&&actions.includes('saveAs')&&<button className="ct-btn ct-btn-ghost" onClick={source.save}>Save as…</button>}{source?.reveal&&actions.includes('reveal')&&<button className="ct-btn ct-btn-ghost" onClick={source.reveal}>Show in folder</button>}</>;return actionsTarget===undefined?buttons:actionsTarget?createPortal(buttons,actionsTarget):null;})()}
+
   </div>;
 }

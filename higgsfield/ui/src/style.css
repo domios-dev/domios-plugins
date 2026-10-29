@@ -13,3 +13,5 @@
 .studio-active .higgs-row{padding-right:12px}.studio-active .higgs-row-end .higgs-actions{padding-right:0}
 
 .studio-stage-shell .higgs-media img,.studio-stage-shell .higgs-media video{height:auto;max-height:65vh;object-fit:contain}
+.studio-stage-shell .higgs-media img,.studio-stage-shell .higgs-media video{display:block;width:100%;height:min(42dvh,400px);max-height:400px;object-fit:contain}
+.studio-stage-shell .higgs-media{width:100%;height:100%;min-height:0;display:flex;flex-direction:column;align-items:center}.studio-stage-shell .higgs-media img,.studio-stage-shell .higgs-media video{width:100%;height:100%;min-height:0;max-height:calc(100% - 48px);object-fit:contain}

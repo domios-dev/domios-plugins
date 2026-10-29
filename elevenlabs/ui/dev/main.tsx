@@ -1,6 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {App} from '../src/App';
+import {FixtureProvider,FixtureControls,FixtureNotice,FixtureExamples,FixtureSelection} from '../../../media-shared/ui/dev/FixtureSelection';
 import {StudioController} from '../src/controller';
 import {fixtureMedia,fixtureTransport,fixtureVoices,selectFixtureOwner} from './fixtures';
 import {Price} from '../../../media-shared/ui/src';
@@ -41,6 +42,6 @@ function FixtureDocument(){
   },[controller,fixture,storageKey]);
   const base:EstimateView={gate:{kind:'ready',amount:800,unit:'usd_micro',text:'$0.0008'},count:1,capable:true,available:true,busy:false};
   const prices:EstimateView[]=[base,{...base,estimating:true},{...base,gate:{kind:'stale'}},{...base,gate:{kind:'unavailable'}},{...base,insufficient:{needs:'$0.0008',have:'$0.0004'}}];
-  return <><App fixtureTarget={(item,text) => item.outputs[0]?.id === 'fixture-local-tone' ? {kind:'audio',revision:'synthetic:'+item.id+':fixture-tone:'+text,durationMs:4000,text} : undefined} controller={controller} media={fixtureMedia} voices={fixtureVoices}/><section className="fixture-matrix"><h2>Synthetic price states</h2>{prices.map((view,i)=><div key={i}><Price view={view} onEstimate={()=>{}} onGenerate={()=>{}}/></div>)}</section><section className="fixture-matrix" id="fixture-existing-run"><h2>Fixture existing run</h2><p>Three synthetic jobs, one failure and one waiting. No real Blueprint approval, host run or media review is represented.</p></section></>;
+  return <><FixtureProvider><App ownerLabel="Rex (fixture)" controls={<FixtureControls/>} fixtureNotice={<FixtureNotice/>} selection={(item,text,children)=>{const target=item.outputs[0]?.id==='fixture-local-tone'?{kind:'audio' as const,revision:'synthetic:'+fixture.owner()+':'+item.id+':tone:'+text,durationMs:4000,text,voice:item.voiceLabel}:undefined;return target?<FixtureSelection key={target.revision} target={target}>{children}</FixtureSelection>:children;}} controller={controller} media={fixtureMedia} voices={fixtureVoices}/><FixtureExamples/></FixtureProvider><section className="fixture-matrix"><h2>Synthetic price states</h2>{prices.map((view,i)=><div key={i}><Price view={view} onEstimate={()=>{}} onGenerate={()=>{}}/></div>)}</section><section className="fixture-matrix" id="fixture-existing-run"><h2>Fixture existing run</h2><p>Three synthetic jobs, one failure and one waiting. No real Blueprint approval, host run or media review is represented.</p></section></>;
 }
 createRoot(document.getElementById('root')!).render(query.get('frame')==='1'?<FixtureDocument/>:<PreviewHost/>);
