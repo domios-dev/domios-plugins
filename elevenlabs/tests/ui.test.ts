@@ -204,3 +204,13 @@ test('text keyboard offsets retain complete code points at selection boundaries'
   assert.deepEqual(spanFromOffsets('A😀BC',3,1),{start:1,end:2,quote:'😀'});
   assert.equal(spanFromOffsets('A😀BC',1,2),null);assert.equal(spanFromOffsets('A😀BC',3,3),null);
 });
+
+test('span submission reads current native offsets instead of a prior selection',async()=>{
+  const {spanFromControl}=await import('../../media-shared/ui/dev/FixtureSelection');
+  const native={selectionStart:0,selectionEnd:5};
+  assert.deepEqual(spanFromControl('A😀BC',native),{start:0,end:4,quote:'A😀BC'});
+  native.selectionStart=1;native.selectionEnd=3;
+  assert.deepEqual(spanFromControl('A😀BC',native),{start:1,end:2,quote:'😀'});
+  native.selectionEnd=2;assert.equal(spanFromControl('A😀BC',native),null);
+  assert.equal(spanFromControl('A😀BC',null),null);
+});
