@@ -2,12 +2,13 @@ import type { Json } from '../../../media-shared/src/contracts';
 import type { UIDetails, UISnapshot } from '../../src/ui';
 import type { InputSchema, EstimateView } from '../../../media-shared/ui/src/types';
 import { validateParams } from '../../src/catalog';
+import { matches } from '../../src/schema';
 import type { UITransport } from './transport';
 export type UIState = { snapshot?: UISnapshot; details?: UIDetails; schema?: InputSchema; operation: string;
   values: Record<string, Json>; purpose: string; id?: string; estimating: boolean; busy: boolean; error?: string;
-  unavailable?: string | null; stale?: boolean; filter: 'everyone' | 'you' | 'agent' | 'run' };
+  unavailable?: string | null; stale?: boolean; formRevision?: number; filter: 'everyone' | 'you' | 'agent' | 'run' };
 export function defaults(schema: InputSchema): Record<string, Json> {
-  return Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([, s]) => s.default !== undefined).map(([k, s]) => [k, s.default!]));
+  return Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([, s]) => s.default !== undefined && matches(s, s.default, schema, 0, false)).map(([k, s]) => [k, s.default!]));
 }
 /** UI state only. Durable identity, costs, authority and lifecycle belong to the same backend service. */
 export class StudioController {
@@ -18,6 +19,11 @@ export class StudioController {
   private prepared = new Set<string>();
   private unsubscribe?: () => void;
   private priceDeadlines = new Map<string, number>();
+  private viewRevision = 0;
+  private refreshRequest = 0;
+  private detailRequest = 0;
+  private selectionRequest = 0;
+  private visibilityPending = false;
   constructor(readonly transport: UITransport) {}
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   getSnapshot = () => this.state;
@@ -27,21 +33,31 @@ export class StudioController {
     await this.refresh();
     if (!this.state.operation && this.state.snapshot?.catalog.length) await this.selectModel(this.state.snapshot.catalog.find(m => m.id === 'higgsfield-ai/soul/v2/standard')?.id ?? this.state.snapshot.catalog.find(m => !m.unavailable)?.id ?? this.state.snapshot.catalog[0].id);
   }
-  dispose() { this.unsubscribe?.(); }
+  dispose() { this.unsubscribe?.(); ++this.viewRevision; ++this.detailRequest; ++this.selectionRequest; }
   async refresh(offset = 0) {
+    const view = ++this.viewRevision, request = ++this.refreshRequest;
+    ++this.detailRequest; ++this.selectionRequest;
+    this.visibilityPending = true;
+    const previous = this.state.snapshot;
+    this.patch({ details: undefined });
     try {
-      const snapshot = await this.transport.call('ui.snapshot', { offset, limit: 48 });
+      const snapshot = await this.transport.call('ui.snapshot', { offset, limit: 50 });
+      if (view !== this.viewRevision || request !== this.refreshRequest) return;
+      if ('kind' in snapshot) throw new Error(snapshot.message);
       for (const item of snapshot.items) this.priceDeadlines.set(item.id, Date.now() + (item.priceTTL ?? 0));
-      this.patch({ snapshot: offset && this.state.snapshot ? { ...snapshot, items: [...this.state.snapshot.items, ...snapshot.items] } : snapshot,
-        details: this.state.details && snapshot.items.some(i => i.id === this.state.details!.item.id) ? this.state.details : undefined });
-    } catch { this.patch({ snapshot: undefined, details: undefined, id: undefined, values: {}, error: 'Studio bridge unavailable. Reopen this studio after its service is connected.' }); }
+      this.patch({ snapshot: offset && previous ? { ...snapshot, items: [...previous.items, ...snapshot.items] } : snapshot, details: undefined });
+    } catch {
+      if (view === this.viewRevision && request === this.refreshRequest) this.patch({ snapshot: undefined, details: undefined, id: undefined, values: {}, error: 'Studio bridge unavailable. Reopen this studio after its service is connected.' });
+    } finally { if (view === this.viewRevision && request === this.refreshRequest) this.visibilityPending = false; }
   }
   async selectModel(operation: string) {
-    const version = ++this.editing;
-    this.patch({ operation, values: {}, schema: undefined, id: undefined, details: undefined, error: undefined, unavailable: null, stale: false });
-    try { const result = await this.transport.call('ui.schema', { operation }); if (version !== this.editing) return;
+    const version = ++this.selectionRequest, view = ++this.viewRevision;
+    ++this.editing; ++this.detailRequest; this.visibilityPending = false;
+    this.patch({ operation, values: {}, schema: undefined, id: undefined, details: undefined, error: undefined, unavailable: null, stale: false, formRevision: (this.state.formRevision ?? 0) + 1 });
+    try { const result = await this.transport.call('ui.schema', { operation }); if (version !== this.selectionRequest || view !== this.viewRevision) return;
+      if ('kind' in result) { this.patch({ unavailable: result.message }); return; }
       this.patch({ schema: result.schema, values: defaults(result.schema), unavailable: result.unavailable });
-    } catch { if (version === this.editing) this.patch({ unavailable: 'The provider has no supported input schema for this model.' }); }
+    } catch { if (version === this.selectionRequest && view === this.viewRevision) this.patch({ unavailable: 'The provider has no supported input schema for this model.' }); }
   }
   edit(key: string, value: Json | undefined) {
     ++this.editing; const values = { ...this.state.values };
@@ -84,10 +100,18 @@ export class StudioController {
     finally { this.generating = false; this.patch({ busy: false }); await this.refresh(); }
   }
   async inspect(id: string) {
-    try { this.patch({ details: await this.transport.call('ui.details', { id }), error: undefined }); }
-    catch { this.patch({ error: 'This result is unavailable in this view.' }); }
+    if (this.visibilityPending) return;
+    const request = ++this.detailRequest, view = this.viewRevision;
+    ++this.selectionRequest;
+    this.patch({ details: undefined });
+    try {
+      const details = await this.transport.call('ui.details', { id });
+      if (view !== this.viewRevision || request !== this.detailRequest) return;
+      if ('kind' in details) { this.patch({ error: details.message }); return; }
+      this.patch({ details, error: undefined });
+    } catch { if (view === this.viewRevision && request === this.detailRequest) this.patch({ error: 'This result is unavailable in this view.' }); }
   }
-  back() { this.patch({ details: undefined }); }
+  back() { ++this.viewRevision; ++this.detailRequest; ++this.selectionRequest; this.visibilityPending = false; this.patch({ details: undefined }); }
   async reuse(variation = false) {
     const d = this.state.details; if (!d) return;
     const values = { ...d.params };
@@ -97,8 +121,8 @@ export class StudioController {
       if (count && (count.maximum === undefined || count.maximum >= 4)) values.batch_size = 4;
       if (!validateParams(d.item.operation, values)) { this.patch({ error: 'These variation settings are not valid for this model.' }); return; }
     }
-    ++this.editing;
-    this.patch({ operation: d.item.operation, schema: d.schema, values, id: undefined, details: undefined, unavailable: null, error: undefined });
+    ++this.editing; ++this.viewRevision; ++this.detailRequest; ++this.selectionRequest; this.visibilityPending = false;
+    this.patch({ operation: d.item.operation, schema: d.schema, values, id: undefined, details: undefined, unavailable: null, error: undefined, formRevision: (this.state.formRevision ?? 0) + 1 });
   }
   async action(method: 'cancel' | 'reconcile', id: string) {
     try { await this.transport.call(method, { id }); await this.refresh(); }

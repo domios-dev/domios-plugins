@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Json } from '../../src/contracts';
 import { groupHistory, studioPrice, jobStatus } from '../../src/presentation';
 import type { EstimateView, InputSchema, StudioProps } from './types';
@@ -18,31 +18,53 @@ export function Settings({ schema, values }: { schema: InputSchema; values: Reco
     return <React.Fragment key={key}><dt title={key}>{label(key, s)}</dt><dd>{value(v, s)}</dd></React.Fragment>;
   })}</dl>;
 }
-export function SchemaFields({ schema, values, onChange }: { schema: InputSchema; values: Record<string, Json>; onChange(key: string, value: Json | undefined): void }) {
+export type SchemaFieldsProps = { schema: InputSchema; values: Record<string, Json>; keyFields?: string[];
+  defaultValid?(key: string, field: InputSchema): boolean; onChange(key: string, value: Json | undefined): void };
+export function SchemaFields({ schema, values, onChange, keyFields = [], defaultValid = () => false }: SchemaFieldsProps) {
   const fields = Object.entries(schema.properties ?? {});
   const required = new Set(schema.required ?? []);
-  const visible = fields.filter(([key]) => required.has(key)).map(([key]) => key);
-  for (const [key] of fields) if (visible.length < 4 && !visible.includes(key)) visible.push(key);
+  const resolve = (s: InputSchema) => s.$ref?.startsWith('#/$defs/') ? schema.$defs?.[s.$ref.slice(8)] ?? s : s;
+  const needsInput = fields.filter(([key, s]) => key !== 'prompt' && required.has(key) && !defaultValid(key, resolve(s))).map(([key]) => key);
+  const parameters = [...needsInput];
+  if (parameters.length <= 3) for (const key of keyFields) if (parameters.length < 3 && key !== 'prompt' && schema.properties?.[key] && !parameters.includes(key)) parameters.push(key);
+  const visible = new Set([...parameters, ...(schema.properties?.prompt ? ['prompt'] : [])]);
   function field(key: string, raw: InputSchema) {
     const s = raw.$ref?.startsWith('#/$defs/') ? schema.$defs?.[raw.$ref.slice(8)] ?? raw : raw;
     const name = label(key, s), value = values[key];
     const numeric = s.type === 'number' || s.type === 'integer';
     const update = (text: string) => { try { onChange(key, text === '' ? undefined : JSON.parse(text)); } catch { onChange(key, text); } };
     let control;
-    if (s.enum && s.enum.length <= 4) control = <div role="group" aria-label={name} className="studio-segments">{s.enum.map((option, i) => <button type="button" className="ct-btn" key={i} aria-pressed={JSON.stringify(value) === JSON.stringify(option)} onClick={() => onChange(key, option)}>{String(option)}</button>)}</div>;
+    if (s.enum && s.enum.length <= 4) control = <div role="radiogroup" aria-label={name} className="studio-segments">{s.enum.map((option, i) => <button type="button" role="radio" className="ct-btn" key={i} aria-checked={JSON.stringify(value) === JSON.stringify(option)} onClick={() => onChange(key, option)}>{String(option)}</button>)}</div>;
     else if (s.enum) control = <select aria-label={name} value={value === undefined ? '' : JSON.stringify(value)} onChange={e => update(e.target.value)}><option value="">Choose…</option>{s.enum.map((v, i) => <option key={i} value={JSON.stringify(v)}>{String(v)}</option>)}</select>;
     else if (s.type === 'boolean') control = <input type="checkbox" role="switch" aria-label={name} checked={value === true} onChange={e => onChange(key, e.target.checked)} />;
     else if (numeric) control = <div className="studio-number">{s.minimum !== undefined && s.maximum !== undefined && <input type="range" aria-label={`${name} slider`} min={s.minimum} max={s.maximum} step={s.multipleOf ?? (s.type === 'integer' ? 1 : 'any')} value={typeof value === 'number' ? value : s.minimum} onChange={e => onChange(key, Number(e.target.value))} />}<input type="number" aria-label={name} min={s.minimum} max={s.maximum} step={s.multipleOf ?? (s.type === 'integer' ? 1 : 'any')} value={typeof value === 'number' ? value : ''} onChange={e => onChange(key, e.target.value === '' ? undefined : Number(e.target.value))} />{key === 'seed' && <label><input type="checkbox" checked={value === undefined} onChange={e => onChange(key, e.target.checked ? undefined : 0)} />Random</label>}</div>;
     else if (s.type === 'string') control = key === 'prompt' || (s.maxLength ?? 0) > 500 ? <textarea aria-label={name} value={typeof value === 'string' ? value : ''} maxLength={s.maxLength} onChange={e => onChange(key, e.target.value)} /> : <input aria-label={name} value={typeof value === 'string' ? value : ''} maxLength={s.maxLength} onChange={e => onChange(key, e.target.value)} />;
     else control = <StructuredField name={name} value={value} onChange={update} />;
-    return <div className="studio-field" key={key}><label title={key}>{name}{required.has(key) ? ' *' : ''}</label>{control}{s.description && <small>{s.description}</small>}{s.maxItems !== undefined && <small>Up to {s.maxItems} items</small>}</div>;
+    function markRequired(node: React.ReactNode): React.ReactNode {
+      if (!React.isValidElement(node)) return node;
+      const element = node as React.ReactElement<any>;
+      const input = ['input', 'textarea', 'select'].includes(String(element.type)) || element.type === StructuredField || element.props.role === 'radiogroup';
+      return React.cloneElement(element, input ? { 'aria-required': true } : {}, element.props.children === undefined ? undefined : React.Children.map(element.props.children, markRequired));
+    }
+    const marked = required.has(key) ? markRequired(control) : control;
+    return <div className="studio-field" key={key}><label title={key}>{name}{required.has(key) && <><span className="studio-sr-only"> required</span><small className="studio-required" aria-hidden="true">Required</small></>}</label>{marked}{s.description && <small>{s.description}</small>}{s.maxItems !== undefined && <small>Up to {s.maxItems} items</small>}</div>;
   }
-  const more = fields.filter(([key]) => !visible.includes(key));
-  return <>{fields.filter(([key]) => visible.includes(key)).map(([key, s]) => field(key, s))}{more.length > 0 && <details><summary>More settings ({more.length})</summary>{more.map(([key, s]) => field(key, s))}</details>}</>;
+  const more = fields.filter(([key]) => !visible.has(key));
+  const changed = more.filter(([key, s]) => JSON.stringify(values[key]) !== JSON.stringify(defaultValid(key, resolve(s)) ? resolve(s).default : undefined)).length;
+  return <>{fields.filter(([key]) => visible.has(key)).sort(([a], [b]) => a === 'prompt' ? -1 : b === 'prompt' ? 1 : 0).map(([key, s]) => field(key, s))}{more.length > 0 && <details><summary>More settings ({more.length}){changed > 0 ? ` · ${changed} changed` : ''}</summary>{changed > 0 && <button type="button" className="ct-btn ct-btn-ghost" onClick={() => more.forEach(([key, s]) => onChange(key, defaultValid(key, resolve(s)) ? resolve(s).default : undefined))}>Reset</button>}{more.map(([key, s]) => field(key, s))}</details>}</>;
 }
-function StructuredField({ name, value, onChange }: { name: string; value: Json | undefined; onChange(value: string): void }) {
+export function StructuredField({ name, value, onChange, ...aria }: { name: string; value: Json | undefined; onChange(value: string): void; 'aria-required'?: boolean }) {
   const [draft, setDraft] = useState(value === undefined ? '' : JSON.stringify(value, null, 2));
-  return <textarea aria-label={name} value={draft} onChange={e => { setDraft(e.target.value); onChange(e.target.value); }} placeholder="Structured input" />;
+  const external = JSON.stringify(value);
+  const emitted = useRef(external);
+  useEffect(() => {
+    if (external !== emitted.current) { setDraft(value === undefined ? '' : JSON.stringify(value, null, 2)); emitted.current = external; }
+  }, [external, value]);
+  return <textarea {...aria} aria-label={name} value={draft} onChange={e => {
+    const text = e.target.value; setDraft(text);
+    try { emitted.current = JSON.stringify(text === '' ? undefined : JSON.parse(text)); } catch { emitted.current = JSON.stringify(text); }
+    onChange(text);
+  }} placeholder="Structured input" />;
 }
 export function Price({ view, onEstimate, onGenerate }: { view: EstimateView; onEstimate(): void; onGenerate(): void }) {
   const price = studioPrice(view.gate, view.count, view.available);

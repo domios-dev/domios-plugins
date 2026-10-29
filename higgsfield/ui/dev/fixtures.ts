@@ -61,6 +61,7 @@ export function fixtureTransport(options: { scenario?: string; load?: () => stri
       // Exact same commands, authorized document DTO and service as production.
       const result = commands.viewCall(method, args, context) as any;
       if (result?.error) throw new Error(result.error);
+      if (result?.kind === 'unavailable') return result;
       if (method === 'estimate') original('A', 'workspace', p => { const j = p.jobs.find(j => j.id === (args as { id: string }).id); if (j?.quote) j.quote.validUntilMs = f.now() + 600000; return null; });
       if (method === 'ui.snapshot' && options.scenario === 'pipeline') {
         for (const i of (result as UISnapshot).items) { i.runLink = '#fixture-existing-run'; if (i.id === 'run-two') i.from = 'run-one'; }

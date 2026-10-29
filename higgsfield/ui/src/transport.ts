@@ -1,10 +1,10 @@
 import type { Json } from '../../../media-shared/src/contracts';
-import type { UIDetails, UISnapshot } from '../../src/ui';
+import type { UIDetails, UISnapshot, UISchema, UIUnavailable } from '../../src/ui';
 import type { InputSchema } from '../../../media-shared/ui/src/types';
 export type Methods = {
-  'ui.snapshot': { args: { offset?: number; limit?: number }; result: UISnapshot };
-  'ui.details': { args: { id: string }; result: UIDetails };
-  'ui.schema': { args: { operation: string }; result: { schema: InputSchema; revision: string; unavailable: string | null } };
+  'ui.snapshot': { args: { offset?: number; limit?: number }; result: UISnapshot | UIUnavailable };
+  'ui.details': { args: { id: string }; result: UIDetails | UIUnavailable };
+  'ui.schema': { args: { operation: string }; result: UISchema | UIUnavailable };
   prepare: { args: { operation: string; params: Record<string, Json> }; result: { id: string } };
   estimate: { args: { id: string }; result: { id: string } };
   submit: { args: { id: string }; result: { id: string } };

@@ -15,6 +15,9 @@ import { jobStatus, studioPrice } from '../../media-shared/src/presentation';
 import type { UIDetails, UISnapshot } from '../src/ui';
 import type { ViewContext } from '../src/commands';
 import { models } from '../src/catalog';
+import { uiJSONBytes, validateUIArgs, uiBounds } from '../src/ui';
+import type { UITransport, Methods } from '../ui/src/transport';
+import { matches } from '../src/schema';
 const render = (component: React.ReactElement) => renderToStaticMarkup(component);
 function setup() { const f = fixture(), c = new HiggsfieldCommands(f.service, f.ports), view = f.viewContext('A');
   const prepare = (prompt = 'Private authorized prompt') => c.viewCall('prepare', { operation: soul, params: { prompt } }, view) as { id: string };
@@ -26,7 +29,10 @@ test('document snapshot pagination is bounded and reads the same authorized serv
   assert.equal(page.items.length, 1); assert.equal(page.next, 1); assert.equal(page.total, 2); assert.equal(page.capacity, 64);
   assert.equal(f.service.history(f.contexts.get(view)!).length, page.total);
   assert.equal(ui('ui.snapshot', { offset: page.next, limit: 1 }).next, null);
-  for (const args of [{ limit: 49 }, { limit: 0 }, { offset: -1 }, { offset: 10001 }, { limit: 1.5 }, { owner: 'A' }]) assert.deepEqual(ui('ui.snapshot', args), { error: 'document_ui_refused' });
+  for (const args of [{ limit: 51 }, { limit: 0 }, { offset: -1 }, { offset: 10001 }, { limit: 1.5 }, { owner: 'A' }]) assert.deepEqual(ui('ui.snapshot', args), { error: 'document_ui_refused' });
+  assert.equal(ui('ui.snapshot', { limit: 50 }).items.length, 2);
+  for (let n = 0; n < 20; n++) prepare('Default page ' + n);
+  assert.equal(ui('ui.snapshot').items.length, 20);
 });
 test('details provide private params and actual bounded schema; public activity and receipts omit them', () => {
   const { c, ui, prepare, view } = setup(); const { id } = prepare();
@@ -56,7 +62,7 @@ test('UI schema projects each actual catalog schema including dotted model IDs',
   for (const row of models) {
     const result = ui('ui.schema', { operation: row.id });
     if (row.schema) assert.deepEqual(result.schema, row.schema, row.id);
-    else assert.deepEqual(result, { error: 'document_ui_refused' });
+    else assert.equal(result.code, 'ui_schema_unsupported');
   }
 });
 test('UI invalidation clears private details when owner visibility changes', async () => {
@@ -94,7 +100,7 @@ test('shared rendered price uses foundation copy for safe, missing, stale and in
 });
 test('actual shared schema fields render constraints and required/advanced inputs', () => {
   const markup = render(React.createElement(SchemaFields, { schema: { type: 'object', required: ['prompt'], properties: {
-    prompt: { type: 'string', maxLength: 100 }, amount: { type: 'integer', minimum: 1, maximum: 4 }, sound: { type: 'boolean' }, mode: { enum: ['a', 'b'] }, detail: { type: 'string' } } }, values: {}, onChange() {} }));
+    prompt: { type: 'string', maxLength: 100 }, amount: { type: 'integer', minimum: 1, maximum: 4 }, sound: { type: 'boolean' }, mode: { enum: ['a', 'b'] }, detail: { type: 'string' } } }, keyFields: ['amount', 'sound', 'mode'], values: {}, onChange() {} }));
   assert.match(markup, /aria-label="Prompt"/); assert.match(markup, /maxLength="100"/i); assert.match(markup, /min="1"/); assert.match(markup, /More settings \(1\)/); assert.match(markup, /role="switch"/);
 });
 test('actual App renders service fixture lifecycle and shared grouping with attribution', async () => {
@@ -130,4 +136,162 @@ test('production entry has no reachable development fixtures and common shell ha
     assert.doesNotMatch(source, /higgsfield|elevenlabs|api\.|soul\/|kling-/i);
   }
   const source = readFileSync(new URL('../ui/src/controller.ts', import.meta.url), 'utf8'); assert.doesNotMatch(source, /setInterval|setTimeout/);
+});
+
+test('UI arguments count exact serialized UTF-8 bytes including non-ASCII and lone-surrogate escapes', () => {
+  const overhead = Buffer.byteLength(JSON.stringify({ id: '' }));
+  const room = 4096 - overhead;
+  const exact = { id: 'é'.repeat(Math.floor(room / 2)) + 'a'.repeat(room % 2) };
+  assert.equal(Buffer.byteLength(JSON.stringify(exact)), 4096);
+  assert.equal(uiJSONBytes(exact, 4096), 4096); validateUIArgs(exact, ['id']);
+  assert.throws(() => validateUIArgs({ id: exact.id + 'a' }, ['id']));
+  assert.throws(() => validateUIArgs({ id: '€'.repeat(1366) }, ['id']));
+  const escaped = { id: '\ud800' }; assert.equal(uiJSONBytes(escaped), Buffer.byteLength(JSON.stringify(escaped)));
+});
+
+test('total details response is accepted at exactly 64KiB UTF-8 and refused one byte above without partial settings', () => {
+  const { ui, prepare } = setup(); const { id } = prepare();
+  const schema = models.find(m => m.id === soul)!.schema as any;
+  const description = schema.description;
+  try {
+    schema.description = '';
+    const baseline = Buffer.byteLength(JSON.stringify(ui('ui.details', { id })));
+    const room = 65536 - baseline;
+    schema.description = 'é'.repeat(Math.floor(room / 2)) + 'a'.repeat(room % 2);
+    const details = ui('ui.details', { id });
+    assert.equal(Buffer.byteLength(JSON.stringify(details)), 65536); assert.equal(details.params.prompt, 'Private authorized prompt');
+    schema.description += 'a'; const refused = ui('ui.details', { id });
+    assert.equal(refused.kind, 'unavailable'); assert.equal(refused.code, 'ui_details_too_large'); assert.equal(refused.params, undefined); assert.equal(refused.schema, undefined);
+  } finally { if (description === undefined) delete schema.description; else schema.description = description; }
+});
+
+test('total snapshot and schema response UTF-8 limits include their entire envelopes', () => {
+  const { ui } = setup(); const row = models.find(m => m.id === soul)!;
+  const title = row.title, schema = row.schema as any, description = schema.description;
+  try {
+    row.title = ''; const baseline = Buffer.byteLength(JSON.stringify(ui('ui.snapshot')));
+    const room = 262144 - baseline;
+    row.title = 'é'.repeat(Math.floor(room / 2)) + 'a'.repeat(room % 2);
+    assert.equal(Buffer.byteLength(JSON.stringify(ui('ui.snapshot'))), 262144);
+    row.title += 'a'; assert.equal(ui('ui.snapshot').code, 'ui_snapshot_too_large');
+    row.title = title;
+    schema.description = ''; const schemaBaseline = Buffer.byteLength(JSON.stringify(ui('ui.schema', { operation: soul })));
+    const schemaRoom = 131072 - schemaBaseline;
+    schema.description = 'é'.repeat(Math.floor(schemaRoom / 2)) + 'a'.repeat(schemaRoom % 2);
+    assert.equal(Buffer.byteLength(JSON.stringify(ui('ui.schema', { operation: soul }))), 131072);
+    schema.description += 'a'; assert.equal(ui('ui.schema', { operation: soul }).code, 'ui_schema_too_large');
+    schema.description += '€'.repeat(1000); assert.equal(ui('ui.schema', { operation: soul }).code, 'ui_schema_too_large');
+  } finally { row.title = title; if (description === undefined) delete schema.description; else schema.description = description; }
+});
+
+test('schema projection honors depth12/fields128 boundaries and refuses unsupported projections', () => {
+  const { ui } = setup(); const row = models.find(m => m.id === soul)!; const saved = row.schema;
+  try {
+    row.schema = { type: 'object', properties: Object.fromEntries(Array.from({ length: 128 }, (_, n) => ['field' + n, { type: 'string' }])) } as any;
+    assert.equal(Object.keys(ui('ui.schema', { operation: soul }).schema.properties).length, 128);
+    (row.schema as any).properties.extra = { type: 'string' };
+    assert.equal(ui('ui.schema', { operation: soul }).code, 'ui_schema_unsupported');
+    let nested: any = { type: 'string' };
+    for (let n = 0; n < 11; n++) nested = { type: 'array', items: nested };
+    row.schema = { type: 'object', properties: { input: nested } } as any; assert.deepEqual(ui('ui.schema', { operation: soul }).schema, row.schema);
+    row.schema = { type: 'object', properties: { input: { type: 'array', items: nested } } } as any;
+    assert.equal(ui('ui.schema', { operation: soul }).code, 'ui_schema_unsupported');
+    for (const unsupported of [{ type: 'object', properties: { mode: { oneOf: [{ type: 'string' }, { type: 'number' }] } } },
+      { type: 'object', properties: { input: { $ref: 'https://untrusted.example/schema' } } }, { type: 'object', properties: { input: { $ref: '#/$defs/loop' } }, $defs: { loop: { $ref: '#/$defs/loop' } } }, { type: 'array', items: { type: 'string' } }]) {
+      row.schema = unsupported as any;
+      const result = ui('ui.schema', { operation: soul }); assert.equal(result.kind, 'unavailable'); assert.equal(result.schema, undefined);
+    }
+  } finally { row.schema = saved; }
+});
+
+test('unsupported persisted settings are unavailable instead of being silently truncated for reuse', () => {
+  const { f, ui, prepare } = setup(); const { id } = prepare();
+  f.store.transact('A', 'workspace', p => { (p.jobs.find(j => j.id === id)!.request.params as any).unknownKey = 'private'; return null; });
+  const result = ui('ui.details', { id }); assert.equal(result.code, 'ui_details_unsupported'); assert.equal(result.params, undefined);
+});
+
+function deferred<T>() { let resolve!: (value: T) => void, reject!: (error: Error) => void;
+  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
+function deferredFixture() {
+  const f = fixtureTransport(), blocked = new Set<keyof Methods>();
+  const pending: { method: keyof Methods; args: unknown; response: ReturnType<typeof deferred<any>> }[] = [];
+  const transport: UITransport = { subscribe: f.transport.subscribe,
+    call(method, args) { if (!blocked.has(method)) return f.transport.call(method, args) as any;
+      const response = deferred<any>(); pending.push({ method, args, response }); return response.promise; } };
+  return { f, blocked, pending, c: new StudioController(transport) };
+}
+test('late private inspect after Back or invalidation cannot resurrect details', async () => {
+  const { f, c, blocked, pending } = deferredFixture(); await c.mount();
+  const details = await f.transport.call('ui.details', { id: 'generated' });
+  blocked.add('ui.details'); const late = c.inspect('generated'); c.back(); pending.shift()!.response.resolve(details); await late;
+  assert.equal(c.state.details, undefined);
+  const second = c.inspect('generated'); blocked.add('ui.snapshot'); f.notify();
+  assert.equal(c.state.details, undefined);
+  const detailRequest = pending.find(p => p.method === 'ui.details')!, snapshotRequest = pending.find(p => p.method === 'ui.snapshot')!;
+  snapshotRequest.response.resolve(await f.transport.call('ui.snapshot', {})); await Promise.resolve();
+  detailRequest.response.resolve(details); await second; assert.equal(c.state.details, undefined); c.dispose();
+});
+test('refresh clears retained details immediately and never restores them from same-ID presence', async () => {
+  const { f, c, blocked, pending } = deferredFixture(); await c.mount(); await c.inspect('generated'); assert.ok(c.state.details);
+  const snapshot = await f.transport.call('ui.snapshot', {}); blocked.add('ui.snapshot'); const refresh = c.refresh();
+  assert.equal(c.state.details, undefined); pending[0].response.resolve(snapshot); await refresh; assert.equal(c.state.details, undefined); c.dispose();
+});
+test('out-of-order snapshot and inspect replies cannot restore earlier private visibility', async () => {
+  const { f, c, blocked, pending } = deferredFixture(); await c.mount();
+  const old = await f.transport.call('ui.snapshot', {}); blocked.add('ui.snapshot'); const first = c.refresh(), second = c.refresh();
+  const empty = { ...(old as UISnapshot), items: [], total: 0, next: null, activity: [] };
+  pending[1].response.resolve(empty); await second; pending[0].response.resolve(old); await first;
+  assert.equal(c.state.snapshot?.items.length, 0);
+  pending.length = 0; const afterBack = c.refresh(); c.back(); pending[0].response.resolve(old); await afterBack; assert.equal(c.state.snapshot?.items.length, 0);
+  blocked.delete('ui.snapshot'); pending.length = 0; blocked.add('ui.details');
+  const firstInspect = c.inspect('generated'), secondInspect = c.inspect('failed');
+  pending[1].response.resolve(await f.transport.call('ui.details', { id: 'failed' })); await secondInspect;
+  pending[0].response.resolve(await f.transport.call('ui.details', { id: 'generated' })); await firstInspect;
+  assert.equal(c.state.details?.item.id, 'failed'); c.dispose();
+});
+test('stale model schema responses cannot restore a selection after Back, refresh or a newer selection', async () => {
+  const { f, c, blocked, pending } = deferredFixture(); await c.mount(); const schema = await f.transport.call('ui.schema', { operation: soul });
+  blocked.add('ui.schema'); const first = c.selectModel(soul); c.back(); pending.shift()!.response.resolve(schema); await first; assert.equal(c.state.schema, undefined);
+  const second = c.selectModel(soul); await c.refresh(); pending.shift()!.response.resolve(schema); await second; assert.equal(c.state.schema, undefined);
+  const third = c.selectModel(soul), fourth = c.selectModel(soul);
+  pending[1].response.resolve(schema); await fourth; const accepted = c.state.schema;
+  pending[0].response.resolve({ ...(schema as any), schema: { type: 'string' } }); await third; assert.equal(c.state.schema, accepted); c.dispose();
+});
+
+test('Iris field placement keeps only marked keys and required inputs prominent, with required-overflow exception', () => {
+  const schema = { type: 'object', required: ['prompt', 'required_one', 'defaulted'], properties: {
+    prompt: { type: 'string' }, required_one: { type: 'string' }, defaulted: { type: 'integer', default: 2, minimum: 1 },
+    aspect: { type: 'string' }, count: { type: 'integer' }, extra: { type: 'string' }, other: { type: 'string' } } };
+  const props = { schema, values: { defaulted: 2 }, keyFields: ['aspect', 'count', 'extra'], defaultValid: (_k: string, s: any) => s.default !== undefined && matches(s, s.default), onChange() {} };
+  const markup = render(React.createElement(SchemaFields, props)); const [front, collapsed] = markup.split('<details>');
+  for (const label of ['Prompt', 'Required one', 'Aspect', 'Count']) assert.ok(front.includes('aria-label="' + label + '"'));
+  assert.doesNotMatch(front, /aria-label="Extra"|aria-label="Other"|aria-label="Defaulted"/);
+  assert.match(collapsed, /More settings \(3\)/); assert.match(collapsed, /aria-label="Defaulted"/); assert.match(markup, /aria-required="true"/); assert.match(markup, /studio-sr-only/); assert.match(markup, /aria-hidden="true">Required</);
+  const overflow = { ...schema, required: ['prompt', 'required_one', 'defaulted', 'aspect', 'count', 'extra'], properties: { ...schema.properties, defaulted: { type: 'integer', default: 0, minimum: 1 } } };
+  const [requiredFront, remaining] = render(React.createElement(SchemaFields, { ...props, schema: overflow })).split('<details>');
+  for (const label of ['Required one', 'Defaulted', 'Aspect', 'Count', 'Extra']) assert.ok(requiredFront.includes('aria-label="' + label + '"'));
+  assert.match(remaining, /More settings \(1\)/); assert.match(remaining, /Other/);
+});
+test('More settings changed count and Reset restore validated defaults through free edits and invalidate price', async () => {
+  const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount(); c.edit('prompt', 'Reset proof'); await c.estimate();
+  const schema = c.state.schema!; c.edit('resolution', '1080p'); c.edit('seed', 24);
+  const props = { schema, values: c.state.values, defaultValid: (_k: string, s: any) => s.default !== undefined && matches(s, s.default, schema, 0, false), onChange: (k: string, v: any) => c.edit(k, v) };
+  const tree = SchemaFields(props), markup = render(tree); assert.match(markup, /2 changed/); assert.match(markup, />Reset</);
+  function find(element: any): any { if (!element || typeof element !== 'object') return;
+    if (element.type === 'button' && element.props.children === 'Reset') return element;
+    for (const child of React.Children.toArray(element.props?.children)) { const result = find(child); if (result) return result; } }
+  find(tree).props.onClick(); assert.equal(c.state.values.resolution, '720p'); assert.equal(c.state.values.seed, undefined);
+  assert.equal(c.price().gate.kind, 'stale'); assert.equal(f.submissions(), 0); c.dispose();
+});
+test('free reuse replaces structured editor selection and its rendered value without retaining the earlier draft', async () => {
+  const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
+  c.edit('custom_reference_id', null); const before = c.state.formRevision;
+  const access = f.f.contexts.get(f.context)!;
+  const uuid = 'd7e6c0f3-6699-4f6c-bb45-2ad7fd9158ff';
+  f.f.service.intent(access, 'structured-reuse', soul, { prompt: 'Structured reference', custom_reference_id: uuid });
+  await c.refresh(); await c.inspect('structured-reuse'); await c.reuse();
+  assert.ok(c.state.formRevision! > before!); assert.equal(c.state.values.custom_reference_id, uuid);
+  const markup = render(React.createElement(App, { controller: c })); assert.ok(markup.includes(uuid));
+  const source = readFileSync(new URL('../ui/src/App.tsx', import.meta.url), 'utf8'); assert.match(source, /key=\{s\.operation \+ ':' \+ s\.formRevision\}/);
+  c.dispose();
 });
