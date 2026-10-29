@@ -5,6 +5,12 @@
   "description": "Andrey's CodeTerm capability plugins — Git, Transcriber, Bitwarden, Chat Preprocessor, Pebble, Grok, Aider, Telegram Client, Teams Client, Rotterdom, LARK.",
   "plugins": [
     {
+      "id": "higgsfield",
+      "path": "higgsfield",
+      "version": "0.1.0",
+      "minCodeterm": "1.18.0"
+    },
+    {
       "id": "lark",
       "path": "lark",
       "version": "0.1.2",
