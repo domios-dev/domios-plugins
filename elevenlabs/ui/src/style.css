@@ -23,4 +23,4 @@
 .eleven-preview>p.eleven-stage-text{white-space:pre-wrap;overflow:auto;max-height:40vh}
 .studio-stage-shell .eleven-preview{width:min(100%,560px);max-height:100%;min-height:0;margin:auto}.studio-stage-shell .eleven-audio-inspector audio[controls]{width:100%;max-width:560px}
 
-@media(max-width:759px){.studio-stage-shell .eleven-preview{margin:0 auto}.studio-stage-shell .eleven-preview .studio-fixture-selection{justify-content:flex-start}}
+@media(max-width:759px){.studio-stage-shell .eleven-preview{margin:0 auto}.studio-stage-shell .eleven-preview .studio-fixture-selection{justify-content:flex-start}.studio-stage-shell .studio-preview:has(.eleven-preview){padding-top:0}.studio-stage-shell .eleven-preview>:first-child,.studio-stage-shell .eleven-preview .studio-fixture-selection>:first-child{margin-top:0}}
