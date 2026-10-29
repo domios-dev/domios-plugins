@@ -20,7 +20,7 @@ export function fixture(){
       actor:options.run?{kind:'run',runId:options.run,label:'Trusted run'}:options.human?{kind:'you'}:{kind:'agent',label:'Agent'}};
     grants.set(token,s);return token;
   }
-  return {service,grant,store,files,network:()=>network,next:()=>`intent-${++sequence}`,setTime:(v:number)=>{now=v;},setPrice:(v:number)=>{price=v;},
+  return {service,grant,store,files,now:()=>now,network:()=>network,next:()=>`intent-${++sequence}`,setTime:(v:number)=>{now=v;},setPrice:(v:number)=>{price=v;},
     authorize(token:unknown){if(!grants.has(token))throw new Error('untrusted');return token;},
     humanApproval(token:unknown,id:string){const scope=grants.get(token)!;grants.set(token,{...scope,human:true});try{return service.approve(token,id,{amount:8,unit:'usd_micro'});}finally{grants.set(token,scope);}},
   };

@@ -2,6 +2,7 @@ import type { AgentCommandCtx, HostSurface, SurfaceCallContext } from '@codeterm
 import { ElevenLabsService, utf8Size } from './client';
 import { catalog, modelCatalog, operation, disposition, revision, validateRequest } from './catalog';
 import type { Job, Request } from '../../media-shared/src/contracts';
+import { quoteState } from '../../media-shared/src/cost';
 
 export const verbs = ['help','open','close','status','activity','catalog','capabilities','models','describe','estimate','usage','history','result','cancel','reconcile','prepare','rerun','generate','inspect','read'] as const;
 export interface CommandPorts {
@@ -9,6 +10,8 @@ export interface CommandPorts {
   /** Host policy resolves each trusted context anew. Never construct scope from body/args. */
   caller(context: SurfaceCallContext | unknown): unknown;
   nextIntent(): string;
+  /** Trusted current host clock; never a command argument or an implicit wall-clock fallback. */
+  now(): number;
 }
 const keys = (v: any, allowed: string[]) => v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).every(k => allowed.includes(k));
 function body(args: string[]) {
@@ -18,13 +21,18 @@ function body(args: string[]) {
   return value;
 }
 /** No prompts, raw arguments, provider errors, credentials, owner metadata or backend paths. */
-export function summary(job: Job) {
-  return { id:job.id, operation:job.request.operation, state:job.state, waitReason:job.waitReason,
+export function summary(job: Job, now: number) {
+  const priceState = quoteState(job.quote,job.binding,job.request.unit,now);
+  // Display freshness is recomputed without changing the shared persisted state machine.
+  const waitReason = job.state === 'waiting' && priceState !== 'ready'
+    ? priceState === 'stale' ? 'price_stale' : 'price_unavailable' : job.waitReason;
+  return { id:job.id, operation:job.request.operation, state:job.state, waitReason, priceState,
     at:job.at, updatedAt:job.updatedAt, outputs:job.outputs.length,
     actor:job.scope.actor.kind, runId:job.scope.runId,
-    quote:job.quote ? {amount:job.quote.amount,unit:job.quote.unit,validUntilMs:job.quote.validUntilMs} : null };
+    quote:priceState === 'ready' ? {amount:job.quote!.amount,unit:job.quote!.unit,validUntilMs:job.quote!.validUntilMs} : null };
 }
 export function createCommands(service: ElevenLabsService, ports: CommandPorts) {
+  const summarize = (job: Job) => summary(job,ports.now());
   function execute(caller: unknown, verb: string, args: string[]) {
     const data = body(args);
     const expect = (fields: string[]) => { if (!keys(data,fields)) throw new Error('invalid_arguments'); };
@@ -37,7 +45,7 @@ export function createCommands(service: ElevenLabsService, ports: CommandPorts) 
     };
     switch (verb) {
       case 'help': expect([]); return {verbs,structuredBody:true,guide:'AGENTS.md',execution:'Unavailable until reviewed host continuation ports are delivered'};
-      case 'open': case 'close': expect([]); return {ok:true}; // host.surface.call owns actual child creation/reuse/close
+      case 'open': case 'close': expect([]); return {error:'lifecycle_unavailable'};
       case 'catalog': case 'capabilities': case 'models': {
         expect(['offset','limit']);
         const offset=data.offset ?? 0,limit=data.limit ?? 20;
@@ -51,11 +59,11 @@ export function createCommands(service: ElevenLabsService, ports: CommandPorts) 
         return {id:row.id,family:row.family,sources:row.sources,schema:{file:row.schema.format==='openapi'?'evidence/openapi.json':'evidence/asyncapi.json',source_id:row.schema.source_id,pointer:row.schema.pointer},
           limitation:policy.limitation,parameterPolicy:policy.parameterPolicy,responsePolicy:policy.responsePolicy,prerequisites:policy.prerequisites};
       }
-      case 'history': case 'activity': case 'status': expect([]); return service.history(caller).map(summary);
+      case 'history': case 'activity': case 'status': expect([]); return service.history(caller).map(summarize);
       case 'usage': expect([]); return service.ledger(caller);
-      case 'inspect': return summary(job());
-      case 'result': return {job:summary(job()),artifacts:job().outputs};
-      case 'estimate': return summary(service.estimate(caller,job().id));
+      case 'inspect': return summarize(job());
+      case 'result': return {job:summarize(job()),artifacts:job().outputs};
+      case 'estimate': return summarize(service.estimate(caller,job().id));
       case 'cancel': job(); return {error:'cancel_unavailable',reason:'This synchronous/stream service has no reviewed vendor cancellation port.'};
       case 'reconcile': job(); return {error:'reconcile_unavailable',reason:'Unknown effects remain held; no automatic replay or fabricated provider status.'};
       case 'generate': job(); return {error:'execution_unavailable',reason:'Durable host continuation and transport delivery required. No effect entered.'};
@@ -63,11 +71,11 @@ export function createCommands(service: ElevenLabsService, ports: CommandPorts) 
         expect(['operation','params','inputs','unit']);
         const request: Request = {operation:data.operation,revision,params:data.params,inputs:data.inputs ?? [],unit:data.unit ?? 'usd_micro'};
         if (!validateRequest(request)) throw new Error('invalid_request');
-        return summary(service.intent(caller,ports.nextIntent(),request));
+        return summarize(service.intent(caller,ports.nextIntent(),request));
       }
       case 'rerun': {
         const old = job();
-        return summary(service.intent(caller,ports.nextIntent(),old.request));
+        return summarize(service.intent(caller,ports.nextIntent(),old.request));
       }
       case 'read': {
         expect(['operation','params','inputs','unit']);
@@ -94,7 +102,13 @@ export function createCommands(service: ElevenLabsService, ports: CommandPorts) 
       let result:unknown;
       try {
         if (context.owner !== context.actor) throw new Error('delegation_unavailable');
-        result = safe(ports.caller(context),verb,args);
+        const caller=ports.caller(context);
+        if (verb === 'open' || verb === 'close') {
+          // Only this host-authenticated callback acknowledges the host's lifecycle dispatch.
+          // Direct document/view execution never reaches this success branch.
+          if (!keys(body(args),[])) throw new Error('invalid_arguments');
+          result = {ok:true};
+        } else result = safe(caller,verb,args);
         if (['prepare','rerun','estimate'].includes(verb) && !(result as any)?.error)
           ports.surface.invalidate({surface:context.surface,instance:context.instance,tab:context.tab});
       } catch { result = {error:'authority_unavailable'}; }

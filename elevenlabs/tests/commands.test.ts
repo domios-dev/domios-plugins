@@ -17,7 +17,7 @@ function setup(){
     if(verb==='close')opened.delete(active.owner);
     return JSON.stringify({result:adapter.onSurfaceCall(active,verb,JSON.parse(argsJson))});
   },invalidate(identity:any){invalidations.push(identity);return {ok:true as const};}};
-  adapter=createCommands(f.service,{surface,caller:f.authorize,nextIntent:f.next});
+  adapter=createCommands(f.service,{surface,caller:f.authorize,nextIntent:f.next,now:f.now});
   const command=(verb:string,value?:unknown)=>{
     const r=adapter.onAgentCommand({verb,args:[],sessionId:'not-authority',...(value!==undefined?{body:JSON.stringify(value)}:{})});
     return 'result' in r?JSON.parse(r.result):r;
@@ -35,6 +35,17 @@ test('source entry dispatches through real host surface bridge; unconfigured bin
     assert.deepEqual(JSON.parse(plugin.onSurfaceCall()),{error:'secure_context_service_binding_unavailable'});
   }finally{delete (globalThis as any).host;}
 });
+test('direct document view open/close refuse without host lifecycle or a success receipt',()=>{
+  const f=setup(),user={origin:'document',plugin:'elevenlabs',frame:'trusted-frame'};f.grant(user,'user',{human:true});
+  f.command('open');const calls=f.calls.length,opened=[...f.opened.entries()];
+  for(const verb of ['open','close']){
+    assert.deepEqual(f.adapter.viewCall(verb,undefined,user),{error:'lifecycle_unavailable'});
+    assert.deepEqual(f.adapter.viewCall(verb,{},user),{error:'lifecycle_unavailable'});
+    assert.deepEqual(f.adapter.viewCall(verb,undefined,{...user}),{error:'authority_unavailable'});
+  }
+  assert.equal(f.calls.length,calls);assert.deepEqual([...f.opened.entries()],opened);assert.equal(f.invalidations.length,0);
+  assert.equal(f.network(),0);
+});
 test('finite discovery retains full catalog and models without paid reads',()=>{
   const f=setup();assert.deepEqual(f.command('help').verbs,verbs);assert.equal(f.command('catalog').total,466);
   assert.equal(f.command('catalog').items.length,20);assert.equal(f.command('models').total,247);assert.equal(f.command('describe',{operation:'text_to_speech_full'}).id,'text_to_speech_full');
@@ -47,6 +58,44 @@ test('prepare/estimate produce one invalidation per service update; activity exc
   assert.deepEqual(f.invalidations[0],{surface:'studio',instance:'a',tab:'child-a'});
   const activity=JSON.stringify(f.command('activity'));assert.doesNotMatch(activity,/Private prompt|params|workspace-user|authRevision|credential|wire/);
   assert.equal(f.network(),0);
+});
+test('prepared intent price expires across command and document history without mutating persisted wait state',()=>{
+  const f=setup(),r=request(),prepared=f.command('prepare',{operation:r.operation,params:r.params});
+  assert.equal(prepared.priceState,'unavailable');assert.equal(prepared.quote,null);
+  const fresh=f.command('estimate',{id:prepared.id});assert.equal(fresh.priceState,'ready');assert.deepEqual(fresh.quote,{amount:8,unit:'usd_micro',validUntilMs:150});
+  assert.equal(fresh.waitReason,'owner_confirmation');f.setTime(150);
+  const user={origin:'document',plugin:'elevenlabs',frame:'trusted-frame'};f.grant(user,'user',{human:true});
+  const persisted=JSON.stringify([...f.store.values()]),invalidations=f.invalidations.length;
+  for(const verb of ['history','activity','status']){
+    for(const row of [f.command(verb)[0],(f.adapter.viewCall(verb,undefined,user) as any[])[0]]){
+      assert.equal(row.priceState,'stale');assert.equal(row.quote,null);assert.equal(row.state,'waiting');assert.equal(row.waitReason,'price_stale');
+    }
+  }
+  for(const row of [f.command('inspect',{id:prepared.id}),f.command('result',{id:prepared.id}).job]){
+    assert.equal(row.quote,null);assert.equal(row.priceState,'stale');assert.equal(row.waitReason,'price_stale');
+  }
+  assert.equal(JSON.stringify([...f.store.values()]),persisted);assert.equal(f.service.history(f.A)[0].waitReason,'owner_confirmation');
+  assert.equal(f.invalidations.length,invalidations);assert.equal(f.network(),0);
+});
+test('source summaries hide missing unsafe malformed wrong-unit and wrong-binding persisted quotes',()=>{
+  const f=setup(),r=request(),prepared=f.command('prepare',{operation:r.operation,params:r.params});f.command('estimate',{id:prepared.id});
+  const partition=[...f.store.values()][0],original=structuredClone(partition.jobs[0].quote!);
+  // Corrupt synthetic persisted evidence to exercise adapter boundary defense, not shared transitions.
+  const quotes=[undefined,null,{}, {...original,safe:false},{...original,amount:-1},{...original,amount:1.5},
+    {...original,unit:'characters'},{...original,binding:'different-inputs'}, {...original,basis:''},{...original,tariffRevision:''},
+    {...original,issuedAt:101},{...original,validUntilMs:100},{...original,validUntilMs:'tomorrow'}];
+  const user={origin:'document',plugin:'elevenlabs',frame:'trusted-frame'};f.grant(user,'user',{human:true});
+  for(const quote of quotes){
+    [...f.store.values()][0].jobs[0].quote=quote as any;
+    const before=JSON.stringify([...f.store.values()]);
+    for(const row of [f.command('history')[0],f.command('activity')[0],f.command('inspect',{id:prepared.id}),
+      f.command('result',{id:prepared.id}).job,(f.adapter.viewCall('history',undefined,user) as any[])[0]]){
+      assert.equal(row.quote,null);assert.equal(row.priceState,'unavailable');assert.equal(row.waitReason,'price_unavailable');
+    }
+    assert.equal(JSON.stringify([...f.store.values()]),before);
+  }
+  [...f.store.values()][0].jobs[0].quote=original;f.setTime(Number.NaN);
+  assert.equal(f.command('history')[0].quote,null);assert.equal(f.command('history')[0].priceState,'unavailable');assert.equal(f.network(),0);
 });
 test('two agents cannot inspect/cancel/rerun or fetch foreign jobs by id; user view sees authorized workspace',()=>{
   const f=setup(),r=request(),a=f.command('prepare',{operation:r.operation,params:r.params});f.setActive(f.B);
