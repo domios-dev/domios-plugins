@@ -13,7 +13,8 @@ import type {UITransport} from '../ui/src/api';
 import {App} from '../ui/src/App';
 import {PlaybackGroup,seekAudio,unavailableMedia,unavailableVoices} from '../ui/src/media';
 import {fixtureTransport,selectFixtureOwner,fixtureMedia,fixtureVoices} from '../ui/dev/fixtures';
-function setup(){const f=fixture(),a=f.grant({},'A'),b=f.grant({},'B');return {f,a,b};}
+const documentContext=(label:string)=>({origin:'document',plugin:'elevenlabs',frame:`fixture-frame-${label}`,surface:'studio',instance:`fixture-instance-${label}`,tab:`fixture-tab-${label}`,actor:{kind:'local'}});
+function setup(){const f=fixture(),a=f.grant(documentContext('A'),'A'),b=f.grant(documentContext('B'),'B');return {f,a,b};}
 test('document snapshot defaults20, exact pagination and maximum50 use same authorized history',()=>{
   const {f,a,b}=setup();for(let n=0;n<35;n++)f.service.intent(a,`a-${n}`,request());f.service.intent(b,'foreign',request());
   // Respect the accepted fixture's40-job capacity; no backend retention policy is altered for UI tests.
@@ -43,9 +44,45 @@ test('document viewCall retains trusted resolver refusal; agent verbs do not exp
   const {f,a}=setup();let calls=0;
   const commands=createCommands(f.service,{caller(ctx){calls++;if(ctx!==a)throw new Error('foreign');return a;},surface:{call(){throw new Error('unavailable');},invalidate(){}} as any,now:f.now,nextIntent:f.next});
   assert.equal((commands.viewCall('ui.snapshot',{},a) as UISnapshot).kind,'available');
-  assert.deepEqual(commands.viewCall('ui.snapshot',{},{}),{error:'authority_unavailable'});
+  assert.deepEqual(commands.viewCall('ui.snapshot',{},{...a as object}),{error:'authority_unavailable'});
   assert.equal(calls,2);assert.equal(commands.onAgentCommand({verb:'ui.snapshot',args:[]} as any).error,'invalid_arguments');
   assert.equal((commands.viewCall('ui.snapshot',{owner:'B'},a) as any).code,'arguments_refused');
+});
+test('document-only route rejects registered non-document and incomplete contexts even when shared resolver authorizes them',()=>{
+  const {f,a}=setup();f.service.intent(a,'private',request());
+  const surface={surface:'studio',instance:'registered-agent-instance',tab:'registered-agent-tab',owner:'A',actor:'A',actorLabel:'Agent A'};
+  const rejected:unknown[]=[surface,{...documentContext('remote'),origin:'remote_task'},
+    {...documentContext('recording'),origin:'recording_setup'},{...documentContext('agent'),origin:'agentSurface'},
+    {...documentContext('missing-frame'),frame:undefined},{...documentContext('blank-frame'),frame:'  '},
+    {...documentContext('missing-surface'),surface:undefined},{...documentContext('missing-instance'),instance:undefined},
+    {...documentContext('missing-tab'),tab:undefined},{...documentContext('foreign-plugin'),plugin:'another-plugin'},
+    {...documentContext('missing-actor'),actor:undefined},{...documentContext('non-string-frame'),frame:42},Object.assign([],documentContext('array')),{}];
+  // Every negative context is genuinely registered in the same resolver/service fixture.
+  // Registration is intentionally not a substitute for document-only routing.
+  for(const context of rejected)f.grant(context,'A');
+  let calls=0;
+  const commands=createCommands(f.service,{caller(ctx){calls++;return f.authorize(ctx);},surface:{call(){throw new Error('unavailable');},invalidate(){}} as any,now:f.now,nextIntent:f.next});
+  const methods=[['ui.snapshot',{}],['ui.details',{id:'private'}],['ui.schema',{operation:'text_to_speech_full'}]] as const;
+  for(const [method,args] of methods){
+    assert.equal((commands.viewCall(method,args,a) as any).kind,'available');
+    const before=calls;
+    for(const context of rejected)assert.deepEqual(commands.viewCall(method,args,context),{error:'authority_unavailable'});
+    assert.equal(calls,before,'route rejects non-document contexts before shared resolver dispatch');
+    for(const clone of [{...a as object},{...a as object,frame:'forged-frame'},{...a as object,owner:'forged-owner'}])
+      assert.deepEqual(commands.viewCall(method,args,clone),{error:'authority_unavailable'});
+  }
+  // Existing public document/agent command semantics and public summaries are unchanged.
+  assert.equal((commands.viewCall('history',{},surface) as any[]).length,1);
+  assert.deepEqual(JSON.parse(commands.onSurfaceCall(surface,'ui.snapshot',[])),{error:'request_refused'});
+  assert.equal(f.network(),0);
+});
+test('unchanged registered document still requires live resolver authorization and authorized service history',()=>{
+  const {f,a,b}=setup();f.service.intent(a,'private',request());let live=true;
+  const commands=createCommands(f.service,{caller(ctx){const token=f.authorize(ctx);if(!live)throw new Error('expired');return token;},surface:{call(){throw new Error('unavailable');},invalidate(){}} as any,now:f.now,nextIntent:f.next});
+  assert.equal((commands.viewCall('ui.details',{id:'private'},a) as UIDetails).kind,'available');
+  assert.equal((commands.viewCall('ui.details',{id:'private'},b) as any).code,'item_unavailable');
+  live=false;assert.deepEqual(commands.viewCall('ui.snapshot',{},a),{error:'authority_unavailable'});
+  assert.equal(f.network(),0);
 });
 test('selected schemas include actual constraints/defaults; schema depth/fields/size refuse without truncation',()=>{
   const schema=selectedSchema('text_to_speech_full') as UISchema;

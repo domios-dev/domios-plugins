@@ -2,7 +2,6 @@
 import {ElevenLabsService} from '../../src/client';
 import {createCommands} from '../../src/commands';
 import {revision} from '../../src/catalog';
-import {documentUI} from '../../src/view-model';
 import {quoteState} from '../../../media-shared/src/cost';
 import type {Job,Partition,Request,Scope} from '../../../media-shared/src/contracts';
 import type {Methods,UITransport,UISnapshot,UIDetails} from '../src/api';
@@ -21,7 +20,9 @@ export function fixtureTransport(options:FixtureOptions={}){
     quote:(_s,_r,binding)=>({binding,amount:800,unit:'usd_micro',safe:true,basis:'Synthetic fixture only; not account pricing',tariffRevision:'synthetic',issuedAt:clock(),validUntilMs:clock()+60000}),
     // No HTTP, stream, credential or output-save port exists.
   });
-  function token(id:FixtureOwner,run=false){const t={};grants.set(t,{owner:'fixture-workspace-user',workspace:'fixture-workspace',actorId:id,human:id==='user',authRevision:'synthetic-only',
+  function token(id:FixtureOwner,run=false){const suffix=run?'run':id;
+    const t={origin:'document',plugin:'elevenlabs',frame:`fixture-frame-${suffix}`,surface:'studio',instance:`fixture-instance-${suffix}`,tab:`fixture-tab-${suffix}`,actor:{kind:'local'}};
+    grants.set(t,{owner:'fixture-workspace-user',workspace:'fixture-workspace',actorId:id,human:id==='user',authRevision:'synthetic-only',
     actor:run?{kind:'run',runId:'fixture-run',label:'Narration run #3'}:id==='user'?{kind:'you'}:{kind:'agent',label:id==='A'?'Ada':'Bea'},runId:run?'fixture-run':undefined});return t;}
   const tokens={A:token('A'),B:token('B'),user:token('user')},runToken=token('A',true);
   const request=(text:string):Request=>({operation:'text_to_speech_full',revision,unit:'usd_micro',inputs:[],params:{path:{voice_id:'synthetic-voice-alba'},body:{text,model_id:'eleven_multilingual_v2'}}});
@@ -49,17 +50,18 @@ export function fixtureTransport(options:FixtureOptions={}){
     }if(i.state==='failed')i.notice='Synthetic provider refusal. No request was sent.';if(i.state==='unknown')i.notice='Synthetic uncertain delivery. No retry is available.';if(i.outputs[0]?.id==='fixture-expired-tone')i.notice='File access expired. Reopen the result. Synthetic saved audio remains available without regeneration.';});
     return result;
   }
-  const commands=createCommands(service,{surface:{call(){throw new Error('no-host');},invalidate(){}} as any,caller:ctx=>{if(ctx!==tokens[owner])throw new Error('foreign');return ctx;},nextIntent:()=>`fixture-${++sequence}`,now:clock});
+  const commands=createCommands(service,{surface:{call(){throw new Error('no-host');},invalidate(){}} as any,caller:ctx=>{if(ctx!==(options.scenario?.startsWith('pipeline')?runToken:tokens[owner]))throw new Error('foreign');return ctx;},nextIntent:()=>`fixture-${++sequence}`,now:clock});
   const transport:UITransport={async call(method,args){
     const caller=options.scenario?.startsWith('pipeline')?runToken:tokens[owner];
     if(method.startsWith('ui.')){
-      const result=documentUI(service,caller,method,args,clock());
+      const result=commands.viewCall(method,args,caller) as any;
+      if(result.error)throw new Error('refused');
       if(result.kind==='available'&&('items' in result||'item' in result)){
         const projected=safeDisplay(result);
         if('items' in projected){projected.capabilities.submit=true;projected.capabilities.reconcile=true;projected.capacity=200;
           if(options.scenario?.startsWith('pipeline')){
             // Explicit synthetic pipeline view; grants are created above, never supplied by a UI argument.
-            const pipelineResult=documentUI(service,runToken,method,args,clock());
+            const pipelineResult=commands.viewCall(method,args,runToken) as any;
             if(pipelineResult.kind==='available'&&'items' in pipelineResult){const p=safeDisplay(pipelineResult);p.capabilities={estimate:false,submit:false,reconcile:false};p.activitySummary='Narration run #3 prepared 3 jobs';return p as Methods[typeof method]['result'];}
           }
         }

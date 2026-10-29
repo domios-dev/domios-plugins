@@ -118,6 +118,15 @@ export function createCommands(service: ElevenLabsService, ports: CommandPorts) 
     /** Trusted document context is distinct from SurfaceCallContext. Resolver refuses absent/foreign/remote origins. */
     viewCall(method:string,args:unknown,context:unknown) {
       try {
+        if (method.startsWith('ui.')) {
+          // Mirrors the accepted document context shape. Shape is a route precondition,
+          // never authority: the resolver still verifies live host registration and the
+          // SAME service still authorizes the resolved caller on every document read.
+          const document=context as {origin?:unknown;plugin?:unknown;frame?:unknown;surface?:unknown;instance?:unknown;tab?:unknown;actor?:{kind?:unknown}} | null;
+          if (!document || typeof document !== 'object' || Array.isArray(document) || document.origin !== 'document' || document.plugin !== 'elevenlabs' || document.actor?.kind !== 'local' ||
+            ![document.frame,document.surface,document.instance,document.tab].every(value => typeof value === 'string' && value.trim().length > 0))
+            throw new Error('document_context_required');
+        }
         const caller=ports.caller(context);
         if (method.startsWith('ui.')) return documentUI(service,caller,method,args,ports.now());
         return safe(caller,method,args === undefined ? [] : [JSON.stringify(args)]);
