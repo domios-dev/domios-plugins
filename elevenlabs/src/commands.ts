@@ -3,6 +3,7 @@ import { ElevenLabsService, utf8Size } from './client';
 import { catalog, modelCatalog, operation, disposition, revision, validateRequest } from './catalog';
 import type { Job, Request } from '../../media-shared/src/contracts';
 import { quoteState } from '../../media-shared/src/cost';
+import { documentUI } from './view-model';
 
 export const verbs = ['help','open','close','status','activity','catalog','capabilities','models','describe','estimate','usage','history','result','cancel','reconcile','prepare','rerun','generate','inspect','read'] as const;
 export interface CommandPorts {
@@ -116,7 +117,11 @@ export function createCommands(service: ElevenLabsService, ports: CommandPorts) 
     },
     /** Trusted document context is distinct from SurfaceCallContext. Resolver refuses absent/foreign/remote origins. */
     viewCall(method:string,args:unknown,context:unknown) {
-      try { return safe(ports.caller(context),method,args === undefined ? [] : [JSON.stringify(args)]); }
+      try {
+        const caller=ports.caller(context);
+        if (method.startsWith('ui.')) return documentUI(service,caller,method,args,ports.now());
+        return safe(caller,method,args === undefined ? [] : [JSON.stringify(args)]);
+      }
       catch { return {error:'authority_unavailable'}; }
     },
   };
