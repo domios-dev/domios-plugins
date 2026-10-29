@@ -12,7 +12,7 @@ export type StudioItem = { id: string; operation: string; title: string; at: num
 export type EstimateView = { gate: PriceGate; count: number; available: boolean; estimating?: boolean;
   insufficient?: { needs: string; have: string }; invalid?: string; invalidAction?: string; refreshLabel?: string; capable: boolean; busy: boolean };
 export type InspectorNavigation = { index: number; total: number; previous?: () => void; next?: () => void };
-export type StudioProps = { title: string; initialLibrary?: boolean; notice?: string; ownerLabel?: string; controls?: ReactNode; fixtureNotice?: ReactNode; activity: string[]; activitySummary?: string;
+export type StudioProps = { title: string; glyph?: ReactNode; initialLibrary?: boolean; notice?: string; ownerLabel?: string; controls?: ReactNode; fixtureNotice?: ReactNode; activity: string[]; activitySummary?: string;
   items: StudioItem[]; now: number; capacity: number | null; selected?: string; inspector?: ReactNode | ((navigation?: InspectorNavigation) => ReactNode);
   renderItem(item: StudioItem): ReactNode; thumbnail?(item: StudioItem): string | null; thumbnailRevision?: number; renderStripStatus?(item: StudioItem): { label: string; tone: string }; renderStripAction?(item: StudioItem): ReactNode; onSelect(id: string): void; onBack(): void; empty?: ReactNode;
   next?: ReactNode; feedLayout?: 'tiles' | 'rows'; filter?: 'everyone' | 'you' | 'agent' | 'run'; onFilter?(value: 'everyone' | 'you' | 'agent' | 'run'): void };

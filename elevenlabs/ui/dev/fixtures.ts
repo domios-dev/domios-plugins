@@ -31,14 +31,14 @@ export function fixtureTransport(options:FixtureOptions={}){
   let restored=false;
   try{const saved=JSON.parse(options.load?.()??'null');if(saved?.partition?.jobs&&Array.isArray(saved.partition.jobs)){store.set(key,saved.partition);sequence=saved.sequence??0;submissions=saved.submissions??0;restored=true;}}catch{}
   if(!restored){
-    const pipeline=options.scenario?.startsWith('pipeline'),states=pipeline?['generated','failed','waiting']:['starting','queued','generating','generated','failed','canceled','unknown','waiting','generated'];
+    const pipeline=options.scenario?.startsWith('pipeline'),states=options.scenario==='empty'?[]:pipeline?['generated','failed','waiting']:['starting','queued','generating','generated','failed','canceled','unknown','waiting','generated'];
     states.forEach((state,n)=>{
       const caller=pipeline?runToken:n%3===0?tokens.user:tokens.A;
       const job=service.intent(caller,`fixture-${++sequence}`,request(pipeline?['Welcome to the field guide.','A quiet pause before the next chapter.','The final narration awaits your OK.'][n]:['A warm welcome to the studio.','Let the story unfold, one sentence at a time.','The morning train crosses the valley.','A finished local audio sample.','The source request failed safely.','This request was canceled.','Delivery is uncertain; keep the existing request.','Waiting for a safe price.','File access expired; the saved synthetic audio still exists.'][n]));
       if(pipeline&&state==='waiting'&&options.scenario!=='pipeline-missing')service.estimate(caller,job.id);
       edit(job.id,j=>{j.state=state as Job['state'];j.at=clock()-n*90000;j.updatedAt=clock();if(state==='waiting')j.waitReason=pipeline&&options.scenario!=='pipeline-missing'?'owner_confirmation':'price_unavailable';if(state==='generated')j.outputs=[{kind:'artifact',id:!pipeline&&n===8?'fixture-expired-tone':'fixture-local-tone',contentType:'audio/wav'}];});
     });
-    service.intent(tokens.B,`fixture-${++sequence}`,request('Bea private fixture text.'));
+    if(options.scenario!=='empty')service.intent(tokens.B,`fixture-${++sequence}`,request('Bea private fixture text.'));
     persist();
   }
   function safeDisplay<T extends UISnapshot|UIDetails>(result:T):T{

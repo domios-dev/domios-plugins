@@ -10,7 +10,7 @@ export function Settings({ schema, values }: { schema: InputSchema; values: Reco
     if (typeof v === 'boolean') return v ? 'On' : 'Off';
     if (Array.isArray(v)) return <ol>{v.map((entry, n) => <li key={n}>{value(entry, s.items ?? {})}</li>)}</ol>;
     if (typeof v === 'object') return <Settings schema={s} values={v} />;
-    return String(v);
+    return typeof v === 'number' ? <span className="studio-mono">{v}</span> : String(v);
   }
   return <dl className="studio-settings">{Object.entries(values).map(([key, v]) => {
     const raw = schema.properties?.[key] ?? {};
@@ -88,18 +88,48 @@ export function FinishedFeed({ items, now, renderItem, feedLayout = 'tiles' }: {
       : <div key={n} className="studio-feed" data-layout={feedLayout}>{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div>)}</section>;
   })}</>;
 }
-/** Look up already-available media only near the visible strip; never acquire it here. */
-function StripThumbnail({item, lookup, revision}:{item:StudioItem;lookup?:StudioProps['thumbnail'];revision?:number}) {
+/** Honest, amplitude-free audio projection. Dots retain their circular geometry. */
+export function DotRow({ played = 0 }: { played?: number }) {
+  const ref=useRef<SVGSVGElement>(null),[width,setWidth]=useState(660);
+  useEffect(()=>{const node=ref.current;if(!node||typeof ResizeObserver==='undefined')return;const observer=new ResizeObserver(()=>setWidth(Math.max(6,node.clientWidth)));observer.observe(node);return()=>observer.disconnect();},[]);
+  const columns=Math.max(1,Math.floor(width/6));
+  return <svg ref={ref} className="studio-dot-row" viewBox={`0 0 ${width} 60`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">{Array.from({length:columns}, (_, n) => <circle key={n} cx={n*6+3} cy={30} r={1.7} fill={n/columns < played ? 'var(--ct-accent)' : 'var(--ct-faint, var(--ct-muted-fg))'} opacity={n/columns < played ? 1 : .7}/>)}</svg>;
+}
+export function Developing({ state = 'empty', audio = false }: { state?: string; audio?: boolean }) {
+  const running = ['starting','queued','generating'].includes(state);
+  return <div className={`studio-developing${audio ? ' studio-developing-audio' : ''}`} data-state={state} aria-label={running ? 'Developing, no preview yet' : 'No preview available'}>{audio ? <DotRow/> : running ? <span className="studio-develop-ring"/> : null}</div>;
+}
+export function ResultState({ item, status = item.status }: { item: StudioItem; status?: {label:string;tone:string} }) {
+  const running = ['starting','queued','generating'].includes(item.state);
+  return <span className="studio-status" data-tone={status.tone}>{running && <ActivityDots/>}{status.label}{item.status.elapsed && <span className="studio-mono">{item.status.elapsed}</span>}{item.status.progress !== undefined && <progress aria-label="Provider reported progress" max={1} value={item.status.progress}/>}</span>;
+}
+function ActivityDots() { return <span className="studio-beat" aria-hidden="true"><i/><i/><i/></span>; }
+/** Look up already-available media only near visible thumbnails; never acquire here. */
+export function Thumbnail({item, lookup, revision}:{item:StudioItem;lookup?:StudioProps['thumbnail'];revision?:number}) {
   const ref=useRef<HTMLSpanElement>(null),[url,setUrl]=useState<string|null>(null),[failed,setFailed]=useState(false);
-  useEffect(()=>{setUrl(null);setFailed(false);const node=ref.current;if(!node||!lookup||!item.outputs[0]?.contentType.startsWith('image/')||typeof IntersectionObserver==='undefined')return;const root=node.closest('.studio-strip');const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){setUrl(lookup(item));observer.disconnect();}},{root,rootMargin:'0px 100% 0px 100%'});observer.observe(node);return()=>observer.disconnect();},[item,lookup,revision]);
-  return <span ref={ref} className="studio-strip-thumb" aria-hidden="true">{url&&!failed?<img src={url} alt="" loading="lazy" decoding="async" onError={()=>setFailed(true)}/>:item.outputs[0]?.contentType.startsWith('audio/')?'♪':item.outputs[0]?.contentType.startsWith('video/')?'▷':'▧'}</span>;
+  useEffect(()=>{setUrl(null);setFailed(false);const node=ref.current;if(!node||!lookup||!item.outputs[0]?.contentType.startsWith('image/')||typeof IntersectionObserver==='undefined')return;const root=node.closest('.studio-strip, .studio-results');const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){setUrl(lookup(item));observer.disconnect();}},{root,rootMargin:'100px'});observer.observe(node);return()=>observer.disconnect();},[item,lookup,revision]);
+  return <span ref={ref} className="studio-strip-thumb" data-state={item.state} aria-hidden="true">{url&&!failed?<img src={url} alt="" loading="lazy" decoding="async" onError={()=>setFailed(true)}/>:item.outputs[0]?.contentType.startsWith('audio/')?<DotRow/>:item.outputs[0]?.contentType.startsWith('video/')?<span className="studio-video-glyph">▷</span>:<Developing state={item.state}/>}</span>;
+}
+/** Keep an authorized displayed item across refresh; ordering never implies lineage. */
+export function stageCandidate(items: StudioItem[], remembered?: string) {
+  if(remembered&&items.some(i=>i.id===remembered))return remembered;
+  const newest=[...items].sort((a,b)=>b.at-a.at);
+  return (newest.find(i=>['starting','queued','generating'].includes(i.state))??newest[0])?.id;
+}
+/** Escape closes the contact sheet; a staged result is never a dismissible landing. */
+export function handleStageKey(event: React.KeyboardEvent, library: boolean, closeLibrary: () => void) {
+  if(typeof HTMLElement!=='undefined'&&event.target instanceof HTMLElement&&/INPUT|TEXTAREA|SELECT/.test(event.target.tagName))return;
+  if(event.key==='Escape'&&library){closeLibrary();event.preventDefault();}
 }
 export function Studio(p: StudioProps) {
   const [library, setLibrary] = useState(p.initialLibrary ?? false);
   const [search, setSearch] = useState('');
-  const stripRef=useRef<HTMLElement>(null);
-  useEffect(()=>{stripRef.current?.querySelector<HTMLElement>('[aria-current=\"true\"]')?.scrollIntoView({block:'nearest',inline:'nearest'});},[p.selected]);
-  useEffect(() => { if (p.selected) setLibrary(false); }, [p.selected]);
+  const stripRef=useRef<HTMLElement>(null),autoStaged=useRef(false),remembered=useRef<string|undefined>(undefined);
+  useEffect(()=>{stripRef.current?.querySelector<HTMLElement>('[aria-current="true"]')?.scrollIntoView({block:'nearest',inline:'nearest'});},[p.selected]);
+  useEffect(() => { if (p.selected) { setLibrary(false); autoStaged.current=true; remembered.current=p.selected; } }, [p.selected]);
+  // The first authorized snapshot stages live work, then stays with that exact item.
+  // Empty/context-reset snapshots fence the previous owner's automatic choice.
+  useEffect(()=>{if(!p.items.length){autoStaged.current=false;return;}if(autoStaged.current||p.selected||library)return;autoStaged.current=true;const id=stageCandidate(p.items,remembered.current);remembered.current=id;if(id)p.onSelect(id);},[p.items,p.selected,library,p.onSelect]);
   const filtered = p.items.filter(i => (!p.filter || p.filter === 'everyone' || i.actor.kind === p.filter) && `${i.title} ${i.operation}`.toLowerCase().includes(search.toLowerCase()));
   const active = filtered.filter(i => !['generated', 'failed', 'canceled'].includes(i.state));
   const finished = filtered.filter(i => !active.includes(i));
@@ -108,25 +138,21 @@ export function Studio(p: StudioProps) {
     index: selectedIndex + 1, total: filtered.length,
     previous: selectedIndex > 0 ? () => p.onSelect(filtered[selectedIndex - 1].id) : undefined,
     next: selectedIndex + 1 < filtered.length ? () => p.onSelect(filtered[selectedIndex + 1].id) : undefined };
-  const open = (id: string) => { p.onSelect(id); setLibrary(false); };
-  const navigate = (event: React.KeyboardEvent) => {
-    if (event.target instanceof HTMLElement && /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
-    if (event.key === 'Escape' && library) { setLibrary(false); event.preventDefault(); }
-    else if (event.key === 'Escape' && p.selected) { p.onBack(); event.preventDefault(); }
-  };
+  const open = (id: string) => { autoStaged.current=true; remembered.current=id; p.onSelect(id); setLibrary(false); };
+  const navigate = (event: React.KeyboardEvent) => handleStageKey(event, library, () => setLibrary(false));
+  const chronological=[...filtered].sort((a,b)=>b.at-a.at);
+  const staged=p.items.find(i=>i.id===(p.selected??remembered.current))??p.items.find(i=>i.id===stageCandidate(p.items));
+  const running=p.items.some(i=>['starting','queued','generating'].includes(i.state));
+  const thumb=(i:StudioItem)=><button key={i.id} className="studio-strip-result" data-wide={p.feedLayout==='rows'||i.outputs[0]?.contentType.startsWith('video/')} type="button" data-stage-item aria-label={i.title} title={i.title} aria-current={i.id === p.selected ? 'true' : undefined} onClick={() => open(i.id)}><Thumbnail item={i} lookup={p.thumbnail} revision={p.thumbnailRevision}/><span className="studio-strip-title">{i.title}</span></button>;
   return <main className="studio studio-stage-shell" onKeyDown={navigate}>
-    <header className="ct-toolbar"><h1>{p.title}{p.ownerLabel && <span className="ct-meta"> · opened by {p.ownerLabel}</span>}</h1>{p.controls}<button className="ct-btn" type="button" aria-expanded={library} onClick={() => setLibrary(!library)}>{library ? 'Close library' : 'Library'}</button></header>
-    {p.notice && <p role="status" className="studio-activity">{p.notice}</p>}
-    {p.activity.length > 0 && <div className="studio-activity">{p.activitySummary ?? p.activity[0]}</div>}{p.fixtureNotice}
-    <div className="studio-stage-content">{library ? <section className="studio-results" aria-label="Library"><div className="studio-library-controls"><select aria-label="Show activity from" value={p.filter ?? 'everyone'} onChange={e => p.onFilter?.(e.target.value as NonNullable<StudioProps['filter']>)}><option value="everyone">Everyone</option><option value="you">You</option><option value="agent">Agents</option><option value="run">Pipelines</option></select><input type="search" aria-label="Search prompts" placeholder="Search prompts" value={search} onChange={e => setSearch(e.target.value)} /></div>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i=><article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}<FinishedFeed items={finished} now={p.now} renderItem={p.renderItem} feedLayout={p.feedLayout}/>{filtered.length === 0 && <p>No results in this view.</p>}{p.next}</section> : p.selected && p.inspector ? (typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector) : <div className="studio-stage-empty"><p>{p.items.length ? 'Select a result to view it.' : 'Nothing has been made yet. It will appear here as it runs.'}</p></div>}</div>
-    {!library && filtered.length > 0 && <section ref={stripRef} className="studio-strip" aria-label="Results and activity" onKeyDown={e => { if (!['ArrowLeft','ArrowRight'].includes(e.key) || !(e.target instanceof HTMLButtonElement) || !e.target.hasAttribute('data-stage-item')) return; const buttons = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button[data-stage-item]')); const index = buttons.indexOf(e.target); const next = buttons[index + (e.key === 'ArrowRight' ? 1 : -1)]; if (next) { e.preventDefault(); next.focus(); } }}>{finished.filter(i=>i.outputs.length>0).slice().sort((a,b)=>a.at-b.at).map(i => <button key={i.id} className="studio-strip-result" type="button" data-stage-item aria-current={i.id === p.selected ? 'true' : undefined} onClick={() => open(i.id)}><StripThumbnail item={i} lookup={p.thumbnail} revision={p.thumbnailRevision}/><span className="studio-strip-title">{i.title}</span></button>)}{active.length>0 && <span className="studio-strip-divider ct-meta">In progress</span>}{active.map(i=>{const status=p.renderStripStatus?.(i)??i.status;const elapsed=['starting','queued','generating'].includes(i.state)?i.status.elapsed:undefined;return <div className="studio-strip-active" key={i.id}><button type="button" data-stage-item aria-current={i.id===p.selected?'true':undefined} onClick={()=>open(i.id)}><span className="studio-strip-icon" aria-hidden="true">▧</span><span className="studio-strip-copy"><span className="studio-strip-title">{i.title}</span><span className="studio-strip-meta"><small>{i.modelLabel ?? 'Model unavailable'}</small><small className="studio-status" data-tone={status.tone}>{status.label}{elapsed?` · ${elapsed}`:''}</small></span></span></button>{p.renderStripAction?.(i)}</div>;})}</section>}
+    <header className="ct-toolbar"><span className="studio-glyph" aria-hidden="true">{p.glyph}</span><h1>{p.title}</h1>{(p.activitySummary??p.activity[0]??p.ownerLabel)&&<div className="studio-live-line">{running&&<ActivityDots/>}<span className="studio-agent-short">{p.ownerLabel}</span><div className="studio-activity">{p.activitySummary ?? p.activity[0] ?? p.ownerLabel ?? null}</div></div>}<div className="studio-header-controls">{p.controls}<button className="ct-btn studio-library-button" type="button" aria-label={library?'Close library':'Library'} aria-expanded={library} onClick={() => setLibrary(!library)}><span aria-hidden="true">▦</span><span className="studio-control-label">{library ? 'Close library' : 'Library'}</span></button></div></header>
+    {p.notice && <p role="status" className="studio-activity">{p.notice}</p>}{p.fixtureNotice}
+    <div className="studio-light-table" data-library={library}>
+    {!library&&filtered.length>0&&<section ref={stripRef} className="studio-strip" aria-label="Results and activity" onKeyDown={e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)||!(e.target instanceof HTMLButtonElement)||!e.target.hasAttribute('data-stage-item'))return;const buttons=Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button[data-stage-item]'));const index=buttons.indexOf(e.target),delta=e.key==='ArrowUp'?-3:e.key==='ArrowDown'?3:e.key==='ArrowLeft'?-1:1;const next=buttons[index+delta];if(next){e.preventDefault();next.focus();}}}><FinishedFeed items={chronological} now={p.now} renderItem={thumb}/>{p.next}</section>}
+    <div className="studio-stage-content">{library ? <section className="studio-results" aria-label="Library"><div className="studio-library-controls"><select aria-label="Show activity from" value={p.filter ?? 'everyone'} onChange={e => p.onFilter?.(e.target.value as NonNullable<StudioProps['filter']>)}><option value="everyone">Everyone</option><option value="you">You</option><option value="agent">Agents</option><option value="run">Pipelines</option></select><input type="search" aria-label="Search prompts" placeholder="Search prompts" value={search} onChange={e => setSearch(e.target.value)} /></div>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i=><article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}<FinishedFeed items={finished} now={p.now} renderItem={p.renderItem} feedLayout={p.feedLayout}/>{filtered.length === 0 && <p>No results in this view.</p>}{p.next}</section> : p.selected && p.inspector ? (typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector) : p.items.length>0 ? <div className="studio-stage-pending"><Developing state={staged?.state} audio={p.feedLayout==='rows'}/>{staged&&<><p className="studio-prompt">{staged.title}</p><ResultState item={staged} status={p.renderStripStatus?.(staged)}/></>}</div> : <div className="studio-stage-empty">{p.empty??<Developing audio={p.feedLayout==='rows'}/>}<p>{p.ownerLabel ? `${p.ownerLabel} will put results here as it works.` : 'Your agent will put results here as it works.'}</p></div>}</div>
+    </div>
   </main>;
 }
-export function Inspector({ onBack, preview, children, navigation, tools }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode; navigation?: InspectorNavigation; tools?: React.ReactNode }) {
-  const [compact, setCompact] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width:1024px)').matches);
-  const [detailsOpen, setDetailsOpen] = useState(() => typeof window === 'undefined' || !window.matchMedia('(max-width:1024px)').matches);
-  const userChoice=useRef(false), toggleRef=useRef<HTMLButtonElement>(null);
-  useEffect(() => { const query=window.matchMedia('(max-width:1024px)'); const changed=(e:MediaQueryListEvent)=>{setCompact(e.matches);if(!userChoice.current)setDetailsOpen(!e.matches);}; query.addEventListener('change',changed); return()=>query.removeEventListener('change',changed); }, []);
-  const open=!compact || detailsOpen;
-  return <section className="studio-inspector" aria-label="Result inspector"><div className="studio-inspector-nav">{tools}{navigation && <><button className="ct-btn ct-btn-ghost" aria-label="Previous result" disabled={!navigation.previous} onClick={navigation.previous}>‹</button><span className="ct-meta">{navigation.index} of {navigation.total}</span><button className="ct-btn ct-btn-ghost" aria-label="Next result" disabled={!navigation.next} onClick={navigation.next}>›</button></>}</div><div className="studio-inspector-body"><div className="studio-preview">{preview}</div><div className="studio-inspector-rail" onKeyDown={e=>{if(e.key==='Escape' && compact && open){e.preventDefault();e.stopPropagation();userChoice.current=true;setDetailsOpen(false);toggleRef.current?.focus();}}}>{compact ? <button ref={toggleRef} type="button" className="ct-btn studio-details-toggle" aria-expanded={open} onClick={() => {userChoice.current=true;setDetailsOpen(!detailsOpen);}}>Details <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d={open?'M2 4l4 4 4-4':'M2 8l4-4 4 4'}/></svg></button> : <p className="studio-details-heading">Details</p>}{open && <div className="studio-inspector-details">{children}</div>}</div></div></section>;
+export function Inspector({ preview, children, navigation, tools, caption, status }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode; navigation?: InspectorNavigation; tools?: React.ReactNode; caption?:React.ReactNode; status?:React.ReactNode }) {
+  return <section className="studio-inspector" aria-label="Result inspector"><div className="studio-inspector-nav"><div className="studio-step">{navigation&&<><button className="ct-btn studio-icon-button" aria-label="Previous result" disabled={!navigation.previous} onClick={navigation.previous}>‹</button><span className="studio-mono">{navigation.index} / {navigation.total}</span><button className="ct-btn studio-icon-button" aria-label="Next result" disabled={!navigation.next} onClick={navigation.next}>›</button></>}</div>{tools}{status}</div><div className="studio-inspector-body"><div className="studio-preview">{preview}</div><div className="studio-caption">{caption}<details className="studio-inspector-rail" onKeyDown={e=>{if(e.key==='Escape'&&e.currentTarget.open){e.preventDefault();e.stopPropagation();e.currentTarget.open=false;e.currentTarget.querySelector('summary')?.focus();}}}><summary>Details</summary><div className="studio-inspector-details">{children}</div></details></div></div></section>;
 }

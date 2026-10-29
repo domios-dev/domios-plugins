@@ -11,7 +11,7 @@ import type { StudioController } from '../src/controller';
 export function fixtureTransport(options: { scenario?: string; now?: number; load?: () => string | null; save?: (value: string) => void } = {}) {
   const now = options.now ?? Date.now();
   const ready = options.scenario === 'pipeline-ready', pipeline = options.scenario === 'pipeline' || ready;
-  const persistence: Pick<typeof options, 'load' | 'save'> = ready ? {} : options;
+  const persistence: Pick<typeof options, 'load' | 'save'> = ready || options.scenario==='empty' ? {} : options;
   const f = fixture(now, 60000), listeners = new Set<() => void>();
   const original = f.store.transact.bind(f.store);
   let submissions = 0, sequence = 0, owner = 'A';
@@ -65,7 +65,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
     if (pipeline) {
       seed('run-one', 'generated', 'run', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }] });
       seed('run-two', 'failed', 'run'); seed('run-three', 'waiting', 'run', { waitReason: 'owner_confirmation' });
-    } else {
+    } else if(options.scenario!=='empty') {
       seed('queued', 'queued', 'agent'); seed('generating', 'generating', 'agent');
       seed('generated', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }, { kind: 'artifact', id: 'fixture-audio', contentType: 'audio/wav' }] }, today);
       seed('failed', 'failed', 'agent', {}, today); seed('canceled', 'canceled', 'you', {}, previousDay(1)); seed('unknown', 'unknown', 'agent');
@@ -74,6 +74,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       seed('expired', 'generated', 'you', {}, previousDay(3));
       const image = { outputs: [{ kind: 'artifact' as const, id: 'fixture-image', contentType: 'image/png' }] };
       const video = { outputs: [{ kind: 'artifact' as const, id: 'fixture-video-metadata', contentType: 'video/mp4' }] };
+      seed('audio-result', 'generated', 'you', { outputs: [{kind:'artifact',id:'fixture-audio',contentType:'audio/wav'}] }, today - 4000);
       seed('image-study', 'generated', 'you', image, today - 1000);
       seed('video-study', 'generated', 'you', video, today - 2000);
       seed('synthetic-video', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-synthetic-video', contentType: 'video/webm' }] }, today - 3000);

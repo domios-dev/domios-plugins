@@ -330,7 +330,7 @@ test('exact USD formatting and recorded inspector cost never change atomic quote
   const price = render(React.createElement(Price, { view: c.price(), onEstimate() {}, onGenerate() {} }));
   assert.match(price, /Generate for \$0\.00001/); assert.match(price, /title="10 usd_micro"/); assert.doesNotMatch(price, />Estimate<|>Get price<|>Check again</);
   const id = c.state.id!; await c.inspect(id); assert.equal(c.state.details?.item.recordedCost?.kind, 'quoted');
-  assert.match(render(React.createElement(App, { controller: c, fixtureLibrary: true })), /\$0\.00001 \(quoted\)/);
+  assert.match(render(React.createElement(App, { controller: c, fixtureLibrary: true })).replace(/<[^>]*>/g,''), /\$0\.00001 \(quoted\)/);
   c.back(); f.f.store.transact('A', 'workspace', p => { p.jobs.find(j => j.id === id)!.quote!.validUntilMs = f.f.now() + 1; return null; });
   f.f.tick(); await c.refresh(); assert.equal(c.price().gate.kind, 'stale'); await c.inspect(id); assert.equal(c.state.details?.item.recordedCost?.text, '$0.00001');
   c.dispose();
@@ -361,7 +361,7 @@ test('rendered rows and inspector use human model/cost/defaults/navigation inste
   assert.doesNotMatch(markup, />SOUL V2<|<small>higgsfield-ai/);
   assert.doesNotMatch(markup, /Price unavailable · 0:00|Price needs updating · 0:00|Waiting for your OK · 0:00/);
   await c.inspect('generated'); markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
-  assert.match(markup, /Not recorded/); assert.match(markup, /Model defaults/); assert.match(markup, /Previous result/); assert.match(markup, /Next result/); assert.match(markup, / of /);
+  assert.match(markup, /class="studio-prompt"/); assert.match(markup, /Model defaults/); assert.match(markup, /Previous result/); assert.match(markup, /Next result/); assert.match(markup, /class="studio-mono">\d+ \/ \d+<\/span>/);
   assert.doesNotMatch(markup, /<h3>Cost<\/h3><p>Generated<\/p>/); c.dispose();
 });
 
@@ -426,15 +426,15 @@ test('run display projection preserves stored identity and uses host labels or P
   const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /Daily covers run #12/); assert.doesNotMatch(markup, />run-a</); c.dispose();
 });
 
-test('active row status/actions and optional helper are separate from nonshrinking model/actor metadata under900', async () => {
+test('contact sheet status/actions and optional helper stay separate from prompt and factual metadata', async () => {
   const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
   const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /<div class="higgs-row-end"><span class="studio-status"/);
   assert.match(markup, /<p class="ct-meta higgs-row-note">/); assert.doesNotMatch(markup, /<small class="higgs-row-note"/);
   const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
-  assert.match(css, /@media\(max-width:899px\)/); assert.match(css, /\.higgs-metadata>small\{flex-shrink:0/);
-  assert.match(css, /\.higgs-row-end\{grid-column:1;justify-content:flex-end;flex-wrap:wrap;max-width:100%/);
-  assert.match(css, /\.higgs-row>\.higgs-row-note\{grid-column:1;margin:0/); c.dispose();
+  assert.match(css, /\.higgs-metadata\{display:flex;flex-wrap:wrap/);
+  assert.match(css, /\.higgs-row-end\{display:flex;gap:6px;flex-wrap:wrap/);
+  assert.match(css, /\.higgs-row-note,\.higgs-tile>p\{font-size:12px/); c.dispose();
 });
 
 function hostElements(node: React.ReactNode): React.ReactElement<any>[] {
@@ -511,13 +511,14 @@ test('only run-attributed fixture jobs with the authorized run link render foreg
   const nonRun = c.state.snapshot!.items.filter(i => i.actor.kind !== 'run'); assert.equal(nonRun.length, 2); assert.ok(nonRun.every(i => i.runLink === undefined));
   nonRun.forEach(i => { i.runLink = '#must-not-render'; });
   const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.equal((markup.match(/>View run<\/a>/g) ?? []).length, 3); assert.doesNotMatch(markup, /href="#must-not-render"/);
-  const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8'); assert.match(css, /\.higgs-actions a,\.higgs-actions a:visited,\.higgs-lineage\{color:var\(--ct-fg\);text-decoration:underline/); c.dispose();
+  const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8'); assert.match(css, /\.higgs-lineage\{[^}]*text-decoration:underline/); c.dispose();
 });
-test('row/tile keyboard focus uses one outer has-focus-visible ring and suppresses inner outlines without pointer focus-within', async () => {
+test('contact sheet controls use one accent keyboard ring without a second card focus ring', async () => {
   const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
   const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true })); assert.match(markup, /higgs-tile higgs-row/); assert.match(markup, /<button class="higgs-select"/);
   const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
-  assert.match(css, /\.higgs-tile :focus-visible\{outline:none\}/); assert.match(css, /\.higgs-tile:has\(:focus-visible\)\{outline:2px solid var\(--ct-fg\);outline-offset:2px\}/); assert.doesNotMatch(css, /\.higgs-tile:focus-within/); c.dispose();
+  const shared = readFileSync(new URL('../../media-shared/ui/src/studio.css', import.meta.url), 'utf8');
+  assert.match(shared, /:focus-visible\{outline:2px solid var\(--ct-accent\);outline-offset:2px/); assert.doesNotMatch(css, /outline:none|:has\(:focus-visible\)|:focus-within/); c.dispose();
 });
 test('waiting labels and helpers share the actual missing/fresh/stale pipeline price gate without changing durable wait authority', async () => {
   const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
@@ -593,7 +594,7 @@ test('stage rail groups available file actions before details and preview leaves
   const f=fixtureTransport(), c=new StudioController(f.transport); await c.mount(); await c.inspect('generated');
   const markup=render(React.createElement(App,{controller:c,media:fixtureMedia}));
   assert.equal((markup.match(/>Save as…<\/button>/g)??[]).length,1);
-  assert.ok(markup.indexOf('studio-rail-actions')<markup.indexOf('<h2>Prompt</h2>'));
+  assert.ok(markup.indexOf('studio-rail-actions')<markup.indexOf('<summary>Details</summary>')); assert.doesNotMatch(markup,/<h2>Prompt<\/h2>|<h3>Model<\/h3>|Started by/);
   assert.doesNotMatch(render(React.createElement(MediaPreview,{media:fixtureMedia.get('fixture-image'),actions:false})),/Save as/);
   assert.equal(f.submissions(),0);c.dispose();
 });
@@ -609,4 +610,43 @@ test('region latch requires two finite corners and rejects empty regions', async
   const done=regionCorner({x:.2,y:.3},{x:.5,y:.7});assert.equal(done.kind,'complete');
   assert.deepEqual(regionCorner({x:.2,y:.3},{x:.2,y:.3}),{kind:'invalid'});
   assert.deepEqual(regionCorner(null,{x:NaN,y:.3}),{kind:'invalid'});
+});
+
+
+test('light table stages only authorized existing items and retains the current item when new work arrives', async () => {
+  const {stageCandidate}=await import('../../media-shared/ui/src/Studio');
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();const items=c.state.snapshot!.items;
+  const first=stageCandidate(items)!;assert.ok(items.some(i=>i.id===first&&['starting','queued','generating'].includes(i.state)));
+  const generated=items.find(i=>i.state==='generated')!;
+  assert.equal(stageCandidate(items,generated.id),generated.id);
+  assert.equal(stageCandidate([],generated.id),undefined);
+  assert.notEqual(stageCandidate(items,'foreign-owner-id'),'foreign-owner-id');
+  assert.equal(f.submissions(),0);c.dispose();
+});
+
+test('light table session is newest first with day headings and prompt-accessible thumbnails, no inferred turn labels', async () => {
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();const items=c.state.snapshot!.items;
+  const markup=render(React.createElement(Studio,{title:'Gallery',items,now:Date.now(),capacity:null,activity:[],renderItem:()=>null,onSelect(){},onBack(){}}));
+  const session=markup.slice(markup.indexOf('aria-label="Results and activity"'),markup.indexOf('<div class="studio-stage-content">'));
+  assert.match(session,/>Today<\/h2>/);assert.match(session,/>Yesterday<\/h2>/);assert.match(session,/aria-label="Fixture generated: a quiet garden" title="Fixture generated: a quiet garden"/);
+  const newest=[...items].sort((a,b)=>b.at-a.at)[0];assert.ok(session.indexOf('aria-label="'+newest.title+'"')<session.indexOf('aria-label="Fixture image-older: a quiet garden"'));
+  assert.doesNotMatch(session,/Turn [0-9]|2 of 3/);c.dispose();
+});
+
+test('empty production views have resting dot media and do not invent an agent identity or offer paid controls', async () => {
+  const f=fixtureTransport({scenario:'empty'}),c=new StudioController(f.transport);await c.mount();assert.equal(c.state.snapshot!.items.length,0);
+  const markup=render(React.createElement(App,{controller:c}));assert.match(markup,/studio-developing/);assert.match(markup,/Your agent will put results here/);assert.doesNotMatch(markup,/Select a result|studio-develop-ring|Generate for|>Comment<|Rex|studio-live-line|Agent media workspace/);c.dispose();
+});
+
+
+
+test('Iris source R1-R6 retain a populated stage, numeric-only mono, quiet header and nonredundant Details',async()=>{
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();await c.inspect('generated');
+  const {handleStageKey}=await import('../../media-shared/ui/src/Studio');let closed=0,prevented=0;const event={key:'Escape',target:{},preventDefault(){prevented++;}} as any;handleStageKey(event,false,()=>closed++);assert.equal(c.state.details?.item.id,'generated');assert.equal(closed,0);assert.equal(prevented,0);handleStageKey(event,true,()=>closed++);assert.equal(closed,1);assert.equal(prevented,1);assert.equal(c.state.details?.item.id,'generated');
+  const markup=render(React.createElement(App,{controller:c}));
+  assert.match(markup,/class="studio-facts"><span>Soul V2<\/span>/);assert.doesNotMatch(markup,/Agent media workspace|<h2>Prompt<\/h2>|<h3>Model<\/h3>|Started by/);
+  assert.match(markup,/<details class="studio-inspector-rail"/);assert.doesNotMatch(markup,/<details[^>]* open/);
+  c.back();const pending=render(React.createElement(App,{controller:c}));assert.match(pending,/studio-stage-pending/);assert.doesNotMatch(pending,/studio-stage-empty|will put results here/);
+  const source=readFileSync(new URL('../../media-shared/ui/src/Studio.tsx',import.meta.url),'utf8');assert.doesNotMatch(source,/event.key === 'Escape' && p.selected/);
+  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(css,/0 18px 50px rgb\(0 0 0 \/ .28\)/);assert.match(css,/studio-pin,\.studio-region\{border-color:var\(--ct-fg\)/);assert.doesNotMatch(css,/\.studio-mono,\.studio-facts/);c.dispose();
 });

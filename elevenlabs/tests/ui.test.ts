@@ -196,7 +196,7 @@ test('time range requires at least fifty milliseconds',async()=>{
 test('audio file actions have a rail slot before the inspector text',async()=>{
   const f=fixtureTransport({scenario:'all'}),c=new StudioController(f.transport);await c.mount();const item=c.state.snapshot!.items.find(i=>i.state==='generated')!;await c.inspect(item.id);
   const markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));
-  assert(markup.indexOf('studio-rail-actions')<markup.indexOf('<h2>Text</h2>'));assert.equal(f.submissions(),0);c.dispose();
+  assert(markup.indexOf('studio-rail-actions')>=0);assert(markup.indexOf('studio-rail-actions')<markup.indexOf('<summary>Details</summary>'));assert.doesNotMatch(markup,/<h2>Text<\/h2>|<h3>Voice<\/h3>|<h3>Model<\/h3>/);assert.match(markup,/<details class="studio-inspector-rail"/);assert.doesNotMatch(markup,/<details[^>]* open/);assert.equal(f.submissions(),0);c.dispose();
 });
 
 test('text keyboard offsets retain complete code points at selection boundaries',async()=>{
@@ -213,4 +213,17 @@ test('span submission reads current native offsets instead of a prior selection'
   assert.deepEqual(spanFromControl('A😀BC',native),{start:1,end:2,quote:'😀'});
   native.selectionEnd=2;assert.equal(spanFromControl('A😀BC',native),null);
   assert.equal(spanFromControl('A😀BC',null),null);
+});
+
+
+test('audio light table uses an honest flat dotted accessible scrubber over a hidden native element', async()=>{
+  const {AudioPlayer}=await import('../ui/src/Audio');
+  const markup=renderToStaticMarkup(React.createElement(AudioPlayer,{id:'fixture-local-tone',media:fixtureMedia,group:new PlaybackGroup(),native:true}));
+  assert.match(markup,/<audio[^>]*hidden=""/);assert.doesNotMatch(markup,/<audio[^>]*controls/);assert.match(markup,/aria-label="Play"/);assert.match(markup,/role="slider"/);assert.match(markup,/aria-valuetext="0:00.0 \/ 0:00.0"/);assert.match(markup,/preserveAspectRatio="xMidYMid meet"/);
+  const circles=[...markup.matchAll(/<circle[^>]*cy="([^"]+)"[^>]*r="([^"]+)"/g)];assert.equal(circles.length,110);assert.ok(circles.every(m=>m[1]==='30'&&m[2]==='1.7'));
+});
+
+test('empty audio App has an intentional resting dot player and no invented waveform or paid action',async()=>{
+  const f=fixtureTransport({scenario:'empty'}),c=new StudioController(f.transport);await c.mount();assert.equal(c.state.snapshot!.items.length,0);
+  const markup=renderToStaticMarkup(React.createElement(App,{controller:c}));assert.match(markup,/studio-developing-audio/);assert.doesNotMatch(markup,/studio-develop-ring|waveform unavailable|Generate for|>Comment<|Rex/);c.dispose();
 });
