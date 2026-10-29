@@ -198,3 +198,9 @@ test('audio file actions have a rail slot before the inspector text',async()=>{
   const markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));
   assert(markup.indexOf('studio-rail-actions')<markup.indexOf('<h2>Text</h2>'));assert.equal(f.submissions(),0);c.dispose();
 });
+
+test('text keyboard offsets retain complete code points at selection boundaries',async()=>{
+  const {spanFromOffsets}=await import('../../media-shared/ui/dev/FixtureSelection');
+  assert.deepEqual(spanFromOffsets('A😀BC',3,1),{start:1,end:2,quote:'😀'});
+  assert.equal(spanFromOffsets('A😀BC',1,2),null);assert.equal(spanFromOffsets('A😀BC',3,3),null);
+});

@@ -602,3 +602,11 @@ test('strip does not look up media during server rendering', () => {
   render(React.createElement(Studio,{title:'Test',items:[item],now:2,capacity:null,activity:[],thumbnail:()=>{calls++;return '/local';},renderItem:()=>null,onSelect(){},onBack(){}}));
   assert.equal(calls,0);
 });
+
+test('region latch requires two finite corners and rejects empty regions', async () => {
+  const {regionCorner}=await import('../../media-shared/ui/dev/FixtureSelection');
+  assert.deepEqual(regionCorner(null,{x:.2,y:.3}),{kind:'first',point:{x:.2,y:.3}});
+  const done=regionCorner({x:.2,y:.3},{x:.5,y:.7});assert.equal(done.kind,'complete');
+  assert.deepEqual(regionCorner({x:.2,y:.3},{x:.2,y:.3}),{kind:'invalid'});
+  assert.deepEqual(regionCorner(null,{x:NaN,y:.3}),{kind:'invalid'});
+});
