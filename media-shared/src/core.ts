@@ -1,8 +1,8 @@
 import { bindingOf, clone, sameIntent, visible } from './contracts';
 import type { Access, Amount, Artifact, Continuation, Decision, Job, JobStore, Observation, Partition, Quote, Request, Submission } from './contracts';
 import { quoteState, validAmount, waitReason } from './cost';
-import { canonical, consumeHostEntry } from './host-entry';
-import type { HostEntryProof } from './host-entry';
+import { canonical, consumeHostEntry, consumeHostNoEntry } from './host-entry';
+import type { HostEntryProof, HostNoEntryProof } from './host-entry';
 
 /** Synchronous admission/receipt facade. No transport, Promise runtime, host wrapper or UI authority. */
 export class MediaCore {
@@ -117,6 +117,40 @@ export class MediaCore {
       return job;
     });
   }
+  /** Serialize and persist the full uncertainty BEFORE calling the synchronous host entry boundary. */
+  beginHostEntry(access: Access, id: string): Continuation {
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, d => {
+      const job = this.owned(d, access, id), quote = job.quote;
+      if (!sameIntent(access.scope, job) || job.state !== 'waiting' || job.lease || job.reservation || !job.hostAdmission ||
+          job.hostAdmission.deadlineMs <= this.now() || quoteState(quote, job.binding, job.request.unit, this.now()) !== 'ready')
+        throw new Error('host_entry_preflight_refused');
+      const ceiling = d.ceilings[quote!.unit];
+      const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote!.unit ? j.reservation.amount : 0), 0);
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote!.amount) || prior + quote!.amount > ceiling!)
+        throw new Error('aggregate_ceiling');
+      job.reservation = { amount: quote!.amount, unit: quote!.unit }; job.accounting = 'unknown';
+      job.state = 'starting'; job.phase = 'host_pending'; job.waitReason = undefined;
+      return this.token(job);
+    });
+  }
+  /** Only this attempt's post-enter definite non-entry evidence may release its pending marker. */
+  hostEntryRefused(access: Access, token: Continuation, proof: HostNoEntryProof): Job {
+    const receipt = consumeHostNoEntry(proof);
+    this.authorize(access);
+    return this.continued(token, (d, job) => {
+      this.owned(d, access, token.id);
+      if (!sameIntent(access.scope, job) || job.phase !== 'host_pending' || receipt.operation !== job.id ||
+          receipt.scope.owner !== access.scope.owner || receipt.scope.workspace !== access.scope.workspace ||
+          receipt.scope.plugin !== job.hostAdmission?.plugin || receipt.scope.team !== job.hostAdmission?.team ||
+          canonical(receipt.origin) !== canonical(job.hostAdmission?.origin) || canonical(receipt.request) !== canonical(job.request) ||
+          receipt.quote.binding !== job.hostAdmission?.binding || receipt.enteredAtMs !== null ||
+          !['waiting_for_owner', 'approved_once', 'approved_budget', 'denied', 'expired_readmit_needed'].includes(receipt.state) ||
+          receipt.quote.amount !== job.quote?.amount || receipt.quote.unit !== job.quote?.unit)
+        throw new Error('host_nonentry_mismatch');
+      return this.waiting(job);
+    });
+  }
   /** Only a fresh gate-issued host-enter return can cross this boundary. Saved/JSON receipts cannot. */
   enterHost(access: Access, id: string, proof: HostEntryProof): { job: Job; action: Submission } {
     const receipt = consumeHostEntry(proof);
@@ -124,7 +158,8 @@ export class MediaCore {
     return this.transaction(access.scope.owner, access.scope.workspace, d => {
       const job = this.owned(d, access, id), admission = job.hostAdmission, quote = job.quote;
       const origin = receipt.origin;
-      if (!sameIntent(access.scope, job) || job.state !== 'waiting' || job.lease || job.reservation || !admission ||
+      if (!sameIntent(access.scope, job) || job.state !== 'starting' || job.phase !== 'host_pending' || job.lease || !admission ||
+          job.reservation?.amount !== quote?.amount || job.reservation?.unit !== quote?.unit || job.accounting !== 'unknown' ||
           receipt.state !== 'entered_unknown' || receipt.operation !== id || receipt.scope.plugin !== admission.plugin ||
           receipt.scope.team !== admission.team ||
           receipt.scope.owner !== access.scope.owner || receipt.scope.workspace !== access.scope.workspace ||
@@ -139,7 +174,7 @@ export class MediaCore {
       const ceiling = d.ceilings[quote!.unit];
       // Count every reservation, actor and run in this durable owner/workspace partition, across UTC days.
       const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote!.unit ? j.reservation.amount : 0), 0);
-      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote!.amount) || prior + quote!.amount > ceiling!)
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior) || prior > ceiling!)
         throw new Error('aggregate_ceiling');
       job.reservation = { amount: quote!.amount, unit: quote!.unit }; job.accounting = 'unknown';
       job.state = 'starting'; job.phase = 'submitting'; job.waitReason = undefined;

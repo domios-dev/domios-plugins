@@ -78,6 +78,7 @@ function waitReason(data, job, now) {
 
 // media-shared/src/host-entry.ts
 var fresh = /* @__PURE__ */ new WeakMap();
+var refusals = /* @__PURE__ */ new WeakMap();
 var HostEntryGate = class {
   constructor(jobs) {
     this.jobs = jobs;
@@ -90,11 +91,25 @@ var HostEntryGate = class {
     fresh.set(proof, JSON.parse(JSON.stringify(receipt2)));
     return proof;
   }
+  /** Used only after this invocation's synchronous enter has returned/refused. Never authorizes dispatch. */
+  noEntry(operation2) {
+    const status = this.jobs.status(operation2);
+    if ("error" in status || !status.spend || status.spend.enteredAtMs !== null || !["waiting_for_owner", "approved_once", "approved_budget", "denied", "expired_readmit_needed"].includes(status.spend.state)) return null;
+    const proof = Object.freeze({ noHostEntry: true });
+    refusals.set(proof, JSON.parse(JSON.stringify(status.spend)));
+    return proof;
+  }
 };
 function consumeHostEntry(proof) {
   const receipt2 = proof && fresh.get(proof);
   if (!receipt2) throw new Error("fresh_host_entry_required");
   fresh.delete(proof);
+  return receipt2;
+}
+function consumeHostNoEntry(proof) {
+  const receipt2 = proof && refusals.get(proof);
+  if (!receipt2) throw new Error("host_no_entry_evidence_required");
+  refusals.delete(proof);
   return receipt2;
 }
 function canonical(value) {
@@ -242,6 +257,36 @@ var MediaCore = class {
       return job;
     });
   }
+  /** Serialize and persist the full uncertainty BEFORE calling the synchronous host entry boundary. */
+  beginHostEntry(access, id2) {
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, (d) => {
+      const job = this.owned(d, access, id2), quote = job.quote;
+      if (!sameIntent(access.scope, job) || job.state !== "waiting" || job.lease || job.reservation || !job.hostAdmission || job.hostAdmission.deadlineMs <= this.now() || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready")
+        throw new Error("host_entry_preflight_refused");
+      const ceiling = d.ceilings[quote.unit];
+      const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote.unit ? j.reservation.amount : 0), 0);
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote.amount) || prior + quote.amount > ceiling)
+        throw new Error("aggregate_ceiling");
+      job.reservation = { amount: quote.amount, unit: quote.unit };
+      job.accounting = "unknown";
+      job.state = "starting";
+      job.phase = "host_pending";
+      job.waitReason = void 0;
+      return this.token(job);
+    });
+  }
+  /** Only this attempt's post-enter definite non-entry evidence may release its pending marker. */
+  hostEntryRefused(access, token, proof) {
+    const receipt2 = consumeHostNoEntry(proof);
+    this.authorize(access);
+    return this.continued(token, (d, job) => {
+      this.owned(d, access, token.id);
+      if (!sameIntent(access.scope, job) || job.phase !== "host_pending" || receipt2.operation !== job.id || receipt2.scope.owner !== access.scope.owner || receipt2.scope.workspace !== access.scope.workspace || receipt2.scope.plugin !== job.hostAdmission?.plugin || receipt2.scope.team !== job.hostAdmission?.team || canonical(receipt2.origin) !== canonical(job.hostAdmission?.origin) || canonical(receipt2.request) !== canonical(job.request) || receipt2.quote.binding !== job.hostAdmission?.binding || receipt2.enteredAtMs !== null || !["waiting_for_owner", "approved_once", "approved_budget", "denied", "expired_readmit_needed"].includes(receipt2.state) || receipt2.quote.amount !== job.quote?.amount || receipt2.quote.unit !== job.quote?.unit)
+        throw new Error("host_nonentry_mismatch");
+      return this.waiting(job);
+    });
+  }
   /** Only a fresh gate-issued host-enter return can cross this boundary. Saved/JSON receipts cannot. */
   enterHost(access, id2, proof) {
     const receipt2 = consumeHostEntry(proof);
@@ -249,11 +294,11 @@ var MediaCore = class {
     return this.transaction(access.scope.owner, access.scope.workspace, (d) => {
       const job = this.owned(d, access, id2), admission = job.hostAdmission, quote = job.quote;
       const origin3 = receipt2.origin;
-      if (!sameIntent(access.scope, job) || job.state !== "waiting" || job.lease || job.reservation || !admission || receipt2.state !== "entered_unknown" || receipt2.operation !== id2 || receipt2.scope.plugin !== admission.plugin || receipt2.scope.team !== admission.team || receipt2.scope.owner !== access.scope.owner || receipt2.scope.workspace !== access.scope.workspace || origin3.kind !== "studio_agent" || origin3.actor !== access.scope.actorId || canonical(origin3) !== canonical(admission.origin) || canonical(receipt2.request) !== canonical(job.request) || receipt2.quote.binding !== admission.binding || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready" || receipt2.quote.amount !== quote.amount || receipt2.quote.unit !== quote.unit || receipt2.quote.basis !== quote.basis || receipt2.quote.tariffRevision !== quote.tariffRevision || receipt2.quote.issuedAt !== quote.issuedAt || receipt2.quote.validUntilMs !== quote.validUntilMs || admission.deadlineMs <= this.now() || receipt2.enteredAtMs === null || receipt2.enteredAtMs < quote.issuedAt || receipt2.enteredAtMs > this.now())
+      if (!sameIntent(access.scope, job) || job.state !== "starting" || job.phase !== "host_pending" || job.lease || !admission || job.reservation?.amount !== quote?.amount || job.reservation?.unit !== quote?.unit || job.accounting !== "unknown" || receipt2.state !== "entered_unknown" || receipt2.operation !== id2 || receipt2.scope.plugin !== admission.plugin || receipt2.scope.team !== admission.team || receipt2.scope.owner !== access.scope.owner || receipt2.scope.workspace !== access.scope.workspace || origin3.kind !== "studio_agent" || origin3.actor !== access.scope.actorId || canonical(origin3) !== canonical(admission.origin) || canonical(receipt2.request) !== canonical(job.request) || receipt2.quote.binding !== admission.binding || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready" || receipt2.quote.amount !== quote.amount || receipt2.quote.unit !== quote.unit || receipt2.quote.basis !== quote.basis || receipt2.quote.tariffRevision !== quote.tariffRevision || receipt2.quote.issuedAt !== quote.issuedAt || receipt2.quote.validUntilMs !== quote.validUntilMs || admission.deadlineMs <= this.now() || receipt2.enteredAtMs === null || receipt2.enteredAtMs < quote.issuedAt || receipt2.enteredAtMs > this.now())
         throw new Error("host_entry_mismatch");
       const ceiling = d.ceilings[quote.unit];
       const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote.unit ? j.reservation.amount : 0), 0);
-      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote.amount) || prior + quote.amount > ceiling)
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior) || prior > ceiling)
         throw new Error("aggregate_ceiling");
       job.reservation = { amount: quote.amount, unit: quote.unit };
       job.accounting = "unknown";
@@ -18298,7 +18343,6 @@ var HostMediaRuntime = class {
     const status = this.host.jobs.status(id2);
     if ("error" in status) throw new Error("host_job_unavailable");
     const access = agentAccess(this.plugin, context, status);
-    this.core.recover(access);
     const job = this.core.history(access).find((j) => j.id === id2);
     if (!job) throw new Error("job_unavailable");
     if (status.spend?.state === "entered_unknown" && !job.reservation) {
@@ -18357,8 +18401,21 @@ var HostMediaRuntime = class {
       throw new Error("noReplay_use_status_or_reconcile");
     const prior = this.core.history(access).reduce((n, j) => n + (j.reservation?.unit === job.quote.unit ? j.reservation.amount : 0), 0);
     if (job.quote.unit !== "usd_micro" || prior + job.quote.amount > 1e6) throw new Error("aggregate_ceiling");
-    const proof = this.gate.enter(id2, job.request);
-    if ("state" in proof) return JSON.stringify({ id: id2, state: proof.state, next: proof.state === "expired_readmit_needed" ? "Prepare again for a fresh quote and host approval." : "Await the host owner decision." });
+    if (status.spend?.state === "expired_readmit_needed") return JSON.stringify({ id: id2, state: "expired_readmit_needed", next: "Prepare again for a fresh quote and host approval." });
+    const pending = this.core.beginHostEntry(access, id2);
+    let proof;
+    try {
+      proof = this.gate.enter(id2, job.request);
+    } catch {
+      const noEntry = this.gate.noEntry(id2);
+      if (noEntry) this.core.hostEntryRefused(access, pending, noEntry);
+      throw new Error("host_entry_refused_or_unknown_use_status");
+    }
+    if ("state" in proof) {
+      const noEntry = this.gate.noEntry(id2);
+      if (noEntry) this.core.hostEntryRefused(access, pending, noEntry);
+      return JSON.stringify({ id: id2, state: proof.state, next: proof.state === "expired_readmit_needed" ? "Prepare again for a fresh quote and host approval." : "Await the host owner decision." });
+    }
     const entered = this.core.enterHost(access, id2, proof);
     try {
       return send(entered.job, entered.action.continuation);
@@ -18395,7 +18452,7 @@ var HostMediaRuntime = class {
     const { job, status } = this.current(context, id2);
     return {
       id: id2,
-      state: job.state,
+      state: job.phase && job.accounting === "unknown" ? "unknown" : job.state,
       providerId: job.jobId ?? null,
       quote: job.quote ?? null,
       noReplay: !!job.reservation,

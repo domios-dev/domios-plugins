@@ -20,7 +20,7 @@ export const document = { plugin: 'higgsfield', origin: 'document', ...surface, 
 
 
 /** Contract fixture only: no external effects, secrets, real prices or runtime delivery proof. */
-export function deliveredHost() {
+export function deliveredHost(estimateUsd = '0.094') {
   const base = fakeHost();
   let now = 100, sequence = 0;
   const records = new Map<string, any>();
@@ -37,7 +37,12 @@ export function deliveredHost() {
       records.set(operation, { ...r, job: null, spend: null, monitor: null }); return r;
     },
     requestBinding: (request: any) => ({ binding: createHash('sha256').update(JSON.stringify(request)).digest('hex') }),
-    status: (operation: string) => JSON.parse(JSON.stringify(records.get(operation) ?? { error: 'plugin_job_request_refused' })),
+    status: (operation: string) => {
+      const status = JSON.parse(JSON.stringify(records.get(operation) ?? { error: 'plugin_job_request_refused' }));
+      if (status.spend && ['waiting_for_owner', 'approved_once', 'approved_budget'].includes(status.spend.state) && status.spend.quote.validUntilMs <= now)
+        status.spend.state = 'expired_readmit_needed';
+      return status;
+    },
     prepare: (operation: string, request: any, quote: any) => {
       const r = records.get(operation);
       const spend = { operation, scope: r.scope, origin: r.origin, request, quote, state: 'waiting_for_owner', enteredAtMs: null, dailyAllowance: quote.amount * 10 };
@@ -53,7 +58,7 @@ export function deliveredHost() {
   };
   host.transfer = { async: (request: any, then: any) => {
     requests.push(request);
-    if (request.url.includes('/estimate/')) return then({ kind: 'json', status: 200, data: { usd: '0.094' }, size: 15, sha256: 'a'.repeat(64) });
+    if (request.url.includes('/estimate/')) return then({ kind: 'json', status: 200, data: { usd: estimateUsd }, size: 15, sha256: 'a'.repeat(64) });
     if (request.url.includes('/requests/')) return then({ kind: 'json', status: 200, data: { request_id: '12345678-1234-1234-1234-123456789abc', status: 'completed', images: [{ url: 'https://output.vendor.example/cover.png' }] }, size: 100, sha256: 'b'.repeat(64) });
     if (request.method === 'POST') return then({ kind: 'json', status: 202, data: { request_id: '12345678-1234-1234-1234-123456789abc', status: 'queued' }, size: 100, sha256: 'b'.repeat(64) });
     return then({ kind: 'file', status: 200, file: { path: 'receipt-cover.png', fileName: 'cover.png', contentType: 'image/png', size: 100, sha256: 'c'.repeat(64) } });
@@ -61,4 +66,21 @@ export function deliveredHost() {
   return { ...base, host, records, requests, advance: (value: number) => { now = value; },
     approve: (id: string) => { records.get(id).spend.state = 'approved_once'; },
     mutateEntry: (fn: (value: any) => any) => { mutation = fn; } };
+}
+
+/** Models real VM suspension: callbacks execute later, while other surface calls can run. */
+export function deferredHost() {
+  const f = deliveredHost();
+  const immediate = f.host.transfer.async;
+  const pending: { request: any; then: any; used: boolean }[] = [];
+  f.host.transfer.async = (request: any, then: any) => {
+    const index = pending.push({ request, then, used: false }) - 1;
+    return JSON.stringify({ deferred: index });
+  };
+  return { ...f, pending, resolve(index: number): string {
+    const item = pending[index];
+    if (!item || item.used) throw new Error('fixture_callback_already_used');
+    item.used = true;
+    return immediate(item.request, item.then);
+  } };
 }

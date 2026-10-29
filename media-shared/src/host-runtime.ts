@@ -96,7 +96,7 @@ export class HostMediaRuntime {
     const status = this.host.jobs.status(id);
     if ('error' in status) throw new Error('host_job_unavailable');
     const access = agentAccess(this.plugin, context, status);
-    this.core.recover(access);
+    // Ordinary reads never recover leases: another live host continuation may still own them.
     const job = this.core.history(access).find(j => j.id === id);
     if (!job) throw new Error('job_unavailable');
     // A crash after host entry and before plugin persistence must also retain the full reservation.
@@ -139,8 +139,22 @@ export class HostMediaRuntime {
       throw new Error('noReplay_use_status_or_reconcile');
     const prior = this.core.history(access).reduce((n, j) => n + (j.reservation?.unit === job.quote!.unit ? j.reservation.amount : 0), 0);
     if (job.quote.unit !== 'usd_micro' || prior + job.quote.amount > 1000000) throw new Error('aggregate_ceiling');
-    const proof = this.gate.enter(id, job.request as any);
-    if ('state' in proof) return JSON.stringify({ id, state: proof.state, next: proof.state === 'expired_readmit_needed' ? 'Prepare again for a fresh quote and host approval.' : 'Await the host owner decision.' });
+    if (status.spend?.state === 'expired_readmit_needed') return JSON.stringify({ id, state: 'expired_readmit_needed', next: 'Prepare again for a fresh quote and host approval.' });
+    const pending = this.core.beginHostEntry(access, id);
+    let proof: ReturnType<HostEntryGate['enter']>;
+    try {
+      proof = this.gate.enter(id, job.request as any);
+    } catch {
+      // A confirmed non-entry can release only this invocation's marker. Unavailable/entered status retains it in full.
+      const noEntry = this.gate.noEntry(id);
+      if (noEntry) this.core.hostEntryRefused(access, pending, noEntry);
+      throw new Error('host_entry_refused_or_unknown_use_status');
+    }
+    if ('state' in proof) {
+      const noEntry = this.gate.noEntry(id);
+      if (noEntry) this.core.hostEntryRefused(access, pending, noEntry);
+      return JSON.stringify({ id, state: proof.state, next: proof.state === 'expired_readmit_needed' ? 'Prepare again for a fresh quote and host approval.' : 'Await the host owner decision.' });
+    }
     const entered = this.core.enterHost(access, id, proof);
     // No await/scheduling gap or public receipt injection exists between fresh enter, durable persistence and dispatch.
     try { return send(entered.job, entered.action.continuation); }
@@ -172,7 +186,7 @@ export class HostMediaRuntime {
   }
   result(context: SurfaceCallContext, id: string) {
     const { job, status } = this.current(context, id);
-    return { id, state: job.state, providerId: job.jobId ?? null, quote: job.quote ?? null, noReplay: !!job.reservation,
+    return { id, state: job.phase && job.accounting === 'unknown' ? 'unknown' : job.state, providerId: job.jobId ?? null, quote: job.quote ?? null, noReplay: !!job.reservation,
       accounting: job.accounting ?? null, reservation: job.reservation ?? null, hostState: status.spend?.state ?? null,
       outputs: job.outputs.map(o => {
         const f = job.savedFiles?.find(f => f.id === o.id);

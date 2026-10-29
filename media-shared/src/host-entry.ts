@@ -3,6 +3,8 @@ import type { HostJobs, JobSpendReceipt } from '../../../codeterm/codeterm-workt
 export type { JobQuote, JobOriginReceipt, JobSpendReceipt, JobStatus, JobContext } from '../../../codeterm/codeterm-worktrees/next-integ/packages/plugin-sdk/src/pluginJobs';
 export type HostEntryProof = { readonly freshHostEntry: true };
 const fresh = new WeakMap<object, JobSpendReceipt>();
+export type HostNoEntryProof = { readonly noHostEntry: true };
+const refusals = new WeakMap<object, JobSpendReceipt>();
 /** This backend-only gate owns the real HostJobs port. Never exposed to command/body parsing. */
 export class HostEntryGate {
   constructor(private readonly jobs: HostJobs) {}
@@ -14,12 +16,27 @@ export class HostEntryGate {
     fresh.set(proof, JSON.parse(JSON.stringify(receipt)));
     return proof;
   }
+  /** Used only after this invocation's synchronous enter has returned/refused. Never authorizes dispatch. */
+  noEntry(operation: string): HostNoEntryProof | null {
+    const status = this.jobs.status(operation);
+    if ('error' in status || !status.spend || status.spend.enteredAtMs !== null ||
+        !['waiting_for_owner', 'approved_once', 'approved_budget', 'denied', 'expired_readmit_needed'].includes(status.spend.state)) return null;
+    const proof: HostNoEntryProof = Object.freeze({ noHostEntry: true });
+    refusals.set(proof, JSON.parse(JSON.stringify(status.spend)));
+    return proof;
+  }
 }
 /** Destructive consume: JSON copies, persisted receipts and duplicate uses are never authority. */
 export function consumeHostEntry(proof: HostEntryProof): JobSpendReceipt {
   const receipt = proof && fresh.get(proof);
   if (!receipt) throw new Error('fresh_host_entry_required');
   fresh.delete(proof);
+  return receipt;
+}
+export function consumeHostNoEntry(proof: HostNoEntryProof): JobSpendReceipt {
+  const receipt = proof && refusals.get(proof);
+  if (!receipt) throw new Error('host_no_entry_evidence_required');
+  refusals.delete(proof);
   return receipt;
 }
 export function canonical(value: unknown): string {

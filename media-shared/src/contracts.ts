@@ -25,7 +25,7 @@ export type Job = {
   reservation?: Amount; accounting?: 'reserved' | 'unknown' | 'spent';
   outputs: Artifact[]; progress?: number; providerState?: string;
   lease?: 'preflight' | 'estimate' | 'reconcile' | 'cancel';
-  phase?: 'preflight' | 'reserved' | 'submitting' | 'receipt';
+  phase?: 'preflight' | 'reserved' | 'host_pending' | 'submitting' | 'receipt';
   epoch?: number;
   hostAdmission?: { plugin: string; team: string | null; binding: string; deadlineMs: number; origin: unknown };
   savedFiles?: { id: string; path: string; contentType: string; fileName: string; size: number; sha256: string }[];
