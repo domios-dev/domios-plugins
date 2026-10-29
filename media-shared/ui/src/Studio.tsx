@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Json } from '../../src/contracts';
 import { groupHistory, studioPrice, jobStatus } from '../../src/presentation';
-import type { EstimateView, InputSchema, StudioProps } from './types';
+import type { EstimateView, InputSchema, StudioProps, InspectorNavigation } from './types';
 
 const label = (key: string, schema: InputSchema) => schema.title || (key.charAt(0).toUpperCase() + key.slice(1).replaceAll('_', ' '));
 export function Settings({ schema, values }: { schema: InputSchema; values: Record<string, Json> }) {
@@ -68,10 +68,11 @@ export function StructuredField({ name, value, onChange, ...aria }: { name: stri
 }
 export function Price({ view, onEstimate, onGenerate }: { view: EstimateView; onEstimate(): void; onGenerate(): void }) {
   const price = studioPrice(view.gate, view.count, view.available);
-  return <div className="studio-price"><p className="ct-meta">{view.gate.kind === 'ready' ? view.gate.text : price.helper}</p>{view.invalid && <p role="status">{view.invalid}</p>}{view.insufficient && <p>Not enough balance (needs {view.insufficient.needs}, have {view.insufficient.have})</p>}
-    <button type="button" className="ct-btn ct-btn-primary" disabled={price.disabled || !view.capable || view.busy || view.estimating || !!view.invalid || !!view.insufficient} onClick={onGenerate}>{view.estimating ? 'Estimating cost…' : view.busy ? jobStatus('starting').label : price.primary}</button>
-    {view.available && <button type="button" className="ct-btn ct-btn-ghost" disabled={view.busy || view.estimating} onClick={onEstimate}>{price.refresh ?? 'Estimate'}</button>}
-    {!view.capable && <p className="ct-meta">Generation is unavailable in this context.</p>}</div>;
+  const helper = view.invalid ?? (!Number.isSafeInteger(view.count) || view.count < 1 ? price.helper : view.insufficient ? `Not enough balance (needs ${view.insufficient.needs}, have ${view.insufficient.have})` :
+    !view.capable ? 'Generation is unavailable in this context.' : view.gate.kind === 'ready' ? view.gate.text : price.helper);
+  return <div className="studio-price">{helper && <p className="ct-meta" role="status">{helper}</p>}
+    <button type="button" className="ct-btn ct-btn-primary" title={view.gate.kind === 'ready' ? `${view.gate.amount} ${view.gate.unit}` : undefined} disabled={price.disabled || !view.capable || view.busy || view.estimating || !!view.invalid || !!view.insufficient} onClick={onGenerate}>{view.invalid ? view.invalidAction ?? 'Check inputs' : view.estimating ? 'Estimating cost…' : view.busy ? jobStatus('starting').label : price.primary}</button>
+    {view.available && view.gate.kind !== 'ready' && !view.invalid && !view.estimating && <button type="button" className="ct-btn ct-btn-ghost" disabled={view.busy} onClick={onEstimate}>{view.refreshLabel ?? price.refresh ?? 'Get price'}</button>}</div>;
 }
 export function Studio(p: StudioProps) {
   const [pane, setPane] = useState<'compose' | 'results'>('compose');
@@ -79,6 +80,11 @@ export function Studio(p: StudioProps) {
   const filtered = p.items.filter(i => (!p.filter || p.filter === 'everyone' || i.actor.kind === p.filter) && `${i.title} ${i.operation}`.toLowerCase().includes(search.toLowerCase()));
   const active = filtered.filter(i => !['generated', 'failed', 'canceled'].includes(i.state));
   const finished = filtered.filter(i => !active.includes(i));
+  const selectedIndex = filtered.findIndex(i => i.id === p.selected);
+  const navigation: InspectorNavigation | undefined = selectedIndex < 0 ? undefined : {
+    index: selectedIndex + 1, total: filtered.length,
+    previous: selectedIndex > 0 ? () => p.onSelect(filtered[selectedIndex - 1].id) : undefined,
+    next: selectedIndex + 1 < filtered.length ? () => p.onSelect(filtered[selectedIndex + 1].id) : undefined };
   const navigate = (event: React.KeyboardEvent) => {
     if (event.target instanceof HTMLElement && /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
     if (event.key === 'Escape' && p.selected) { p.onBack(); event.preventDefault(); }
@@ -88,9 +94,9 @@ export function Studio(p: StudioProps) {
     {p.activity.length > 0 && <details className="studio-activity"><summary>{p.activity[0]} · Show activity ({p.activity.length})</summary><ol>{p.activity.map((line, i) => <li key={i}>{line}</li>)}</ol></details>}
     <nav className="studio-mobile studio-segments" aria-label="Studio panes"><button className="ct-btn" aria-pressed={pane === 'compose'} onClick={() => setPane('compose')}>Compose</button><button className="ct-btn" aria-pressed={pane === 'results'} onClick={() => setPane('results')}>Results ({p.items.length})</button></nav>
     <div className="studio-panes"><aside className="studio-composer" aria-label="Composer"><div className="studio-composer-body">{p.composer}</div><footer>{p.footer}</footer></aside><section className="studio-results" aria-label="Results" tabIndex={-1}>
-      {p.selected ? p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}{groupHistory(finished, p.now).map(day => <section key={day.day}><h2>{day.day}</h2>{day.runs.map((run, n) => <div key={n} className={run.actor.kind === 'run' ? 'studio-run' : ''}>{run.actor.kind === 'run' && <p className="ct-meta">{run.actor.label}</p>}<div className="studio-feed">{run.items.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></div>)}</section>)}{filtered.length === 0 && p.empty}{p.next}<p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p></>}
+      {p.selected ? typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}{groupHistory(finished, p.now).map(day => <section key={day.day}><h2>{day.day}</h2>{day.runs.map((run, n) => <div key={n} className={run.actor.kind === 'run' ? 'studio-run' : ''}>{run.actor.kind === 'run' && <p className="ct-meta">{run.actor.label}</p>}<div className="studio-feed">{run.items.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></div>)}</section>)}{filtered.length === 0 && p.empty}{p.next}<p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p></>}
     </section></div></main>;
 }
-export function Inspector({ onBack, preview, children }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode }) {
-  return <section className="studio-inspector" aria-label="Result inspector"><button className="ct-btn ct-btn-ghost" onClick={onBack}>Back to results</button><div className="studio-inspector-body"><div className="studio-preview">{preview}</div><div className="studio-inspector-details">{children}</div></div></section>;
+export function Inspector({ onBack, preview, children, navigation }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode; navigation?: InspectorNavigation }) {
+  return <section className="studio-inspector" aria-label="Result inspector"><div className="studio-inspector-nav"><button className="ct-btn ct-btn-ghost" onClick={onBack}>Back to results</button>{navigation && <><span className="ct-meta">{navigation.index} of {navigation.total}</span><button className="ct-btn ct-btn-ghost" aria-label="Previous result" disabled={!navigation.previous} onClick={navigation.previous}>‹</button><button className="ct-btn ct-btn-ghost" aria-label="Next result" disabled={!navigation.next} onClick={navigation.next}>›</button></>}</div><div className="studio-inspector-body"><div className="studio-preview">{preview}</div><div className="studio-inspector-details">{children}</div></div></section>;
 }

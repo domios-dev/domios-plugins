@@ -7,3 +7,5 @@
 .studio-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .studio-segments [aria-checked=true]{background:var(--ct-bg-selected);border-color:var(--ct-fg)}
 .studio-required{margin-left:8px;font-weight:400;font-size:var(--ct-font-size-sm);color:var(--ct-muted-fg)}
+
+.studio-inspector-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.studio-inspector-nav>.ct-meta{margin-left:auto}

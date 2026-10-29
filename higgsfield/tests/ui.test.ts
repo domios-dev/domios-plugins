@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import { fixture, soul } from './fixtures/commands';
 import { HiggsfieldCommands } from '../src/commands';
-import { fixtureTransport } from '../ui/dev/fixtures';
+import { fixtureTransport, selectFixtureOwner } from '../ui/dev/fixtures';
 import { StudioController } from '../ui/src/controller';
 import { bridgeTransport } from '../ui/src/transport';
 import { frameMediaView } from '../ui/src/media';
@@ -15,7 +15,7 @@ import { jobStatus, studioPrice } from '../../media-shared/src/presentation';
 import type { UIDetails, UISnapshot } from '../src/ui';
 import type { ViewContext } from '../src/commands';
 import { models } from '../src/catalog';
-import { uiJSONBytes, validateUIArgs, uiBounds } from '../src/ui';
+import { uiJSONBytes, validateUIArgs, uiBounds, displayUSD, displayModel } from '../src/ui';
 import type { UITransport, Methods } from '../ui/src/transport';
 import { matches } from '../src/schema';
 const render = (component: React.ReactElement) => renderToStaticMarkup(component);
@@ -105,9 +105,9 @@ test('actual shared schema fields render constraints and required/advanced input
 });
 test('actual App renders service fixture lifecycle and shared grouping with attribution', async () => {
   const fixture = fixtureTransport(), c = new StudioController(fixture.transport); await c.mount();
-  const markup = render(React.createElement(App, { controller: c, fixtureLabel: 'Fixture only' }));
+  const markup = render(React.createElement(App, { controller: c }));
   for (const state of ['queued', 'generating', 'generated', 'failed', 'canceled', 'unknown', 'starting', 'price_unavailable', 'price_stale', 'waiting_ok'] as const) assert.ok(markup.includes(jobStatus(state).label), state);
-  assert.match(markup, /studio-composer/); assert.match(markup, /Show activity/); assert.match(markup, /<small>A<\/small>/); assert.match(markup, /Fixture only/); c.dispose();
+  assert.match(markup, /studio-composer/); assert.match(markup, /Show activity/); assert.match(markup, /<small>A<\/small>/); assert.doesNotMatch(markup, /<small>Fixture<\/small>/); c.dispose();
 });
 test('pipeline fixture provides exactly 3 jobs/one failure, existing link and one-hop source without refresh approval', async () => {
   const fixture = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(fixture.transport); await c.mount();
@@ -169,9 +169,9 @@ test('total snapshot and schema response UTF-8 limits include their entire envel
   const { ui } = setup(); const row = models.find(m => m.id === soul)!;
   const title = row.title, schema = row.schema as any, description = schema.description;
   try {
-    row.title = ''; const baseline = Buffer.byteLength(JSON.stringify(ui('ui.snapshot')));
+    row.title = 'x'; const baseline = Buffer.byteLength(JSON.stringify(ui('ui.snapshot')));
     const room = 262144 - baseline;
-    row.title = 'é'.repeat(Math.floor(room / 2)) + 'a'.repeat(room % 2);
+    row.title = 'x' + 'é'.repeat(Math.floor(room / 2)) + 'a'.repeat(room % 2);
     assert.equal(Buffer.byteLength(JSON.stringify(ui('ui.snapshot'))), 262144);
     row.title += 'a'; assert.equal(ui('ui.snapshot').code, 'ui_snapshot_too_large');
     row.title = title;
@@ -242,7 +242,8 @@ test('out-of-order snapshot and inspect replies cannot restore earlier private v
   const empty = { ...(old as UISnapshot), items: [], total: 0, next: null, activity: [] };
   pending[1].response.resolve(empty); await second; pending[0].response.resolve(old); await first;
   assert.equal(c.state.snapshot?.items.length, 0);
-  pending.length = 0; const afterBack = c.refresh(); c.back(); pending[0].response.resolve(old); await afterBack; assert.equal(c.state.snapshot?.items.length, 0);
+  pending.length = 0; const afterBack = c.refresh(); c.back(); pending[0].response.resolve(old); await afterBack;
+  assert.equal(c.state.snapshot?.items.length, (old as UISnapshot).items.length); assert.equal(c.state.details, undefined); // Back cannot cancel a required, independently authorized visibility refresh.
   blocked.delete('ui.snapshot'); pending.length = 0; blocked.add('ui.details');
   const firstInspect = c.inspect('generated'), secondInspect = c.inspect('failed');
   pending[1].response.resolve(await f.transport.call('ui.details', { id: 'failed' })); await secondInspect;
@@ -294,4 +295,77 @@ test('free reuse replaces structured editor selection and its rendered value wit
   const markup = render(React.createElement(App, { controller: c })); assert.ok(markup.includes(uuid));
   const source = readFileSync(new URL('../ui/src/App.tsx', import.meta.url), 'utf8'); assert.match(source, /key=\{s\.operation \+ ':' \+ s\.formRevision\}/);
   c.dispose();
+});
+
+test('actual owner-button handler clears A immediately and model selection cannot cancel B visibility refresh', async () => {
+  const { f, c, blocked, pending } = deferredFixture(); await c.mount();
+  c.edit('prompt', 'Private A draft'); c.purpose('Private A note'); await c.inspect('generated');
+  const oldSnapshot = await f.transport.call('ui.snapshot', {}), oldDetails = await f.transport.call('ui.details', { id: 'generated' });
+  blocked.add('ui.snapshot'); const oldRefresh = c.refresh();
+  // Current mounted handler does resetContext -> setOwner (invalidation/refresh) -> immediate selectModel.
+  const switchOwner = selectFixtureOwner(f, c, 'B');
+  assert.equal(c.state.snapshot, undefined); assert.equal(c.state.details, undefined); assert.equal(c.state.values.prompt, undefined); assert.equal(c.state.purpose, '');
+  await switchOwner; assert.equal(c.price().capable, false); // B refresh is still required, not canceled by selection.
+  const current = await f.transport.call('ui.snapshot', {});
+  pending[1].response.resolve(current); await Promise.resolve(); await Promise.resolve();
+  assert.equal(c.state.snapshot?.items.length, 0); assert.equal(c.state.values.prompt, undefined);
+  pending[0].response.resolve(oldSnapshot); await oldRefresh;
+  assert.equal(c.state.snapshot?.items.length, 0); assert.equal(c.state.details, undefined);
+  assert.doesNotMatch(JSON.stringify(c.state), /Private A draft|Private A note|Fixture generated/);
+  const markup = render(React.createElement(App, { controller: c })); assert.doesNotMatch(markup, /Fixture generated|Private A/);
+  // A detail request from before a separate context switch cannot later restore the inspector.
+  blocked.delete('ui.snapshot'); await selectFixtureOwner(f, c, 'user'); blocked.add('ui.details'); pending.length = 0;
+  const inspect = c.inspect('generated'); await selectFixtureOwner(f, c, 'B'); pending[0].response.resolve(oldDetails); await inspect;
+  assert.equal(c.state.details, undefined); assert.equal(c.state.snapshot?.items.length, 0); c.dispose();
+});
+
+test('exact USD formatting and recorded inspector cost never change atomic quote values or invent settlement', async () => {
+  for (const [atomic, text] of [[0, '$0.00'], [1, '$0.000001'], [10, '$0.00001'], [10000, '$0.01'], [2500000, '$2.50']] as const) assert.equal(displayUSD(atomic), text);
+  assert.throws(() => displayUSD(-1)); assert.throws(() => displayUSD(0.5)); assert.equal(displayModel(soul), 'Soul V2');
+  const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount(); c.edit('prompt', 'Exact money'); await c.estimate();
+  const gate = c.price().gate; assert.equal(gate.kind, 'ready'); if (gate.kind !== 'ready') throw Error('missing gate');
+  assert.equal(gate.amount, 10); assert.equal(gate.unit, 'usd_micro'); assert.equal(gate.text, '$0.00001');
+  const price = render(React.createElement(Price, { view: c.price(), onEstimate() {}, onGenerate() {} }));
+  assert.match(price, /Generate for \$0\.00001/); assert.match(price, /title="10 usd_micro"/); assert.doesNotMatch(price, />Estimate<|>Get price<|>Check again</);
+  const id = c.state.id!; await c.inspect(id); assert.equal(c.state.details?.item.recordedCost?.kind, 'quoted');
+  assert.match(render(React.createElement(App, { controller: c })), /\$0\.00001 \(quoted\)/);
+  c.back(); f.f.store.transact('A', 'workspace', p => { p.jobs.find(j => j.id === id)!.quote!.validUntilMs = f.f.now() + 1; return null; });
+  f.f.tick(); await c.refresh(); assert.equal(c.price().gate.kind, 'stale'); await c.inspect(id); assert.equal(c.state.details?.item.recordedCost?.text, '$0.00001');
+  c.dispose();
+});
+
+test('private document activity uses truthful preparation and display names while public commands omit prompts', () => {
+  const { f, c, ui } = setup(); const a = f.actor('A'); f.service.intent(a, 'private-activity', soul, { prompt: 'A quiet garden' });
+  const activity = ui('ui.snapshot').activity.join(' ');
+  assert.match(activity, /A prepared 'A quiet garden'/); assert.match(activity, /Soul V2/); assert.doesNotMatch(activity, /higgsfield-ai|\/soul\/|submitted|https:/);
+  const surface = f.surfaceContext('A'); const publicHistory = c.onSurfaceCall(surface, 'history', []);
+  assert.doesNotMatch(publicHistory, /A quiet garden/); assert.equal(f.sends(), 0);
+});
+
+test('price footer gives one field-specific helper, hides invalid refresh and hides redundant fresh estimation', async () => {
+  const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
+  const footer = () => render(React.createElement(Price, { view: c.price(), onEstimate() {}, onGenerate() {} }));
+  let markup = footer(); assert.match(markup, /Add a prompt to get a price/); assert.match(markup, />Add a prompt<\/button>/);
+  assert.doesNotMatch(markup, /Generate stays off|Price unavailable|>Check again<|>Get price</);
+  c.edit('prompt', 'Ready inputs'); markup = footer(); assert.match(markup, />Get price<\/button>/);
+  await c.estimate(); markup = footer(); assert.match(markup, /Generate for \$0\.00001/); assert.doesNotMatch(markup, />Get price<|>Estimate<|>Check again</);
+  c.edit('prompt', 'Changed inputs'); markup = footer(); assert.match(markup, /Price needs updating/); assert.match(markup, />Check again<\/button>/); c.dispose();
+});
+
+test('rendered rows and inspector use human model/cost/defaults/navigation instead of raw identifiers and status-as-cost', async () => {
+  const f = fixtureTransport(), c = new StudioController(f.transport); await c.mount();
+  let markup = render(React.createElement(App, { controller: c }));
+  assert.match(markup, /higgs-tile higgs-row/); assert.match(markup, /higgs-actions/); assert.match(markup, /higgs-metadata/);
+  assert.doesNotMatch(markup, />SOUL V2<|<small>higgsfield-ai/);
+  assert.doesNotMatch(markup, /Price unavailable · 0:00|Price needs updating · 0:00|Waiting for your OK · 0:00/);
+  await c.inspect('generated'); markup = render(React.createElement(App, { controller: c }));
+  assert.match(markup, /Not recorded/); assert.match(markup, /Model defaults/); assert.match(markup, /Previous result/); assert.match(markup, /Next result/); assert.match(markup, / of /);
+  assert.doesNotMatch(markup, /<h3>Cost<\/h3><p>Generated<\/p>/); c.dispose();
+});
+
+test('dev width harness uses a real constrained iframe and reports actual viewport metrics without production fixture imports', () => {
+  const dev = readFileSync(new URL('../ui/dev/main.tsx', import.meta.url), 'utf8');
+  assert.match(dev, /<iframe/); assert.match(dev, /width=\{width\}/); assert.match(dev, /window\.innerWidth/); assert.match(dev, /document\.documentElement\.clientWidth/); assert.match(dev, /document\.documentElement\.scrollWidth/);
+  assert.match(dev, /selectFixtureOwner\(fixture, controller, owner\)/); assert.doesNotMatch(dev, /document\.body\.style\.width/);
+  const production = readFileSync(new URL('../ui/src/main.tsx', import.meta.url), 'utf8'); assert.doesNotMatch(production, /dev\/|fixture|postMessage/);
 });

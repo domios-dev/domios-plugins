@@ -4,6 +4,7 @@ import type { Job } from '../../../media-shared/src/contracts';
 import type { UITransport, Methods } from '../src/transport';
 import type { UISnapshot } from '../../src/ui';
 import type { MediaViewPort } from '../src/App';
+import type { StudioController } from '../src/controller';
 
 /** Dev entry only. All state here is synthetic, no account/host/Courier proof. */
 export function fixtureTransport(options: { scenario?: string; load?: () => string | null; save?: (value: string) => void } = {}) {
@@ -81,6 +82,12 @@ export function fixtureTransport(options: { scenario?: string; load?: () => stri
     notify();
   }
   return { transport, f, commands, context, notify, complete, unknown, setOwner, submissions: () => submissions, owner: () => owner };
+}
+/** The actual dev owner-button handler, shared with the deterministic race regression. */
+export function selectFixtureOwner(fixture: Pick<ReturnType<typeof fixtureTransport>, 'setOwner'>, controller: StudioController, owner: 'A' | 'B' | 'user') {
+  controller.resetContext();
+  fixture.setOwner(owner); // Emits the required visibility refresh before model selection.
+  return controller.selectModel(soul); // Must never cancel that independent visibility refresh.
 }
 export const fixtureMedia: MediaViewPort = { get(id) {
   const kind = id === 'fixture-audio' ? 'audio' : 'image';
