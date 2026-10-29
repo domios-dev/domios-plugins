@@ -430,7 +430,7 @@ test('contact sheet status/actions and optional helper stay separate from prompt
   const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
   const markup = render(React.createElement(App, { controller: c, fixtureLibrary: true }));
   assert.match(markup, /<div class="higgs-row-end"><span class="studio-status"/);
-  assert.match(markup, /<p class="ct-meta higgs-row-note">/); assert.doesNotMatch(markup, /<small class="higgs-row-note"/);
+  assert.match(markup, /<p class="ct-meta higgs-row-note" title="[^"]+">/); assert.doesNotMatch(markup, /<small class="higgs-row-note"/);
   const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
   assert.match(css, /\.higgs-metadata\{display:flex;flex-wrap:wrap/);
   assert.match(css, /\.higgs-row-end\{display:flex;gap:6px;flex-wrap:wrap/);
@@ -672,4 +672,39 @@ test('render L2 pending developing uses result navigation, factual caption and e
   const exact=render(React.createElement(Developing,{state:'generating',aspect:'9:16'}));assert.match(exact,/aspect-ratio:9 \/ 16/);assert.match(exact,/data-aspect-source="request"/);assert.match(exact,/studio-develop-ring/);
   const neutral=render(React.createElement(Developing,{state:'generating'}));assert.match(neutral,/aspect-ratio:4 \/ 3/);assert.match(neutral,/data-aspect-source="neutral"/);
   assert.equal(f.submissions(),0);c.dispose();
+});
+
+
+test('D4 elapsed hour boundary retains m:ss below an hour and renders through actual H stage Library and session',async()=>{
+  for(const [ms,want] of [[0,'0:00'],[59999,'0:59'],[3599999,'59:59'],[3600000,'1:00:00'],[3723000,'1:02:03'],[36000000,'10:00:00']] as const)assert.equal(jobStatus('generating',{elapsedMs:ms}).elapsed,want);
+  for(const ms of [-1,NaN,Infinity])assert.equal(jobStatus('generating',{elapsedMs:ms}).elapsed,undefined);
+  const f=fixtureTransport({scenario:'hour'}),c=new StudioController(f.transport);await c.mount();await c.inspect('generating');
+  let markup=render(React.createElement(App,{controller:c}));assert.match(markup,/studio-session-elapsed studio-mono">1:02:03/);assert.match(markup,/Generating<span class="studio-mono">1:02:03/);
+  c.back();markup=render(React.createElement(App,{controller:c,fixtureLibrary:true}));assert.match(markup,/aria-label="Library"/);assert.match(markup,/Generating · 1:02:03/);assert.equal(f.submissions(),0);c.dispose();
+});
+
+test('D3 actual H failed caption falls back safely and metadata-only expired never invents Reopen',async()=>{
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();await c.inspect('failed');
+  let markup=render(React.createElement(App,{controller:c}));assert.match(markup,/studio-caption-helper" data-tone="error">This generation failed. No retry was made./);assert.doesNotMatch(markup,/>Retry</);
+  await c.inspect('expired');markup=render(React.createElement(App,{controller:c,media:fixtureMedia}));assert.match(markup,/studio-no-preview/);assert.match(markup,/File access expired. This result can&#x27;t be reopened here./);assert.doesNotMatch(markup,/>Reopen result</);
+  const {failureCopy,StateHelper}=await import('../../media-shared/ui/src/Studio');
+  assert.equal(failureCopy('A safe provider refusal.'),'A safe provider refusal.');
+  for(const message of [undefined,'','https://provider.example/error?token=private','C:\\private\\file','api_key=private','x'.repeat(301)])assert.equal(failureCopy(message),'This generation failed. No retry was made.');
+  assert.match(render(React.createElement(StateHelper,{state:'generated',expired:true,reopenable:true})),/File access expired. Reopen the result./);
+  assert.equal(f.submissions(),0);c.dispose();
+});
+
+test('D1 D2 D5 D6 actual developing DOM and source distinguish motion selection focus and equal Library grids',async()=>{
+  const {Developing}=await import('../../media-shared/ui/src/Studio');
+  const h=render(React.createElement(Developing,{state:'generating'}));assert.match(h,/studio-develop-ring/);assert.doesNotMatch(h,/studio-audio-sweep/);
+  const e=render(React.createElement(Developing,{state:'generating',audio:true}));assert.doesNotMatch(e,/studio-develop-ring/);const sweep=e.slice(e.indexOf('<g class="studio-audio-sweep"'));assert.equal([...sweep.matchAll(/<circle /g)].length,12);
+  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');
+  assert.match(css,/\.studio-strip-thumb \.studio-developing:is/);assert.doesNotMatch(css,/(?:^|\n)\.studio-developing:is/);assert.match(css,/studio-audio-sweep 2.6s linear/);assert.match(css,/\.studio-develop-ring,\.studio-audio-sweep\{display:none/);
+  assert.match(css,/\.studio-strip-result\[aria-current=true\]\{border-color:var\(--ct-accent\);background:color-mix\(in srgb,var\(--ct-accent\) 10%,transparent\)/);assert.doesNotMatch(css,/\[aria-current=true\]\{outline:/);assert.match(css,/focus-visible\{outline:2px solid var\(--ct-accent\);outline-offset:2px/);
+  assert.match(css,/studio-results \.studio-active\{display:grid;grid-template-columns:repeat\(4/);assert.match(css,/@media\(min-width:1400px\)\{\.studio-results \.studio-feed,\.studio-results \.studio-active\{grid-template-columns:repeat\(5/);assert.match(css,/studio-results \.studio-feed,\.studio-results \.studio-active\{grid-template-columns:repeat\(2/);assert.match(css,/-webkit-line-clamp:2/);
+});
+
+test('DEV App bounds metrics remain numeric passive and excluded from both production entries',()=>{
+  const source=readFileSync(new URL('../../media-shared/ui/dev/SyntheticAppMetrics.tsx',import.meta.url),'utf8');assert.match(source,/ResizeObserver/);assert.match(source,/MutationObserver/);assert.match(source,/if\(!frame\)frame=requestAnimationFrame/);assert.match(source,/window.innerWidth/);assert.match(source,/node.clientWidth,scrollWidth:node.scrollWidth/);assert.doesNotMatch(source,/textContent|innerText|innerHTML|setInterval|setTimeout|dispatchEvent|\.focus\(/);
+  for(const vendor of ['higgsfield','elevenlabs']){const dev=readFileSync(new URL('../../'+vendor+'/ui/dev/main.tsx',import.meta.url),'utf8');assert.match(dev,/<\/FixtureProvider><SyntheticAppMetrics\/>/);const entry=readFileSync(new URL('../../'+vendor+'/ui/src/main.tsx',import.meta.url),'utf8');assert.doesNotMatch(entry,/SyntheticAppMetrics|ui\/dev/);}
 });

@@ -66,7 +66,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       seed('run-one', 'generated', 'run', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }] });
       seed('run-two', 'failed', 'run'); seed('run-three', 'waiting', 'run', { waitReason: 'owner_confirmation' });
     } else if(options.scenario!=='empty') {
-      seed('queued', 'queued', 'agent'); seed('generating', 'generating', 'agent');
+      seed('queued', 'queued', 'agent'); seed('generating', 'generating', 'agent', {}, options.scenario==='hour'?now-3723000:now-60000);
       seed('generated', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-image', contentType: 'image/png' }, { kind: 'artifact', id: 'fixture-audio', contentType: 'audio/wav' }] }, today);
       seed('failed', 'failed', 'agent', {}, today); seed('canceled', 'canceled', 'you', {}, previousDay(1)); seed('unknown', 'unknown', 'agent');
       seed('starting', 'starting', 'you'); seed('price-missing', 'waiting', 'you', { waitReason: 'price_unavailable' });
@@ -110,7 +110,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
         }
       }
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.id === 'synthetic-video') i.notice = 'Synthetic local test-pattern video · not vendor media.';
-      if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.id === 'expired') i.notice = 'Expired · Synthetic file loss; settings remain.';
+      if (['ui.snapshot','ui.details'].includes(method)) for (const i of (method==='ui.snapshot'?(result as UISnapshot).items:[(result as UIDetails).item])) if (i.id === 'expired') i.notice = 'Expired · Synthetic file loss; settings remain.';
       if (method === 'ui.snapshot') for (const i of (result as UISnapshot).items) if (i.outputs.some(output => output.id === 'fixture-video-metadata')) i.notice = 'Synthetic video metadata · Playback not supplied.';
       return result;
     }, subscribe(fn) { listeners.add(fn); return () => { listeners.delete(fn); }; }

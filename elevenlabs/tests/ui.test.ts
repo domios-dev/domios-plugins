@@ -239,3 +239,17 @@ test('render L1 L3 L5 audio session rows and mobile player retain named SVG cont
   const shared=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(shared,/width:236px;flex:none;scroll-snap-align:start/);assert.match(shared,/scroll-snap-type:x proximity/);
   const fixture=readFileSync(new URL('../../media-shared/ui/dev/FixtureSelection.tsx',import.meta.url),'utf8');assert.doesNotMatch(fixture,/target.voice && <p/);assert.ok(fixture.indexOf("anchor?.kind==='span'&&commentPanel")<fixture.indexOf('<div ref={surfaceRef}'));assert.equal(f.submissions(),0);c.dispose();
 });
+
+
+test('D3 D4 D7 actual E failed expired and hour presentation preserves saved identity and truthful selected tracks',async()=>{
+  const f=fixtureTransport({scenario:'hour'}),c=new StudioController(f.transport);await c.mount();
+  const running=c.state.snapshot!.items.find(i=>i.state==='generating')!;await c.inspect(running.id);
+  let markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));assert.match(markup,/studio-session-elapsed studio-mono">1:02:03/);assert.match(markup,/Generating<span class="studio-mono">1:02:03/);
+  c.back();markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia,fixtureLibrary:true}));assert.match(markup,/Generating · 1:02:03/);
+  const failed=c.state.snapshot!.items.find(i=>i.state==='failed')!;await c.inspect(failed.id);markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));assert.match(markup,/studio-caption-helper" data-tone="error">Synthetic provider refusal/);assert.doesNotMatch(markup,/>Retry</);
+  c.state.details!.item.notice=undefined;markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));assert.match(markup,/This generation failed. No retry was made./);
+  const expired=c.state.snapshot!.items.find(i=>i.outputs[0]?.id==='fixture-expired-tone')!;await c.inspect(expired.id);markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));assert.match(markup,/studio-no-preview/);assert.doesNotMatch(markup,/role="slider"/);
+  const first=await fixtureMedia.acquire('fixture-expired-tone');assert.equal(first?.url,null);assert(first?.save);assert(first?.declared?.includes('saveAs'));assert.equal(first?.availability?.saveAs,true);const reopened=await fixtureMedia.acquire('fixture-expired-tone');assert.equal(reopened?.url,'/fixtures/tone.wav');
+  const source=readFileSync(new URL('../ui/src/App.tsx',import.meta.url),'utf8');assert.match(source,/studio-audio-session-title">\{i.title\}<\/span><DotRow played=\{d\?\.item.id===i.id\?1:0\}/);
+  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(css,/studio-dot-row\{grid-column:1\/-1;grid-row:2;height:6px;min-width:0;opacity:.5/);assert.equal(f.submissions(),0);c.dispose();
+});

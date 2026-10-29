@@ -13,7 +13,7 @@ export function jobStatus(state: JobState, o: { cancelRequested?: boolean; elaps
   if (o.cancelRequested && !['generated', 'failed', 'canceled', 'unknown'].includes(state)) [label, tone] = ['Canceling…', 'muted'];
   const seconds = o.elapsedMs !== undefined && Number.isFinite(o.elapsedMs) && o.elapsedMs >= 0 ? Math.floor(o.elapsedMs / 1000) : undefined;
   return { label, tone,
-    elapsed: seconds === undefined ? undefined : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`,
+    elapsed: seconds === undefined ? undefined : `${seconds >= 3600 ? `${Math.floor(seconds / 3600)}:${String(Math.floor(seconds / 60) % 60).padStart(2, '0')}` : Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`,
     progress: state === 'generating' && typeof o.progress === 'number' && Number.isFinite(o.progress) && o.progress >= 0 && o.progress <= 1 ? o.progress : undefined };
 }
 export function cancelAction(state: JobState, provider: { cancelQueued: boolean; cancelRunning: boolean }): { label: 'Cancel' } | null {

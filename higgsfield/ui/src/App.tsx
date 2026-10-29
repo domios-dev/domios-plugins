@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import { Studio, Inspector, Settings, Developing, ResultState, Thumbnail } from '../../../media-shared/ui/src';
+import { Studio, Inspector, Settings, Developing, ResultState, Thumbnail, StateHelper, NoPreview } from '../../../media-shared/ui/src';
 import { cancelAction, unknownAction, pipelinePrice, humanActions, jobStatus } from '../../../media-shared/src/presentation';
 import type { HumanAction } from '../../../media-shared/src/presentation';
 import type { StudioItem } from '../../../media-shared/ui/src';
@@ -57,8 +57,8 @@ export function App({ controller: c, media, selection, controls, stageTools, fix
         {check && <button className="ct-btn ct-btn-ghost" onClick={() => void c.action('reconcile', i.id)}>{check.label}</button>}
         {i.actor.kind === 'run' && i.runLink && <a href={i.runLink}>View run</a>}
       </div></div>
-      {active && helper && <p className="ct-meta higgs-row-note">{helper}</p>}
-      {i.notice && <p className="ct-meta">{i.notice}</p>}
+      {active && helper && <p className="ct-meta higgs-row-note" title={helper}>{helper}</p>}
+      {i.notice && <p className="ct-meta" title={i.notice}>{i.notice}</p>}
       {i.source && <button type="button" className="ct-btn ct-btn-ghost higgs-lineage" onClick={() => select(i.source!.id)}>From: {i.source.label}</button>}
       {!active && helper && <p className="ct-meta">{helper}</p>}
     </div>;
@@ -71,10 +71,12 @@ export function App({ controller: c, media, selection, controls, stageTools, fix
       const status=wait?{label:wait.label,tone:jobStatus(gate.kind==='ready'?'waiting_ok':gate.kind==='stale'?'price_stale':'price_unavailable').tone}:i.status;
       const local=i.outputs[0]?media?.get(i.outputs[0].id):null,allowed=allowedActions(local);
       const cancel=cancelAction(i.state,{cancelQueued:snap?.capabilities.cancelQueued??false,cancelRunning:false});
-      const preview=i.outputs[0]?<MediaPreview actions={false} media={local}/>:<Developing state={i.state} aspect={d.params.aspect_ratio}/>;
+      const expired=/^(?:Expired|File access expired)/i.test(i.notice??snap?.items.find(item=>item.id===i.id)?.notice??'')&&!local?.url;
+      const reopenable=!!(i.outputs[0]&&media?.reopen&&(allowed.length||allowedActions(media).length));
+      const preview=expired?<NoPreview/>:i.outputs[0]?<MediaPreview actions={false} media={local}/>:<Developing state={i.state} aspect={d.params.aspect_ratio}/>;
       const caption=<><p className="studio-prompt">{String(d.params.prompt??i.title)}</p><div className="studio-facts"><span>{i.modelLabel??'Model unavailable'}</span>{i.recordedCost?<span title={i.recordedCost.amount+' '+i.recordedCost.unit}><span className="studio-mono">{i.recordedCost.text}</span> ({i.recordedCost.kind})</span>:gate.kind==='ready'?<span className="studio-mono">{gate.text}</span>:null}<span>by {i.startedBy}</span></div>
-        <div className="studio-rail-actions">{local?.save&&allowed.includes('saveAs')&&<button className="ct-btn" onClick={local.save}>Save as…</button>}{local?.reveal&&allowed.includes('reveal')&&<button className="ct-btn" onClick={local.reveal}>Show in folder</button>}{media?.copyPrompt&&allowedActions(media).includes('copyText')&&<button className="ct-btn" onClick={()=>media.copyPrompt!(String(d.params.prompt??''))}>Copy prompt</button>}{media?.reopen&&i.outputs[0]&&<button className="ct-btn" onClick={()=>{void media.reopen!(i.outputs[0].id).then(()=>mediaChanged(n=>n+1));}}>Reopen result</button>}{cancel&&<button className="ct-btn" onClick={()=>void c.action('cancel',i.id)}>{cancel.label}</button>}{i.state==='unknown'&&snap?.capabilities.reconcile&&<button className="ct-btn" onClick={()=>void c.action('reconcile',i.id)}>Check again</button>}</div>
-        {wait&&<p className="studio-caption-helper">{wait.helper??'Approve in the run view'}</p>}{i.notice&&<p className="studio-caption-helper">{i.notice}</p>}{i.actor.kind==='run'&&i.runLink&&<a className="studio-lineage" href={i.runLink}>View run</a>}{i.source&&<button className="ct-btn higgs-lineage studio-lineage" onClick={()=>select(i.source!.id)}>From: {i.source.label}</button>}</>;
+        <div className="studio-rail-actions">{local?.save&&allowed.includes('saveAs')&&<button className="ct-btn" onClick={local.save}>Save as…</button>}{local?.reveal&&allowed.includes('reveal')&&<button className="ct-btn" onClick={local.reveal}>Show in folder</button>}{media?.copyPrompt&&allowedActions(media).includes('copyText')&&<button className="ct-btn" onClick={()=>media.copyPrompt!(String(d.params.prompt??''))}>Copy prompt</button>}{reopenable&&<button className="ct-btn" onClick={()=>{void media!.reopen!(i.outputs[0].id).then(()=>mediaChanged(n=>n+1));}}>Reopen result</button>}{cancel&&<button className="ct-btn" onClick={()=>void c.action('cancel',i.id)}>{cancel.label}</button>}{i.state==='unknown'&&snap?.capabilities.reconcile&&<button className="ct-btn" onClick={()=>void c.action('reconcile',i.id)}>Check again</button>}</div>
+        {wait&&<p className="studio-caption-helper">{wait.helper??'Approve in the run view'}</p>}<StateHelper state={i.state} notice={i.notice} expired={expired} reopenable={reopenable}/>{i.actor.kind==='run'&&i.runLink&&<a className="studio-lineage" href={i.runLink}>View run</a>}{i.source&&<button className="ct-btn higgs-lineage studio-lineage" onClick={()=>select(i.source!.id)}>From: {i.source.label}</button>}</>;
       return <Inspector tools={stageTools} navigation={navigation} status={<ResultState item={i} status={status}/>} caption={caption} onBack={()=>c.back()} preview={selection?selection(i,preview):preview}>
         <h3>Settings</h3>{Object.keys(d.params).some(k=>k!=='prompt')?<Settings schema={d.schema} values={Object.fromEntries(Object.entries(d.params).filter(([k])=>k!=='prompt'))}/>:<p className="ct-meta">Model defaults</p>}{d.inputs.length>0&&<div className="higgs-inputs">{d.inputs.map((input,n)=><span className="higgs-input-chip" key={input.id} title={input.contentType}>{media?.get(input.id)?.fileName??'Reference '+(n+1)}</span>)}</div>}
       </Inspector>;
