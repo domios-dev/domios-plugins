@@ -9,3 +9,4 @@
 .studio-required{margin-left:8px;font-weight:400;font-size:var(--ct-font-size-sm);color:var(--ct-muted-fg)}
 
 .studio-inspector-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.studio-inspector-nav>.ct-meta{margin-left:auto}
+.studio-feed[data-layout=rows]{grid-template-columns:minmax(0,1fr);gap:8px}

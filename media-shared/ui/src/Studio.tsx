@@ -75,7 +75,7 @@ export function Price({ view, onEstimate, onGenerate }: { view: EstimateView; on
     {view.available && view.gate.kind !== 'ready' && !view.invalid && !view.estimating && <button type="button" className="ct-btn ct-btn-ghost" disabled={view.busy} onClick={onEstimate}>{view.refreshLabel ?? price.refresh ?? 'Get price'}</button>}</div>;
 }
 /** DOM composition only. Preserve foundation day/run ordering; merge adjacent ordinary buckets into sibling grids. */
-export function FinishedFeed({ items, now, renderItem }: { items: StudioItem[]; now: number; renderItem: StudioProps['renderItem'] }) {
+export function FinishedFeed({ items, now, renderItem, feedLayout = 'tiles' }: { items: StudioItem[]; now: number; renderItem: StudioProps['renderItem']; feedLayout?: StudioProps['feedLayout'] }) {
   return <>{groupHistory(items, now).map(day => {
     const blocks: typeof day.runs = [];
     for (const bucket of day.runs) {
@@ -84,8 +84,8 @@ export function FinishedFeed({ items, now, renderItem }: { items: StudioItem[]; 
       else blocks.push({ actor: bucket.actor, items: [...bucket.items] });
     }
     return <section key={day.day}><h2>{day.day}</h2>{blocks.map((block, n) => block.actor.kind === 'run'
-      ? <div key={n} className="studio-run"><p className="ct-meta">{block.actor.label}</p><div className="studio-feed">{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div></div>
-      : <div key={n} className="studio-feed">{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div>)}</section>;
+      ? <div key={n} className="studio-run"><p className="ct-meta">{block.actor.label}</p><div className="studio-feed" data-layout={feedLayout}>{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div></div>
+      : <div key={n} className="studio-feed" data-layout={feedLayout}>{block.items.map(item => <article key={item.id}>{renderItem(item)}</article>)}</div>)}</section>;
   })}</>;
 }
 export function Studio(p: StudioProps) {
@@ -108,7 +108,7 @@ export function Studio(p: StudioProps) {
     {p.activity.length > 0 && <details className="studio-activity"><summary>{p.activitySummary ?? p.activity[0]} · Show activity ({p.activity.length})</summary><ol>{p.activity.map((line, i) => <li key={i}>{line}</li>)}</ol></details>}
     <nav className="studio-mobile studio-segments" aria-label="Studio panes"><button className="ct-btn" aria-pressed={pane === 'compose'} onClick={() => setPane('compose')}>Compose</button><button className="ct-btn" aria-pressed={pane === 'results'} onClick={() => setPane('results')}>Results ({p.items.length})</button></nav>
     <div className="studio-panes"><aside className="studio-composer" aria-label="Composer"><div className="studio-composer-body">{p.composer}</div><footer>{p.footer}</footer></aside><section className="studio-results" aria-label="Results" tabIndex={-1}>
-      {p.selected ? typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}<FinishedFeed items={finished} now={p.now} renderItem={p.renderItem} />{filtered.length === 0 && p.empty}{p.next}<p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p></>}
+      {p.selected ? typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}<FinishedFeed items={finished} now={p.now} renderItem={p.renderItem} feedLayout={p.feedLayout} />{filtered.length === 0 && p.empty}{p.next}<p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p></>}
     </section></div></main>;
 }
 export function Inspector({ onBack, preview, children, navigation }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode; navigation?: InspectorNavigation }) {

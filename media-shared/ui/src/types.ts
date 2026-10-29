@@ -15,4 +15,4 @@ export type InspectorNavigation = { index: number; total: number; previous?: () 
 export type StudioProps = { title: string; composer: ReactNode; footer: ReactNode; toolbar?: ReactNode; activity: string[]; activitySummary?: string;
   items: StudioItem[]; now: number; capacity: number; selected?: string; inspector?: ReactNode | ((navigation?: InspectorNavigation) => ReactNode);
   renderItem(item: StudioItem): ReactNode; onSelect(id: string): void; onBack(): void; empty?: ReactNode;
-  next?: ReactNode; filter?: 'everyone' | 'you' | 'agent' | 'run'; onFilter?(value: 'everyone' | 'you' | 'agent' | 'run'): void };
+  next?: ReactNode; feedLayout?: 'tiles' | 'rows'; filter?: 'everyone' | 'you' | 'agent' | 'run'; onFilter?(value: 'everyone' | 'you' | 'agent' | 'run'): void };
