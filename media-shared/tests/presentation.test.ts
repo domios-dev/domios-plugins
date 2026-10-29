@@ -64,6 +64,7 @@ test('studio/pipeline copy blocks unavailable and stale prices and hides unavail
   const gate = priceGate({ amount: 12, unit: 'credit_milli', validUntilMs: 100 }, 'credit_milli', 10, { one: 'millicredit', other: 'millicredits' });
   assert.equal(studioPrice(gate).primary, 'Generate for 12 millicredits');
   assert.equal(studioPrice(gate, 3).primary, 'Generate 3 for 12 millicredits');
+  assert.equal(studioPrice(gate, 0).helper, 'Choose how many to generate.');
   assert.equal(pipelinePrice(gate).approve, 'Approve 12 millicredits for this step');
   assert.equal(pipelinePrice(gate).label, 'Waiting for your OK');
   assert.equal(pipelinePrice(gate, { overBudget: true }).budget, "Above this run's budget. Later steps still stop for approval.");
@@ -88,11 +89,14 @@ test('host attribution and consecutive run groups preserve job order and distinc
   assert.deepEqual(groups[1].runs.map(r => r.items.length), [3, 1, 1]);
   assert.equal(activityLine(run, 'submitted', '6 jobs', '72 credits'), 'Daily covers run #12 submitted 6 jobs for 72 credits');
   assert.equal(activityLine(agent, 'submitted', 'x'.repeat(49)), `Rex submitted ${'x'.repeat(48)}…`);
+  const older = new Date(2026, 9, 27, 12);
+  assert.equal(groupHistory([{ at: older.getTime(), actor: you }], now)[0].day,
+    older.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
 });
 test('Iris refusal copy sanitizes raw errors, stays silent for busy/stale and gates action ordering', () => {
-  for (const code of ['cancelled', 'busy', 'stale']) assert.equal(refusalCopy(code, 'private failure'), null);
-  assert.equal(refusalCopy('media_expired', ''), 'File access expired. Reopen the result.');
-  for (const code of ['media_foreign', 'media_unknown']) assert.equal(refusalCopy(code, ''), "This file isn't available in this view. Reopen the result.");
+  for (const reason of ['cancelled', 'busy', 'stale']) assert.equal(refusalCopy('denied', reason), null);
+  assert.equal(refusalCopy('denied', 'media_expired'), 'File access expired. Reopen the result.');
+  for (const reason of ['media_foreign', 'media_unknown']) assert.equal(refusalCopy('denied', reason), "This file isn't available in this view. Reopen the result.");
   assert.equal(refusalCopy('unavailable', 'clipboard'), "Copy isn't available here.");
   assert.equal(refusalCopy('error', 'Authorization: secret private path'), "Couldn't complete that.");
   assert.deepEqual(humanActions({ copyText: true, saveAs: true, reveal: true }, ['reveal', 'saveAs', 'copyText']), ['copyText', 'saveAs', 'reveal']);

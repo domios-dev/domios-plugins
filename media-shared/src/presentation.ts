@@ -37,12 +37,13 @@ export function jobPrice(job: Job, now: number, names: { one: string; other: str
   const state = quoteState(job.quote, job.binding, job.request.unit, now);
   return state === 'ready' ? priceGate(job.quote!, job.request.unit, now, names) : { kind: state };
 }
+/** The quote is the total for the entire immutable request, never a per-item price. */
 export function studioPrice(gate: PriceGate, count = 1, estimateAvailable = false) {
   const ready = gate.kind === 'ready';
   const validCount = Number.isSafeInteger(count) && count > 0;
   return { primary: ready ? count > 1 ? `Generate ${count} for ${gate.text}` : `Generate for ${gate.text}` :
     gate.kind === 'stale' ? 'Price needs updating' : 'Price unavailable', disabled: !ready || !validCount,
-    helper: ready ? null : 'Generate stays off until a safe, fresh price is available.',
+    helper: !validCount ? 'Choose how many to generate.' : ready ? null : 'Generate stays off until a safe, fresh price is available.',
     refresh: !ready && estimateAvailable ? 'Check again' : null };
 }
 export function pipelinePrice(gate: PriceGate, o: { refreshAvailable?: boolean; overBudget?: boolean } = {}) {
@@ -59,7 +60,9 @@ export function groupHistory<T extends { at: number; actor: Actor }>(items: T[],
   const yesterday = dayKey(yesterdayDate.getTime());
   const days: { day: string; runs: { actor: Actor; items: T[] }[] }[] = [];
   for (const item of items) {
-    const key = dayKey(item.at); const day = key === today ? 'Today' : key === yesterday ? 'Yesterday' : key;
+    const key = dayKey(item.at); const date = new Date(item.at);
+    const day = key === today ? 'Today' : key === yesterday ? 'Yesterday' : date.toLocaleDateString(undefined,
+      { month: 'short', day: 'numeric', ...(date.getFullYear() !== new Date(now).getFullYear() ? { year: 'numeric' as const } : {}) });
     let bucket = days[days.length - 1];
     if (!bucket || bucket.day !== day) { bucket = { day, runs: [] }; days.push(bucket); }
     const last = bucket.runs[bucket.runs.length - 1];
@@ -73,10 +76,10 @@ export function activityLine(actor: Actor, verb: string, subject: string, amount
   return `${actorLabel(actor)} ${verb} ${bounded}${amountText ? ` for ${amountText}` : ''}`;
 }
 export function refusalCopy(code: string, reason: string): string | null {
-  if (['cancelled', 'busy', 'stale'].includes(code)) return null;
-  if (code === 'media_expired') return 'File access expired. Reopen the result.';
-  if (code === 'media_unknown' || code === 'media_foreign') return "This file isn't available in this view. Reopen the result.";
-  if (code === 'unavailable' && reason === 'clipboard') return "Copy isn't available here.";
+  if (['cancelled', 'busy', 'stale'].includes(reason)) return null;
+  if (reason === 'media_expired') return 'File access expired. Reopen the result.';
+  if (reason === 'media_unknown' || reason === 'media_foreign') return "This file isn't available in this view. Reopen the result.";
+  if (reason === 'clipboard') return "Copy isn't available here.";
   return "Couldn't complete that.";
 }
 export type HumanAction = 'copyText' | 'saveAs' | 'reveal';
