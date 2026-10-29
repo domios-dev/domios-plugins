@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "section",
+    "title": "API credential",
+    "fields": [
+      {
+        "kind": "api_key",
+        "env_var": "higgsfield-api-key",
+        "label": "Higgsfield KEY_ID:KEY_SECRET",
+        "description": "Plugin-scoped host-injected credential. Provision stdin only; never return to JavaScript."
+      }
+    ]
+  }
+]

@@ -76,6 +76,33 @@ function waitReason(data, job, now) {
   return void 0;
 }
 
+// media-shared/src/host-entry.ts
+var fresh = /* @__PURE__ */ new WeakMap();
+var HostEntryGate = class {
+  constructor(jobs) {
+    this.jobs = jobs;
+  }
+  enter(operation2, request) {
+    const receipt2 = this.jobs.enter(operation2, request);
+    if ("error" in receipt2) throw new Error("host_entry_refused");
+    if (receipt2.state !== "entered_unknown") return { state: receipt2.state };
+    const proof = Object.freeze({ freshHostEntry: true });
+    fresh.set(proof, JSON.parse(JSON.stringify(receipt2)));
+    return proof;
+  }
+};
+function consumeHostEntry(proof) {
+  const receipt2 = proof && fresh.get(proof);
+  if (!receipt2) throw new Error("fresh_host_entry_required");
+  fresh.delete(proof);
+  return receipt2;
+}
+function canonical(value) {
+  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  if (value && typeof value === "object") return "{" + Object.keys(value).sort().map((k) => JSON.stringify(k) + ":" + canonical(value[k])).join(",") + "}";
+  return JSON.stringify(value);
+}
+
 // media-shared/src/core.ts
 var MediaCore = class {
   constructor(store, now, maxHistory, kind, validate) {
@@ -201,6 +228,40 @@ var MediaCore = class {
       job.ceilingException = ceilingException;
       job.waitReason = waitReason(d, job, this.now());
       return job;
+    });
+  }
+  /** Backend-only setup from a host admission and real exact-input quote. No approval is fabricated. */
+  prepareHost(access, id2, quote, admission) {
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, (d) => {
+      const job = this.owned(d, access, id2);
+      if (!sameIntent(access.scope, job) || job.state !== "waiting" || job.lease || job.reservation || job.hostAdmission || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready" || admission.deadlineMs <= this.now() || !/^[a-f0-9]{64}$/.test(admission.binding)) throw new Error("host_preparation_refused");
+      job.quote = clone(quote);
+      job.hostAdmission = clone(admission);
+      job.waitReason = "owner_confirmation";
+      return job;
+    });
+  }
+  /** Only a fresh gate-issued host-enter return can cross this boundary. Saved/JSON receipts cannot. */
+  enterHost(access, id2, proof) {
+    const receipt2 = consumeHostEntry(proof);
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, (d) => {
+      const job = this.owned(d, access, id2), admission = job.hostAdmission, quote = job.quote;
+      const origin3 = receipt2.origin;
+      if (!sameIntent(access.scope, job) || job.state !== "waiting" || job.lease || job.reservation || !admission || receipt2.state !== "entered_unknown" || receipt2.operation !== id2 || receipt2.scope.plugin !== admission.plugin || receipt2.scope.team !== admission.team || receipt2.scope.owner !== access.scope.owner || receipt2.scope.workspace !== access.scope.workspace || origin3.kind !== "studio_agent" || origin3.actor !== access.scope.actorId || canonical(origin3) !== canonical(admission.origin) || canonical(receipt2.request) !== canonical(job.request) || receipt2.quote.binding !== admission.binding || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready" || receipt2.quote.amount !== quote.amount || receipt2.quote.unit !== quote.unit || receipt2.quote.basis !== quote.basis || receipt2.quote.tariffRevision !== quote.tariffRevision || receipt2.quote.issuedAt !== quote.issuedAt || receipt2.quote.validUntilMs !== quote.validUntilMs || admission.deadlineMs <= this.now() || receipt2.enteredAtMs === null || receipt2.enteredAtMs < quote.issuedAt || receipt2.enteredAtMs > this.now())
+        throw new Error("host_entry_mismatch");
+      const ceiling = d.ceilings[quote.unit];
+      const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote.unit ? j.reservation.amount : 0), 0);
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote.amount) || prior + quote.amount > ceiling)
+        throw new Error("aggregate_ceiling");
+      job.reservation = { amount: quote.amount, unit: quote.unit };
+      job.accounting = "unknown";
+      job.state = "starting";
+      job.phase = "submitting";
+      job.waitReason = void 0;
+      const continuation = this.token(job);
+      return { job, action: { kind: this.kind, intentId: id2, request: job.request, continuation } };
     });
   }
   beginStart(access, id2, outputAvailable) {
@@ -17462,6 +17523,12 @@ function validateReturnedUrl(url, id2, kind) {
   if (typeof url !== "string" || url !== requestUrl(id2, kind)) throw new Error("invalid_provider_url");
   return url;
 }
+function usdMicro(value) {
+  if (typeof value !== "string" || !/^(0|[1-9]\d{0,9})(?:\.\d{1,6})?$/.test(value)) return null;
+  const [whole, fraction = ""] = value.split(".");
+  const result = Number(whole) * 1e6 + Number(fraction.padEnd(6, "0"));
+  return Number.isSafeInteger(result) ? result : null;
+}
 function parseJson(response, expected) {
   let bytes = 0;
   for (const point of response.body) {
@@ -17586,8 +17653,8 @@ var HiggsfieldService = class {
     this.ports = ports;
     this.core = new MediaCore(ports.store, ports.now, ports.maxHistory, "async", validateRequest);
   }
-  intent(access, id2, operation, params, inputs = []) {
-    return this.core.intent(access, id2, prepare(operation, params, inputs));
+  intent(access, id2, operation2, params, inputs = []) {
+    return this.core.intent(access, id2, prepare(operation2, params, inputs));
   }
   estimate(access, id2) {
     const d = this.core.beginEstimate(access, id2, !!this.ports.quote);
@@ -17686,8 +17753,8 @@ var HiggsfieldService = class {
   historyCapacity() {
     return this.ports.maxHistory;
   }
-  canEstimate(operation) {
-    return !!this.ports.quote && (operation === void 0 || (this.ports.quoteSupported ? this.ports.quoteSupported(operation) === true : operation === "higgsfield-ai/soul/v2/standard"));
+  canEstimate(operation2) {
+    return !!this.ports.quote && (operation2 === void 0 || (this.ports.quoteSupported ? this.ports.quoteSupported(operation2) === true : operation2 === "higgsfield-ai/soul/v2/standard"));
   }
   recover(access) {
     return this.core.recover(access);
@@ -17833,8 +17900,8 @@ function displayUSD(amount) {
   const fraction = String(remainder).padStart(6, "0").replace(/0+$/, "").padEnd(2, "0");
   return `$${whole}.${fraction}`;
 }
-function displayModel(operation) {
-  const title = models.find((m) => m.id === operation)?.title;
+function displayModel(operation2) {
+  const title = models.find((m) => m.id === operation2)?.title;
   return title ? title.split(" \u2014 ")[0].replace(/ API$/, "").replace(/\b[A-Z]{3,}\b/g, (word) => word[0] + word.slice(1).toLowerCase()) : "Model unavailable";
 }
 function privateActivity(job) {
@@ -17889,9 +17956,9 @@ function uiItem(job, now) {
     startedBy: actorLabel(documentActor(job))
   };
 }
-function uiSchema(operation) {
-  if (!id(operation)) throw new Error("ui_refused");
-  const row = models.find((m) => m.id === operation);
+function uiSchema(operation2) {
+  if (!id(operation2)) throw new Error("ui_refused");
+  const row = models.find((m) => m.id === operation2);
   if (!row?.schema) return unavailable2("ui_schema_unsupported");
   try {
     uiJSONBytes(row.schema, uiBounds.schema);
@@ -18039,9 +18106,9 @@ var HiggsfieldCommands = class {
       return { error: "command_refused" };
     }
   }
-  execute(context, origin2, verb, args) {
+  execute(context, origin3, verb, args) {
     if (!verbs.includes(verb)) throw new Error();
-    const access = this.ports.access(context, origin2);
+    const access = this.ports.access(context, origin3);
     if (!access || !access.current) throw new Error();
     this.service.history(access);
     let changed = false, result;
@@ -18055,7 +18122,7 @@ var HiggsfieldCommands = class {
       case "open":
       case "close":
         object(args, []);
-        if (origin2 !== "surface") return { error: "surface_lifecycle_unavailable" };
+        if (origin3 !== "surface") return { error: "surface_lifecycle_unavailable" };
         return { acknowledged: verb };
       // Authenticated host surface dispatch only; viewCall performs no lifecycle.
       case "catalog":
@@ -18172,11 +18239,11 @@ function hostStore(host2, plugin) {
   } };
 }
 var runtimeLimitations = [
-  "Agent SurfaceCallContext has no workspace; MediaCore agent scope cannot be resolved.",
-  "Binary transfer has no JSON request body with host-resolved secret credentials.",
-  "jobs.admit is observation_only; no studio spend admission or approval linkage is supplied.",
-  "Exact-input fresh account pricing and aggregate USD admission are not configured.",
-  "Submission, output storage/media registration, reconciliation, cancellation and Scribe are unavailable.",
+  "Production document generation stays unavailable; the minimum effect path is agent-owned.",
+  "Only the exact DEV build 550cb1cbcbc34ab484a5f199c56d5b564661daba is targeted; public released minimum is unknown.",
+  "Parent must serialize the independent aggregate USD2 proof inside shared USD5, including unknown reservations across days.",
+  "Output downloads require an exact host grant and a verified response MIME; missing access never regenerates.",
+  "ElevenLabs safe account tariff/prepaid no-overage guarantee, cancellation and Scribe remain unavailable.",
   "Comments, immutable revision resolution, Blueprint execution and agent media review are unavailable."
 ];
 function runtimeStatus() {
@@ -18191,15 +18258,166 @@ function runtimeStatus() {
     limitations: runtimeLimitations
   };
 }
+function runtimeAvailable(host2) {
+  return ["admit", "requestBinding", "prepare", "enter", "status"].every((k) => typeof host2.jobs?.[k] === "function") && typeof host2.transfer?.async === "function";
+}
+function agentAccess(plugin, context, receipt2) {
+  const { scope, origin: origin3 } = receipt2;
+  if (!scope || scope.plugin !== plugin || !scope.workspace || scope.owner !== context.owner || context.owner !== context.actor || origin3?.kind !== "studio_agent" || origin3.actor !== context.actor || origin3.surface !== context.surface || origin3.instance !== context.instance || origin3.tab !== context.tab) throw new Error("trusted_agent_scope_required");
+  return { current: true, inputsAuthorized: true, scope: {
+    owner: scope.owner,
+    workspace: scope.workspace,
+    actorId: origin3.actor,
+    actor: { kind: "agent", label: context.actorLabel },
+    human: false,
+    authRevision: receipt2.operation
+  } };
+}
+function bodyObject(args, allowed, max = 1800) {
+  if (args.length > 1 || (args[0]?.length ?? 0) > max) throw new Error("invalid_arguments");
+  const body = args.length ? JSON.parse(args[0]) : {};
+  if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).some((k) => !allowed.includes(k))) throw new Error("invalid_arguments");
+  return body;
+}
+var HostMediaRuntime = class {
+  constructor(host2, plugin, core) {
+    this.host = host2;
+    this.plugin = plugin;
+    this.core = core;
+    this.store = hostStore(host2, plugin);
+    this.gate = new HostEntryGate(host2.jobs);
+  }
+  admit(context) {
+    if (!runtimeAvailable(this.host)) throw new Error("runtime_unavailable_exact_DEV_build_required");
+    const receipt2 = this.host.jobs.admit();
+    if ("error" in receipt2) throw new Error("host_admission_unavailable");
+    return { receipt: receipt2, access: agentAccess(this.plugin, context, receipt2) };
+  }
+  current(context, id2) {
+    if (!/^[a-f0-9]{64}$/.test(id2 ?? "")) throw new Error("valid_job_id_required");
+    const status = this.host.jobs.status(id2);
+    if ("error" in status) throw new Error("host_job_unavailable");
+    const access = agentAccess(this.plugin, context, status);
+    this.core.recover(access);
+    const job = this.core.history(access).find((j) => j.id === id2);
+    if (!job) throw new Error("job_unavailable");
+    if (status.spend?.state === "entered_unknown" && !job.reservation) {
+      this.store.transact(access.scope.owner, access.scope.workspace, (d) => {
+        const found = d.jobs.find((j) => j.id === id2);
+        if (!found.quote || canonical(status.spend.request) !== canonical(found.request) || status.spend.quote.amount !== found.quote.amount || status.spend.quote.unit !== found.quote.unit)
+          throw new Error("host_reservation_mismatch");
+        found.reservation = { amount: found.quote.amount, unit: found.quote.unit };
+        found.accounting = "unknown";
+        found.state = "unknown";
+        found.phase = void 0;
+      });
+    }
+    return { status, access, job: this.core.history(access).find((j) => j.id === id2) };
+  }
+  prepare(context, request, quote) {
+    const { receipt: receipt2, access } = this.admit(context);
+    if (JSON.stringify(request).length > 1800) throw new Error("request_too_large");
+    const binding = this.host.jobs.requestBinding(request);
+    if ("error" in binding) throw new Error("binding_unavailable");
+    const job = this.core.intent(access, receipt2.operation, request);
+    this.store.transact(access.scope.owner, access.scope.workspace, (d) => {
+      d.ceilings.usd_micro = d.ceilings.usd_micro === void 0 ? 1e6 : Math.min(d.ceilings.usd_micro, 1e6);
+    });
+    return quote(binding.binding, (q) => {
+      const current = this.current(context, job.id);
+      this.core.prepareHost(current.access, job.id, { ...q, binding: job.binding }, {
+        plugin: this.plugin,
+        team: receipt2.scope.team,
+        binding: binding.binding,
+        deadlineMs: receipt2.deadlineMs,
+        origin: receipt2.origin
+      });
+      const approval = this.host.jobs.prepare(job.id, request, {
+        binding: binding.binding,
+        amount: q.amount,
+        unit: q.unit,
+        basis: q.basis,
+        tariffRevision: q.tariffRevision,
+        issuedAt: q.issuedAt,
+        validUntilMs: q.validUntilMs
+      });
+      if ("error" in approval) throw new Error("host_quote_preparation_refused");
+      return JSON.stringify({
+        id: job.id,
+        state: approval.state,
+        quote: q,
+        deadlineMs: receipt2.deadlineMs,
+        next: "Owner approves the host question; then submit/generate with this id. Expiry requires fresh prepare."
+      });
+    });
+  }
+  submit(context, id2, send) {
+    const { job, access, status } = this.current(context, id2);
+    if (job.state !== "waiting" || job.reservation || !job.quote || !job.hostAdmission || status.spend?.state === "entered_unknown")
+      throw new Error("noReplay_use_status_or_reconcile");
+    const prior = this.core.history(access).reduce((n, j) => n + (j.reservation?.unit === job.quote.unit ? j.reservation.amount : 0), 0);
+    if (job.quote.unit !== "usd_micro" || prior + job.quote.amount > 1e6) throw new Error("aggregate_ceiling");
+    const proof = this.gate.enter(id2, job.request);
+    if ("state" in proof) return JSON.stringify({ id: id2, state: proof.state, next: proof.state === "expired_readmit_needed" ? "Prepare again for a fresh quote and host approval." : "Await the host owner decision." });
+    const entered = this.core.enterHost(access, id2, proof);
+    try {
+      return send(entered.job, entered.action.continuation);
+    } catch {
+      this.core.unknown(entered.action.continuation);
+      throw new Error("submission_unknown_noReplay");
+    }
+  }
+  transfer(request, then) {
+    return this.host.transfer.async(request, then);
+  }
+  save(access, id2, file) {
+    if (!file || !/^[a-zA-Z0-9_.-]+$/.test(file.path) || !/^[a-f0-9]{64}$/.test(file.sha256) || !Number.isSafeInteger(file.size) || file.size <= 0 || file.size > 8 * 1024 * 1024 || !["image/png", "image/jpeg", "image/webp", "audio/mpeg"].includes(file.contentType)) throw new Error("invalid_saved_file");
+    const media = this.host.md5(JSON.stringify([id2, file.sha256]));
+    this.store.transact(access.scope.owner, access.scope.workspace, (d) => {
+      const job = d.jobs.find((j) => j.id === id2 && j.scope.actorId === access.scope.actorId);
+      if (!job) throw new Error("job_unavailable");
+      job.savedFiles = [{ ...file, id: media }];
+    });
+    return media;
+  }
+  mediaFile(id2, context) {
+    try {
+      if (context.origin !== "document") return null;
+      const access = documentAccess(this.plugin, context);
+      const jobs = this.core.history(access);
+      const file = jobs.flatMap((j) => j.outputs.some((o) => o.id === id2) ? j.savedFiles ?? [] : []).find((f) => f.id === id2);
+      return file ? { path: file.path, contentType: file.contentType, fileName: file.fileName } : null;
+    } catch {
+      return null;
+    }
+  }
+  result(context, id2) {
+    const { job, status } = this.current(context, id2);
+    return {
+      id: id2,
+      state: job.state,
+      providerId: job.jobId ?? null,
+      quote: job.quote ?? null,
+      noReplay: !!job.reservation,
+      accounting: job.accounting ?? null,
+      reservation: job.reservation ?? null,
+      hostState: status.spend?.state ?? null,
+      outputs: job.outputs.map((o) => {
+        const f = job.savedFiles?.find((f2) => f2.id === o.id);
+        return { ...o, ...f ? { file: this.host.dataDir() + "/" + this.plugin + "/" + f.path, size: f.size, sha256: f.sha256 } : {} };
+      })
+    };
+  }
+};
 
 // higgsfield/src/runtime.ts
-function createRuntime(host2) {
-  const service = new HiggsfieldService({
-    store: hostStore(host2, "higgsfield"),
-    now: () => host2.unixNowMs(),
-    maxHistory: 100,
-    client: new HiggsfieldClient()
-  });
+var operation = "higgsfield-ai/soul/v2/standard";
+var origin2 = "https://api.higgsfield.ai";
+var credential = { kind: "secret", name: "higgsfield-api-key", header: "Authorization", prefix: "Key " };
+function createRuntime(input) {
+  const host2 = input;
+  const service = new HiggsfieldService({ store: hostStore(host2, "higgsfield"), now: () => host2.unixNowMs(), maxHistory: 100, client: new HiggsfieldClient() });
+  const runtime = new HostMediaRuntime(host2, "higgsfield", service.core);
   const commands = new HiggsfieldCommands(service, {
     surface: host2.surface,
     now: () => host2.unixNowMs(),
@@ -18208,38 +18426,145 @@ function createRuntime(host2) {
       throw new Error("host_intent_unavailable");
     }
   });
+  const status = () => ({
+    ...runtimeStatus(),
+    state: runtimeAvailable(host2) ? "agent_runtime" : "unavailable",
+    estimate: runtimeAvailable(host2),
+    submission: runtimeAvailable(host2),
+    minimum: "DEV build 550cb1cbcbc34ab484a5f199c56d5b564661daba only; public release unproved",
+    operation,
+    defaults: { resolution: "720p", aspect_ratio: "1:1", batch_size: 1, enhance_prompt: false, seed: 42 },
+    output: "Saved file/media when the authenticated receipt URL has an exact host network grant. Missing grant never regenerates."
+  });
+  function receive(access, token, data) {
+    try {
+      const normalized = identity(data);
+      const observed = service.core.observation(token, normalized);
+      if (!observed.saveOutputs) return JSON.stringify({ id: token.id, state: observed.job.state, providerId: observed.job.jobId, next: "reconcile with this id; never resubmit" });
+      const full = receipt(data, () => true);
+      if (full.assets.length !== 1 || full.assets[0].kind !== "images") throw new Error("single_image_receipt_required");
+      const url = full.assets[0].url;
+      const match = /\.(png|jpe?g|webp)(?:\?|$)/i.exec(url);
+      if (!match) throw new Error("output_content_type_unavailable");
+      const contentType = match[1].toLowerCase() === "png" ? "image/png" : match[1].toLowerCase() === "webp" ? "image/webp" : "image/jpeg";
+      return runtime.transfer({ url, method: "GET", response: { kind: "file", fileName: "cover." + match[1].toLowerCase(), contentType, maxBytes: 8 * 1024 * 1024, statuses: [200] }, timeoutMs: 3e4 }, (result) => {
+        if ("error" in result || result.kind !== "file") {
+          service.core.unknown(token);
+          return JSON.stringify({
+            id: token.id,
+            state: "unknown",
+            providerId: normalized.jobId,
+            error: "output_acquisition_unavailable",
+            next: "Grant the exact noncredential output hostname through supported plugin permissions, then reconcile this same id FREE. Never regenerate.",
+            outputHost: /^https:\/\/([^/?#]+)\//.exec(url)?.[1] ?? null,
+            transport: "error" in result ? result.error : "invalid_response",
+            noReplay: true
+          });
+        }
+        const media = runtime.save(access, token.id, result.file);
+        service.core.complete(token, [{ kind: "artifact", id: media, contentType }]);
+        return JSON.stringify({ id: token.id, state: "generated", providerId: normalized.jobId, media, file: host2.dataDir() + "/higgsfield/" + result.file.path, noReplay: true });
+      });
+    } catch {
+      service.core.unknown(token);
+      return JSON.stringify({ id: token.id, state: "unknown", error: "receipt_or_output_unavailable", noReplay: true, next: "Use status/reconcile on this id. Never submit another job to recover output." });
+    }
+  }
   return {
     onAgentCommand(ctx) {
-      if (![...verbs, "status"].includes(ctx.verb) || ctx.args.length || (ctx.body?.length ?? 0) > 16e3)
-        return { error: "invalid_arguments" };
+      if (![...verbs, "status"].includes(ctx.verb) || ctx.args.length || (ctx.body?.length ?? 0) > 1800) return { error: "invalid_arguments" };
       return host2.surface.dispatch(ctx.verb, ctx.body ? [ctx.body] : []);
     },
     onSurfaceCall(context, verb, args) {
       try {
-        if (context.owner !== context.actor || args.length > 1 || (args[0]?.length ?? 0) > 16e3) throw new Error();
-        const body = args.length ? JSON.parse(args[0]) : {};
-        if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error();
-        if (verb === "describe" && Object.keys(body).length === 1 && typeof body.operation === "string")
-          return JSON.stringify(describe(body.operation));
-        if (Object.keys(body).length) throw new Error();
-        if (verb === "catalog") return JSON.stringify({
-          revision,
-          models: models.map((m) => ({ id: m.id, category: m.category })),
-          operations: operations.map((o) => ({ id: o.id })),
-          runtime: runtimeStatus()
-        });
-        if (verb === "open" || verb === "close") return JSON.stringify({ acknowledged: verb });
-        return JSON.stringify(runtimeStatus());
-      } catch {
-        return JSON.stringify({ error: "request_refused" });
+        if (context.owner !== context.actor) throw new Error("request_refused");
+        if (verb === "describe") {
+          const b = bodyObject(args, ["operation"]);
+          return JSON.stringify(describe(b.operation));
+        }
+        if (verb === "catalog") {
+          bodyObject(args, []);
+          return JSON.stringify({ revision, models: models.map((m) => ({ id: m.id, category: m.category })), operations: operations.map((o) => ({ id: o.id })), runtime: status() });
+        }
+        if (verb === "open" || verb === "close") {
+          bodyObject(args, []);
+          return JSON.stringify({ acknowledged: verb });
+        }
+        if (verb === "status" && !args.length) return JSON.stringify(status());
+        if (!runtimeAvailable(host2)) return JSON.stringify({ ...status(), error: "runtime_unavailable", paid: false });
+        if (verb === "prepare") {
+          const b = bodyObject(args, ["prompt", "aspect_ratio", "seed"]);
+          if (typeof b.prompt !== "string" || !b.prompt.trim() || b.prompt.length > 1e3) throw new Error("prompt_required_max_1000");
+          const request = prepare(operation, { prompt: b.prompt, resolution: "720p", aspect_ratio: b.aspect_ratio ?? "1:1", batch_size: 1, enhance_prompt: false, seed: b.seed ?? 42 });
+          return runtime.prepare(context, request, (binding, then) => runtime.transfer({
+            url: origin2 + "/estimate/" + operation,
+            method: "POST",
+            credential,
+            body: { kind: "json", value: request.params },
+            response: { kind: "json", maxBytes: 16384, statuses: [200] },
+            timeoutMs: 15e3
+          }, (result) => {
+            if ("error" in result || result.kind !== "json") return JSON.stringify({ error: "price_unavailable", paid: false, next: "Check credential/grant and prepare again; no generation was submitted." });
+            const amount = usdMicro(result.data?.usd), now = host2.unixNowMs();
+            if (!amount || amount > 1e6) return JSON.stringify({ error: "price_unavailable_or_over_USD1_scope_cap", paid: false });
+            return then({ binding, amount, unit: "usd_micro", safe: true, basis: "Authenticated same-input Higgsfield /estimate USD; local freshness 120 seconds.", tariffRevision: "estimate-sha256:" + result.sha256, issuedAt: now, validUntilMs: now + 12e4 });
+          }));
+        }
+        if (["status", "result"].includes(verb)) {
+          const b = bodyObject(args, ["id"]);
+          return JSON.stringify(runtime.result(context, b.id));
+        }
+        if (verb === "submit") {
+          const b = bodyObject(args, ["id"]);
+          return runtime.submit(context, b.id, (job, token) => runtime.transfer({
+            url: origin2 + "/" + operation,
+            method: "POST",
+            credential,
+            headers: { "Idempotency-Key": job.id },
+            body: { kind: "json", value: job.request.params },
+            response: { kind: "json", maxBytes: 65536, statuses: [200, 201, 202] },
+            timeoutMs: 3e4
+          }, (result) => {
+            if ("error" in result || result.kind !== "json") {
+              service.core.unknown(token);
+              return JSON.stringify({ id: job.id, state: "unknown", noReplay: true, error: "submission_unconfirmed", next: "Never resubmit. Reconcile only if a provider ID is known." });
+            }
+            return receive({ current: true, inputsAuthorized: true, scope: job.scope }, token, result.data);
+          }));
+        }
+        if (verb === "reconcile") {
+          const b = bodyObject(args, ["id"]), current = runtime.current(context, b.id);
+          if (!current.job.jobId) throw new Error("provider_id_unknown_noReplay");
+          const decision = service.core.beginReconcile(current.access, b.id), token = decision.continuation;
+          return runtime.transfer({
+            url: requestUrl(current.job.jobId, "status"),
+            method: "GET",
+            credential,
+            response: { kind: "json", maxBytes: 65536, statuses: [200] },
+            timeoutMs: 15e3
+          }, (result) => {
+            if ("error" in result || result.kind !== "json") {
+              service.core.unknown(token);
+              return JSON.stringify({ id: b.id, state: "unknown", noReplay: true, error: "status_read_unavailable" });
+            }
+            return receive(current.access, token, result.data);
+          });
+        }
+        return JSON.stringify({ error: "operation_unavailable_in_runtime", paid: false });
+      } catch (e) {
+        return JSON.stringify({ error: e instanceof Error && /^[A-Za-z0-9_]+$/.test(e.message) ? e.message : "request_refused", paid: false });
       }
     },
     viewCall(method, args, context) {
-      if (method === "status") return runtimeStatus();
+      if (method === "status") return status();
       return commands.viewCall(method, args, context);
     },
-    mediaFile() {
-      return null;
+    mediaFile(id2, context) {
+      return runtime.mediaFile(id2, context);
+    },
+    // Monitoring is not registered until the provider identity is known; explicit reconcile is the real free lookup.
+    jobReconcile(context) {
+      return { job: context.job, state: "unknown" };
     }
   };
 }

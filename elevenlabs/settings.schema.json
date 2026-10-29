@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "section",
+    "title": "API credential",
+    "fields": [
+      {
+        "kind": "api_key",
+        "env_var": "elevenlabs-api-key",
+        "label": "ElevenLabs API key",
+        "description": "Plugin-scoped host-injected credential. Provision stdin only; never return to JavaScript."
+      }
+    ]
+  }
+]

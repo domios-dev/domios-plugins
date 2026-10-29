@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "hostApi": 2,
   "displayName": "ElevenLabs",
-  "description": "DEV discovery and document history runtime. Paid speech unavailable; full SDK/minimum-host acceptance retained by HIG-11.",
+  "description": "DEV 550cb1c only: protected free account/voice/model discovery. TTS refuses until safe account pricing is established; HIG11 retained.",
   "entry": "plugin.js",
   "readme": "AGENTS.md",
   "capabilities": {
@@ -36,7 +36,10 @@
           "rerun",
           "generate",
           "inspect",
-          "read"
+          "read",
+          "voices",
+          "live-models",
+          "account"
         ],
         "stateInvalidation": true,
         "restore": "none"
@@ -1123,24 +1126,49 @@
           }
         }
       ]
+    },
+    "binaryTransfer": {
+      "maxUploadBytes": 16384,
+      "maxDownloadBytes": 8388608,
+      "timeoutMs": 30000,
+      "credentialOrigins": {
+        "secret:elevenlabs-api-key": [
+          "https://api.elevenlabs.io"
+        ]
+      },
+      "requestHeaders": []
+    },
+    "jobLifecycle": {
+      "contractVersion": 1,
+      "reconcile": true,
+      "cancel": false
     }
   },
   "permissions": {
     "view": true,
     "surfaces": true,
-    "agentCommands": true
+    "agentCommands": true,
+    "secrets": true,
+    "network": {
+      "allow": [
+        "api.elevenlabs.io"
+      ]
+    }
   },
   "minCodeterm": "1.17.1",
   "agentGuide": "runtime-guide.md",
   "agentVerbs": [
     "status",
-    "help",
-    "catalog --stdin (JSON: offset?,limit?)",
-    "models --stdin (JSON: offset?,limit?)",
-    "describe --stdin (JSON: operation)",
+    "catalog",
+    "describe --stdin (operation)",
+    "voices (free read only, first20)",
+    "live-models (free account model/rate metadata)",
+    "account (free quota/policy metadata)",
+    "prepare --stdin (voice,text,model optional; safe-pricing requirement)",
+    "generate (unavailable until safe pricing)",
     "open",
-    "close",
-    "generate (unavailable)",
-    "result (unavailable)"
-  ]
+    "close"
+  ],
+  "settingsSchema": "settings.schema.json",
+  "configHelp": "DEV exact build 550cb1cbcbc34ab484a5f199c56d5b564661daba only. Provision declared elevenlabs-api-key via plugin config --secret and stdin only. Never disclose key values. Host resolves credentials; JavaScript never reads them. Public release compatibility is unproved."
 }

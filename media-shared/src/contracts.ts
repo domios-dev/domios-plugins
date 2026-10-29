@@ -27,6 +27,8 @@ export type Job = {
   lease?: 'preflight' | 'estimate' | 'reconcile' | 'cancel';
   phase?: 'preflight' | 'reserved' | 'submitting' | 'receipt';
   epoch?: number;
+  hostAdmission?: { plugin: string; team: string | null; binding: string; deadlineMs: number; origin: unknown };
+  savedFiles?: { id: string; path: string; contentType: string; fileName: string; size: number; sha256: string }[];
   pendingReceipt?: Omit<Observation, 'outputs' | 'jobId'>;
 };
 export type Partition = { jobs: Job[]; ceilings: Partial<Record<Unit, number>> };

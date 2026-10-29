@@ -1,6 +1,8 @@
 import { bindingOf, clone, sameIntent, visible } from './contracts';
 import type { Access, Amount, Artifact, Continuation, Decision, Job, JobStore, Observation, Partition, Quote, Request, Submission } from './contracts';
 import { quoteState, validAmount, waitReason } from './cost';
+import { canonical, consumeHostEntry } from './host-entry';
+import type { HostEntryProof } from './host-entry';
 
 /** Synchronous admission/receipt facade. No transport, Promise runtime, host wrapper or UI authority. */
 export class MediaCore {
@@ -101,6 +103,48 @@ export class MediaCore {
           maximum.unit !== job.quote!.unit || maximum.amount < job.quote!.amount) throw new Error('price_not_approvable');
       job.approval = clone(maximum); job.ceilingException = ceilingException;
       job.waitReason = waitReason(d, job, this.now()); return job;
+    });
+  }
+  /** Backend-only setup from a host admission and real exact-input quote. No approval is fabricated. */
+  prepareHost(access: Access, id: string, quote: Quote, admission: NonNullable<Job['hostAdmission']>): Job {
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, d => {
+      const job = this.owned(d, access, id);
+      if (!sameIntent(access.scope, job) || job.state !== 'waiting' || job.lease || job.reservation ||
+          job.hostAdmission || quoteState(quote, job.binding, job.request.unit, this.now()) !== 'ready' ||
+          admission.deadlineMs <= this.now() || !/^[a-f0-9]{64}$/.test(admission.binding)) throw new Error('host_preparation_refused');
+      job.quote = clone(quote); job.hostAdmission = clone(admission); job.waitReason = 'owner_confirmation';
+      return job;
+    });
+  }
+  /** Only a fresh gate-issued host-enter return can cross this boundary. Saved/JSON receipts cannot. */
+  enterHost(access: Access, id: string, proof: HostEntryProof): { job: Job; action: Submission } {
+    const receipt = consumeHostEntry(proof);
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, d => {
+      const job = this.owned(d, access, id), admission = job.hostAdmission, quote = job.quote;
+      const origin = receipt.origin;
+      if (!sameIntent(access.scope, job) || job.state !== 'waiting' || job.lease || job.reservation || !admission ||
+          receipt.state !== 'entered_unknown' || receipt.operation !== id || receipt.scope.plugin !== admission.plugin ||
+          receipt.scope.team !== admission.team ||
+          receipt.scope.owner !== access.scope.owner || receipt.scope.workspace !== access.scope.workspace ||
+          origin.kind !== 'studio_agent' || origin.actor !== access.scope.actorId || canonical(origin) !== canonical(admission.origin) ||
+          canonical(receipt.request) !== canonical(job.request) || receipt.quote.binding !== admission.binding ||
+          quoteState(quote, job.binding, job.request.unit, this.now()) !== 'ready' ||
+          receipt.quote.amount !== quote!.amount || receipt.quote.unit !== quote!.unit || receipt.quote.basis !== quote!.basis ||
+          receipt.quote.tariffRevision !== quote!.tariffRevision || receipt.quote.issuedAt !== quote!.issuedAt ||
+          receipt.quote.validUntilMs !== quote!.validUntilMs || admission.deadlineMs <= this.now() ||
+          receipt.enteredAtMs === null || receipt.enteredAtMs < quote!.issuedAt || receipt.enteredAtMs > this.now())
+        throw new Error('host_entry_mismatch');
+      const ceiling = d.ceilings[quote!.unit];
+      // Count every reservation, actor and run in this durable owner/workspace partition, across UTC days.
+      const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote!.unit ? j.reservation.amount : 0), 0);
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote!.amount) || prior + quote!.amount > ceiling!)
+        throw new Error('aggregate_ceiling');
+      job.reservation = { amount: quote!.amount, unit: quote!.unit }; job.accounting = 'unknown';
+      job.state = 'starting'; job.phase = 'submitting'; job.waitReason = undefined;
+      const continuation = this.token(job);
+      return { job, action: { kind: this.kind, intentId: id, request: job.request, continuation } };
     });
   }
   beginStart(access: Access, id: string, outputAvailable: boolean): Decision {

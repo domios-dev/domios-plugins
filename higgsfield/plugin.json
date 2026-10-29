@@ -4,7 +4,7 @@
   "minCodeterm": "1.17.1",
   "hostApi": 2,
   "displayName": "Higgsfield",
-  "description": "DEV discovery and document history runtime. Paid generation unavailable; full SDK/minimum-host acceptance retained by HIG-11.",
+  "description": "DEV 550cb1c only: protected SOUL2 quote/host approval/job runtime. Public released minimum unknown; HIG11 retained.",
   "entry": "plugin.js",
   "readme": "README.md",
   "icon": "icon.svg",
@@ -55,22 +55,48 @@
       "saveAs",
       "reveal"
     ],
-    "agentCommands": true
+    "agentCommands": true,
+    "binaryTransfer": {
+      "maxUploadBytes": 16384,
+      "maxDownloadBytes": 8388608,
+      "timeoutMs": 30000,
+      "credentialOrigins": {
+        "secret:higgsfield-api-key": [
+          "https://api.higgsfield.ai"
+        ]
+      },
+      "requestHeaders": [
+        "Idempotency-Key"
+      ]
+    },
+    "jobLifecycle": {
+      "contractVersion": 1,
+      "reconcile": true,
+      "cancel": false
+    }
   },
   "permissions": {
     "agentCommands": true,
-    "surfaces": true
+    "surfaces": true,
+    "secrets": true,
+    "network": {
+      "allow": [
+        "api.higgsfield.ai"
+      ]
+    }
   },
   "agentGuide": "runtime-guide.md",
   "agentVerbs": [
     "status",
     "catalog",
-    "describe --stdin (JSON: operation)",
+    "describe --stdin (operation)",
+    "prepare --stdin (prompt; optional aspect_ratio, seed)",
+    "submit --stdin (id; host approval required)",
+    "reconcile --stdin (id; free same-job lookup/output download)",
+    "result --stdin (id; saved file/media)",
     "open",
-    "close",
-    "prepare (unavailable)",
-    "estimate (unavailable)",
-    "submit (unavailable)",
-    "result (unavailable)"
-  ]
+    "close"
+  ],
+  "settingsSchema": "settings.schema.json",
+  "configHelp": "DEV exact build 550cb1cbcbc34ab484a5f199c56d5b564661daba only. Provision declared higgsfield-api-key via plugin config --secret and stdin only. Never disclose key values. Host resolves credentials; JavaScript never reads them. Public release compatibility is unproved."
 }

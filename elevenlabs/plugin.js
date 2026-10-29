@@ -106,6 +106,33 @@ function waitReason(data, job, now) {
   return void 0;
 }
 
+// media-shared/src/host-entry.ts
+var fresh = /* @__PURE__ */ new WeakMap();
+var HostEntryGate = class {
+  constructor(jobs) {
+    this.jobs = jobs;
+  }
+  enter(operation2, request) {
+    const receipt = this.jobs.enter(operation2, request);
+    if ("error" in receipt) throw new Error("host_entry_refused");
+    if (receipt.state !== "entered_unknown") return { state: receipt.state };
+    const proof = Object.freeze({ freshHostEntry: true });
+    fresh.set(proof, JSON.parse(JSON.stringify(receipt)));
+    return proof;
+  }
+};
+function consumeHostEntry(proof) {
+  const receipt = proof && fresh.get(proof);
+  if (!receipt) throw new Error("fresh_host_entry_required");
+  fresh.delete(proof);
+  return receipt;
+}
+function canonical(value) {
+  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  if (value && typeof value === "object") return "{" + Object.keys(value).sort().map((k) => JSON.stringify(k) + ":" + canonical(value[k])).join(",") + "}";
+  return JSON.stringify(value);
+}
+
 // media-shared/src/core.ts
 var MediaCore = class {
   constructor(store, now, maxHistory, kind, validate) {
@@ -231,6 +258,40 @@ var MediaCore = class {
       job.ceilingException = ceilingException;
       job.waitReason = waitReason(d, job, this.now());
       return job;
+    });
+  }
+  /** Backend-only setup from a host admission and real exact-input quote. No approval is fabricated. */
+  prepareHost(access, id, quote, admission) {
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, (d) => {
+      const job = this.owned(d, access, id);
+      if (!sameIntent(access.scope, job) || job.state !== "waiting" || job.lease || job.reservation || job.hostAdmission || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready" || admission.deadlineMs <= this.now() || !/^[a-f0-9]{64}$/.test(admission.binding)) throw new Error("host_preparation_refused");
+      job.quote = clone(quote);
+      job.hostAdmission = clone(admission);
+      job.waitReason = "owner_confirmation";
+      return job;
+    });
+  }
+  /** Only a fresh gate-issued host-enter return can cross this boundary. Saved/JSON receipts cannot. */
+  enterHost(access, id, proof) {
+    const receipt = consumeHostEntry(proof);
+    this.authorize(access);
+    return this.transaction(access.scope.owner, access.scope.workspace, (d) => {
+      const job = this.owned(d, access, id), admission = job.hostAdmission, quote = job.quote;
+      const origin = receipt.origin;
+      if (!sameIntent(access.scope, job) || job.state !== "waiting" || job.lease || job.reservation || !admission || receipt.state !== "entered_unknown" || receipt.operation !== id || receipt.scope.plugin !== admission.plugin || receipt.scope.team !== admission.team || receipt.scope.owner !== access.scope.owner || receipt.scope.workspace !== access.scope.workspace || origin.kind !== "studio_agent" || origin.actor !== access.scope.actorId || canonical(origin) !== canonical(admission.origin) || canonical(receipt.request) !== canonical(job.request) || receipt.quote.binding !== admission.binding || quoteState(quote, job.binding, job.request.unit, this.now()) !== "ready" || receipt.quote.amount !== quote.amount || receipt.quote.unit !== quote.unit || receipt.quote.basis !== quote.basis || receipt.quote.tariffRevision !== quote.tariffRevision || receipt.quote.issuedAt !== quote.issuedAt || receipt.quote.validUntilMs !== quote.validUntilMs || admission.deadlineMs <= this.now() || receipt.enteredAtMs === null || receipt.enteredAtMs < quote.issuedAt || receipt.enteredAtMs > this.now())
+        throw new Error("host_entry_mismatch");
+      const ceiling = d.ceilings[quote.unit];
+      const prior = d.jobs.reduce((sum, j) => sum + (j.reservation?.unit === quote.unit ? j.reservation.amount : 0), 0);
+      if (!Number.isSafeInteger(ceiling) || !Number.isSafeInteger(prior + quote.amount) || prior + quote.amount > ceiling)
+        throw new Error("aggregate_ceiling");
+      job.reservation = { amount: quote.amount, unit: quote.unit };
+      job.accounting = "unknown";
+      job.state = "starting";
+      job.phase = "submitting";
+      job.waitReason = void 0;
+      const continuation = this.token(job);
+      return { job, action: { kind: this.kind, intentId: id, request: job.request, continuation } };
     });
   }
   beginStart(access, id, outputAvailable) {
@@ -150347,11 +150408,11 @@ function hostStore(host2, plugin) {
   } };
 }
 var runtimeLimitations = [
-  "Agent SurfaceCallContext has no workspace; MediaCore agent scope cannot be resolved.",
-  "Binary transfer has no JSON request body with host-resolved secret credentials.",
-  "jobs.admit is observation_only; no studio spend admission or approval linkage is supplied.",
-  "Exact-input fresh account pricing and aggregate USD admission are not configured.",
-  "Submission, output storage/media registration, reconciliation, cancellation and Scribe are unavailable.",
+  "Production document generation stays unavailable; the minimum effect path is agent-owned.",
+  "Only the exact DEV build 550cb1cbcbc34ab484a5f199c56d5b564661daba is targeted; public released minimum is unknown.",
+  "Parent must serialize the independent aggregate USD2 proof inside shared USD5, including unknown reservations across days.",
+  "Output downloads require an exact host grant and a verified response MIME; missing access never regenerates.",
+  "ElevenLabs safe account tariff/prepaid no-overage guarantee, cancellation and Scribe remain unavailable.",
   "Comments, immutable revision resolution, Blueprint execution and agent media review are unavailable."
 ];
 function runtimeStatus() {
@@ -150366,9 +150427,215 @@ function runtimeStatus() {
     limitations: runtimeLimitations
   };
 }
+function runtimeAvailable(host2) {
+  return ["admit", "requestBinding", "prepare", "enter", "status"].every((k) => typeof host2.jobs?.[k] === "function") && typeof host2.transfer?.async === "function";
+}
+function agentAccess(plugin, context, receipt) {
+  const { scope, origin } = receipt;
+  if (!scope || scope.plugin !== plugin || !scope.workspace || scope.owner !== context.owner || context.owner !== context.actor || origin?.kind !== "studio_agent" || origin.actor !== context.actor || origin.surface !== context.surface || origin.instance !== context.instance || origin.tab !== context.tab) throw new Error("trusted_agent_scope_required");
+  return { current: true, inputsAuthorized: true, scope: {
+    owner: scope.owner,
+    workspace: scope.workspace,
+    actorId: origin.actor,
+    actor: { kind: "agent", label: context.actorLabel },
+    human: false,
+    authRevision: receipt.operation
+  } };
+}
+function bodyObject(args, allowed, max = 1800) {
+  if (args.length > 1 || (args[0]?.length ?? 0) > max) throw new Error("invalid_arguments");
+  const body2 = args.length ? JSON.parse(args[0]) : {};
+  if (!body2 || typeof body2 !== "object" || Array.isArray(body2) || Object.keys(body2).some((k) => !allowed.includes(k))) throw new Error("invalid_arguments");
+  return body2;
+}
+var HostMediaRuntime = class {
+  constructor(host2, plugin, core) {
+    this.host = host2;
+    this.plugin = plugin;
+    this.core = core;
+    this.store = hostStore(host2, plugin);
+    this.gate = new HostEntryGate(host2.jobs);
+  }
+  admit(context) {
+    if (!runtimeAvailable(this.host)) throw new Error("runtime_unavailable_exact_DEV_build_required");
+    const receipt = this.host.jobs.admit();
+    if ("error" in receipt) throw new Error("host_admission_unavailable");
+    return { receipt, access: agentAccess(this.plugin, context, receipt) };
+  }
+  current(context, id) {
+    if (!/^[a-f0-9]{64}$/.test(id ?? "")) throw new Error("valid_job_id_required");
+    const status = this.host.jobs.status(id);
+    if ("error" in status) throw new Error("host_job_unavailable");
+    const access = agentAccess(this.plugin, context, status);
+    this.core.recover(access);
+    const job = this.core.history(access).find((j) => j.id === id);
+    if (!job) throw new Error("job_unavailable");
+    if (status.spend?.state === "entered_unknown" && !job.reservation) {
+      this.store.transact(access.scope.owner, access.scope.workspace, (d) => {
+        const found = d.jobs.find((j) => j.id === id);
+        if (!found.quote || canonical(status.spend.request) !== canonical(found.request) || status.spend.quote.amount !== found.quote.amount || status.spend.quote.unit !== found.quote.unit)
+          throw new Error("host_reservation_mismatch");
+        found.reservation = { amount: found.quote.amount, unit: found.quote.unit };
+        found.accounting = "unknown";
+        found.state = "unknown";
+        found.phase = void 0;
+      });
+    }
+    return { status, access, job: this.core.history(access).find((j) => j.id === id) };
+  }
+  prepare(context, request, quote) {
+    const { receipt, access } = this.admit(context);
+    if (JSON.stringify(request).length > 1800) throw new Error("request_too_large");
+    const binding = this.host.jobs.requestBinding(request);
+    if ("error" in binding) throw new Error("binding_unavailable");
+    const job = this.core.intent(access, receipt.operation, request);
+    this.store.transact(access.scope.owner, access.scope.workspace, (d) => {
+      d.ceilings.usd_micro = d.ceilings.usd_micro === void 0 ? 1e6 : Math.min(d.ceilings.usd_micro, 1e6);
+    });
+    return quote(binding.binding, (q) => {
+      const current = this.current(context, job.id);
+      this.core.prepareHost(current.access, job.id, { ...q, binding: job.binding }, {
+        plugin: this.plugin,
+        team: receipt.scope.team,
+        binding: binding.binding,
+        deadlineMs: receipt.deadlineMs,
+        origin: receipt.origin
+      });
+      const approval = this.host.jobs.prepare(job.id, request, {
+        binding: binding.binding,
+        amount: q.amount,
+        unit: q.unit,
+        basis: q.basis,
+        tariffRevision: q.tariffRevision,
+        issuedAt: q.issuedAt,
+        validUntilMs: q.validUntilMs
+      });
+      if ("error" in approval) throw new Error("host_quote_preparation_refused");
+      return JSON.stringify({
+        id: job.id,
+        state: approval.state,
+        quote: q,
+        deadlineMs: receipt.deadlineMs,
+        next: "Owner approves the host question; then submit/generate with this id. Expiry requires fresh prepare."
+      });
+    });
+  }
+  submit(context, id, send) {
+    const { job, access, status } = this.current(context, id);
+    if (job.state !== "waiting" || job.reservation || !job.quote || !job.hostAdmission || status.spend?.state === "entered_unknown")
+      throw new Error("noReplay_use_status_or_reconcile");
+    const prior = this.core.history(access).reduce((n, j) => n + (j.reservation?.unit === job.quote.unit ? j.reservation.amount : 0), 0);
+    if (job.quote.unit !== "usd_micro" || prior + job.quote.amount > 1e6) throw new Error("aggregate_ceiling");
+    const proof = this.gate.enter(id, job.request);
+    if ("state" in proof) return JSON.stringify({ id, state: proof.state, next: proof.state === "expired_readmit_needed" ? "Prepare again for a fresh quote and host approval." : "Await the host owner decision." });
+    const entered = this.core.enterHost(access, id, proof);
+    try {
+      return send(entered.job, entered.action.continuation);
+    } catch {
+      this.core.unknown(entered.action.continuation);
+      throw new Error("submission_unknown_noReplay");
+    }
+  }
+  transfer(request, then) {
+    return this.host.transfer.async(request, then);
+  }
+  save(access, id, file) {
+    if (!file || !/^[a-zA-Z0-9_.-]+$/.test(file.path) || !/^[a-f0-9]{64}$/.test(file.sha256) || !Number.isSafeInteger(file.size) || file.size <= 0 || file.size > 8 * 1024 * 1024 || !["image/png", "image/jpeg", "image/webp", "audio/mpeg"].includes(file.contentType)) throw new Error("invalid_saved_file");
+    const media = this.host.md5(JSON.stringify([id, file.sha256]));
+    this.store.transact(access.scope.owner, access.scope.workspace, (d) => {
+      const job = d.jobs.find((j) => j.id === id && j.scope.actorId === access.scope.actorId);
+      if (!job) throw new Error("job_unavailable");
+      job.savedFiles = [{ ...file, id: media }];
+    });
+    return media;
+  }
+  mediaFile(id, context) {
+    try {
+      if (context.origin !== "document") return null;
+      const access = documentAccess(this.plugin, context);
+      const jobs = this.core.history(access);
+      const file = jobs.flatMap((j) => j.outputs.some((o) => o.id === id) ? j.savedFiles ?? [] : []).find((f) => f.id === id);
+      return file ? { path: file.path, contentType: file.contentType, fileName: file.fileName } : null;
+    } catch {
+      return null;
+    }
+  }
+  result(context, id) {
+    const { job, status } = this.current(context, id);
+    return {
+      id,
+      state: job.state,
+      providerId: job.jobId ?? null,
+      quote: job.quote ?? null,
+      noReplay: !!job.reservation,
+      accounting: job.accounting ?? null,
+      reservation: job.reservation ?? null,
+      hostState: status.spend?.state ?? null,
+      outputs: job.outputs.map((o) => {
+        const f = job.savedFiles?.find((f2) => f2.id === o.id);
+        return { ...o, ...f ? { file: this.host.dataDir() + "/" + this.plugin + "/" + f.path, size: f.size, sha256: f.sha256 } : {} };
+      })
+    };
+  }
+};
 
 // elevenlabs/src/runtime.ts
 function createRuntime(host2) {
+  const delivered = host2;
+  const core = new MediaCore(hostStore(host2, "elevenlabs"), () => host2.unixNowMs(), 100, "sync", validateRequest);
+  const runtime = new HostMediaRuntime(delivered, "elevenlabs", core);
+  const credential = { kind: "secret", name: "elevenlabs-api-key", header: "xi-api-key" };
+  const liveVerbs = ["voices", "live-models", "account"];
+  function live(verb, args, agent = false) {
+    const done = (value) => agent ? { result: JSON.stringify(value) } : JSON.stringify(value);
+    bodyObject(args, []);
+    if (!runtimeAvailable(delivered)) return done({ error: "runtime_unavailable", paid: false });
+    const path = verb === "voices" ? "/v2/voices?page_size=20&include_total_count=false" : verb === "live-models" ? "/v1/models" : "/v1/user/subscription";
+    return runtime.transfer({
+      url: "https://api.elevenlabs.io" + path,
+      method: "GET",
+      credential,
+      response: { kind: "json", maxBytes: 262144, statuses: [200] },
+      timeoutMs: 15e3
+    }, (result) => {
+      if ("error" in result || result.kind !== "json") return done({
+        error: "account_read_unavailable",
+        paid: false,
+        reason: "error" in result ? result.error : "invalid_response",
+        next: "Check declared plugin credential and exact api.elevenlabs.io network grant."
+      });
+      const value = result.data;
+      if (verb === "voices") return done({ voices: (Array.isArray(value?.voices) ? value.voices : []).slice(0, 20).map((v) => ({
+        id: v.voice_id,
+        name: v.name,
+        category: v.category,
+        owned: v.is_owner ?? null,
+        models: v.high_quality_base_model_ids,
+        rate: v.sharing?.rate ?? null
+      })), hasMore: value?.has_more === true, mutable: false });
+      if (verb === "live-models") return done({ models: (Array.isArray(value) ? value : []).slice(0, 30).map((m) => ({
+        id: m.model_id,
+        name: m.name,
+        tts: m.can_do_text_to_speech,
+        maxText: m.maximum_text_length_per_request,
+        rates: m.model_rates,
+        tokenCostFactor: m.token_cost_factor
+      })), usdTariff: null });
+      return done({
+        tier: value?.tier,
+        currency: value?.currency ?? null,
+        status: value?.status,
+        used: value?.character_count,
+        limit: value?.character_limit,
+        maxCreditExtension: value?.max_credit_limit_extension,
+        canExtend: value?.can_extend_character_limit,
+        currentOverage: value?.current_overage,
+        safeUsdTariff: false,
+        autoTopUpPolicy: "not exposed by this endpoint",
+        missing: "Exact model/voice USD upper tariff OR verified prepaid request with fail-closed quota, no overage and no auto top-up. Credit multipliers are not USD rates."
+      });
+    });
+  }
   const service = new ElevenLabsService({
     store: hostStore(host2, "elevenlabs"),
     now: () => host2.unixNowMs(),
@@ -150387,14 +150654,81 @@ function createRuntime(host2) {
   });
   return {
     onAgentCommand(ctx) {
-      if (!verbs.includes(ctx.verb) || ctx.args.length || (ctx.body?.length ?? 0) > 24e3)
+      if (![...verbs, ...liveVerbs].includes(ctx.verb) || ctx.args.length || (ctx.body?.length ?? 0) > 1800)
         return { error: "invalid_arguments" };
+      if (liveVerbs.includes(ctx.verb)) {
+        try {
+          return live(ctx.verb, ctx.body ? [ctx.body] : [], true);
+        } catch {
+          return { error: "account_read_refused" };
+        }
+      }
       return host2.surface.dispatch(ctx.verb, ctx.body ? [ctx.body] : []);
     },
     onSurfaceCall(context, verb, args) {
+      if (context.owner !== context.actor) return JSON.stringify({ error: "request_refused", paid: false });
+      if (liveVerbs.includes(verb)) {
+        try {
+          return live(verb, args);
+        } catch {
+          return JSON.stringify({ error: "account_read_refused", paid: false });
+        }
+      }
+      if (verb === "prepare") {
+        try {
+          const b = bodyObject(args, ["voice", "text", "model"]);
+          if (typeof b.text !== "string" || !b.text.trim() || b.text.length > 240) throw new Error();
+          speechRequest({ voice: b.voice, text: b.text, model: b.model ?? "eleven_multilingual_v2" });
+          return JSON.stringify({
+            error: "safe_pricing_unavailable",
+            paid: false,
+            next: "Run account, live-models and voices (free reads). Obtain an account/model/voice-specific USD upper tariff or a guaranteed prepaid no-overage/no-auto-top-up request policy. Public base pricing and credit multipliers do not prove a USD bound.",
+            defaults: { model: "eleven_multilingual_v2", output: "mp3_44100_128" },
+            maxText: 240
+          });
+        } catch {
+          return JSON.stringify({ error: "invalid_arguments", paid: false });
+        }
+      }
+      if (["generate", "result", "inspect"].includes(verb) && runtimeAvailable(delivered)) {
+        try {
+          const b = bodyObject(args, ["id"]);
+          if (verb !== "generate") return JSON.stringify(runtime.result(context, b.id));
+          return runtime.submit(context, b.id, (job, token) => {
+            if (job.request.operation !== "text_to_speech_full") throw new Error("operation_unavailable");
+            const params = job.request.params;
+            if (!/^[A-Za-z0-9_-]{1,255}$/.test(params.path?.voice_id)) throw new Error("voice_required");
+            return runtime.transfer({
+              url: "https://api.elevenlabs.io/v1/text-to-speech/" + params.path.voice_id + "?output_format=mp3_44100_128",
+              method: "POST",
+              credential,
+              body: { kind: "json", value: params.body },
+              response: { kind: "file", fileName: "speech.mp3", contentType: "audio/mpeg", maxBytes: 8 * 1024 * 1024, statuses: [200] },
+              timeoutMs: 3e4
+            }, (result) => {
+              if ("error" in result || result.kind !== "file") {
+                core.unknown(token);
+                return JSON.stringify({ id: job.id, state: "unknown", noReplay: true, error: "speech_delivery_unconfirmed" });
+              }
+              core.beginOutput(token);
+              const media = runtime.save({ current: true, scope: job.scope }, job.id, result.file);
+              core.complete(token, [{ kind: "artifact", id: media, contentType: "audio/mpeg" }]);
+              return JSON.stringify({ id: job.id, state: "generated", media, file: host2.dataDir() + "/elevenlabs/" + result.file.path, noReplay: true });
+            });
+          });
+        } catch {
+          return JSON.stringify({ error: "safe_prepared_job_required", paid: false, next: "TTS is blocked until safe real pricing is established. No caller-supplied quote or approval is accepted." });
+        }
+      }
       if (verb === "status" || verb === "help") {
         if (context.owner !== context.actor || args.length) return JSON.stringify({ error: "request_refused" });
-        return JSON.stringify({ ...runtimeStatus(), verbs, structuredBody: true });
+        return JSON.stringify({
+          ...runtimeStatus(),
+          verbs: [...verbs, ...liveVerbs],
+          structuredBody: true,
+          protectedReads: runtimeAvailable(delivered),
+          pricingRequirement: "Account-specific USD tariff or provider-guaranteed prepaid/no-overage request, with no auto top-up. Not proved."
+        });
       }
       if (["catalog", "capabilities", "models", "describe", "open", "close"].includes(verb))
         return commands.onSurfaceCall(context, verb, args);
@@ -150407,8 +150741,11 @@ function createRuntime(host2) {
         return { ...result, capabilities: { estimate: false, submit: false, reconcile: false } };
       return result;
     },
-    mediaFile() {
-      return null;
+    mediaFile(id, context) {
+      return id && context ? runtime.mediaFile(id, context) : null;
+    },
+    jobReconcile(context) {
+      return { job: context.job, state: "unknown" };
     },
     transcribeStatus() {
       return { state: "unavailable", reason: "Secure Scribe transport and approval binding are not configured." };
