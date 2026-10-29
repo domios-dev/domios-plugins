@@ -1,4 +1,4 @@
-import type { Access, Job, Json } from '../../media-shared/src/contracts';
+import type { Access, Job, Json, Actor } from '../../media-shared/src/contracts';
 import { clone } from '../../media-shared/src/contracts';
 import { jobPrice, jobStatus, actorLabel, activityLine } from '../../media-shared/src/presentation';
 import { quoteState } from '../../media-shared/src/cost';
@@ -75,7 +75,14 @@ function privateActivity(job: Job): string {
   const prompt = (job.request.params as Record<string, Json>).prompt;
   const subject = typeof prompt === 'string' ? prompt.replace(/[\r\n\t]+/g, ' ').slice(0, 24) + (prompt.length > 24 ? '…' : '') : 'generation';
   // Durable intent preparation is recorded. No submission/event ledger is inferred.
-  return activityLine(job.scope.actor, 'prepared', `'${subject}' · ${displayModel(job.request.operation)}`);
+  return activityLine(documentActor(job), 'prepared', `'${subject}' · ${displayModel(job.request.operation)}`);
+}
+/** Display projection only. Preserve trusted run IDs for grouping, never use them as visible labels. */
+function documentActor(job: Job): Actor {
+  const actor = clone(job.scope.actor);
+  if (actor.kind !== 'run') return actor;
+  const label = typeof actor.label === 'string' ? actor.label.trim() : '';
+  return { ...actor, label: !label || label === actor.runId || label === job.scope.runId ? 'Pipeline run' : label };
 }
 const id = (v: unknown): v is string => typeof v === 'string' && /^[A-Za-z0-9_./-]{1,255}$/.test(v);
 export function validateUIArgs(value: unknown, allowed: string[]): asserts value is Record<string, any> {
@@ -94,11 +101,11 @@ export function uiItem(job: Job, now: number): StudioItem {
   const quoted = job.quote && quoteState(job.quote, job.binding, job.request.unit, job.quote.issuedAt) === 'ready' ? job.quote : undefined;
   const cost = charged ?? quoted;
   return { id: job.id, operation: job.request.operation, title: typeof params.prompt === 'string' ? params.prompt.slice(0, 240) : 'Generation',
-    at: job.at, actor: clone(job.scope.actor), status: jobStatus(state, { cancelRequested: job.cancelRequested, progress: job.progress,
+    at: job.at, actor: documentActor(job), status: jobStatus(state, { cancelRequested: job.cancelRequested, progress: job.progress,
       elapsedMs: ['starting', 'queued', 'generating'].includes(state) ? Math.max(0, now - job.at) : undefined }),
     state, price, priceTTL: job.quote ? Math.max(0, job.quote.validUntilMs - now) : undefined, outputs: clone(job.outputs), modelLabel: displayModel(job.request.operation),
     recordedCost: cost ? { amount: cost.amount, unit: cost.unit, text: displayUSD(cost.amount), kind: charged ? 'charged' : 'quoted' } : undefined,
-    activity: privateActivity(job), startedBy: actorLabel(job.scope.actor) };
+    activity: privateActivity(job), startedBy: actorLabel(documentActor(job)) };
 }
 export function uiSchema(operation: unknown): InputSchema | UIUnavailable {
   if (!id(operation)) throw new Error('ui_refused');

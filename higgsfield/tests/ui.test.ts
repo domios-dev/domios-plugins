@@ -5,13 +5,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import { fixture, soul } from './fixtures/commands';
 import { HiggsfieldCommands } from '../src/commands';
-import { fixtureTransport, selectFixtureOwner } from '../ui/dev/fixtures';
+import { fixtureTransport, fixtureMedia, selectFixtureOwner } from '../ui/dev/fixtures';
 import { StudioController } from '../ui/src/controller';
 import { bridgeTransport } from '../ui/src/transport';
 import { frameMediaView } from '../ui/src/media';
 import { App, MediaPreview } from '../ui/src/App';
 import { Price, Studio, SchemaFields } from '../../media-shared/ui/src';
-import { jobStatus, studioPrice } from '../../media-shared/src/presentation';
+import { jobStatus, studioPrice, groupHistory } from '../../media-shared/src/presentation';
 import type { UIDetails, UISnapshot } from '../src/ui';
 import type { ViewContext } from '../src/commands';
 import { models } from '../src/catalog';
@@ -368,4 +368,69 @@ test('dev width harness uses a real constrained iframe and reports actual viewpo
   assert.match(dev, /<iframe/); assert.match(dev, /width=\{width\}/); assert.match(dev, /window\.innerWidth/); assert.match(dev, /document\.documentElement\.clientWidth/); assert.match(dev, /document\.documentElement\.scrollWidth/);
   assert.match(dev, /selectFixtureOwner\(fixture, controller, owner\)/); assert.doesNotMatch(dev, /document\.body\.style\.width/);
   const production = readFileSync(new URL('../ui/src/main.tsx', import.meta.url), 'utf8'); assert.doesNotMatch(production, /dev\/|fixture|postMessage/);
+});
+
+test('recent fixture clock integrates English Today/Yesterday/older grouping with six extra finished examples', async () => {
+  const now = new Date(2026, 9, 29, 12, 0, 0).getTime();
+  const f = fixtureTransport({ now }); const snapshot = await f.transport.call('ui.snapshot', { limit: 50 });
+  if ('kind' in snapshot) throw Error(snapshot.code);
+  const finished = snapshot.items.filter(i => ['generated', 'failed', 'canceled'].includes(i.state));
+  assert.ok(finished.length >= 10); assert.ok(finished.every(i => i.at > new Date(2020, 0, 1).getTime() && i.at <= now));
+  for (const id of ['image-study', 'video-study', 'image-yesterday', 'video-yesterday', 'failed-yesterday', 'image-older']) assert.ok(finished.some(i => i.id === id), id);
+  assert.ok(finished.filter(i => i.state === 'failed').length >= 2);
+  const original = Date.prototype.toLocaleDateString, locales: unknown[] = [];
+  Date.prototype.toLocaleDateString = function(locale, options) { locales.push(locale); return original.call(this, locale ?? 'ru', options); };
+  try {
+    const days = groupHistory(finished, now).map(g => g.day);
+    assert.deepEqual(days, ['Today', 'Yesterday', 'Oct 26']);
+    const markup = render(React.createElement(Studio, { title: 'Fixture', items: finished, now, capacity: 64, activity: [],
+      composer: null, footer: null, renderItem: i => React.createElement('span', null, i.title), onSelect() {}, onBack() {} }));
+    assert.match(markup, /Today/); assert.match(markup, /Yesterday/); assert.match(markup, /Oct 26/); assert.doesNotMatch(markup, /1970/);
+    assert.ok(locales.length > 0 && locales.every(locale => locale === 'en'));
+  } finally { Date.prototype.toLocaleDateString = original; }
+  const videos = finished.filter(i => i.outputs.some(o => o.contentType === 'video/mp4'));
+  assert.equal(videos.length, 2); assert.ok(videos.every(i => i.notice?.includes('Playback not supplied')));
+  assert.equal(fixtureMedia.get('fixture-video-metadata'), null); assert.equal(fixtureMedia.get('unknown-file'), null);
+  assert.equal(f.f.sends(), 0);
+});
+
+test('legacy synthetic epoch-clock migration retains unknown intent identity and submission count without replay', () => {
+  const now = new Date(2026, 9, 29, 12, 0).getTime(); let saved = '';
+  const f = fixtureTransport({ now, save: value => { saved = value; } });
+  const access = f.f.contexts.get(f.context)!;
+  f.f.service.intent(access, 'ui_legacy', soul, { prompt: 'Legacy synthetic intent' });
+  f.f.store.transact('A', 'workspace', p => { for (const j of p.jobs) { j.at = 10; j.updatedAt = 10; if (j.id === 'ui_legacy') j.state = 'unknown'; } return null; });
+  const persisted = JSON.parse(saved); persisted.submissions = 1;
+  const restored = fixtureTransport({ now, load: () => JSON.stringify(persisted) });
+  const jobs = restored.f.service.history(restored.f.contexts.get(restored.context)!);
+  assert.equal(restored.submissions(), 1); assert.equal(jobs.find(j => j.id === 'ui_legacy')?.state, 'unknown');
+  assert.ok(jobs.every(j => j.at > new Date(2020, 0, 1).getTime())); assert.equal(restored.f.sends(), 0);
+});
+
+test('run display projection preserves stored identity and uses host labels or Pipeline run, never raw run IDs', async () => {
+  const { f, ui } = setup(); const rawId = 'opaque-run-private';
+  for (const [n, label] of ['', rawId, ' ' + rawId + ' ', 'Daily covers run #12'].entries()) {
+    const access = f.actor('A', 'run', rawId); if (access.scope.actor.kind !== 'run') throw Error('bad fixture'); access.scope.actor.label = label;
+    const id = 'display-run-' + n; f.service.intent(access, id, soul, { prompt: 'Pipeline cover' });
+    const item = (ui('ui.snapshot') as UISnapshot).items.find(i => i.id === id)!;
+    assert.equal(item.actor.kind, 'run'); if (item.actor.kind !== 'run') throw Error('missing actor');
+    assert.equal(item.actor.runId, rawId); assert.equal(item.actor.label, n === 3 ? label : 'Pipeline run');
+    assert.equal(item.startedBy, n === 3 ? label : 'Pipeline run'); assert.equal(item.activity.includes(rawId), false);
+    const stored = f.service.history(access).find(j => j.id === id)!;
+    assert.equal(stored.scope.runId, rawId); assert.deepEqual(stored.scope.actor, access.scope.actor);
+  }
+  const pipeline = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(pipeline.transport); await c.mount();
+  assert.ok(c.state.snapshot?.items.every(i => i.startedBy === 'Daily covers run #12'));
+  const markup = render(React.createElement(App, { controller: c })); assert.match(markup, /Daily covers run #12/); assert.doesNotMatch(markup, />run-a</); c.dispose();
+});
+
+test('active row status/actions and optional helper are separate from nonshrinking model/actor metadata under900', async () => {
+  const f = fixtureTransport({ scenario: 'pipeline' }), c = new StudioController(f.transport); await c.mount();
+  const markup = render(React.createElement(App, { controller: c }));
+  assert.match(markup, /<div class="higgs-row-end"><span class="studio-status"/);
+  assert.match(markup, /<p class="ct-meta higgs-row-note">/); assert.doesNotMatch(markup, /<small class="higgs-row-note"/);
+  const css = readFileSync(new URL('../ui/src/style.css', import.meta.url), 'utf8');
+  assert.match(css, /@media\(max-width:899px\)/); assert.match(css, /\.higgs-metadata>small\{flex-shrink:0/);
+  assert.match(css, /\.higgs-row-end\{grid-column:1;justify-content:flex-end;flex-wrap:wrap;max-width:100%/);
+  assert.match(css, /\.higgs-row>\.higgs-row-note\{grid-column:1;margin:0/); c.dispose();
 });
