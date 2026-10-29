@@ -1,0 +1,15 @@
+{
+  "status": "source-test-contract-not-a-runnable-blueprint",
+  "driver": "tests/blueprint.test.ts",
+  "vendorCalls": 0,
+  "paidEffects": 0,
+  "steps": [
+    {"name":"prepare","operation":"higgsfield-ai/soul/v2/standard","controls":{"prompt":"fixture"}},
+    {"name":"estimate","binding":"exact revision, controls and durable fake inputs","unknown":"waiting"},
+    {"name":"fixture-owner-approval","purpose":"zero-spend only","maximum":{"amount":10,"unit":"usd_micro"}},
+    {"name":"fixture-submit","continuation":"same host-fixture operation identity","uncertain":"unknown; no replay"},
+    {"name":"fake-media","output":{"kind":"artifact","id":"fixture-media","contentType":"image/png"}},
+    {"name":"review-stub","maxTurns":1,"maxTokens":64,"actualMediaConsumption":false}
+  ],
+  "productionYaml": "withheld until Loom/Courier/Concierge delivery; HIG-11 owns admission and real execution proof"
+}
