@@ -1,0 +1,9 @@
+# Explicit refusal record, NOT an executable Blueprint. No guessed host graph syntax.
+status: blocked-external-runtime-delivery
+owner: Loom / Courier / Concierge; Lens review; Elgar delivery; HIG-11 acceptance
+requires:
+  - delivered durable callback and authoritative budget waiting/resume runtime
+  - closed nested operation schemas and authorized durable media inputs
+  - real bounded media-aware agent review or explicit Elgar disposition
+  - released SDK and exact minimum host evidence
+paidExecutionDefault: false

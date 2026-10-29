@@ -1,0 +1,22 @@
+# SOURCE FIXTURE SPECIFICATION ONLY. Not host Blueprint syntax; never apply.
+fixtureVersion: 1
+vendor: elevenlabs
+network: false
+paidEffects: 0
+driver: tests/blueprint.test.ts
+steps:
+  - id: synthetic_audio
+    implementation: test-local synthetic media producer
+    output: {kind: media_source, id: synthetic-owned-audio, media: audio}
+  - id: bounded_review
+    implementation: test-local stub, no model or media-consumption acceptance
+    input: {producer: synthetic_audio, port: audio}
+    maxCalls: 1
+    maxItems: 1
+    maxBytes: 3
+    deadlineMs: 100
+expected:
+  lineageHops: 1
+  waitingResumePaidEntries: 1
+  unknownReplayEntries: 0
+  actualReviewerAcceptance: false
