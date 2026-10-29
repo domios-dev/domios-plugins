@@ -166,6 +166,25 @@ test('deferred completed receipt still requires saved outputs', () => {
   assert.equal(s.h.data().jobs[0].jobId, 'ticket-7');
 });
 
+for (const state of ['generated', 'failed', 'canceled'] as const) test(`uncertain cancellation remains requested until exact-job ${state}`, () => {
+  const s = setup();
+  const start = plain(s.c.beginStart(s.access, 'one', true));
+  plain(s.c.reserve(s.access, start.continuation!));
+  plain(s.c.enter(s.access, start.continuation!));
+  plain(s.c.observation(start.continuation!, { jobId: 'ticket-7', state: 'queued', providerState: 'queued' }));
+  const cancel = plain(s.c.beginCancel(s.access, 'one', { queued: true, running: false }));
+  const unknown = plain(s.c.unknown(cancel.continuation!));
+  assert.equal(unknown.cancelRequested, true);
+  assert.equal(unknown.state, 'unknown');
+  assert.equal(unknown.jobId, 'ticket-7');
+  const check = plain(s.c.beginReconcile(s.access, 'one'));
+  const observed = plain(s.c.observation(check.continuation!, { jobId: 'ticket-7', state, providerState: state }));
+  const done = observed.saveOutputs ? plain(s.c.complete(check.continuation!, [{ kind: 'artifact', id: 'saved', contentType: 'audio/mpeg' }])) : observed.job;
+  assert.equal(done.cancelRequested, false);
+  assert.equal(done.jobId, 'ticket-7');
+  assert.equal(done.state, state);
+});
+
 test('sync facade rejects a thenable store result and a Promise-valued schema validator', () => {
   const s = setup();
   const bad = { transact: () => Promise.resolve([]) } as unknown as JobStore;

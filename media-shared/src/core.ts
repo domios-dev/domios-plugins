@@ -150,7 +150,7 @@ export class MediaCore {
   unknown(token: Continuation): Job {
     return this.continued(token, (_d, job) => {
       if (!['submitting', 'receipt'].includes(job.phase ?? '') && job.lease !== 'reconcile' && job.lease !== 'cancel') throw new Error('effect_not_entered');
-      job.state = 'unknown'; job.accounting = 'unknown'; job.phase = undefined; job.lease = undefined; job.cancelRequested = false; return job;
+      job.state = 'unknown'; job.accounting = 'unknown'; job.phase = undefined; job.lease = undefined; return job;
     });
   }
   observation(token: Continuation, receipt: Omit<Observation, 'outputs'>, deferFinish = false): { job: Job; saveOutputs: boolean } {
@@ -191,7 +191,7 @@ export class MediaCore {
       job.reservation = clone(receipt.charged); job.accounting = 'spent';
     }
     job.phase = undefined; job.lease = undefined; job.pendingReceipt = undefined;
-    if (job.state === 'canceled') job.cancelRequested = false;
+    if (['generated', 'failed', 'canceled'].includes(job.state)) job.cancelRequested = false;
   }
   beginReconcile(access: Access, id: string): Decision {
     this.authorize(access); if (this.kind !== 'async') throw new Error('reconcile_unavailable');
