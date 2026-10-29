@@ -89,7 +89,7 @@ export function FinishedFeed({ items, now, renderItem, feedLayout = 'tiles' }: {
   })}</>;
 }
 export function Studio(p: StudioProps) {
-  const [pane, setPane] = useState<'compose' | 'results'>('compose');
+  const [library, setLibrary] = useState(false);
   const [search, setSearch] = useState('');
   const filtered = p.items.filter(i => (!p.filter || p.filter === 'everyone' || i.actor.kind === p.filter) && `${i.title} ${i.operation}`.toLowerCase().includes(search.toLowerCase()));
   const active = filtered.filter(i => !['generated', 'failed', 'canceled'].includes(i.state));
@@ -99,17 +99,18 @@ export function Studio(p: StudioProps) {
     index: selectedIndex + 1, total: filtered.length,
     previous: selectedIndex > 0 ? () => p.onSelect(filtered[selectedIndex - 1].id) : undefined,
     next: selectedIndex + 1 < filtered.length ? () => p.onSelect(filtered[selectedIndex + 1].id) : undefined };
+  const open = (id: string) => { p.onSelect(id); setLibrary(false); };
   const navigate = (event: React.KeyboardEvent) => {
     if (event.target instanceof HTMLElement && /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
-    if (event.key === 'Escape' && p.selected) { p.onBack(); event.preventDefault(); }
-    if (p.selected && ['ArrowLeft', 'ArrowRight'].includes(event.key)) { const index = filtered.findIndex(i => i.id === p.selected); const next = filtered[index + (event.key === 'ArrowLeft' ? -1 : 1)]; if (next) p.onSelect(next.id); event.preventDefault(); }
+    if (event.key === 'Escape' && library) { setLibrary(false); event.preventDefault(); }
+    else if (event.key === 'Escape' && p.selected) { p.onBack(); event.preventDefault(); }
   };
-  return <main className="studio" data-pane={pane} onKeyDown={navigate}><header className="ct-toolbar"><h1>{p.title}</h1><select aria-label="Show activity from" value={p.filter ?? 'everyone'} onChange={e => p.onFilter?.(e.target.value as NonNullable<StudioProps['filter']>)}><option value="everyone">Everyone</option><option value="you">You</option><option value="agent">Agents</option><option value="run">Pipelines</option></select>{p.toolbar}<input type="search" aria-label="Search prompts" placeholder="Search prompts" value={search} onChange={e => setSearch(e.target.value)} /></header>
-    {p.activity.length > 0 && <details className="studio-activity"><summary>{p.activitySummary ?? p.activity[0]} · Show activity ({p.activity.length})</summary><ol>{p.activity.map((line, i) => <li key={i}>{line}</li>)}</ol></details>}
-    <nav className="studio-mobile studio-segments" aria-label="Studio panes"><button className="ct-btn" aria-pressed={pane === 'compose'} onClick={() => setPane('compose')}>Compose</button><button className="ct-btn" aria-pressed={pane === 'results'} onClick={() => setPane('results')}>Results ({p.items.length})</button></nav>
-    <div className="studio-panes"><aside className="studio-composer" aria-label="Composer"><div className="studio-composer-body">{p.composer}</div><footer>{p.footer}</footer></aside><section className="studio-results" aria-label="Results" tabIndex={-1}>
-      {p.selected ? typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector : <>{active.length > 0 && <section><h2>In progress</h2><div className="studio-active">{active.map(i => <article key={i.id}>{p.renderItem(i)}</article>)}</div></section>}<FinishedFeed items={finished} now={p.now} renderItem={p.renderItem} feedLayout={p.feedLayout} />{filtered.length === 0 && p.empty}{p.next}{p.capacity !== null && <p className="ct-meta">Keeps up to {p.capacity} generations. Unsettled work is retained.</p>}</>}
-    </section></div></main>;
+  return <main className="studio studio-stage-shell" onKeyDown={navigate}>
+    <header className="ct-toolbar"><h1>{p.title}</h1><button className="ct-btn" type="button" aria-expanded={library} onClick={() => setLibrary(!library)}>{library ? 'Close library' : 'Library'}</button></header>
+    {p.activity.length > 0 && <div className="studio-activity">{p.activitySummary ?? p.activity[0]}</div>}
+    <div className="studio-stage-content">{library ? <section className="studio-results" aria-label="Library"><div className="studio-library-controls"><select aria-label="Show activity from" value={p.filter ?? 'everyone'} onChange={e => p.onFilter?.(e.target.value as NonNullable<StudioProps['filter']>)}><option value="everyone">Everyone</option><option value="you">You</option><option value="agent">Agents</option><option value="run">Pipelines</option></select><input type="search" aria-label="Search prompts" placeholder="Search prompts" value={search} onChange={e => setSearch(e.target.value)} /></div><FinishedFeed items={finished} now={p.now} renderItem={i => <div onClick={() => setLibrary(false)}>{p.renderItem(i)}</div>} feedLayout={p.feedLayout}/>{filtered.length === 0 && <p>No results in this view.</p>}{p.next}</section> : p.selected && p.inspector ? (typeof p.inspector === 'function' ? p.inspector(navigation) : p.inspector) : <div className="studio-stage-empty"><p>Nothing has been made yet. It will appear here as it runs.</p></div>}</div>
+    {(filtered.length > 0 || active.length > 0) && <section className="studio-strip" aria-label="Results and activity">{filtered.filter(i => i.outputs.length > 0).map(i => <button key={i.id} className="ct-btn ct-btn-ghost" type="button" aria-current={i.id === p.selected ? 'true' : undefined} onClick={() => open(i.id)}>{i.title}</button>)}{active.map(i => <div className="studio-strip-active" key={i.id}>{p.renderItem(i)}</div>)}</section>}
+  </main>;
 }
 export function Inspector({ onBack, preview, children, navigation }: { onBack(): void; preview: React.ReactNode; children: React.ReactNode; navigation?: InspectorNavigation }) {
   return <section className="studio-inspector" aria-label="Result inspector"><div className="studio-inspector-nav"><button className="ct-btn ct-btn-ghost" onClick={onBack}>Back to results</button>{navigation && <><span className="ct-meta">{navigation.index} of {navigation.total}</span><button className="ct-btn ct-btn-ghost" aria-label="Previous result" disabled={!navigation.previous} onClick={navigation.previous}>‹</button><button className="ct-btn ct-btn-ghost" aria-label="Next result" disabled={!navigation.next} onClick={navigation.next}>›</button></>}</div><div className="studio-inspector-body"><div className="studio-preview">{preview}</div><div className="studio-inspector-details">{children}</div></div></section>;

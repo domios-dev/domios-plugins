@@ -153,3 +153,13 @@ test('production imports exclude all developer fixtures, service algorithms/publ
   const dev=readFileSync(new URL('../ui/dev/fixtures.ts',import.meta.url),'utf8');assert(!dev.includes('fetch('));assert(!dev.includes('service.start('));
   const app=readFileSync(new URL('../ui/src/App.tsx',import.meta.url),'utf8');assert(app.includes("from '../../../media-shared/ui/src'"));assert(!app.includes('setTimeout'));
 });
+
+test('local text selection uses code points and never derives audio time', async()=>{
+  const {textSpan,timeRange}=await import('../../media-shared/ui/src/selection');
+  assert.deepEqual(textSpan('A😀BC',1,2),{start:1,end:2,quote:'😀'});
+  assert.equal(textSpan('A😀BC',2,2),null);
+  assert.equal(textSpan('A😀BC',0,5),null);
+  assert.deepEqual(timeRange(1000,2000,4000),{t0_ms:1000,t1_ms:2000});
+  assert.equal(timeRange(-1,2000,4000),null);
+  assert.equal(timeRange(1000,4001,4000),null);
+});

@@ -85,6 +85,5 @@ export function App({controller:c,media=unavailableMedia,voices=unavailableVoice
       <p className="ct-meta">Started by {d.item.startedBy}</p>{d.item.actor.kind==='run'&&d.item.runLink&&<a href={d.item.runLink}>View run</a>}
       {d.item.source&&<button className="ct-btn ct-btn-ghost eleven-link" onClick={()=>select(d.item.source!.id)}>From: {d.item.source.label}</button>}
       {d.inputs.map(input=><p key={input.id} className="ct-meta">{input.label} · {input.type}</p>)}
-      <button className="ct-btn ct-btn-ghost" onClick={()=>c.reuse()}>Use these settings</button><button className="ct-btn ct-btn-ghost" onClick={()=>c.reuse(true)}>Make variations…</button>
     </Inspector>:undefined}/>;
 }

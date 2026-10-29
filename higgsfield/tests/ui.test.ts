@@ -532,3 +532,15 @@ test('waiting labels and helpers share the actual missing/fresh/stale pipeline p
   assert.match(markup, /Price needs updating/); assert.match(markup, /This step stays paused until a safe, fresh price is available/); assert.doesNotMatch(markup, /Waiting for your OK|Approve in the run view/);
   assert.equal(f.f.service.history(actor).find(j => j.id === 'run-three')?.waitReason, 'owner_confirmation'); assert.equal(f.f.sends(), 0); c.dispose();
 });
+
+test('local selection geometry rejects letterboxing and invalid ranges', async () => {
+  const { containPoint, region, timeRange } = await import('../../media-shared/ui/src/selection');
+  assert.equal(containPoint(500, 100, 1000, 1000, 1000, 500), null);
+  assert.deepEqual(containPoint(500, 500, 1000, 1000, 1000, 500), {x:.5,y:.5});
+  assert.equal(containPoint(NaN, 500, 1000, 1000, 1000, 500), null);
+  const r = region({x:.1,y:.2},{x:.4,y:.6}); assert.ok(r); assert.ok(Math.abs(r.w-.3)<1e-12 && Math.abs(r.h-.4)<1e-12);
+  assert.equal(region({x:.1,y:.2},{x:.1,y:.6}), null);
+  assert.deepEqual(timeRange(1000,2000,4000), {t0_ms:1000,t1_ms:2000});
+  assert.equal(timeRange(2000,1000,4000), null);
+  assert.equal(timeRange(0,Infinity,4000), null);
+});
