@@ -11,3 +11,5 @@
 .higgs-lineage:hover:not(:disabled){background:transparent}
 
 .studio-active .higgs-row{padding-right:12px}.studio-active .higgs-row-end .higgs-actions{padding-right:0}
+
+.studio-stage-shell .higgs-media img,.studio-stage-shell .higgs-media video{height:auto;max-height:65vh;object-fit:contain}

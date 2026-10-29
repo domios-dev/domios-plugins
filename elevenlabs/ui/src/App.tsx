@@ -1,17 +1,14 @@
 import React,{useEffect,useMemo,useState,useSyncExternalStore} from 'react';
-import { Studio,SchemaFields,Price,Inspector,Settings } from '../../../media-shared/ui/src';
+import { Studio,Inspector,Settings } from '../../../media-shared/ui/src';
 import type { InputSchema } from '../../../media-shared/ui/src';
 import type { Json } from '../../../media-shared/src/contracts';
 import { jobStatus,pipelinePrice } from '../../../media-shared/src/presentation';
 import type { AudioItem } from './api';
 import type { StudioController } from './controller';
-import { validateSchema } from '../../src/schema';
 import type { MediaPort,VoicePort,VoiceList } from './media';
 import { PlaybackGroup,unavailableMedia,unavailableVoices } from './media';
 import { AudioPlayer } from './Audio';
-const settingNames:Record<string,string>={stability:'Stability',similarity_boost:'Similarity',style:'Style'};
-const settingHints:Record<string,string>={stability:'Adjusts consistency between generations.',similarity_boost:'Adjusts similarity to the original voice.',style:'Adjusts stylistic expression.'};
-const modelNames={eleven_multilingual_v2:'Multilingual v2',eleven_v3:'Eleven v3',eleven_flash_v2:'Flash v2',eleven_flash_v2_5:'Flash v2.5'};
+import { FixtureSelection, type FixtureTarget } from '../../../media-shared/ui/src/FixtureSelection';
 /** Nullable branches are edited through the same source field. No constraints/defaults change in DTO or reusable request. */
 function controlSchema(schema:InputSchema|undefined):InputSchema {
   if(!schema)return {};
@@ -28,18 +25,14 @@ export function VoicePicker({port,media,group,value,onChange}:{port:VoicePort;me
     {list.kind==='unavailable'?<small>{list.message}</small>:<>{list.synthetic&&<small>Synthetic fixture voices · not account voices</small>}{selected?.description&&<small>{selected.description}</small>}{selected?.sampleId&&<div><small>Free sample</small><AudioPlayer id={selected.sampleId} media={media} group={group}/></div>}</>}
   </div>;
 }
-export function App({controller:c,media=unavailableMedia,voices=unavailableVoices}:{controller:StudioController;media?:MediaPort;voices?:VoicePort}){
+export function App({controller:c,media=unavailableMedia,voices=unavailableVoices,fixtureTarget,fixtureLibrary=false}:{controller:StudioController;media?:MediaPort;voices?:VoicePort;fixtureTarget?:(item:AudioItem,text:string)=>FixtureTarget|undefined;fixtureLibrary?:boolean}){
   const s=useSyncExternalStore(c.subscribe,c.getSnapshot,c.getSnapshot),snap=s.snapshot,d=s.details;
   const group=useMemo(()=>new PlaybackGroup(),[c]);
   const [,tick]=useState(0);
   // Visual quote expiry only. Never polls, reconciles or advances a lifecycle.
   useEffect(()=>{const timer=setInterval(()=>tick(n=>n+1),1000);return()=>clearInterval(timer);},[]);
   useEffect(()=>{void c.mount();return()=>c.dispose();},[c]);
-  const body=c.body(),path=(s.params.path??{}) as Record<string,Json>,text=typeof body.text==='string'?body.text:'',count=[...text].length,limit=c.limit();
-  const speech=s.operation.startsWith('text_to_speech'),scribe=s.schema?.unavailable?.includes('voice-note transcriber');
-  const bodySchema=s.schema?.schema.properties?.body??{},rawVoiceSettings=controlSchema(bodySchema.properties?.voice_settings);
-  const voiceSettings={...rawVoiceSettings,properties:rawVoiceSettings.properties?Object.fromEntries(Object.entries(rawVoiceSettings.properties).map(([key,field])=>{const f=controlSchema(field);return [key,{...f,title:settingNames[key]??f.title,description:settingHints[key]??f.description}];})):undefined};
-  const extraBody=Object.fromEntries(Object.entries(bodySchema.properties??{}).filter(([key])=>!['text','model_id','voice_settings'].includes(key)).map(([k,v])=>[k,controlSchema(v)]));
+  const target=d ? fixtureTarget?.(d.item,String((d.params.body as any)?.text??'')) : undefined;
   const select=(id:string)=>{void c.inspect(id);};
   function row(i:AudioItem){
     const waiting=['waiting_ok','price_stale','price_unavailable'].includes(i.state),gate=c.priceFor(i),wait=waiting?pipelinePrice(gate):undefined;
@@ -55,26 +48,10 @@ export function App({controller:c,media=unavailableMedia,voices=unavailableVoice
       {i.source&&<button className="ct-btn ct-btn-ghost eleven-link" onClick={()=>select(i.source!.id)}>From: {i.source.label}</button>}
     </div>;
   }
-  return <Studio title="ElevenLabs" feedLayout="rows" now={c.now()} capacity={snap?.capacity??null} items={snap?.items??[]} renderItem={i=>row(i as AudioItem)}
+  return <Studio title="ElevenLabs" initialLibrary={fixtureLibrary&&!d} notice={s.error} feedLayout="rows" now={c.now()} capacity={snap?.capacity??null} items={snap?.items??[]} renderItem={i=>row(i as AudioItem)}
     activity={snap?.activity??[]} activitySummary={snap?.activitySummary} selected={d?.item.id} onSelect={select} onBack={()=>c.back()} filter={s.filter} onFilter={v=>c.filter(v)}
-    composer={<><div className="studio-field"><label htmlFor="eleven-mode">Mode</label><select id="eleven-mode" value={s.operation} disabled={!snap} onChange={e=>void c.selectOperation(e.target.value)}>{snap?.catalog.map(row=><option key={row.id} value={row.id}>{row.label === "Text To Speech" ? "Text to speech" : row.label}</option>)}</select></div>{s.error&&<p role="status">{s.error}</p>}
-      {speech?<>
-      <VoicePicker key={'voices:'+s.formRevision} port={voices} media={media} group={group} value={String(path.voice_id??'')} onChange={v=>c.edit('path','voice_id',v)}/>
-      <div className="studio-field"><label htmlFor="eleven-model">Model</label><select id="eleven-model" disabled={!s.schema} value={String(body.model_id??'')} onChange={e=>c.edit('body','model_id',e.target.value)}><option value="">Model default</option>{Object.entries(modelNames).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
-      <div className="studio-field"><label htmlFor="eleven-text">Text</label><textarea id="eleven-text" value={text} onChange={e=>c.edit('body','text',e.target.value)} aria-describedby="eleven-count"/>
-      <small id="eleven-count" className={limit&&count>limit*.9?'eleven-near-limit':''}>{count.toLocaleString('en-US')}{limit?` / ${limit.toLocaleString('en-US')}`:''} characters</small></div>
-      {voiceSettings.properties&&<>{['stability','similarity_boost','style'].map(key=>{const field=voiceSettings.properties?.[key],original=rawVoiceSettings.properties?.[key];if(!field)return null;const value=((body.voice_settings??{}) as Record<string,Json>)[key];const change=(next:Json|undefined)=>{const settings={...(body.voice_settings??{}) as Record<string,Json>};if(next===undefined)delete settings[key];else settings[key]=next;c.edit('body','voice_settings',Object.keys(settings).length?settings:undefined);};return <div className="studio-field eleven-setting" key={key}><label htmlFor={'eleven-'+key} title={original?.description}>{settingNames[key]}</label><div className="studio-number">{typeof value==='number'&&field.minimum!==undefined&&field.maximum!==undefined&&<input type="range" aria-label={`${settingNames[key]} slider`} min={field.minimum} max={field.maximum} step={field.multipleOf??'any'} value={value} onChange={e=>change(Number(e.target.value))}/>}<input id={'eleven-'+key} type="number" min={field.minimum} max={field.maximum} step={field.multipleOf??'any'} value={typeof value==='number'?value:''} placeholder="Model default" onChange={e=>change(e.target.value===''?undefined:Number(e.target.value))}/></div><small title={original?.description}>{settingHints[key]}</small></div>;})}<SchemaFields schema={{...voiceSettings,properties:Object.fromEntries(Object.entries(voiceSettings.properties).filter(([key])=>!['stability','similarity_boost','style'].includes(key)))}} values={(body.voice_settings??{}) as Record<string,Json>} onChange={(key,value)=>{const settings={...(body.voice_settings??{}) as Record<string,Json>};if(value===undefined)delete settings[key];else settings[key]=value;c.edit('body','voice_settings',Object.keys(settings).length?settings:undefined);}}/></>}
-      {s.schema&&<details><summary>Request options</summary><SchemaFields schema={{type:'object',properties:extraBody}} values={Object.fromEntries(Object.entries(body).filter(([k])=>k in extraBody))} onChange={(k,v)=>c.edit('body',k,v)}/>
-      {s.schema.schema.properties?.query&&<SchemaFields schema={s.schema.schema.properties.query} values={(s.params.query??{}) as Record<string,Json>} defaultValid={(_k,f)=>f.default!==undefined&&validateSchema(s.schema!.schema,f,f.default)} onChange={(k,v)=>c.edit('query',k,v)}/>}</details>}
-      </>:!scribe&&s.schema&&(['path','body','query'] as const).map(location=>s.schema!.schema.properties?.[location]&&<SchemaFields key={location+':'+s.formRevision} schema={s.schema!.schema.properties[location]} values={(s.params[location]??{}) as Record<string,Json>} defaultValid={(_key,field)=>field.default!==undefined&&validateSchema(s.schema!.schema,field,field.default)} onChange={(key,value)=>c.edit(location,key,value)}/>)}
-      {s.unavailable&&<p className="ct-meta">{s.unavailable}</p>}
-      {s.inputs.length>0&&<p className="ct-meta">{s.inputs.length} authorized input reference{s.inputs.length===1?'':'s'} loaded from this result.</p>}
-      <details><summary>Note</summary><div className="studio-field"><label htmlFor="eleven-note">Note (optional)</label><input id="eleven-note" value={s.note} maxLength={500} onChange={e=>c.note(e.target.value)}/><small>Kept in this studio while you edit. This note is not an approval.</small></div></details>
-    </>}
-    footer={<Price view={c.price()} onEstimate={()=>void c.estimate()} onGenerate={()=>void c.generate()}/>}
-    empty={<p>Your audio generations will appear here.</p>}
     next={snap?.next!=null&&<button className="ct-btn" onClick={()=>void c.refresh(snap.next!)}>More results</button>}
-    inspector={d?navigation=><Inspector navigation={navigation} onBack={()=>c.back()} preview={<div className="eleven-preview"><p>{d.item.title}</p><p className="ct-meta">{d.item.voiceLabel}</p>{d.item.outputs[0]?<AudioPlayer key={d.item.id} id={d.item.outputs[0].id} media={media} group={group} native/>:<p className="ct-meta">Audio unavailable in this view</p>}</div>}>
+    inspector={d?navigation=><Inspector navigation={navigation} onBack={()=>c.back()} preview={<div className="eleven-preview">{target && d.item.outputs[0] ? <><p className="ct-meta">{d.item.voiceLabel}</p><FixtureSelection key={target.revision} target={target}><AudioPlayer key={d.item.id} id={d.item.outputs[0].id} media={media} group={group} native/></FixtureSelection></> : <><p className="eleven-stage-text">{String((d.params.body as any)?.text??d.item.title)}</p><p className="ct-meta">{d.item.voiceLabel}</p>{d.item.outputs[0]?<AudioPlayer key={d.item.id} id={d.item.outputs[0].id} media={media} group={group} native/>:<p className="ct-meta">Audio unavailable in this view</p>}</>}</div>}>
       <h2>Text</h2><p className="eleven-full-text">{String((d.params.body as any)?.text??'')}</p>
       <h3>Voice</h3><p>{d.item.voiceLabel}</p><h3>Model</h3><p>{d.item.modelLabel}</p><h3>Settings</h3>
       {!Object.keys(((d.params.body as any)?.voice_settings??{})).length&&!Object.keys((d.params.body??{}) as Record<string,Json>).some(key=>!['text','model_id','voice_settings'].includes(key))&&!Object.keys((d.params.query??{}) as Record<string,Json>).length&&<p className="ct-meta">Model defaults</p>}

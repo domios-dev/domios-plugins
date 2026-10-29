@@ -139,9 +139,9 @@ test('free reuse and variation are validated preparations, not effects',async()=
 });
 test('actual production App renders shared Studio/SchemaFields/Price/Inspector with audio rows and human labels',async()=>{
   const f=fixtureTransport({scenario:'all',now:()=>1000}),c=new StudioController(f.transport,()=>1000);await c.mount();
-  let markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia,voices:fixtureVoices}));
-  assert(markup.includes('data-layout="rows"'));assert(markup.includes('eleven-row'));assert(markup.includes('Text'));assert(markup.includes('Note (optional)'));assert(!markup.includes('>eleven_multilingual_v2<'));assert(!markup.includes('>synthetic-voice-alba<'));
-  const generated=c.state.snapshot!.items.find(i=>i.state==='generated')!;await c.inspect(generated.id);markup=renderToStaticMarkup(React.createElement(App,{controller:c}));assert(markup.includes('Result inspector'));assert(markup.includes('Use these settings'));assert(markup.includes('Back to results'));c.dispose();
+  let markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia,voices:fixtureVoices,fixtureLibrary:true}));
+  assert(markup.includes('data-layout="rows"'));assert(markup.includes('eleven-row'));assert(!markup.includes('Note (optional)'));assert(!markup.includes('Generate for')); assert(!markup.includes('>eleven_multilingual_v2<'));assert(!markup.includes('>synthetic-voice-alba<'));
+  const generated=c.state.snapshot!.items.find(i=>i.state==='generated')!;await c.inspect(generated.id);markup=renderToStaticMarkup(React.createElement(App,{controller:c}));assert(markup.includes('Result inspector'));assert(!markup.includes('Use these settings'));assert(markup.includes('Back to results'));c.dispose();
 });
 test('playback group pauses previous sample/row and seeks within decoded duration',()=>{
   let pausesA=0,pausesB=0;const a={pause(){pausesA++;}},b={pause(){pausesB++;}},group=new PlaybackGroup();group.play(a as any);group.play(b as any);assert.equal(pausesA,1);group.release(b as any);assert.equal(pausesB,1);
@@ -162,4 +162,27 @@ test('local text selection uses code points and never derives audio time', async
   assert.deepEqual(timeRange(1000,2000,4000),{t0_ms:1000,t1_ms:2000});
   assert.equal(timeRange(-1,2000,4000),null);
   assert.equal(timeRange(1000,4001,4000),null);
+});
+
+
+test('actual audio inspector hides comments without an explicit synthetic fixture target',async()=>{
+  const f=fixtureTransport({scenario:'all'}),c=new StudioController(f.transport);await c.mount();const item=c.state.snapshot!.items.find(i=>i.state==='generated')!;await c.inspect(item.id);
+  const real=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));assert(!real.includes('Fixture: not sent'));assert(!real.includes('>Comment</button>'));
+  const simulated=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia,fixtureTarget:(i,text)=>({kind:'audio',revision:'synthetic:test',durationMs:4000,text})}));assert(simulated.includes('Fixture: not sent'));assert(simulated.includes('>Comment</button>'));assert.equal(f.submissions(),0);c.dispose();
+});
+
+
+test('fixture timeline gesture maps a drag to known-duration bounds',async()=>{
+  const {timelineGesture}=await import('../../media-shared/ui/src/FixtureSelection');
+  assert.deepEqual(timelineGesture({left:10,width:400},110,210,4000),{t0_ms:1000,t1_ms:2000});
+  assert.equal(timelineGesture({left:10,width:400},0,210,4000),null);
+  assert.equal(timelineGesture({left:10,width:400},110,110,4000),null);
+});
+
+
+test('range and phrase event decisions use real offsets and keep no invented alignment',async()=>{
+  const {handleTimelinePointer,spanFromOffsets}=await import('../../media-shared/ui/src/FixtureSelection');const picked:any[]=[];const down={current:null as number|null};
+  const event=(x:number)=>({clientX:x,currentTarget:{getBoundingClientRect:()=>({left:10,width:400})}} as any);
+  handleTimelinePointer(event(110),false,4000,down,a=>picked.push(a));handleTimelinePointer(event(210),true,4000,down,a=>picked.push(a));
+  assert.deepEqual(picked,[{kind:'range',range:{t0_ms:1000,t1_ms:2000}}]);assert.deepEqual(spanFromOffsets('A😀BC',1,3),{start:1,end:2,quote:'😀'});assert.equal(spanFromOffsets('A😀BC',1,2),null);
 });
