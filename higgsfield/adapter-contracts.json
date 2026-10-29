@@ -1,0 +1,19 @@
+{
+  "revision": "higgsfield-public-2026-10-29",
+  "status": "source-only-registration-withheld",
+  "families": [
+    {"id":"higgsfield.generate-image","category":"image","output":"image"},
+    {"id":"higgsfield.generate-video","category":"video","output":"video"},
+    {"id":"higgsfield.generate-reference","category":"reference","output":"json"},
+    {"id":"higgsfield.metadata","category":"operation","output":"json"}
+  ],
+  "paramsType": "closed-operation-schema-registry",
+  "outcomes": ["done","waiting","submitting","queued","generating","failed","canceled","unknown"],
+  "limitations": {
+    "nestedSchema": "Loom: closed discriminated model schemas with arrays, refs and conditionals require accepted nested NodeSchema delivery; no flat-schema registration.",
+    "scheduler": "Loom/Concierge: durable run callbacks, host admission and history synchronization are pending; default admission refuses.",
+    "review": "Loom/Courier: authorized media-aware review input pending; text filenames and fixture stubs do not prove review.",
+    "pricing": "Watt: exact purpose/parameters, fresh account pricing and aggregate ledger approval required for every paid proof; no override for unknown/stale prices.",
+    "media": "Courier: opaque durable media producer, selected/owned inputs and bounded saved-artifact transport pending; no frame handles as durable refs."
+  }
+}
