@@ -17,6 +17,9 @@ createServer(async (req, res) => {
   else if (['/fixtures/checker.png', '/fixtures/tone.wav'].includes(path)) {
     res.setHeader('Content-Type', path.endsWith('.png') ? 'image/png' : 'audio/wav');
     res.end(await readFile(new URL('../ui/dev' + path, import.meta.url)));
+  } else if (path === '/fixtures/synthetic-wide-pattern.svg') {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.end(await readFile(new URL('../ui/dev/fixtures/synthetic-wide-pattern.svg', import.meta.url)));
   } else if (path === '/fixtures/synthetic-selection-4s.webm') {
     const bytes = await readFile(new URL('../ui/dev/fixtures/synthetic-selection-4s.webm', import.meta.url));
     res.setHeader('Content-Type', 'video/webm'); res.setHeader('Accept-Ranges', 'bytes');

@@ -648,5 +648,28 @@ test('Iris source R1-R6 retain a populated stage, numeric-only mono, quiet heade
   assert.match(markup,/<details class="studio-inspector-rail"/);assert.doesNotMatch(markup,/<details[^>]* open/);
   c.back();const pending=render(React.createElement(App,{controller:c}));assert.match(pending,/studio-stage-pending/);assert.doesNotMatch(pending,/studio-stage-empty|will put results here/);
   const source=readFileSync(new URL('../../media-shared/ui/src/Studio.tsx',import.meta.url),'utf8');assert.doesNotMatch(source,/event.key === 'Escape' && p.selected/);
-  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(css,/0 18px 50px rgb\(0 0 0 \/ .28\)/);assert.match(css,/studio-pin,\.studio-region\{border-color:var\(--ct-fg\)/);assert.doesNotMatch(css,/\.studio-mono,\.studio-facts/);c.dispose();
+  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(css,/0 8px 24px rgb\(0 0 0 \/ .16\)/);assert.match(css,/studio-pin,\.studio-region\{border-color:var\(--ct-fg\)/);assert.doesNotMatch(css,/\.studio-mono,\.studio-facts/);c.dispose();
+});
+
+
+test('render L1-L3 typed session tiles reserve dots for actual developing and use SVG for unavailable or failed media',async()=>{
+  const {Thumbnail}=await import('../../media-shared/ui/src/Studio');
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();
+  const items=c.state.snapshot!.items;
+  for(const id of ['generating','queued','starting']){const item=items.find(i=>i.id===id)!;const markup=render(React.createElement(Thumbnail,{item}));assert.match(markup,/studio-develop-ring/);assert.doesNotMatch(markup,/data-icon=/);}
+  for(const [id,kind] of [['video-study','video'],['audio-result','audio'],['image-study','image'],['failed','error']] as const){const item=items.find(i=>i.id===id)!;const markup=render(React.createElement(Thumbnail,{item}));assert.match(markup,new RegExp('data-icon="'+kind+'"'));assert.match(markup,/stroke="currentColor"/);assert.match(markup,/data-wide="false"/);assert.doesNotMatch(markup,/studio-developing|studio-dot-row|studio-develop-ring|▷|♪|▧/);}
+  assert.equal(f.submissions(),0);c.dispose();
+});
+
+test('render L2 pending developing uses result navigation, factual caption and existing Cancel gate',async()=>{
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();
+  const queued=c.state.snapshot!.items.find(i=>i.id==='queued')!,snapshot=c.state.snapshot!;snapshot.items=[queued];
+  let markup=render(React.createElement(App,{controller:c}));
+  assert.match(markup,/Result inspector/);assert.match(markup,/aria-label="Previous result"/);assert.match(markup,/aria-label="Next result"/);assert.match(markup,/class="studio-mono">1 \/ 1<\/span>/);assert.match(markup,/class="studio-facts"><span>Soul V2/);assert.ok(markup.includes('by '+queued.startedBy));
+  const enabled=snapshot.capabilities.cancelQueued;assert.equal(markup.includes('>Cancel</button>'),enabled);
+  snapshot.capabilities.cancelQueued=false;markup=render(React.createElement(App,{controller:c}));assert.doesNotMatch(markup,/>Cancel<\/button>/);
+  const {Developing,requestAspect}=await import('../../media-shared/ui/src/Studio');assert.equal(requestAspect('16:9'),'16 / 9');assert.equal(requestAspect('0:1'),undefined);assert.equal(requestAspect('auto'),undefined);
+  const exact=render(React.createElement(Developing,{state:'generating',aspect:'9:16'}));assert.match(exact,/aspect-ratio:9 \/ 16/);assert.match(exact,/data-aspect-source="request"/);assert.match(exact,/studio-develop-ring/);
+  const neutral=render(React.createElement(Developing,{state:'generating'}));assert.match(neutral,/aspect-ratio:4 \/ 3/);assert.match(neutral,/data-aspect-source="neutral"/);
+  assert.equal(f.submissions(),0);c.dispose();
 });

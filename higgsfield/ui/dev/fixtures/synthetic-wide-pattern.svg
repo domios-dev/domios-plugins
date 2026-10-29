@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="144" viewBox="0 0 256 144">
+  <title>Synthetic wide test pattern — fixture only</title>
+  <rect width="256" height="144" fill="#182331"/>
+  <path d="M0 0h64v72H0zm128 0h64v72h-64zM64 72h64v72H64zm128 0h64v72h-64z" fill="#4b657b"/>
+  <path d="M0 144 256 0M0 0l256 144" stroke="#8ba6bb" stroke-width="2"/>
+  <rect x="8" y="8" width="240" height="128" rx="4" fill="none" stroke="#c1d0dc"/>
+</svg>

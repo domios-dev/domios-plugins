@@ -48,7 +48,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
   const midnight = new Date(now); midnight.setHours(0, 0, 0, 0);
   const today = Math.floor(now - Math.min((now - midnight.getTime()) / 2, 2 * 3600000));
   const previousDay = (days: number) => { const day = new Date(now); day.setDate(day.getDate() - days); day.setHours(15, 0, 0, 0); return day.getTime(); };
-  const pipelinePrompts: Record<string, string> = { 'run-one': 'A quiet garden cover', 'run-two': 'A matching garden variation', 'run-three': 'A final garden cover' };
+  const pipelinePrompts: Record<string, string> = { 'wide-pattern': 'Fixture wide test pattern', 'run-one': 'A quiet garden cover', 'run-two': 'A matching garden variation', 'run-three': 'A final garden cover' };
   const seed = (id: string, state: Job['state'], actor: 'you' | 'agent' | 'run', extra: Partial<Job> = {}, at = now - 60000) => {
     const a = actor === 'you' ? humanA : f.actor('A', actor);
     if (a.scope.actor.kind === 'run') a.scope.actor = { ...a.scope.actor, label: 'Daily covers run #12' };
@@ -75,6 +75,7 @@ export function fixtureTransport(options: { scenario?: string; now?: number; loa
       const image = { outputs: [{ kind: 'artifact' as const, id: 'fixture-image', contentType: 'image/png' }] };
       const video = { outputs: [{ kind: 'artifact' as const, id: 'fixture-video-metadata', contentType: 'video/mp4' }] };
       seed('audio-result', 'generated', 'you', { outputs: [{kind:'artifact',id:'fixture-audio',contentType:'audio/wav'}] }, today - 4000);
+      seed('wide-pattern', 'generated', 'you', { outputs: [{kind:'artifact',id:'fixture-wide-image',contentType:'image/svg+xml'}] }, today - 500);
       seed('image-study', 'generated', 'you', image, today - 1000);
       seed('video-study', 'generated', 'you', video, today - 2000);
       seed('synthetic-video', 'generated', 'you', { outputs: [{ kind: 'artifact', id: 'fixture-synthetic-video', contentType: 'video/webm' }] }, today - 3000);
@@ -133,8 +134,8 @@ export function selectFixtureOwner(fixture: Pick<ReturnType<typeof fixtureTransp
   return controller.selectModel(soul); // Must never cancel that independent visibility refresh.
 }
 export const fixtureMedia: MediaViewPort = { get(id) {
-  if (!['fixture-audio', 'fixture-image', 'fixture-media', 'fixture-synthetic-video'].includes(id)) return null;
+  if (!['fixture-audio', 'fixture-image', 'fixture-media', 'fixture-synthetic-video', 'fixture-wide-image'].includes(id)) return null;
   const kind = id === 'fixture-audio' ? 'audio' : id === 'fixture-synthetic-video' ? 'video' : 'image';
-  const url = kind === 'audio' ? '/fixtures/tone.wav' : kind === 'video' ? '/fixtures/synthetic-selection-4s.webm' : '/fixtures/checker.png';
-  return { kind, url, declared: ['saveAs'], availability: { saveAs: true, copyText: false, reveal: false }, save() { const a = document.createElement('a'); a.href = url; a.download = kind === 'audio' ? 'fixture-tone.wav' : kind === 'video' ? 'synthetic-selection-4s.webm' : 'fixture-checker.png'; a.click(); } };
+  const url = id === 'fixture-wide-image' ? '/fixtures/synthetic-wide-pattern.svg' : kind === 'audio' ? '/fixtures/tone.wav' : kind === 'video' ? '/fixtures/synthetic-selection-4s.webm' : '/fixtures/checker.png';
+  return { kind, url, declared: ['saveAs'], availability: { saveAs: true, copyText: false, reveal: false }, save() { const a = document.createElement('a'); a.href = url; a.download = id === 'fixture-wide-image' ? 'synthetic-wide-pattern.svg' : kind === 'audio' ? 'fixture-tone.wav' : kind === 'video' ? 'synthetic-selection-4s.webm' : 'fixture-checker.png'; a.click(); } };
 } };

@@ -1,11 +1,11 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
-import {DotRow} from '../../../media-shared/ui/src';
+import {DotRow,Icon} from '../../../media-shared/ui/src';
 import {humanActions} from '../../../media-shared/src/presentation';
 import type { LocalAudio, MediaPort } from './media';
 import { PlaybackGroup, seekAudio } from './media';
 export const audioTime=(seconds:number)=>`${Math.floor(seconds/60)}:${(seconds%60).toFixed(1).padStart(4,'0')}`;
-export function AudioPlayer({id,media,group,native=false,children,actionsTarget}:{id:string;media:MediaPort;group:PlaybackGroup;native?:boolean;children?:React.ReactNode;actionsTarget?:HTMLElement|null}){
+export function AudioPlayer({id,media,group,native=false,children,actionsTarget,onDuration}:{id:string;media:MediaPort;group:PlaybackGroup;native?:boolean;children?:React.ReactNode;actionsTarget?:HTMLElement|null;onDuration?(seconds:number):void}){
   const ref=useRef<HTMLAudioElement>(null),playRef=useRef<HTMLButtonElement>(null),revision=useRef(0);
   const [source,setSource]=useState<LocalAudio|null>(null),[pending,setPending]=useState(false),[failed,setFailed]=useState(false);
   const [playing,setPlaying]=useState(false),[duration,setDuration]=useState(0),[time,setTime]=useState(0);
@@ -38,16 +38,16 @@ export function AudioPlayer({id,media,group,native=false,children,actionsTarget}
   return <div className={native?'eleven-audio eleven-audio-inspector':'eleven-audio'} onKeyDown={key}>
     <audio ref={ref} src={source?.url??undefined} hidden preload="metadata" aria-label={source?.label??'Audio result'}
       onPlay={e=>{group.play(e.currentTarget);setPlaying(true);}} onPause={()=>setPlaying(false)} onEnded={()=>setPlaying(false)}
-      onLoadedMetadata={e=>setDuration(Number.isFinite(e.currentTarget.duration)?e.currentTarget.duration:0)}
-      onDurationChange={e=>setDuration(Number.isFinite(e.currentTarget.duration)?e.currentTarget.duration:0)}
+      onLoadedMetadata={e=>{const seconds=Number.isFinite(e.currentTarget.duration)?e.currentTarget.duration:0;setDuration(seconds);if(seconds>0)onDuration?.(seconds);}}
+      onDurationChange={e=>{const seconds=Number.isFinite(e.currentTarget.duration)?e.currentTarget.duration:0;setDuration(seconds);if(seconds>0)onDuration?.(seconds);}}
       onTimeUpdate={e=>setTime(e.currentTarget.currentTime)} onError={()=>setFailed(true)}/>
-    {<button ref={playRef} className="ct-btn ct-btn-ghost eleven-play" aria-label={playing?'Pause':'Play'} disabled={pending} onClick={()=>void toggle()}>{playing?'❚❚':'▶'}</button>}
+    {<button ref={playRef} className="ct-btn ct-btn-ghost eleven-play" aria-label={playing?'Pause':'Play'} disabled={pending} onClick={()=>void toggle()}>{<Icon name={playing?'pause':'play'}/>}</button>}
     {children}
-    {(native||playing||time>0)&&<div className="eleven-seek"><div className="eleven-dot-seek" role="slider" tabIndex={0} aria-label="Seek audio" aria-valuemin={0} aria-valuemax={duration} aria-valuenow={Math.min(time,duration)} aria-valuetext={`${audioTime(time)} / ${audioTime(duration)}`} aria-disabled={!duration}
+    {(native||playing||time>0)&&<div className="eleven-seek"><small className="eleven-time">{audioTime(time)} / {duration?audioTime(duration):'—'}</small><div className="eleven-dot-seek" role="slider" tabIndex={0} aria-label="Seek audio" aria-valuemin={0} aria-valuemax={duration} aria-valuenow={Math.min(time,duration)} aria-valuetext={`${audioTime(time)} / ${audioTime(duration)}`} aria-disabled={!duration}
       onKeyDown={e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();e.stopPropagation();if(ref.current){if(e.key==='Home')ref.current.currentTime=0;else if(e.key==='End'&&duration)ref.current.currentTime=duration;else seekAudio(ref.current,e.key==='ArrowLeft'?-5:5);}}}}
       onPointerDown={e=>{if(!duration||!ref.current)return;e.currentTarget.setPointerCapture(e.pointerId);const rect=e.currentTarget.getBoundingClientRect();ref.current.currentTime=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width))*duration;}}
       onPointerMove={e=>{if(!duration||!ref.current||!e.currentTarget.hasPointerCapture(e.pointerId))return;const rect=e.currentTarget.getBoundingClientRect();ref.current.currentTime=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width))*duration;}}
-      onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}}><DotRow played={duration?time/duration:0}/></div><small className="eleven-time">{audioTime(time)} / {duration?audioTime(duration):'—'}</small></div>}
+      onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}}><DotRow played={duration?time/duration:0}/></div></div>}
     {native&&pending&&<small>Loading audio…</small>}
     {native&&!pending&&(!source?.url||failed)&&<><small>Audio unavailable in this view</small><button className="ct-btn ct-btn-ghost" onClick={()=>{const current=revision.current;setPending(true);void media.acquire(id).then(local=>{if(current===revision.current){setSource(local);setFailed(false);setPending(false);}}).catch(()=>{if(current===revision.current)setPending(false);});}}>Reopen result</button></>}
     {!native&&failed&&<small role="status">Couldn't play audio. Open the result to check file access.</small>}

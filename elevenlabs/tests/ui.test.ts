@@ -227,3 +227,15 @@ test('empty audio App has an intentional resting dot player and no invented wave
   const f=fixtureTransport({scenario:'empty'}),c=new StudioController(f.transport);await c.mount();assert.equal(c.state.snapshot!.items.length,0);
   const markup=renderToStaticMarkup(React.createElement(App,{controller:c}));assert.match(markup,/studio-developing-audio/);assert.doesNotMatch(markup,/studio-develop-ring|waveform unavailable|Generate for|>Comment<|Rex/);c.dispose();
 });
+
+
+test('render L1 L3 L5 audio session rows and mobile player retain named SVG controls with an explicit full-width scrubber',async()=>{
+  const f=fixtureTransport({scenario:'all'}),c=new StudioController(f.transport);await c.mount();
+  let markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));
+  assert.match(markup,/class="studio-strip" data-layout="rows"/);assert.match(markup,/data-session-kind="audio"/);assert.match(markup,/studio-audio-session-title/);assert.doesNotMatch(markup,/studio-audio-session-duration/);assert.match(markup,/data-icon="library"/);
+  const generated=c.state.snapshot!.items.find(i=>i.state==='generated')!;await c.inspect(generated.id);markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));
+  assert.match(markup,/aria-label="Play"[^>]*><svg[^>]*data-icon="play"/);assert.match(markup,/role="slider"/);assert.doesNotMatch(markup,/▦|▷|♪|▶|❚|‹|›/);
+  const css=readFileSync(new URL('../ui/src/style.css',import.meta.url),'utf8');assert.match(css,/\.eleven-audio-inspector>\.eleven-seek\{display:contents/);assert.match(css,/\.eleven-dot-seek\{grid-column:1\/-1;grid-row:2;width:100%;min-width:0;min-height:24px/);
+  const shared=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(shared,/width:236px;flex:none;scroll-snap-align:start/);assert.match(shared,/scroll-snap-type:x proximity/);
+  const fixture=readFileSync(new URL('../../media-shared/ui/dev/FixtureSelection.tsx',import.meta.url),'utf8');assert.doesNotMatch(fixture,/target.voice && <p/);assert.ok(fixture.indexOf("anchor?.kind==='span'&&commentPanel")<fixture.indexOf('<div ref={surfaceRef}'));assert.equal(f.submissions(),0);c.dispose();
+});
