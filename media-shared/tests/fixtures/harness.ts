@@ -19,7 +19,7 @@ export function harness(maxHistory = 32) {
   };
   // Synchronous edit on a cloned snapshot is atomic in this neutral in-memory fixture.
   // Production must supply durable transaction/locking, not reuse this fixture.
-  const store: JobStore = { async transact(owner, workspace, edit) {
+  const store: JobStore = { transact(owner, workspace, edit) {
     const next = clone(data(owner, workspace));
     const result = edit(next);
     partitions.set(JSON.stringify([owner, workspace]), next);
