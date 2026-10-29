@@ -61,7 +61,7 @@ export function groupHistory<T extends { at: number; actor: Actor }>(items: T[],
   const days: { day: string; runs: { actor: Actor; items: T[] }[] }[] = [];
   for (const item of items) {
     const key = dayKey(item.at); const date = new Date(item.at);
-    const day = key === today ? 'Today' : key === yesterday ? 'Yesterday' : date.toLocaleDateString(undefined,
+    const day = key === today ? 'Today' : key === yesterday ? 'Yesterday' : date.toLocaleDateString('en',
       { month: 'short', day: 'numeric', ...(date.getFullYear() !== new Date(now).getFullYear() ? { year: 'numeric' as const } : {}) });
     let bucket = days[days.length - 1];
     if (!bucket || bucket.day !== day) { bucket = { day, runs: [] }; days.push(bucket); }
