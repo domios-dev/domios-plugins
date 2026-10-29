@@ -136,6 +136,36 @@ test('reserved recovery releases known non-entry and fences the old submission c
   assert.throws(() => s.core().enter(s.access, start.continuation!), /stale_continuation/);
 });
 
+for (const state of ['queued', 'failed', 'canceled'] as const) test(`deferred ${state} receipt preserves identity through auxiliary validation`, () => {
+  const s = setup();
+  const start = plain(s.c.beginStart(s.access, 'one', true));
+  plain(s.c.reserve(s.access, start.continuation!));
+  plain(s.c.enter(s.access, start.continuation!));
+  const received = plain(s.c.observation(start.continuation!, { jobId: 'ticket-7', state, providerState: state }, true));
+  assert.equal(received.job.phase, 'receipt');
+  assert.equal(received.job.jobId, 'ticket-7');
+  assert.equal(received.saveOutputs, false);
+  const unknown = plain(s.c.unknown(start.continuation!));
+  assert.equal(unknown.state, 'unknown');
+  assert.equal(unknown.jobId, 'ticket-7');
+  const check = plain(s.c.beginReconcile(s.access, 'one'));
+  plain(s.c.observation(check.continuation!, { jobId: 'ticket-7', state, providerState: state }, true));
+  const finalized = plain(s.c.complete(check.continuation!, []));
+  assert.equal(finalized.state, state);
+  assert.equal(finalized.jobId, 'ticket-7');
+  assert.equal(finalized.phase, undefined);
+});
+
+test('deferred completed receipt still requires saved outputs', () => {
+  const s = setup();
+  const start = plain(s.c.beginStart(s.access, 'one', true));
+  plain(s.c.reserve(s.access, start.continuation!));
+  plain(s.c.enter(s.access, start.continuation!));
+  plain(s.c.observation(start.continuation!, { jobId: 'ticket-7', state: 'generated', providerState: 'completed' }, true));
+  assert.throws(() => s.c.complete(start.continuation!, []), /invalid_outputs/);
+  assert.equal(s.h.data().jobs[0].jobId, 'ticket-7');
+});
+
 test('sync facade rejects a thenable store result and a Promise-valued schema validator', () => {
   const s = setup();
   const bad = { transact: () => Promise.resolve([]) } as unknown as JobStore;
