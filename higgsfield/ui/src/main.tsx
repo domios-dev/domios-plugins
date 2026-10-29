@@ -1,0 +1,11 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+import { StudioController } from './controller';
+import { bridgeTransport } from './transport';
+import type { DocumentBridge } from './transport';
+import '../../../media-shared/ui/src/studio.css';
+import './style.css';
+const bridge = (window as unknown as { ct?: DocumentBridge }).ct;
+const root = document.getElementById('root');
+if (root) createRoot(root).render(<App controller={new StudioController(bridgeTransport(bridge))} />);

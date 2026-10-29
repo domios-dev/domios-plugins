@@ -14,6 +14,7 @@ export type ServicePorts = {
   store: JobStore; now(): number; maxHistory: number; client: HiggsfieldClient;
   attest?: (access: Access, request: Request) => boolean;
   quote?: (access: Access, request: Request, binding: string) => Quote | null;
+  quoteSupported?: (operation: string) => boolean;
   /** Vendor receipt facts only, atomically scoped by owner/workspace/intent and write-once provider ID.
    * No job state, history or cost machine belongs here. */
   facts?: { save(token: Continuation, facts: { requestId: string; statusUrl: string; cancelUrl: string; expiresAt: string | null }): void };
@@ -101,6 +102,9 @@ export class HiggsfieldService {
     return parseJson(result, plan);
   }
   history(access: Access) { return this.core.history(access); }
+  historyCapacity() { return this.ports.maxHistory; }
+  canEstimate(operation?: string) { return !!this.ports.quote && (operation === undefined ||
+    (this.ports.quoteSupported ? this.ports.quoteSupported(operation) === true : operation === 'higgsfield-ai/soul/v2/standard')); }
   recover(access: Access) { return this.core.recover(access); }
   usage(access: Access) { return { ledger: totals(this.core.history(access), access.scope.runId), remaining: null, accountUsage: null, unit: 'usd_micro' }; }
 }

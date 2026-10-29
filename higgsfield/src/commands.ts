@@ -6,6 +6,7 @@ import { proofAllows } from './admission';
 import type { ProofPort } from './admission';
 import { metadataPlan } from './client';
 import type { AgentCommandCtx } from '@codeterm/plugin-sdk';
+import { documentUI } from './ui';
 
 // Mirrors the captured A source contract. These are host arguments, never parsed from payloads.
 export type SurfaceContext = { surface: string; instance: string; tab: string; owner: string; actor: string; actorLabel: string };
@@ -86,6 +87,16 @@ export class HiggsfieldCommands {
     } catch { return JSON.stringify({ error: 'command_refused' }); }
   }
   viewCall(method: string, args: unknown, context: ViewContext): unknown {
+    if (method.startsWith('ui.')) {
+      try {
+        if (context.origin !== 'document' || !context.frame || !context.surface || !context.instance || !context.tab) throw new Error();
+        const access = this.ports.access(context, 'view');
+        if (!access?.current) throw new Error();
+        return documentUI(this.service, access, method, args ?? {}, this.ports.now(), {
+          estimate: this.service.canEstimate(), submit: !!this.ports.admit && !!this.ports.proof,
+          reconcile: !!this.ports.admit, cancelQueued: !!this.ports.admit });
+      } catch { return { error: 'document_ui_refused' }; }
+    }
     try { return this.execute(context, 'view', method, args ?? {}); }
     catch { return { error: 'command_refused' }; }
   }

@@ -1,0 +1,16 @@
+import type { ReactNode } from 'react';
+import type { Actor, Artifact, Json } from '../../src/contracts';
+import type { JobState, PriceGate, jobStatus } from '../../src/presentation';
+export type InputSchema = { type?: string | string[]; title?: string; description?: string; enum?: Json[]; default?: Json;
+  properties?: Record<string, InputSchema>; required?: string[]; $ref?: string; $defs?: Record<string, InputSchema>;
+  minimum?: number; maximum?: number; multipleOf?: number; minLength?: number; maxLength?: number;
+  minItems?: number; maxItems?: number; items?: InputSchema; [keyword: string]: unknown };
+export type StudioItem = { id: string; operation: string; title: string; at: number; actor: Actor; startedBy: string;
+  state: JobState; status: ReturnType<typeof jobStatus>; price: PriceGate; outputs: Artifact[]; activity: string;
+  from?: string; runLink?: string; notice?: string; priceTTL?: number };
+export type EstimateView = { gate: PriceGate; count: number; available: boolean; estimating?: boolean;
+  insufficient?: { needs: string; have: string }; invalid?: string; capable: boolean; busy: boolean };
+export type StudioProps = { title: string; composer: ReactNode; footer: ReactNode; toolbar?: ReactNode; activity: string[];
+  items: StudioItem[]; now: number; capacity: number; selected?: string; inspector?: ReactNode;
+  renderItem(item: StudioItem): ReactNode; onSelect(id: string): void; onBack(): void; empty?: ReactNode;
+  next?: ReactNode; filter?: 'everyone' | 'you' | 'agent' | 'run'; onFilter?(value: 'everyone' | 'you' | 'agent' | 'run'): void };
