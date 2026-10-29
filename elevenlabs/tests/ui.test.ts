@@ -192,3 +192,9 @@ test('time range requires at least fifty milliseconds',async()=>{
   const {timeRange}=await import('../../media-shared/ui/src/selection');
   assert.equal(timeRange(1000,1049,4000),null);assert.deepEqual(timeRange(1000,1050,4000),{t0_ms:1000,t1_ms:1050});
 });
+
+test('audio file actions have a rail slot before the inspector text',async()=>{
+  const f=fixtureTransport({scenario:'all'}),c=new StudioController(f.transport);await c.mount();const item=c.state.snapshot!.items.find(i=>i.state==='generated')!;await c.inspect(item.id);
+  const markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));
+  assert(markup.indexOf('studio-rail-actions')<markup.indexOf('<h2>Text</h2>'));assert.equal(f.submissions(),0);c.dispose();
+});

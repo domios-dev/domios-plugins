@@ -588,3 +588,17 @@ test('fixture gesture treats a sub-percent drag as a point and keeps the product
   assert.equal(imageGesture(image,{x:500,y:250},{x:505,y:251})?.kind,'point');
   for(const path of ['../ui/src/App.tsx','../../elevenlabs/ui/src/App.tsx'])assert.doesNotMatch(readFileSync(new URL(path,import.meta.url),'utf8'),/FixtureSelection|fixtureTarget/);
 });
+
+test('stage rail groups available file actions before details and preview leaves them out', async () => {
+  const f=fixtureTransport(), c=new StudioController(f.transport); await c.mount(); await c.inspect('generated');
+  const markup=render(React.createElement(App,{controller:c,media:fixtureMedia}));
+  assert.equal((markup.match(/>Save as…<\/button>/g)??[]).length,1);
+  assert.ok(markup.indexOf('studio-rail-actions')<markup.indexOf('<h2>Prompt</h2>'));
+  assert.doesNotMatch(render(React.createElement(MediaPreview,{media:fixtureMedia.get('fixture-image'),actions:false})),/Save as/);
+  assert.equal(f.submissions(),0);c.dispose();
+});
+test('strip does not look up media during server rendering', () => {
+  let calls=0;const item={id:'image',title:'Image',at:1,operation:'x',actor:{kind:'you'},startedBy:'You',state:'generated',status:jobStatus('generated'),price:{kind:'unavailable'},outputs:[{kind:'artifact',id:'local',contentType:'image/png'}],activity:''} as StudioItem;
+  render(React.createElement(Studio,{title:'Test',items:[item],now:2,capacity:null,activity:[],thumbnail:()=>{calls++;return '/local';},renderItem:()=>null,onSelect(){},onBack(){}}));
+  assert.equal(calls,0);
+});
