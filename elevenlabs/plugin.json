@@ -1,0 +1,1134 @@
+{
+  "id": "elevenlabs",
+  "version": "0.1.0",
+  "hostApi": 2,
+  "displayName": "ElevenLabs",
+  "description": "Source candidate. Host release/minimum version and final UI/bundle pending HIG-11.",
+  "entry": "plugin.js",
+  "readme": "AGENTS.md",
+  "license": "Apache-2.0",
+  "capabilities": {
+    "view": true,
+    "transcriber": true,
+    "agentCommands": true,
+    "surfaces": [
+      {
+        "id": "studio",
+        "title": "ElevenLabs",
+        "renderer": "view",
+        "agentBound": true,
+        "agentVerbs": [
+          "help",
+          "open",
+          "close",
+          "status",
+          "activity",
+          "catalog",
+          "capabilities",
+          "models",
+          "describe",
+          "estimate",
+          "usage",
+          "history",
+          "result",
+          "cancel",
+          "reconcile",
+          "prepare",
+          "rerun",
+          "generate",
+          "inspect",
+          "read"
+        ],
+        "stateInvalidation": true,
+        "restore": "none"
+      }
+    ],
+    "graphNodes": {
+      "steps": [
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.administration",
+          "title": "ElevenLabs administration",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "create_service_account",
+                  "create_service_account_api_key",
+                  "delete_asset_endpoint",
+                  "delete_service_account_api_key",
+                  "disable_service_account_api_key",
+                  "edit_service_account_api_key",
+                  "get_asset",
+                  "get_service_account_api_keys_route",
+                  "get_single_use_token",
+                  "get_workspace_service_accounts",
+                  "list_assets",
+                  "redirect_to_mintlify",
+                  "smb_add_url_source",
+                  "smb_confirm_service_update",
+                  "smb_create_holiday",
+                  "smb_create_location",
+                  "smb_create_service",
+                  "smb_create_staff_member",
+                  "smb_delete_holiday",
+                  "smb_delete_knowledge_source",
+                  "smb_delete_location",
+                  "smb_delete_service",
+                  "smb_delete_staff_member",
+                  "smb_get_agent_info",
+                  "smb_get_holiday",
+                  "smb_get_knowledge_source",
+                  "smb_get_location",
+                  "smb_get_service",
+                  "smb_get_staff_member",
+                  "smb_list_holidays",
+                  "smb_list_knowledge_sources",
+                  "smb_list_locations",
+                  "smb_list_reseller_tier_ladder",
+                  "smb_list_services",
+                  "smb_list_staff",
+                  "smb_update_agent_info",
+                  "smb_update_holiday",
+                  "smb_update_location",
+                  "smb_update_service",
+                  "smb_update_staff_member",
+                  "smb_upload_knowledge_source",
+                  "upload_asset",
+                  "usage_characters",
+                  "ws:/v1/translation/realtime"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.agents",
+          "title": "ElevenLabs agents",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "accept_merge_proposal_route",
+                  "add_documentation_to_knowledge_base",
+                  "add_mcp_server_tool_approval_route",
+                  "add_mcp_tool_config_override_route",
+                  "add_merge_proposal_comment_route",
+                  "add_ticket_comment_route",
+                  "add_tool_route",
+                  "add_turn_comment_route",
+                  "agent_testing_bulk_move_route",
+                  "assign_conversation_tags_route",
+                  "cancel_batch_call",
+                  "cancel_crawl_job_route",
+                  "cancel_file_upload_route",
+                  "cancel_test_invocation_route",
+                  "compile_procedures_route",
+                  "create_agent_conversation_ticket_route",
+                  "create_agent_deployment_route",
+                  "create_agent_draft_route",
+                  "create_agent_response_test_route",
+                  "create_agent_route",
+                  "create_agent_test_folder_route",
+                  "create_batch_call",
+                  "create_branch_route",
+                  "create_conversation_tag_route",
+                  "create_crawl_job_route",
+                  "create_environment",
+                  "create_environment_variable",
+                  "create_file_document_route",
+                  "create_folder_route",
+                  "create_manual_agent_ticket_route",
+                  "create_mcp_server_route",
+                  "create_merge_proposal_route",
+                  "create_phone_number_route",
+                  "create_procedure_route",
+                  "create_realtime_session",
+                  "create_secret_route",
+                  "create_text_document_route",
+                  "create_url_document_route",
+                  "delete_agent_conversation_ticket_route",
+                  "delete_agent_draft_route",
+                  "delete_agent_hold_audio_route",
+                  "delete_agent_route",
+                  "delete_agent_test_folder_route",
+                  "delete_batch_call",
+                  "delete_chat_response_test_route",
+                  "delete_conversation_route",
+                  "delete_conversation_tag_route",
+                  "delete_environment",
+                  "delete_environment_variable",
+                  "delete_knowledge_base_document",
+                  "delete_mcp_server_route",
+                  "delete_phone_number_route",
+                  "delete_procedure_draft_route",
+                  "delete_rag_index",
+                  "delete_secret_route",
+                  "delete_tool_route",
+                  "delete_whatsapp_account",
+                  "duplicate_agent_route",
+                  "export_batch_call",
+                  "get_agent_conversation_ticket_route",
+                  "get_agent_knowledge_base_size",
+                  "get_agent_knowledge_base_summaries_route",
+                  "get_agent_link_route",
+                  "get_agent_llm_expected_cost_calculation",
+                  "get_agent_response_test_route",
+                  "get_agent_response_tests_summaries_route",
+                  "get_agent_route",
+                  "get_agent_summaries_route",
+                  "get_agent_test_folder_route",
+                  "get_agent_topics_route",
+                  "get_agent_widget_route",
+                  "get_agents_route",
+                  "get_assignable_users_route",
+                  "get_batch_call",
+                  "get_branch_route",
+                  "get_branches_route",
+                  "get_conversation_audio_route",
+                  "get_conversation_histories_route",
+                  "get_conversation_history_route",
+                  "get_conversation_signed_link",
+                  "get_conversation_sip_messages",
+                  "get_conversation_summary_route",
+                  "get_conversation_tag_route",
+                  "get_conversation_users_route",
+                  "get_crawl_job_route",
+                  "get_dashboard_settings_route",
+                  "get_documentation_chunk_from_knowledge_base",
+                  "get_documentation_chunks_from_knowledge_base",
+                  "get_documentation_from_knowledge_base",
+                  "get_environment_variable",
+                  "get_knowledge_base_bulk_dependent_agents_route",
+                  "get_knowledge_base_content",
+                  "get_knowledge_base_dependent_agents",
+                  "get_knowledge_base_list_route",
+                  "get_knowledge_base_source_file_url",
+                  "get_live_count",
+                  "get_livekit_token",
+                  "get_mcp_route",
+                  "get_mcp_tool_config_override_route",
+                  "get_merge_proposal_route",
+                  "get_or_create_rag_indexes",
+                  "get_phone_number_route",
+                  "get_procedure_draft_route",
+                  "get_procedure_route",
+                  "get_public_llm_expected_cost_calculation",
+                  "get_rag_index_overview",
+                  "get_rag_indexes",
+                  "get_secret_dependencies_route",
+                  "get_secret_route",
+                  "get_secrets_route",
+                  "get_settings_route",
+                  "get_signed_url_deprecated",
+                  "get_test_invocation_route",
+                  "get_tool_dependent_agents_route",
+                  "get_tool_executions_route",
+                  "get_tool_route",
+                  "get_tools_route",
+                  "get_version_metadata_route",
+                  "get_whatsapp_account",
+                  "get_workspace_batch_calls",
+                  "handle_exotel_outbound_call",
+                  "handle_sip_trunk_outbound_call",
+                  "handle_twilio_outbound_call",
+                  "list_agent_conversation_tickets_route",
+                  "list_agent_deployments_route",
+                  "list_available_llms",
+                  "list_chat_response_tests_route",
+                  "list_conversation_tags_route",
+                  "list_crawl_jobs_route",
+                  "list_environment_variables",
+                  "list_environments",
+                  "list_mcp_server_tools_route",
+                  "list_mcp_servers_route",
+                  "list_merge_proposals_route",
+                  "list_phone_numbers_page_route",
+                  "list_phone_numbers_route",
+                  "list_procedures_route",
+                  "list_sip_messages",
+                  "list_test_invocations_route",
+                  "list_whatsapp_accounts",
+                  "list_workspace_conversation_tickets_route",
+                  "merge_agent_conversation_tickets_route",
+                  "merge_branch_into_target",
+                  "merge_preview_route",
+                  "patch_agent_settings_route",
+                  "post_agent_avatar_route",
+                  "post_agent_hold_audio_route",
+                  "post_conversation_feedback_route",
+                  "post_knowledge_base_bulk_delete_route",
+                  "post_knowledge_base_bulk_move_route",
+                  "post_knowledge_base_move_route",
+                  "query_agent_knowledge_base_rag_route",
+                  "rag_index_status",
+                  "rebase_branch_onto_main",
+                  "rebase_preview_route",
+                  "refresh_url_document_route",
+                  "register_twilio_call",
+                  "remove_mcp_server_tool_approval_route",
+                  "remove_mcp_tool_config_override_route",
+                  "remove_procedure_route",
+                  "resolve_conversation_reference_route",
+                  "resubmit_tests_route",
+                  "retry_batch_call",
+                  "run_agent_test_suite_route",
+                  "run_conversation_analysis",
+                  "run_conversation_evaluations",
+                  "run_conversation_simulation_route",
+                  "run_conversation_simulation_route_stream",
+                  "search_knowledge_base_content_route",
+                  "smart_search_conversation_messages_route",
+                  "submit_merge_proposal_review_route",
+                  "text_search_conversation_messages_route",
+                  "unassign_conversation_tag_route",
+                  "update_agent_conversation_ticket_route",
+                  "update_agent_response_test_route",
+                  "update_agent_test_folder_route",
+                  "update_branch_route",
+                  "update_conversation_tag_route",
+                  "update_dashboard_settings_route",
+                  "update_document_route",
+                  "update_environment_variable",
+                  "update_file_document_route",
+                  "update_mcp_server_approval_policy_route",
+                  "update_mcp_server_config_route",
+                  "update_mcp_tool_config_override_route",
+                  "update_merge_proposal_route",
+                  "update_phone_number_route",
+                  "update_procedure_draft_route",
+                  "update_secret_route",
+                  "update_settings_route",
+                  "update_test_invocation_route",
+                  "update_tool_route",
+                  "update_whatsapp_account",
+                  "upload_file_route",
+                  "whatsapp_outbound_call",
+                  "whatsapp_outbound_message",
+                  "ws:/v1/convai/conversation"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.audio",
+          "title": "ElevenLabs audio",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "audio_isolation",
+                  "audio_isolation_stream",
+                  "audio_native_project_update_content_endpoint",
+                  "audio_native_update_content_from_url",
+                  "create_audio_native_project",
+                  "get_audio_effects_catalog",
+                  "get_audio_native_project_settings_endpoint",
+                  "sound_generation"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.dictionaries",
+          "title": "ElevenLabs dictionaries",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "add_from_file",
+                  "add_from_rules",
+                  "add_rules",
+                  "get_pronunciation_dictionaries_metadata",
+                  "get_pronunciation_dictionary_metadata",
+                  "get_pronunciation_dictionary_version_pls",
+                  "patch_pronunciation_dictionary",
+                  "remove_rules",
+                  "set_rules",
+                  "update_pronunciation_dictionaries"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.dubbing",
+          "title": "ElevenLabs dubbing",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "add_language",
+                  "create_clip",
+                  "create_dubbing",
+                  "create_speaker",
+                  "delete_dubbing",
+                  "delete_segment",
+                  "dub",
+                  "dubbing_language_create",
+                  "dubbing_language_delete",
+                  "dubbing_language_get",
+                  "dubbing_language_list",
+                  "dubbing_project_create",
+                  "dubbing_project_delete",
+                  "dubbing_project_get",
+                  "dubbing_project_list",
+                  "dubbing_target_transcript_get",
+                  "dubbing_target_transcript_regenerate",
+                  "dubbing_target_transcript_segment_update",
+                  "dubbing_target_transcript_segments_update",
+                  "dubbing_transcript_get",
+                  "dubbing_transcript_segment_add",
+                  "dubbing_transcript_segment_delete",
+                  "dubbing_transcript_segment_update",
+                  "dubbing_transcript_segments_update",
+                  "get_dubbed_file",
+                  "get_dubbed_metadata",
+                  "get_dubbed_transcript_file",
+                  "get_dubbing_resource",
+                  "get_dubbing_transcripts",
+                  "list_dubs",
+                  "migrate_segments",
+                  "render",
+                  "transcribe",
+                  "translate",
+                  "update_segment_language",
+                  "update_speaker"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.flows",
+          "title": "ElevenLabs flows",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "create_image_generation",
+                  "create_public_template_run",
+                  "create_video_generation",
+                  "get_image_generation",
+                  "get_public_template",
+                  "get_public_template_run",
+                  "get_video_generation",
+                  "list_image_generations",
+                  "list_public_template_runs",
+                  "list_public_templates",
+                  "list_video_generations"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.history",
+          "title": "ElevenLabs history",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "delete_audio_isolation_history_item",
+                  "delete_speech_history_item",
+                  "download_speech_history_items",
+                  "get_audio_full_from_speech_history_item",
+                  "get_audio_isolation_history",
+                  "get_speech_history",
+                  "get_speech_history_item_by_id"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.models",
+          "title": "ElevenLabs models",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "get_models"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.music",
+          "title": "ElevenLabs music",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "compose_detailed",
+                  "compose_detailed_stream",
+                  "compose_plan",
+                  "create_finetune",
+                  "delete_finetune",
+                  "generate",
+                  "get_finetune",
+                  "get_finetunes",
+                  "separate_song_stems",
+                  "stream_compose",
+                  "update_finetune",
+                  "upload_song",
+                  "video_to_music"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.speech",
+          "title": "ElevenLabs speech",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "create_text_to_speech_generation",
+                  "get_text_to_speech_generation",
+                  "list_text_to_speech_generations",
+                  "text_to_dialogue",
+                  "text_to_dialogue_full_with_timestamps",
+                  "text_to_dialogue_stream",
+                  "text_to_dialogue_stream_with_timestamps",
+                  "text_to_speech_full",
+                  "text_to_speech_full_with_timestamps",
+                  "text_to_speech_stream",
+                  "text_to_speech_stream_with_timestamps",
+                  "ws:/v1/text-to-dialogue/multi-stream-input",
+                  "ws:/v1/text-to-dialogue/stream-input",
+                  "ws:/v1/text-to-speech/{voice_id}/multi-stream-input",
+                  "ws:/v1/text-to-speech/{voice_id}/stream-input"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.speech_engine",
+          "title": "ElevenLabs speech-engine",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "create_speech_engine",
+                  "delete_speech_engine",
+                  "duplicate_speech_engine",
+                  "get_speech_engine",
+                  "list_speech_engines",
+                  "update_speech_engine",
+                  "ws:/speech-engine/upstream"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.studio",
+          "title": "ElevenLabs studio",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "add_chapter",
+                  "add_project",
+                  "convert_chapter_endpoint",
+                  "convert_project_endpoint",
+                  "create_podcast",
+                  "delete_chapter_endpoint",
+                  "delete_project",
+                  "edit_chapter",
+                  "edit_project",
+                  "edit_project_content",
+                  "get_chapter_by_id_endpoint",
+                  "get_chapter_snapshot_endpoint",
+                  "get_chapter_snapshots",
+                  "get_chapters",
+                  "get_project_by_id",
+                  "get_project_muted_tracks_endpoint",
+                  "get_project_snapshot_endpoint",
+                  "get_project_snapshots",
+                  "get_projects",
+                  "public_create_order",
+                  "public_get_available_languages",
+                  "public_get_media_info",
+                  "public_get_order",
+                  "public_get_order_deliverables",
+                  "public_list_orders",
+                  "public_register_media",
+                  "public_remove_order_item",
+                  "public_submit_order",
+                  "public_update_order",
+                  "public_upsert_order_item",
+                  "stream_chapter_snapshot_audio",
+                  "stream_project_snapshot_archive_endpoint",
+                  "stream_project_snapshot_audio_endpoint"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.transcriptions",
+          "title": "ElevenLabs transcriptions",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "delete_transcript_by_id",
+                  "forced_alignment",
+                  "get_transcript_by_id",
+                  "speech_to_text",
+                  "ws:/v1/speech-to-text/realtime"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.voices",
+          "title": "ElevenLabs voices",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "add_pvc_voice_samples",
+                  "add_sharing_voice",
+                  "add_voice",
+                  "add_voice_to_user_voice_collection",
+                  "create_or_update_user_voice_collection",
+                  "create_pvc_voice",
+                  "create_voice",
+                  "delete_pvc_voice_sample",
+                  "delete_sample",
+                  "delete_user_voice_collection",
+                  "delete_voice",
+                  "edit_pvc_voice",
+                  "edit_pvc_voice_sample",
+                  "edit_voice",
+                  "edit_voice_settings",
+                  "get_audio_from_sample",
+                  "get_library_voices",
+                  "get_pvc_sample_audio",
+                  "get_pvc_sample_speakers",
+                  "get_pvc_sample_visual_waveform",
+                  "get_pvc_voice_captcha",
+                  "get_similar_library_voices",
+                  "get_similar_voices_for_speaker",
+                  "get_speaker_audio",
+                  "get_user_voice_collection",
+                  "get_user_voice_collections",
+                  "get_user_voices_v2",
+                  "get_voice_accents",
+                  "get_voice_by_id",
+                  "get_voice_settings",
+                  "get_voice_settings_default",
+                  "get_voices",
+                  "remove_voice_from_user_voice_collection",
+                  "replicate_voice_to_isolated_environment",
+                  "request_pvc_manual_verification",
+                  "run_pvc_voice_training",
+                  "speech_to_speech_full",
+                  "speech_to_speech_stream",
+                  "start_speaker_separation",
+                  "text_to_voice",
+                  "text_to_voice_design",
+                  "text_to_voice_preview_stream",
+                  "text_to_voice_remix",
+                  "update_user_voice_collection",
+                  "verify_pvc_voice_captcha"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.workspace",
+          "title": "ElevenLabs workspace",
+          "description": "Source declaration; execution refused until host runtime, closed nested schemas, durable media and budget contracts are delivered. Operation enum provides discovery only; it is not arbitrary JSON execution.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "add_member",
+                  "create_auth_connection",
+                  "create_workspace_webhook_route",
+                  "delete_auth_connection",
+                  "delete_invite",
+                  "delete_workspace_webhook_route",
+                  "disable",
+                  "edit_workspace_webhook_route",
+                  "get_groups_endpoint",
+                  "get_resource_metadata",
+                  "get_user_info",
+                  "get_user_subscription_info",
+                  "get_workspace_audit_logs",
+                  "get_workspace_members",
+                  "get_workspace_webhooks_route",
+                  "invite_user",
+                  "invite_users_bulk",
+                  "list_auth_connections",
+                  "remove_member",
+                  "requests_list",
+                  "search_groups",
+                  "set_third_party_disabling_policy",
+                  "share_resource_endpoint",
+                  "smb_assign_reseller_tier",
+                  "smb_cancel_reseller_pending_downgrade",
+                  "smb_change_reseller_tier",
+                  "smb_list_reseller_workspaces",
+                  "smb_reseller_provision_workspace",
+                  "smb_restore_reseller_subscription",
+                  "smb_unassign_reseller_tier",
+                  "unshare_resource_endpoint",
+                  "update_auth_connection",
+                  "update_workspace_member",
+                  "usage_by_product_over_time"
+                ],
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "inputs": {},
+          "outputs": {},
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        },
+        {
+          "contractVersion": 1,
+          "revision": 1,
+          "id": "elevenlabs.tts",
+          "title": "ElevenLabs speech",
+          "description": "Bounded scalar TTS preparation contract. Submit refused until durable execution ports exist; defaults and exact schema validation use the accepted service.",
+          "params": {
+            "type": "object",
+            "properties": {
+              "voice": {
+                "type": "string",
+                "maxLength": 255
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 5000
+              },
+              "model": {
+                "type": "string",
+                "enum": [
+                  "eleven_v3",
+                  "eleven_multilingual_v2",
+                  "eleven_flash_v2",
+                  "eleven_flash_v2_5"
+                ],
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "voice",
+              "text",
+              "model"
+            ]
+          },
+          "inputs": {},
+          "outputs": {
+            "audio": {
+              "kind": "audio",
+              "minItems": 1,
+              "maxItems": 1
+            }
+          },
+          "outcomes": [
+            "succeeded",
+            "failed",
+            "canceled",
+            "unknown"
+          ],
+          "lifecycle": {
+            "reconcile": false,
+            "cancel": false
+          },
+          "effects": {
+            "sideEffects": true,
+            "potentiallyPaid": true
+          }
+        }
+      ]
+    }
+  },
+  "permissions": {
+    "view": true,
+    "surfaces": true,
+    "agentCommands": true
+  }
+}
