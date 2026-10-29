@@ -253,3 +253,14 @@ test('D3 D4 D7 actual E failed expired and hour presentation preserves saved ide
   const source=readFileSync(new URL('../ui/src/App.tsx',import.meta.url),'utf8');assert.match(source,/studio-audio-session-title">\{i.title\}<\/span><DotRow played=\{d\?\.item.id===i.id\?1:0\}/);
   const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(css,/studio-dot-row\{grid-column:1\/-1;grid-row:2;height:6px;min-width:0;opacity:.5/);assert.equal(f.submissions(),0);c.dispose();
 });
+
+
+test('E1 E3 E selected row survives neutral row defaults and expired caption has a helper target before Details',async()=>{
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();const items=c.state.snapshot!.items;
+  const selected=items.find(i=>i.outputs[0]?.id==='fixture-expired-tone')!,other=items.find(i=>i.id!==selected.id)!;await c.inspect(selected.id);
+  const markup=renderToStaticMarkup(React.createElement(App,{controller:c,media:fixtureMedia}));const session=markup.slice(markup.indexOf('aria-label="Results and activity"'),markup.indexOf('<div class="studio-stage-content">'));const buttons=[...session.matchAll(/<button[^>]*class="studio-strip-result"[^>]*>/g)].map(match=>match[0]);
+  assert.equal(buttons.filter(button=>button.includes('aria-current="true"')).length,1);assert.ok(buttons.some(button=>button.includes('aria-label="'+other.title+'"')&&!button.includes('aria-current=')));assert.ok(buttons.every(button=>!button.includes('disabled')&&!button.includes('tabindex="-1"')));
+  const caption=markup.slice(markup.indexOf('<div class="studio-caption">'));assert.ok(caption.indexOf('studio-facts')<caption.indexOf('studio-rail-actions'));assert.ok(caption.indexOf('studio-rail-actions')<caption.indexOf('studio-caption-helper-slot'));assert.ok(caption.indexOf('studio-caption-helper-slot')<caption.indexOf('<details class="studio-inspector-rail"'));assert.match(caption,/<\/details><\/div><\/div><\/section>/);
+  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');assert.match(css,/\.studio-strip\[data-layout=rows\] \.studio-strip-result\[aria-current=true\]\{border:1px solid var\(--ct-accent\);background:color-mix\(in srgb,var\(--ct-accent\) 10%,transparent\)/);
+  const source=readFileSync(new URL('../ui/src/Audio.tsx',import.meta.url),'utf8');assert.match(source,/createPortal\(accessCopy,helperTarget\)/);assert.doesNotMatch(source,/createPortal\(accessCopy,actionsTarget|parentElement/);assert.match(css,/studio-caption-helper-slot\{display:contents\}/);assert.equal(f.submissions(),0);c.dispose();
+});

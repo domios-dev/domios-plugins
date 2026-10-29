@@ -708,3 +708,17 @@ test('DEV App bounds metrics remain numeric passive and excluded from both produ
   const source=readFileSync(new URL('../../media-shared/ui/dev/SyntheticAppMetrics.tsx',import.meta.url),'utf8');assert.match(source,/ResizeObserver/);assert.match(source,/MutationObserver/);assert.match(source,/if\(!frame\)frame=requestAnimationFrame/);assert.match(source,/window.innerWidth/);assert.match(source,/node.clientWidth,scrollWidth:node.scrollWidth/);assert.doesNotMatch(source,/textContent|innerText|innerHTML|setInterval|setTimeout|dispatchEvent|\.focus\(/);
   for(const vendor of ['higgsfield','elevenlabs']){const dev=readFileSync(new URL('../../'+vendor+'/ui/dev/main.tsx',import.meta.url),'utf8');assert.match(dev,/<\/FixtureProvider><SyntheticAppMetrics\/>/);const entry=readFileSync(new URL('../../'+vendor+'/ui/src/main.tsx',import.meta.url),'utf8');assert.doesNotMatch(entry,/SyntheticAppMetrics|ui\/dev/);}
 });
+
+
+test('E1 E2 H selected thumbnail is distinct from another focusable session item and Library rejects session sizing',async()=>{
+  const f=fixtureTransport(),c=new StudioController(f.transport);await c.mount();await c.inspect('generated');
+  const markup=render(React.createElement(App,{controller:c}));const session=markup.slice(markup.indexOf('aria-label="Results and activity"'),markup.indexOf('<div class="studio-stage-content">'));
+  const buttons=[...session.matchAll(/<button[^>]*class="studio-strip-result"[^>]*>/g)].map(match=>match[0]);
+  assert.equal(buttons.filter(button=>button.includes('aria-current="true"')).length,1);assert.ok(buttons.some(button=>button.includes('aria-label="Fixture generated:')&&button.includes('aria-current="true"')));assert.ok(buttons.some(button=>button.includes('aria-label="Fixture queued:')&&!button.includes('aria-current=')));assert.ok(buttons.every(button=>!button.includes('disabled')&&!button.includes('tabindex="-1"')));
+  const css=readFileSync(new URL('../../media-shared/ui/src/studio.css',import.meta.url),'utf8');
+  assert.match(css,/\.studio-strip \.studio-strip-result\[data-session-kind=visual\]\[aria-current=true\]>\.studio-strip-thumb\{border:1px solid var\(--ct-accent\)/);
+  assert.match(css,/\.studio-strip-result:focus-visible\{outline:2px solid var\(--ct-accent\);outline-offset:2px/);
+  assert.match(css,/\.studio-strip \.studio-strip-thumb\{height:56px;width:56px;aspect-ratio:1\}/);assert.doesNotMatch(css,/(?:^|[},])\.studio-strip-thumb(?:,|\{height:56px)/);
+  assert.match(css,/\.studio-results \.studio-strip-thumb\{width:100%;height:auto;aspect-ratio:1!important\}/);
+  assert.equal(f.submissions(),0);c.dispose();
+});

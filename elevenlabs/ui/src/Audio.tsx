@@ -5,7 +5,7 @@ import {humanActions} from '../../../media-shared/src/presentation';
 import type { LocalAudio, MediaPort } from './media';
 import { PlaybackGroup, seekAudio } from './media';
 export const audioTime=(seconds:number)=>`${Math.floor(seconds/60)}:${(seconds%60).toFixed(1).padStart(4,'0')}`;
-export function AudioPlayer({id,media,group,native=false,children,actionsTarget,onDuration,expired=false}:{id:string;media:MediaPort;group:PlaybackGroup;native?:boolean;children?:React.ReactNode;actionsTarget?:HTMLElement|null;onDuration?(seconds:number):void;expired?:boolean}){
+export function AudioPlayer({id,media,group,native=false,children,actionsTarget,onDuration,expired=false,helperTarget}:{id:string;media:MediaPort;group:PlaybackGroup;native?:boolean;children?:React.ReactNode;actionsTarget?:HTMLElement|null;onDuration?(seconds:number):void;expired?:boolean;helperTarget?:HTMLElement|null}){
   const ref=useRef<HTMLAudioElement>(null),playRef=useRef<HTMLButtonElement>(null),revision=useRef(0);
   const [source,setSource]=useState<LocalAudio|null>(null),[pending,setPending]=useState(false),[failed,setFailed]=useState(false);
   const [playing,setPlaying]=useState(false),[duration,setDuration]=useState(0),[time,setTime]=useState(0);
@@ -53,7 +53,7 @@ export function AudioPlayer({id,media,group,native=false,children,actionsTarget,
       onPointerUp={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}}><DotRow played={duration?time/duration:0}/></div></div>}
     {native&&pending&&<small>Loading audio…</small>}
     {native&&!pending&&(!source?.url||failed)&&<>{accessExpired?<NoPreview audio/>:<small>Audio unavailable in this view</small>}{reopenable&&<button className="ct-btn" onClick={()=>{const current=revision.current;setPending(true);void media.acquire(id).then(local=>{if(current===revision.current){setSource(local);setFailed(false);setPending(false);}}).catch(()=>{if(current===revision.current)setPending(false);});}}>Reopen result</button>}</>}
-    {accessCopy&&(actionsTarget?createPortal(accessCopy,actionsTarget.parentElement??actionsTarget):actionsTarget===undefined?accessCopy:null)}
+    {accessCopy&&(helperTarget?createPortal(accessCopy,helperTarget):helperTarget===undefined?accessCopy:null)}
     {!native&&failed&&<small role="status">Couldn't play audio. Open the result to check file access.</small>}
     {native&&(()=>{const buttons=<>{source?.save&&actions.includes('saveAs')&&<button className="ct-btn ct-btn-ghost" onClick={source.save}>Save as…</button>}{source?.reveal&&actions.includes('reveal')&&<button className="ct-btn ct-btn-ghost" onClick={source.reveal}>Show in folder</button>}</>;return actionsTarget===undefined?buttons:actionsTarget?createPortal(buttons,actionsTarget):null;})()}
 
