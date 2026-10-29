@@ -39,6 +39,60 @@ test("bw error-message mapping", () => {
   );
 });
 
+const SENTINEL = "SENTINEL-VALUE-7f3a";
+const leakedItems = JSON.stringify([{ id: "i1", login: { password: SENTINEL }, notes: SENTINEL }]);
+
+test("bw errors never carry the bw payload", () => {
+  const backend = plugin.__test_mapError("Unexpected: " + leakedItems);
+  assert(backend.kind === "backend" && !JSON.stringify(backend).includes(SENTINEL), "mapBwError withholds text");
+  const parsed = plugin.__test_parseBwOutput({ stdout: leakedItems.slice(0, 40) + SENTINEL, stderr: SENTINEL, code: 1 });
+  assert(!parsed.success && parsed.message === "bw output was not valid JSON (exit 1)", "parse failure is fixed text");
+  for (const ex of [
+    { error: "spawn bw ENOENT " + SENTINEL },
+    { error: SENTINEL },
+    { stdout: JSON.stringify({ success: false, message: leakedItems }), code: 1 },
+    { stdout: SENTINEL, stderr: SENTINEL, code: 2 },
+  ]) {
+    assert(!JSON.stringify(plugin.__test_statusFromExec(ex)).includes(SENTINEL), "status failure withholds payload");
+  }
+});
+
+test("list and search return metadata only from a nested bw list envelope", () => {
+  const SENTINEL = "SENTINEL-VALUE-7f3a";
+  const item = {
+    id: "i1", type: 1, name: "token", revisionDate: "2026-01-01T00:00:00.000Z",
+    login: { username: "u", password: SENTINEL }, notes: SENTINEL,
+    fields: [{ value: SENTINEL }], attachments: [{ fileName: SENTINEL }],
+  };
+  const bodies = [
+    { success: true, data: { object: "list", data: [item] } },
+    { success: true, data: { success: true, data: { object: "list", data: [item] } } },
+  ];
+  const savedHost = globalThis.host;
+  try {
+    for (const body of bodies) {
+      globalThis.host = {
+        secretGet: (k) => (k === "session" ? "s" : null),
+        secretSet: () => {},
+        secretDelete: () => {},
+        settingsJson: () => "{}",
+        manifest: () => ({ permissions: { network: { allow: [] } } }),
+        exec: () => JSON.stringify({ stdout: JSON.stringify(body), stderr: "", code: 0 }),
+      };
+      for (const r of [plugin.secretList({}), plugin.secretSearch("token")]) {
+        assert("ok" in r && r.ok.length === 1, "expected one item, got " + Object.keys(r));
+        assert(!JSON.stringify(r).includes(SENTINEL), "list/search output carries a value");
+        const keys = Object.keys(r.ok[0]).sort().join(",");
+        assert(keys === "collection,folder,item_id,last_modified,name,organization", "unexpected keys " + keys);
+      }
+    }
+    const refused = plugin.__test_metadataRefs({ value: SENTINEL });
+    assert(refused === null, "a non-list shape must be refused");
+  } finally {
+    globalThis.host = savedHost;
+  }
+});
+
 test("list-envelope unwrap", () => {
   const out = plugin.__test_unwrap({ object: "list", data: [1, 2] });
   assert(Array.isArray(out) && out.length === 2 && out[0] === 1 && out[1] === 2, "unwrap data array");
@@ -298,7 +352,7 @@ test("auto-relogin: server login failure is surfaced and keeps persisted credent
   };
   try {
     const r = plugin.secretGetItem("token");
-    assert("error" in r && r.error.kind === "backend" && r.error.message === "Error saving device", "expected server failure, got " + JSON.stringify(r));
+    assert("error" in r && r.error.kind === "backend" && r.error.message === "bw failed", "expected server failure, got " + JSON.stringify(r));
     assert(loginCalls === 1 && unlockCalls === 0, "failed login must stop before unlock");
     assert(secrets.master_password === MASTER, "transient server failure must retain the password");
   } finally {
@@ -502,13 +556,13 @@ test("status cause: bw binary missing → unavailable with probed detail", () =>
   try {
     const s = plugin.secretStatus();
     assert(s.status === "unavailable", "expected unavailable, got " + JSON.stringify(s));
-    assert(/No such file/i.test(s.reason || ""), "reason must surface the exec error, got " + s.reason);
+    assert(s.reason === "Bitwarden CLI (bw) not found", "reason must be the fixed binary-missing text, got " + s.reason);
   } finally {
     globalThis.host = savedHost;
   }
 });
 
-test("status cause: bw-level error passes the bw message through", () => {
+test("status cause: bw-level error maps to a fixed reason", () => {
   const secrets = {};
   const savedHost = globalThis.host;
   globalThis.host = {
@@ -522,7 +576,7 @@ test("status cause: bw-level error passes the bw message through", () => {
   try {
     const s = plugin.secretStatus();
     assert(s.status === "unavailable", "expected unavailable, got " + JSON.stringify(s));
-    assert(/unreachable/i.test(s.reason || ""), "reason must pass the bw message through, got " + s.reason);
+    assert(s.reason === "Bitwarden server is unreachable", "reason must be the fixed unreachable text, got " + s.reason);
   } finally {
     globalThis.host = savedHost;
   }

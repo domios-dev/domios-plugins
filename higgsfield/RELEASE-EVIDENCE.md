@@ -12,7 +12,7 @@ Date: 2026-10-29. Owner: Cedar, HIG-5 / task_s88b3t. Final integration/acceptanc
 | UI source | `ui/src/main.tsx`; imports reusable `media-shared/ui/src` | Production media adapter/default wiring, compiled final output and Iris final acceptance pending |
 | Logic source | `src/commands.ts`, `service.ts`, `adapters.ts`, `contributions.ts`, `blueprint.ts` | `src/plugin.ts` production default entry absent at preparation; HIG-11 supplies actual trusted ports/exports |
 | Generated artifacts | `plugin.js` and split hashed `ui/app-*.js` absent; existing `ui/index.html` is a source preview input | HIG-11 alone builds/commits both plugins after all planned edits; no bundle hash invented or generated output hand-edited |
-| License/docs/icon | Repository Apache-2.0 copied to `LICENSE`; README/guide/this handoff; native SVG | Icon Iris verdict recorded below; final built candidate remains separate |
+| License/docs/icon | Current official repository PolyForm Shield 1.0.0 copied to `LICENSE`; README/guide/this handoff; native SVG | Icon Iris verdict recorded below; final built candidate remains separate |
 
 Concrete integration issue from source reading: `scripts/build-plugin.mjs` emits `<div id="ct-root">`, while `higgsfield/ui/src/main.tsx` mounts `document.getElementById('root')`. HIG-11 must align the real production mount before its sole final build and prove the stable rendered DOM. No builder/UI source was changed in HIG-5.
 

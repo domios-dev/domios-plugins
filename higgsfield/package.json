@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "license": "Apache-2.0",
+  "license": "PolyForm-Shield-1.0.0",
   "description": "Higgsfield candidate package inputs; production wiring, generated output and final acceptance pending HIG-11."
 }

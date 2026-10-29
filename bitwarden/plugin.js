@@ -23,6 +23,79 @@ __export(plugin_exports, {
   default: () => plugin_default
 });
 module.exports = __toCommonJS(plugin_exports);
+
+// bitwarden/src/metadata-process.ts
+var METADATA_PROCESS = String.raw`
+const { spawnSync } = require('node:child_process');
+const { existsSync, readFileSync } = require('node:fs');
+const { join, delimiter } = require('node:path');
+function fail(message) {
+  process.stdout.write(JSON.stringify({ success: false, message }));
+}
+function executable() {
+  for (const dir of (process.env.PATH || '').split(delimiter)) {
+    if (process.platform === 'win32') {
+      const native = join(dir, 'bw.exe');
+      if (existsSync(native)) return [native, []];
+      const pkgPath = join(dir, 'node_modules', '@bitwarden', 'cli', 'package.json');
+      if (existsSync(pkgPath)) {
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin.bw;
+        return [process.execPath, [join(dir, 'node_modules', '@bitwarden', 'cli', bin)]];
+      }
+    } else {
+      const bin = join(dir, 'bw');
+      if (existsSync(bin)) return [bin, []];
+    }
+  }
+  return ['bw', []];
+}
+function run() {
+  const [bin, prefix] = executable();
+  const result = spawnSync(bin, prefix.concat(process.argv.slice(1)), {
+    encoding: 'utf8', env: process.env, shell: false, windowsHide: true,
+    timeout: 25000, maxBuffer: 32 * 1024 * 1024,
+  });
+  if (result.error) {
+    const code = result.error.code;
+    return fail(code === 'ETIMEDOUT' ? 'bw metadata timed out' :
+      code === 'ENOBUFS' ? 'bw metadata exceeded capture limit' : 'bw metadata could not start');
+  }
+  let response;
+  try { response = JSON.parse(result.stdout); }
+  catch { return fail('bw metadata returned invalid JSON'); }
+  if (!response || response.success !== true || result.status !== 0) {
+    const message = response && typeof response.message === 'string' ? response.message.toLowerCase() : '';
+    if (message.includes('vault is locked')) return fail('Vault is locked');
+    if (message.includes('you are not logged in')) return fail('You are not logged in');
+    return fail('bw metadata failed: exit ' + (Number.isInteger(result.status) ? result.status : -1));
+  }
+  let data = response.data;
+  for (let depth = 0; depth < 8 && data && !Array.isArray(data) && typeof data === 'object'; depth++) {
+    data = data.data;
+  }
+  if (!Array.isArray(data)) return fail('bw metadata returned unexpected shape');
+  const items = [];
+  for (const c of data) {
+    if (!c || typeof c !== 'object') return fail('bw metadata returned unexpected shape');
+    if (c.type !== 1) continue;
+    if (typeof c.id !== 'string' || typeof c.name !== 'string') return fail('bw metadata returned unexpected shape');
+    for (const key of ['folderId', 'organizationId', 'revisionDate']) {
+      if (c[key] != null && typeof c[key] !== 'string') return fail('bw metadata returned unexpected shape');
+    }
+    if (c.collectionIds != null && (!Array.isArray(c.collectionIds) ||
+      !c.collectionIds.every(id => typeof id === 'string'))) return fail('bw metadata returned unexpected shape');
+    items.push({ type: 1, id: c.id, name: c.name, folderId: c.folderId,
+      organizationId: c.organizationId, collectionIds: c.collectionIds, revisionDate: c.revisionDate });
+  }
+  const output = JSON.stringify({ success: true, data: items });
+  if (Buffer.byteLength(output) > 120 * 1024) return fail('bw metadata exceeded host output limit');
+  process.stdout.write(output);
+}
+try { run(); } catch { fail('bw metadata process failed'); }
+`;
+
+// bitwarden/src/plugin.ts
 var DEFAULT_SERVER = "https://vault.bitwarden.com";
 var K_SESSION = "session";
 var K_MASTER = "master_password";
@@ -39,7 +112,7 @@ function canUnlockHeadlessly() {
   return !!rememberedMasterPassword();
 }
 function isRejectedCredential(msg) {
-  const m = (msg || "").toLowerCase();
+  const m = (typeof msg === "string" ? msg : "").toLowerCase();
   return m.indexOf("invalid master password") >= 0 || m.indexOf("username or password is incorrect") >= 0 || m.indexOf("invalid credentials") >= 0;
 }
 var LOCKED_HINT = "vault is locked and no master password is remembered \u2014 run `codeterm mem secret unlock` interactively";
@@ -70,13 +143,19 @@ function base64Encode(str) {
   return out;
 }
 function mapBwError(msg) {
-  const m = (msg || "").toLowerCase();
+  const m = (typeof msg === "string" ? msg : "").toLowerCase();
   if (m.indexOf("vault is locked") >= 0) return { kind: "locked" };
   if (m.indexOf("you are not logged in") >= 0) return { kind: "logged_out" };
   if (m.indexOf("not found") >= 0) return { kind: "not_found" };
   if (m.indexOf("more than one result") >= 0) return { kind: "ambiguous", candidates: [] };
   if (m.indexOf("already") >= 0 && m.indexOf("exists") >= 0) return { kind: "already_exists" };
-  return { kind: "backend", message: msg && msg.length ? msg : "bw failed" };
+  if (m.indexOf("unreachable") >= 0 || m.indexOf("econnrefused") >= 0 || m.indexOf("enotfound") >= 0) {
+    return { kind: "backend", message: "Bitwarden server is unreachable" };
+  }
+  if (/^bw metadata (failed: exit -?\d{1,3}|timed out|exceeded capture limit|could not start|returned invalid json|returned unexpected shape|exceeded host output limit|process failed)$/.test(m)) {
+    return { kind: "backend", message: m };
+  }
+  return { kind: "backend", message: "bw failed" };
 }
 function unwrapData(v) {
   if (v && typeof v === "object" && v.data !== void 0) {
@@ -135,12 +214,12 @@ function effectiveAllow() {
   return allow;
 }
 function parseBwOutput(ex) {
+  if (ex.truncated) return { success: false, message: "bw metadata exceeded host output limit" };
   if (ex.error) return { success: false, message: ex.error };
   try {
     return JSON.parse((ex.stdout || "").trim());
   } catch (e) {
-    const combined = ex.stderr && ex.stderr.length ? ex.stderr : ex.stdout || "bw exited " + ex.code;
-    return { success: false, message: combined };
+    return { success: false, message: "bw output was not valid JSON (exit " + ex.code + ")" };
   }
 }
 function hostStringCall(name) {
@@ -186,11 +265,14 @@ function bwExecOpts(args, opts) {
   const full = args.concat(["--nointeraction", "--response"]);
   const env = opts.env || {};
   if (opts.session) env.BW_SESSION = opts.session;
+  const metadata = args[0] === "list" && args[1] === "items";
+  const bin = metadata ? "node" : "bw";
+  const commandArgs = metadata ? ["-e", METADATA_PROCESS, "--"].concat(full) : full;
   const path = expandedBwPath();
   if (path) {
-    return JSON.stringify({ bin: "env", args: [`PATH=${path}`, "bw"].concat(full), env, stdin: opts.stdin || null, timeoutMs: opts.timeoutMs || BW_TIMEOUT_MS });
+    return JSON.stringify({ bin: "env", args: [`PATH=${path}`, bin].concat(commandArgs), env, stdin: opts.stdin || null, timeoutMs: opts.timeoutMs || BW_TIMEOUT_MS });
   }
-  return JSON.stringify({ bin: "bw", args: full, env, stdin: opts.stdin || null, timeoutMs: opts.timeoutMs || BW_TIMEOUT_MS });
+  return JSON.stringify({ bin, args: commandArgs, env, stdin: opts.stdin || null, timeoutMs: opts.timeoutMs || BW_TIMEOUT_MS });
 }
 function bw(args, opts) {
   opts = opts || {};
@@ -199,7 +281,7 @@ function bw(args, opts) {
   try {
     ex = JSON.parse(raw);
   } catch (e) {
-    return { success: false, message: "exec parse: " + e };
+    return { success: false, message: "bw exec result was not valid JSON" };
   }
   return parseBwOutput(ex);
 }
@@ -325,18 +407,18 @@ function serverUrl() {
   return u && u.length ? u : DEFAULT_SERVER;
 }
 function isBinaryMissing(msg) {
-  const m = (msg || "").toLowerCase();
+  const m = (typeof msg === "string" ? msg : "").toLowerCase();
   return m.indexOf("no such file") >= 0 || m.indexOf("enoent") >= 0 || m.indexOf("cannot find") >= 0 || m.indexOf("executable file not found") >= 0 || m.indexOf("spawn") >= 0 && m.indexOf("bw") >= 0;
 }
 function bwExecToStatusResult(ex) {
   if (ex.error) {
     if (isBinaryMissing(ex.error)) {
-      return { failure: { kind: "binary_missing", message: "Bitwarden CLI (bw) not found: " + ex.error } };
+      return { failure: { kind: "binary_missing", message: "Bitwarden CLI (bw) not found" } };
     }
-    return { failure: { kind: "exec_error", message: ex.error } };
+    return { failure: { kind: "exec_error", message: "bw could not be started" } };
   }
   const resp = parseBwOutput(ex);
-  if (!resp.success) return { failure: { kind: "bw_error", message: resp.message || "bw status failed" } };
+  if (!resp.success) return { failure: { kind: "bw_error", message: mapBwError(resp.message).message || "bw status failed" } };
   return { status: unwrapData(resp.data) };
 }
 function bwStatus() {
@@ -348,7 +430,7 @@ function bwStatus() {
   try {
     ex = JSON.parse(raw);
   } catch (e) {
-    return { failure: { kind: "exec_error", message: "exec parse: " + e } };
+    return { failure: { kind: "exec_error", message: "bw exec result was not valid JSON" } };
   }
   return bwExecToStatusResult(ex);
 }
@@ -477,7 +559,7 @@ function resetConnection() {
   clearStoredCredentials();
   const configured = bw(["config", "server", server]);
   if (!configured.success) {
-    return { error: { kind: "backend", message: configured.message || "could not point bw at " + server } };
+    return { error: { kind: "backend", message: "could not point bw at " + server } };
   }
   return { ok: true };
 }
@@ -486,6 +568,23 @@ function isoToMs(s) {
   const t = Date.parse(s);
   return isNaN(t) ? null : t;
 }
+function metadataRefs(listed) {
+  let v = listed;
+  while (v && typeof v === "object" && !Array.isArray(v) && v.data !== void 0) {
+    v = v.data;
+  }
+  if (!Array.isArray(v)) return null;
+  for (const item of v) {
+    if (!item || typeof item !== "object") return null;
+    const c = item;
+    for (const key of ["folderId", "organizationId", "revisionDate"]) {
+      if (c[key] != null && typeof c[key] !== "string") return null;
+    }
+    if (c.collectionIds != null && (!Array.isArray(c.collectionIds) || !c.collectionIds.every((id) => typeof id === "string"))) return null;
+  }
+  return v.filter((c) => c && c.type === 1 && typeof c.id === "string" && typeof c.name === "string").map(toRef);
+}
+var UNEXPECTED_LIST = { error: { kind: "backend", message: "bw list returned an unexpected shape" } };
 function toRef(c) {
   return {
     item_id: c.id,
@@ -548,29 +647,44 @@ function secretGetItem(nameOrId) {
   if (value === void 0 || value === null) return { error: { kind: "backend", message: "item has no login.password field" } };
   return { ok: { item_id: item.id, name: item.name, value, notes: item.notes || null } };
 }
-function secretList(filter) {
+function listMetadata(filter) {
   filter = filter || {};
   let args = ["list", "items"];
   if (filter.organization) args = args.concat(["--organizationid", filter.organization]);
   if (filter.collection) args = args.concat(["--collectionid", filter.collection]);
   const r = runWithSession(args);
   if ("error" in r) return r;
-  let items = (r.ok || []).filter((c) => c.type === 1);
+  let items = metadataRefs(r.ok);
+  if (!items) return UNEXPECTED_LIST;
   if (filter.folder) {
     const fid = resolveFolderId(filter.folder);
     if ("error" in fid) return fid;
-    items = items.filter((c) => (c.folderId || null) === (fid.ok || null));
+    items = items.filter((c) => c.folder === (fid.ok || null));
   }
   items.sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1);
   if (filter.limit) items = items.slice(0, filter.limit);
-  return { ok: items.map(toRef) };
+  return { ok: items };
 }
-function secretSearch(query) {
+function searchMetadata(query) {
   const q = (query || "").trim();
   if (!q) return { error: { kind: "bad_request", message: "query must not be empty" } };
   const r = runWithSession(["list", "items", "--search", q]);
   if ("error" in r) return r;
-  return { ok: (r.ok || []).filter((c) => c.type === 1).map(toRef) };
+  const items = metadataRefs(r.ok);
+  return items ? { ok: items } : UNEXPECTED_LIST;
+}
+function metadataCall(run) {
+  try {
+    return run();
+  } catch {
+    return { error: { kind: "backend", message: "bw metadata request failed" } };
+  }
+}
+function secretList(filter) {
+  return metadataCall(() => listMetadata(filter));
+}
+function secretSearch(query) {
+  return metadataCall(() => searchMetadata(query));
 }
 function secretDelete(nameOrId) {
   const item = runWithSession(["get", "item", nameOrId]);
@@ -623,7 +737,7 @@ function startFlowJob(flowId, phase, args, opts, usedApiKey) {
     return null;
   }
   if (started.error || !started.jobId) {
-    lastRecoveryError = { kind: "backend", message: started.error || "exec start returned no jobId" };
+    lastRecoveryError = { kind: "backend", message: "bw could not be started" };
     return null;
   }
   statusFlows[flowId] = { hostJobId: started.jobId, phase, usedApiKey };
@@ -783,6 +897,10 @@ var plugin = {
   // exported for parity tests (pure logic, no host.exec)
   __test_base64: base64Encode,
   __test_mapError: mapBwError,
+  __test_metadataProcess: METADATA_PROCESS,
+  __test_metadataRefs: metadataRefs,
+  __test_parseBwOutput: parseBwOutput,
+  __test_statusFromExec: (ex) => bwExecToStatusResult(ex),
   __test_unwrap: unwrapData,
   __test_buildCipher: buildLoginCipher,
   __test_hostOf: hostOf,

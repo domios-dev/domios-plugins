@@ -50,8 +50,7 @@ function endpoint() {
   return ep && ep.length ? ep.trim() : "";
 }
 function baseDir() {
-  const home = host.homeDir() || ".";
-  return home + "/.codeterm/transcriber";
+  return host.dataDir() + "/transcriber";
 }
 function binDir() {
   return baseDir() + "/bin";
@@ -494,7 +493,6 @@ function present(name) {
 function transcribeStatus() {
   const ep = endpoint();
   if (ep.length) return { state: "ready", reason: "remote: " + ep };
-  if (!host.homeDir()) return { state: "unavailable", reason: "no home directory" };
   const hasFfmpeg = present("ffmpeg");
   const hasEngine = present("whisper-cli");
   const hasModel = host.fileExists(modelPath()) && host.fileExists(modelDonePath());

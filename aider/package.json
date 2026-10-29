@@ -1,9 +1,11 @@
 {
-  "license": "Apache-2.0",
+  "license": "PolyForm-Shield-1.0.0",
   "name": "@codeterm/plugin-aider",
   "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "CodeTerm optional Aider CLI agent provider.",
-  "devDependencies": { "@codeterm/plugin-sdk": "^1.4.7" }
+  "devDependencies": {
+    "@codeterm/plugin-sdk": "^1.4.7"
+  }
 }

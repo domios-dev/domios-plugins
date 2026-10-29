@@ -5,7 +5,7 @@
   "hostApi": 2,
   "displayName": "Higgsfield",
   "description": "Candidate package inputs for the Higgsfield Studio. Target host 1.18.0 is unverified; production wiring and final bundles pending HIG-11.",
-  "license": "Apache-2.0",
+  "license": "PolyForm-Shield-1.0.0",
   "entry": "plugin.js",
   "readme": "README.md",
   "agentGuide": "guide.md",
@@ -18,18 +18,51 @@
         "title": "Higgsfield",
         "renderer": "view",
         "agentBound": true,
-        "agentVerbs": ["open", "close", "catalog", "describe", "prepare", "rerun", "estimate", "usage", "history", "result", "cancel", "reconcile", "submit", "metadata"],
+        "agentVerbs": [
+          "open",
+          "close",
+          "catalog",
+          "describe",
+          "prepare",
+          "rerun",
+          "estimate",
+          "usage",
+          "history",
+          "result",
+          "cancel",
+          "reconcile",
+          "submit",
+          "metadata"
+        ],
         "stateInvalidation": true,
         "restore": "relaunch"
       }
     ],
     "mediaDelivery": {
-      "types": ["image/png", "image/jpeg", "image/webp", "image/gif", "video/mp4", "video/webm", "audio/wav", "audio/mpeg", "audio/ogg"]
+      "types": [
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "image/gif",
+        "video/mp4",
+        "video/webm",
+        "audio/wav",
+        "audio/mpeg",
+        "audio/ogg"
+      ]
     },
-    "viewHostActions": ["copyText", "saveAs", "reveal"]
+    "viewHostActions": [
+      "copyText",
+      "saveAs",
+      "reveal"
+    ]
   },
   "permissions": {
-    "network": { "allow": ["api.higgsfield.ai"] },
+    "network": {
+      "allow": [
+        "api.higgsfield.ai"
+      ]
+    },
     "secrets": true,
     "agentCommands": true,
     "surfaces": true
