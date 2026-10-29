@@ -10,3 +10,5 @@
 
 .studio-inspector-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.studio-inspector-nav>.ct-meta{margin-left:auto}
 .studio-feed[data-layout=rows]{grid-template-columns:minmax(0,1fr);gap:8px}
+
+.ct-btn-primary:disabled{opacity:1;background:var(--ct-bg-elev);border-color:var(--ct-border-default);color:var(--ct-muted-fg)}
