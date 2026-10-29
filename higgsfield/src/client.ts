@@ -31,7 +31,7 @@ export function apiUrl(url: string): boolean {
     (query === undefined || /^[A-Za-z0-9_.!~*'()%=&-]+$/.test(query) && !/%(?![a-f\d]{2})/i.test(query));
 }
 export function requestUrl(id: string, kind: 'status' | 'cancel'): string {
-  if (!/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id)) throw new Error('invalid_provider_identity');
+  if (typeof id !== 'string' || !/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id)) throw new Error('invalid_provider_identity');
   return `${origin}/requests/${id}/${kind}`;
 }
 export function validateReturnedUrl(url: unknown, id: string, kind: 'status' | 'cancel'): string {

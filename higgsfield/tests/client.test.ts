@@ -316,6 +316,13 @@ test('untrusted receipt URLs and invented provider states/percentages never ente
   }
   assert.equal(receipt({ request_id: uuid, status: 'in_progress', progress: 0.5 }, () => false).observation.progress, undefined);
 });
+test('provider identity cannot be coerced from a non-string JSON value', () => {
+  const h = harness(); h.ready(); const effect = start(h);
+  assert.throws(() => h.service().receive(access, effect, response(effect.plan, { request_id: [uuid], status: 'queued' })), /receipt_unknown/);
+  assert.equal(h.service().history(access)[0].jobId, undefined);
+  h.service().start(access, 'intent'); assert.equal(h.sends(), 1);
+});
+
 test('candidate JSON bound counts UTF8 bytes and callback result stays in retained owner/run scope', () => {
   const plan = metadataPlan('styles.soul', {});
   assert.throws(() => parseJson(response(plan, '€'.repeat(90000)), plan), /invalid_response/);
