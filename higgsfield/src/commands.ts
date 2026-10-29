@@ -5,6 +5,7 @@ import { quoteState } from '../../media-shared/src/cost';
 import { proofAllows } from './admission';
 import type { ProofPort } from './admission';
 import { metadataPlan } from './client';
+import type { AgentCommandCtx } from '@codeterm/plugin-sdk';
 
 // Mirrors the captured A source contract. These are host arguments, never parsed from payloads.
 export type SurfaceContext = { surface: string; instance: string; tab: string; owner: string; actor: string; actorLabel: string };
@@ -26,6 +27,27 @@ export type CommandPorts = {
   metadata?: (service: HiggsfieldService, access: Access, operation: string, params: Json) => { artifact: string };
 };
 const boundedId = (v: unknown): v is string => typeof v === 'string' && /^[A-Za-z0-9_-]{1,255}$/.test(v);
+export const commandPayloadBytes = 16000;
+const surfaceCallBytes = 32768;
+// QuickJS has no TextEncoder global. Count UTF-8 bytes, including replacement of lone surrogates.
+function withinUtf8(value: string, maximum: number): boolean {
+  let bytes = 0;
+  for (const point of value) {
+    const n = point.codePointAt(0)!;
+    bytes += n < 128 ? 1 : n < 2048 ? 2 : n < 65536 ? 3 : 4;
+    if (bytes > maximum) return false;
+  }
+  return true;
+}
+function commandArgs(args: string[]): string[] {
+  if (!Array.isArray(args) || args.length > 1 || args.some(a => typeof a !== 'string' || !withinUtf8(a, commandPayloadBytes)) ||
+    !withinUtf8(JSON.stringify(args), surfaceCallBytes)) throw new Error('invalid_command');
+  if (args.length) {
+    const payload = JSON.parse(args[0]);
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('invalid_command');
+  }
+  return args;
+}
 function object(v: unknown, keys: string[], required: string[] = []): asserts v is Record<string, any> {
   if (!v || typeof v !== 'object' || Array.isArray(v) || Object.keys(v).some(k => !keys.includes(k)) || required.some(k => !(k in v))) throw new Error('invalid_arguments');
 }
@@ -45,16 +67,21 @@ export function describe(id: string) {
 }
 export class HiggsfieldCommands {
   constructor(readonly service: HiggsfieldService, private readonly ports: CommandPorts) {}
-  onAgentCommand(ctx: { verb: string; args: string[]; sessionId: string }) {
-    if (!verbs.includes(ctx.verb as Verb) || !Array.isArray(ctx.args) || ctx.args.some(a => typeof a !== 'string') || JSON.stringify(ctx.args).length > 16000) return { error: 'invalid_command' };
+  onAgentCommand(ctx: AgentCommandCtx) {
+    let args: string[];
+    try {
+      if (!verbs.includes(ctx.verb as Verb) || !Array.isArray(ctx.args) ||
+        ctx.body !== undefined && (typeof ctx.body !== 'string' || ctx.args.length > 0)) throw new Error();
+      args = commandArgs(ctx.body === undefined ? ctx.args : [ctx.body]);
+    } catch { return { error: 'invalid_command' }; }
     // Host stamps caller; never forward sessionId, owner, actor, run or budget as arguments.
-    try { const reply = JSON.parse(this.ports.surface.call(ctx.verb, JSON.stringify(ctx.args)));
+    try { const reply = JSON.parse(this.ports.surface.call(ctx.verb, JSON.stringify(args)));
       return typeof reply.result === 'string' ? { result: reply.result } : { error: 'surface_unavailable' };
     } catch { return { error: 'surface_unavailable' }; }
   }
   onSurfaceCall(context: SurfaceContext, verb: string, args: string[]): string {
     try {
-      if (!Array.isArray(args) || args.length > 1 || args.some(a => typeof a !== 'string') || JSON.stringify(args).length > 16000) throw new Error();
+      commandArgs(args);
       return JSON.stringify(this.execute(context, 'surface', verb, args.length ? JSON.parse(args[0]) : {}));
     } catch { return JSON.stringify({ error: 'command_refused' }); }
   }
@@ -73,7 +100,10 @@ export class HiggsfieldCommands {
       const j = this.service.history(access).find(j => j.id === id); if (!j) throw new Error(); return j;
     };
     switch (verb) {
-      case 'open': case 'close': object(args, []); return { acknowledged: verb }; // Host performs actual child lifecycle before dispatch.
+      case 'open': case 'close':
+        object(args, []);
+        if (origin !== 'surface') return { error: 'surface_lifecycle_unavailable' };
+        return { acknowledged: verb }; // Authenticated host surface dispatch only; viewCall performs no lifecycle.
       case 'catalog': object(args, []); return { revision, models: models.map(m => ({ id: m.id, category: m.category, limitation: limitation(m.id) })),
         operations: operations.map(o => operationDisposition(o.id)), limitations };
       case 'describe': object(args, ['operation'], ['operation']); return describe(args.operation);

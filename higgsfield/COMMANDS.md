@@ -6,11 +6,19 @@ Source adapters only, **registration withheld**. This batch installs no plugin, 
 
 Agent entry `onAgentCommand` calls the actual generic `host.surface.call(verb, JSON.stringify(args))` through its exact captured surface port. Host context assigns the caller, resolves its owned child, performs open/close and authorizes delegated access before invoking the synchronous `onSurfaceCall`. Session IDs are never forwarded as owner authority. The fixture asserts exact calls and reuse wiring, not real tab creation. The injected access resolver must verify current registration, exact instance, plugin/workspace, owner versus actor, cross-owner host delegation and origin. It must not trust an object merely because it has matching keys. A local view actor does not establish human approval. ViewCall context and C run context use separate resolvers. Missing/refused access returns a fixed safe error.
 
-Commands accept zero arguments or one bounded structured JSON argument. No shell file read, credentials, arbitrary HTTP or URL dispatch exists. Example structured payloads below are source command contracts, not claims that an installed CLI is available:
+Commands consume the SDK `AgentCommandCtx`, including its optional `body`. The platform CLI resolves `--from-pad PATH`, `--from-file PATH`, or `--stdin` into that body; the adapter forwards it as exactly one structured JSON surface argument. Supply a JSON object, at most 16,000 UTF-8 bytes (multibyte characters count by bytes), and no simultaneous argv payload. The compatibility argv path accepts exactly one JSON-object string under the same limit. Empty, malformed, scalar or array payloads refuse. Zero arguments with no body means `{}`. The serialized surface argument array must also fit the host's 32,768-byte bound. No shell file read, credentials, arbitrary HTTP or URL dispatch exists inside the plugin.
+
+For agent use, write this JSON into the agent's pad as `prepare.json`, then use `domios plugin higgsfield prepare --from-pad prepare.json`. A normal UTF-8 JSON file can instead use `--from-file prepare.json`, or be piped with `--stdin`. Choose exactly one body source and do not append an argv JSON payload. These source invocation contracts require HIG-11 production wiring; the current source factory is not an installed handler.
+
+```json
+{"operation":"higgsfield-ai/soul/v2/standard","params":{"prompt":"A quiet garden"}}
+```
+
+Example structured payloads below are source command contracts, not claims that an installed CLI is available:
 
 | Verb | Argument | Behavior |
 |---|---|---|
-| open / close | `{}` | Generic host child lifecycle; handler acknowledges only after host dispatch |
+| open / close | `{}` | Generic host child lifecycle; only authenticated onSurfaceCall acknowledges after host routing; viewCall returns `surface_lifecycle_unavailable` |
 | catalog | `{}` | All 92 models, 13 operations and sourced limitations |
 | describe | `{operation}` | Exact dated schema, source URL/date and limitation/disposition |
 | prepare | `{operation,params}` | Local exact-schema intent, host-generated identity; no payment |
@@ -29,7 +37,7 @@ No command approves money. `admission.ts` requires a trusted purpose, immutable 
 
 The source fixture tests exercise waiting, owner confirmation, stale quote, independent ceiling and one-intent exception, submitting, queued, failure, cancel acknowledgement/Unknown, exact-job reconciliation, no replay and bound durable fake input/output. The bounded reviewer stub explicitly reports `actualMediaConsumption:false`; it does not inspect pixels or satisfy actual review. No production YAML is fabricated: `blueprints/fixture-source.json` documents the deterministic fixture contract, and HIG-11 authors/checks/applies production YAML only after accepted external schema/runner/media-review delivery.
 
-Known shared source restriction: `MediaCore.unknown()` currently clears `cancelRequested` after cancellation acknowledgement, while the latest external Loom candidate requires retaining that flag with Unknown until exact-job resolution. This lane preserves the known provider ID and reservation but does not change shared ownership or claim the stronger cancellation contract. Watt/shared owner must reconcile that behavior before final cancellation acceptance. Durable cross-instance lineage remains external; the rerun receipt is preparation evidence only.
+The original lane base clears `cancelRequested` in `MediaCore.unknown()` after cancellation acknowledgement. Watt reports this corrected on canonical `6523cd6b2cc632542918eb631a631145b7082364`: pending cancellation survives Unknown/queued/generating until an exact-job terminal result, with provider identity/reservation retained, and canonical shared selector exit 0/71. This is parent-supplied dependency evidence; no shared code was copied or merged into this lane and no common tests were rerun here. Canonical integration verifies the source adapters against that correction. Durable cross-instance lineage remains external; the rerun receipt is preparation evidence only.
 
 External owners/actions/triggers:
 
@@ -45,3 +53,5 @@ External owners/actions/triggers:
 Candidate A `5eb71627…` and C `7f7adf92…` are research inputs, not released SDK/min-host/runtime proof. See [SERVICE.md](SERVICE.md), [PLATFORM-GAPS.md](PLATFORM-GAPS.md) and the dated [research](RESEARCH.md). No service import/projection changes were needed; the unchanged client suite is not rerun here. Authorized focused source gates are the commands/Blueprint test selector and coverage checker; no build/typecheck/install/server/live calls are run. Spend/reserved/unknown paid effects for this lane: 0/0/0.
 
 Executed source proof (2026-10-29): `node --import tsx --test higgsfield/tests/commands.test.ts higgsfield/tests/blueprint.test.ts` — raw exit 0, 17 passed / 0 failed / 0 skipped. `node higgsfield/scripts/check-coverage.mjs` — raw exit 0, 105 rows plus alias/console/absence declarations; four negative mutations rejected (removed row, bad output type, unknown outcome, unsupported production-ready claim). Each exact gate ran once. These results establish only source/fixture behavior; final host/media/reviewer evidence remains unrun.
+
+Correction proof after source review bounce of `8383e269a8be9e5960dcde66060ae82956e186e3`: the same exact commands/Blueprint selector ran once, raw exit 0, **21 passed / 0 failed / 0 skipped**. The coverage checker ran once because this guide changed, raw exit 0, 105 rows and four negative mutations rejected. Original 17-test/coverage evidence above remains historical. Four added regressions cover SDK body forwarding through the surface handler into preparation, ASCII/three-byte/supplementary UTF-8 limits at 16,000 bytes and one byte above for body/argv/direct surface, args/body conflicts and malformed bodies, and authenticated surface-only lifecycle acknowledgement with view refusal. CLI body-source syntax was read from the host CLI `cli/src/cmd/plugin/body_source.rs`; installed SDK supplies the imported `AgentCommandCtx`. No production handler or real child was exercised.
