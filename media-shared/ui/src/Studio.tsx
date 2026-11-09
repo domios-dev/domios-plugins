@@ -4,7 +4,7 @@ import type { Json } from '../../src/contracts';
 import { groupHistory, studioPrice, jobStatus } from '../../src/presentation';
 import type { EstimateView, InputSchema, StudioProps, InspectorNavigation, StudioItem } from './types';
 
-const label = (key: string, schema: InputSchema) => schema.title || (key.charAt(0).toUpperCase() + key.slice(1).replaceAll('_', ' '));
+const label = (key: string, schema: InputSchema) => schema.title || (key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '));
 export function Settings({ schema, values }: { schema: InputSchema; values: Record<string, Json> }) {
   function value(v: Json, s: InputSchema): React.ReactNode {
     if (v === null) return 'None';

@@ -1,7 +1,7 @@
 {
   "license": "PolyForm-Shield-1.0.0",
   "name": "@codeterm/plugin-bitwarden",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "private": true,
   "type": "module",
   "description": "CodeTerm Bitwarden plugin: secret backend, glance popover, and connection view.",

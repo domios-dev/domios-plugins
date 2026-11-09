@@ -61,6 +61,13 @@ function isRejectedCredential(msg: string | undefined): boolean {
 
 const LOCKED_HINT = "vault is locked and no master password is remembered — run `codeterm mem secret unlock` interactively";
 
+function secretErrorMessage(error: SecretError): string {
+  if ("message" in error) return error.message;
+  if (error.kind === "locked") return LOCKED_HINT;
+  if (error.kind === "logged_out") return "Bitwarden is logged out";
+  return error.kind;
+}
+
 type Envelope<T = unknown> = { ok: T } | { error: SecretError };
 
 // bw --response JSON envelope.
@@ -322,7 +329,7 @@ function tryAutoLogin(master: string): boolean {
       env: { BW_PASSWORD: master },
     });
   } else {
-    lastRecoveryError = { kind: "logged_out", message: "stored Bitwarden login identity is missing" };
+    lastRecoveryError = { kind: "logged_out" };
     return false;
   }
 
@@ -367,7 +374,7 @@ function tryAutoUnlock(): boolean {
         // failure is left alone so a flaky network does not wipe the credential.
         if (isRejectedCredential(unlocked.message)) {
           host.secretDelete(K_MASTER);
-          lastRecoveryError = { kind: "locked", message: "stored Bitwarden master password was rejected" };
+          lastRecoveryError = { kind: "locked" };
         } else {
           lastRecoveryError = mapBwError(unlocked.message);
         }
@@ -382,7 +389,7 @@ function tryAutoUnlock(): boolean {
       lastRecoveryError = null;
       return true;
     }
-    lastRecoveryError = { kind: "locked", message: LOCKED_HINT };
+    lastRecoveryError = { kind: "locked" };
     return false;
   } finally {
     autoUnlocking = false;
@@ -398,11 +405,11 @@ function runWithSession(args: string[], stdin?: string): Envelope {
   let session = host.secretGet(K_SESSION);
   let triedUnlock = false;
   if (!session) {
-    if (!canUnlockHeadlessly()) return { error: { kind: "locked", message: LOCKED_HINT } };
-    if (!tryAutoUnlock()) return { error: lastRecoveryError || { kind: "locked", message: LOCKED_HINT } };
+    if (!canUnlockHeadlessly()) return { error: { kind: "locked" } };
+    if (!tryAutoUnlock()) return { error: lastRecoveryError || { kind: "locked" } };
     triedUnlock = true;
     session = host.secretGet(K_SESSION);
-    if (!session) return { error: { kind: "locked", message: LOCKED_HINT } };
+    if (!session) return { error: { kind: "locked" } };
   }
   let r = bw(args, { session: session, stdin: stdin });
   if (!r.success) {
@@ -469,7 +476,7 @@ function bwExecToStatusResult(ex: BwExec): StatusResult {
     return { failure: { kind: "exec_error", message: "bw could not be started" } };
   }
   const resp = parseBwOutput(ex);
-  if (!resp.success) return { failure: { kind: "bw_error", message: mapBwError(resp.message).message || "bw status failed" } };
+  if (!resp.success) return { failure: { kind: "bw_error", message: secretErrorMessage(mapBwError(resp.message)) || "bw status failed" } };
   return { status: unwrapData(resp.data) as BwStatus };
 }
 
@@ -514,12 +521,12 @@ function secretStatus(): SecretStatus {
   // Locked with nothing to unlock from is a terminal answer, not a reason to
   // spend two more bw invocations arriving at the same place.
   if (st.status === "locked" && !canUnlockHeadlessly()) {
-    return { status: "locked", endpoint: st.endpoint, reason: LOCKED_HINT };
+    return { status: "locked", endpoint: st.endpoint };
   }
   if ((st.status === "locked" || st.status === "logged_out") && canUnlockHeadlessly()) {
     if (tryAutoUnlock()) st = statusFromBw(bwStatus());
     else if (lastRecoveryError) {
-      st = { status: "unavailable", endpoint: st.endpoint, reason: lastRecoveryError.message || lastRecoveryError.kind };
+      st = { status: "unavailable", reason: secretErrorMessage(lastRecoveryError) };
     }
   }
   return st;
@@ -885,7 +892,7 @@ function startFlowLogin(flowId: string, master: string): boolean {
       env: { BW_PASSWORD: master },
     }, false);
   }
-  lastRecoveryError = { kind: "logged_out", message: "stored Bitwarden login identity is missing" };
+  lastRecoveryError = { kind: "logged_out" };
   return false;
 }
 
@@ -902,7 +909,7 @@ function flowFailure(flowId: string, message: string | undefined, usedApiKey?: b
   delete statusFlows[flowId];
   return {
     done: true,
-    status: { status: "unavailable", endpoint: serverUrl(), reason: lastRecoveryError.message || lastRecoveryError.kind },
+    status: { status: "unavailable", reason: secretErrorMessage(lastRecoveryError) },
   };
 }
 
@@ -925,7 +932,7 @@ function statusPoll(jobId: string): { done: boolean; status?: SecretStatus; erro
       env: { BW_PASSWORD: master || "" },
     })) {
       delete statusFlows[jobId];
-      return { done: true, status: { status: "unavailable", endpoint: serverUrl(), reason: (lastRecoveryError && (lastRecoveryError.message || lastRecoveryError.kind)) || LOCKED_HINT } };
+      return { done: true, status: { status: "unavailable", reason: (lastRecoveryError && (secretErrorMessage(lastRecoveryError))) || LOCKED_HINT } };
     }
     return { done: false };
   }
@@ -950,7 +957,7 @@ function statusPoll(jobId: string): { done: boolean; status?: SecretStatus; erro
     : !!startFlowJob(jobId, "unlock", ["unlock", "--passwordenv", "BW_PASSWORD", "--raw"], { env: { BW_PASSWORD: master } });
   if (!started) {
     delete statusFlows[jobId];
-    return { done: true, status: { status: "unavailable", endpoint: status.endpoint, reason: (lastRecoveryError && (lastRecoveryError.message || lastRecoveryError.kind)) || LOCKED_HINT } };
+    return { done: true, status: { status: "unavailable", reason: (lastRecoveryError && (secretErrorMessage(lastRecoveryError))) || LOCKED_HINT } };
   }
   return { done: false };
 }

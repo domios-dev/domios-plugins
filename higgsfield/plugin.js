@@ -17850,7 +17850,7 @@ function jobStatus(state, o = {}) {
   return {
     label,
     tone,
-    elapsed: seconds === void 0 ? void 0 : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
+    elapsed: seconds === void 0 ? void 0 : `${seconds >= 3600 ? `${Math.floor(seconds / 3600)}:${String(Math.floor(seconds / 60) % 60).padStart(2, "0")}` : Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
     progress: state === "generating" && typeof o.progress === "number" && Number.isFinite(o.progress) && o.progress >= 0 && o.progress <= 1 ? o.progress : void 0
   };
 }
@@ -18001,6 +18001,27 @@ function uiItem(job, now) {
     startedBy: actorLabel(documentActor(job))
   };
 }
+function inputSchema(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  for (const [key, field] of Object.entries(value)) {
+    if (field === void 0) continue;
+    if (["title", "description", "$ref"].includes(key) && typeof field !== "string") return false;
+    if (key === "type" && typeof field !== "string" && !(Array.isArray(field) && field.every((v) => typeof v === "string"))) return false;
+    if (key === "required" && !(Array.isArray(field) && field.every((v) => typeof v === "string"))) return false;
+    if (["minimum", "maximum", "multipleOf", "minLength", "maxLength", "minItems", "maxItems"].includes(key) && typeof field !== "number") return false;
+    if (["properties", "$defs"].includes(key) && (!field || typeof field !== "object" || Array.isArray(field) || !Object.values(field).every(inputSchema))) return false;
+    if (key === "items" && !inputSchema(field)) return false;
+    if (key === "enum" && (!Array.isArray(field) || !field.every(schemaValue))) return false;
+    if (key === "default" && !schemaValue(field)) return false;
+  }
+  return true;
+}
+function schemaValue(value) {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (Array.isArray(value)) return value.every(schemaValue);
+  return !!value && typeof value === "object" && Object.values(value).every(schemaValue);
+}
 function uiSchema(operation2) {
   if (!id(operation2)) throw new Error("ui_refused");
   const row = models.find((m) => m.id === operation2);
@@ -18010,8 +18031,9 @@ function uiSchema(operation2) {
   } catch {
     return unavailable2("ui_schema_too_large");
   }
-  if (!schemaSupported(row.schema)) return unavailable2("ui_schema_unsupported");
-  return clone(row.schema);
+  const schema = row.schema;
+  if (!inputSchema(schema) || !schemaSupported(schema)) return unavailable2("ui_schema_unsupported");
+  return clone(schema);
 }
 function documentUI(service, access, method, value, now, capabilities) {
   const history = service.history(access);

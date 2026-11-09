@@ -113,25 +113,51 @@ test("manifest selects PTY task delivery without native system or starter inject
   }
 });
 
-test("launch loads project instructions as read-only context", () => {
-  const paths = [];
-  const p = configured([mimoEndpoint], {fs: {readFileHead: (path, bytes) => {
-    paths.push([path, bytes]);
-    return "#";
-  }}});
-  assert.match(p.buildLaunchCommand({cwd: "/some repo/"}), /--read '\/some repo\/AGENTS.md'/);
-  assert.deepEqual(paths, [["/some repo/AGENTS.md", 1]]);
+test("fresh launch checks project instructions in the actual launch shell", () => {
+  for (const platform of ["linux", "windows"]) {
+    const reads = [];
+    const p = configured([mimoEndpoint], {platform: () => platform,
+      fs: {readFileHead: path => { reads.push(path); return null; }}});
+    const command = p.buildLaunchCommand({launchMarker: "fresh"});
+    assert.match(command, platform === "windows"
+      ? /Test-Path -LiteralPath '\.\/AGENTS.md' -PathType Leaf/
+      : /if \[ -r \.\/AGENTS.md \]/);
+    assert.equal(reads.includes("./AGENTS.md"), false);
+    assert.match(command, /\.\/\.aider\/history/);
+    assert.doesNotMatch(command, /--restore-chat-history/);
+  }
 });
 
-test("launch tolerates missing or unreadable project instructions", () => {
-  assert.doesNotMatch(configured([mimoEndpoint]).buildLaunchCommand({cwd: "/repo"}), /--read/);
-  const p = configured([mimoEndpoint], {fs: {readFileHead: () => {throw new Error("denied");}}});
-  assert.doesNotMatch(p.buildLaunchCommand({cwd: "/repo"}), /--read/);
+test("project instructions are selected by the launch directory at execution", () => {
+  const { mkdtempSync, writeFileSync, rmSync } = require("node:fs");
+  const { tmpdir } = require("node:os");
+  const { spawnSync } = require("node:child_process");
+  const directory = mkdtempSync(join(tmpdir(), "aider launch "));
+  try {
+    const platform = process.platform === "win32" ? "windows" : "linux";
+    const p = configured([mimoEndpoint], { platform: () => platform });
+    const command = p.buildLaunchCommand({ launchMarker: "fresh" });
+    const prefix = platform === "windows"
+      ? "function aider { $args | ForEach-Object { Write-Output $_ } }; function codeterm {}; "
+      : 'aider() { printf "%s\\n" "$@"; }; codeterm() { :; }; ';
+    const run = () => {
+      const result = spawnSync(platform === "windows" ? "powershell" : "bash",
+        platform === "windows" ? ["-NoProfile", "-Command", prefix + command] : ["-c", prefix + command],
+        { cwd: directory, encoding: "utf8", windowsHide: true });
+      assert.equal(result.status, 0, result.stderr);
+      return result.stdout.trim().split(/\r?\n/);
+    };
+    assert.equal(run().includes("--read"), false);
+    writeFileSync(join(directory, "AGENTS.md"), "");
+    const args = run();
+    assert.equal(args[args.indexOf("--read") + 1], "./AGENTS.md");
+  } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
-test("Windows instructions path is quoted and empty instructions still load", () => {
-  const p = configured([mimoEndpoint], {platform: () => "windows", fs: {readFileHead: () => ""}});
-  assert.match(p.buildLaunchCommand({cwd: "D:/some repo"}), /--read 'D:\/some repo\/AGENTS.md'/);
+test("launch ignores fields outside the host projection", () => {
+  const p = configured([mimoEndpoint]);
+  const command = p.buildLaunchCommand({cwd: "/never-sent", configPath: "/never-sent.yml", restoreChatHistory: true});
+  assert.doesNotMatch(command, /never-sent|--restore-chat-history|--config/);
 });
 
 test("launch reads the primer from the installed instance plugin beside AGENTS", () => {
@@ -145,9 +171,9 @@ test("launch reads the primer from the installed instance plugin beside AGENTS",
     readFileHead: (path, bytes) => { paths.push([path, bytes]); return "R"; },
   }});
   const command = p.buildLaunchCommand({cwd: "/project"});
-  assert.match(command, /--read '\/project\/AGENTS.md'/);
+  assert.match(command, /\.\/AGENTS.md/);
   assert.ok(command.includes(`--read '${primer}'`));
-  assert.deepEqual(paths, [["/project/AGENTS.md", 1], [primer, 1]]);
+  assert.deepEqual(paths, [[primer, 1]]);
 });
 
 test("missing or unreadable primer does not prevent launch", () => {
@@ -157,7 +183,7 @@ test("missing or unreadable primer does not prevent launch", () => {
       readFileHead: path => path.endsWith("AGENTS.md") ? "#" : read(),
     }});
     const command = p.buildLaunchCommand({cwd: "/project"});
-    assert.match(command, /--read '\/project\/AGENTS.md'/);
+    assert.match(command, /\.\/AGENTS.md/);
     assert.doesNotMatch(command, /--read '[^']*domios-primer/);
     assert.match(command, /--chat-history-file/);
   }
@@ -171,7 +197,7 @@ test("primer loads without project instructions and Windows paths stay quoted", 
   }});
   const command = p.buildLaunchCommand({cwd: "D:/project"});
   assert.ok(command.includes(`--read '${primer}'`));
-  assert.doesNotMatch(command, /--read 'D:\/project\/AGENTS.md'/);
+  assert.doesNotMatch(command, /--read 'D:\.\/AGENTS.md'/);
 });
 
 test("unresolved or failed primer path expansion does not block launch", () => {
@@ -214,9 +240,9 @@ test("core tool-less instructions load alongside AGENTS and primer in both launc
           readFileHead: (path, bytes) => {reads.push([path, bytes]); return "Rules";}}});
       const command = p.buildLaunchCommand({cwd: "/repo", toolLessInstructionsPath: shared});
       assert.ok(command.includes("--read 'D:/Domios rules/core '\\''shared'\\''.md'"));
-      assert.ok(command.includes("--read '/repo/AGENTS.md'"));
+      assert.ok(command.includes("./AGENTS.md"));
       assert.ok(command.includes(`--read '${primer}'`));
-      assert.deepEqual(reads, [[shared, 1], ["/repo/AGENTS.md", 1], [primer, 1]]);
+      assert.deepEqual(reads, [[shared, 1], [primer, 1]]);
       assert.doesNotMatch(command, /--message(?:-file)?\b/);
     }
   }
@@ -268,7 +294,7 @@ test("absent or empty attachment lists preserve an interactive launch", () => {
   const p = configured([mimoEndpoint]);
   for (const contextFiles of [undefined, null, {edit: [], read: []}]) {
     const command = p.buildLaunchCommand({contextFiles});
-    assert.doesNotMatch(command, /--file\b|--read\b|--message\b/);
+    assert.doesNotMatch(command, /--file\b|--message\b/);
     assert.match(command, /--chat-history-file/);
   }
 });

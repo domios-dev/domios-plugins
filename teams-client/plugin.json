@@ -1,7 +1,7 @@
 {
   "license": "PolyForm-Shield-1.0.0",
   "id": "teams-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minCodeterm": "1.15.3",
   "hostApi": 2,
   "displayName": "Teams Client",

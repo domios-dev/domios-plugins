@@ -104,7 +104,7 @@ export function endpointModels(endpoints: Endpoint[]): ModelInfo[] {
   })));
 }
 
-export function selectedModel(params: LaunchParams): string | null {
+export function selectedModel(params: Partial<Pick<LaunchParams, "args">>): string | null {
   let model: string | null = null;
   const args = params.args || [];
   for (let i = 0; i < args.length; i++) {

@@ -442,7 +442,7 @@ function contextAttachments(value) {
   return { edit, read };
 }
 
-// ../../codeterm/packages/plugin-sdk/src/fileDiffs.ts
+// ../../codeterm/codeterm/packages/plugin-sdk/src/fileDiffs.ts
 function recordedPatchDiff(path, patch, kind) {
   if (!path.trim()) return [];
   const hunks = [];
@@ -683,21 +683,79 @@ function historyDir(cwd) {
 function historyFilePath(cwd, sessionId) {
   return `${historyDir(cwd)}/${sessionId}.md`;
 }
-function resumeLaunchParams(params) {
+function resumeCommand(params) {
   if (!/^[A-Za-z0-9_-]+$/.test(params.sessionId || "")) {
     throw new Error("Aider resume requires the existing session ID.");
   }
-  return {
-    ...params,
-    sessionId: params.sessionId,
-    launchMarker: params.sessionId,
-    contextFiles: params.contextFiles ?? void 0,
-    toolLessInstructionsPath: params.toolLessInstructionsPath ?? void 0,
-    agentName: params.agentName ?? void 0,
-    instanceId: params.instanceId ?? void 0,
-    restoreChatHistory: true,
-    task: void 0
-  };
+  return buildAiderCommand({ ...params, launchMarker: params.sessionId, resumeCwd: params.cwd, resume: true });
+}
+function buildAiderCommand(p) {
+  const platform = host.platform();
+  const quote = (v) => host.shell.quoteFor(v, platform);
+  const isPowerShell = platform === "windows";
+  const cwd = p.resumeCwd || ".";
+  const historyDirPath = `${cwd}/.aider/history`;
+  const escapeDir = (value) => isPowerShell ? value.replace(/`/g, "``").replace(/"/g, '`"') : value.replace(/(["\\$`])/g, "\\$1");
+  const dirQuoted = escapeDir(historyDirPath);
+  const chatHistoryPath = isPowerShell ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).md"` : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.md"`;
+  const inputHistoryPath = isPowerShell ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).input"` : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.input"`;
+  const settings = pluginSettings();
+  const requestedModel = selectedModel(p);
+  const selected = launchEndpoint(configuredEndpoints(settings), requestedModel);
+  let startupDir;
+  if (settings.plainMode !== true) {
+    startupDir = host.fs.expandHome("~/.codeterm/plugins/aider/startup") || void 0;
+    if (!startupDir) throw new Error("Domios Aider adapter is missing. Reinstall the plugin or explicitly set plainMode=true.");
+  }
+  const parts = ["aider", ...modelLaunchArgs(p.args || [], selected.entry).map(quote)];
+  if (p.resume) parts.push("--restore-chat-history");
+  const context = contextAttachments(p.contextFiles);
+  for (const path of context.read) {
+    let readable = false;
+    try {
+      readable = host.fs.readFileHead(path, 1) !== null;
+    } catch (_) {
+    }
+    if (!readable) throw new Error(`Aider read-only context is unreadable: ${path}. Restore the file or update the task's read files.`);
+  }
+  for (const path of context.edit) parts.push("--file", quote(path));
+  for (const path of context.read) parts.push("--read", quote(path));
+  if (p.toolLessInstructionsPath !== void 0 && p.toolLessInstructionsPath !== null) {
+    const path = p.toolLessInstructionsPath;
+    let readable = false;
+    if (typeof path === "string" && path.trim()) {
+      try {
+        readable = host.fs.readFileHead(path, 1) !== null;
+      } catch (_) {
+      }
+    }
+    if (!readable) throw new Error("Domios tool-less instructions are unreadable. Retry the launch so Domios can recreate its instructions file.");
+    parts.push("--read", quote(path));
+  }
+  if (p.skipPermissions) parts.push("--yes-always");
+  if (!requestedModel) parts.push("--model", quote(selected.model));
+  parts.push("--no-suggest-shell-commands", "--no-auto-commits", "--no-pretty", "--no-fancy-input", "--no-show-model-warnings", "--chat-language", "English");
+  parts.push(isPowerShell ? "$(if (Test-Path -LiteralPath './AGENTS.md' -PathType Leaf) { '--read'; './AGENTS.md' })" : "$(if [ -r ./AGENTS.md ]; then printf '%s ' --read ./AGENTS.md; fi)");
+  try {
+    const primer = host.fs.expandHome("~/.codeterm/plugins/aider/domios-primer.md");
+    if (primer && host.fs.readFileHead(primer, 1) !== null) {
+      parts.push("--read", quote(primer));
+    }
+  } catch (_) {
+  }
+  const configPath = typeof settings.configPath === "string" && settings.configPath || null;
+  if (configPath) {
+    parts.push("--config", quote(configPath));
+  }
+  const command = parts.join(" ");
+  const historyFlags = [
+    "--chat-history-file",
+    chatHistoryPath,
+    "--input-history-file",
+    inputHistoryPath
+  ].join(" ");
+  const mkdir = isPowerShell ? `New-Item -ItemType Directory -Force -Path ${quote(historyDirPath)} | Out-Null;` : `mkdir -p ${quote(historyDirPath)};`;
+  return withLaunchEnv(`${mkdir} ${command} ${historyFlags}`, p, selected.endpoint, startupDir);
 }
 function historyFileEntries(cwd) {
   const fs = globalThis.host?.fs;
@@ -849,85 +907,20 @@ var plugin = {
     return [optionIndex === 0 ? YES : NO, ENTER];
   },
   buildLaunchCommand(params) {
-    const p = params || {};
-    const platform = host.platform();
-    const quote = (v) => host.shell.quoteFor(v, platform);
-    const isPowerShell = platform === "windows";
-    const cwd = typeof p.cwd === "string" && p.cwd ? p.cwd : ".";
-    const historyDirPath = `${cwd}/.aider/history`;
-    const escapeDir = (value) => isPowerShell ? value.replace(/`/g, "``").replace(/"/g, '`"') : value.replace(/(["\\$`])/g, "\\$1");
-    const dirQuoted = escapeDir(historyDirPath);
-    const chatHistoryPath = isPowerShell ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).md"` : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.md"`;
-    const inputHistoryPath = isPowerShell ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).input"` : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.input"`;
-    const settings = pluginSettings();
-    const requestedModel = selectedModel(p);
-    const selected = launchEndpoint(configuredEndpoints(settings), requestedModel);
-    let startupDir;
-    if (settings.plainMode !== true) {
-      startupDir = host.fs.expandHome("~/.codeterm/plugins/aider/startup") || void 0;
-      if (!startupDir) throw new Error("Domios Aider adapter is missing. Reinstall the plugin or explicitly set plainMode=true.");
-    }
-    const parts = ["aider", ...modelLaunchArgs(p.args || [], selected.entry).map(quote)];
-    if (p.restoreChatHistory === true) parts.push("--restore-chat-history");
-    const context = contextAttachments(p.contextFiles);
-    for (const path of context.read) {
-      let readable = false;
-      try {
-        readable = host.fs.readFileHead(path, 1) !== null;
-      } catch (_) {
-      }
-      if (!readable) throw new Error(`Aider read-only context is unreadable: ${path}. Restore the file or update the task's read files.`);
-    }
-    for (const path of context.edit) parts.push("--file", quote(path));
-    for (const path of context.read) parts.push("--read", quote(path));
-    if (p.toolLessInstructionsPath !== void 0 && p.toolLessInstructionsPath !== null) {
-      const path = p.toolLessInstructionsPath;
-      let readable = false;
-      if (typeof path === "string" && path.trim()) {
-        try {
-          readable = host.fs.readFileHead(path, 1) !== null;
-        } catch (_) {
-        }
-      }
-      if (!readable) throw new Error("Domios tool-less instructions are unreadable. Retry the launch so Domios can recreate its instructions file.");
-      parts.push("--read", quote(path));
-    }
-    if (p.skipPermissions) parts.push("--yes-always");
-    if (!requestedModel) parts.push("--model", quote(selected.model));
-    parts.push("--no-suggest-shell-commands", "--no-auto-commits", "--no-pretty", "--no-fancy-input", "--no-show-model-warnings", "--chat-language", "English");
-    const instructions = `${cwd.replace(/[\\/]+$/, "")}/AGENTS.md`;
-    try {
-      if (host.fs.readFileHead(instructions, 1) !== null) {
-        parts.push("--read", quote(instructions));
-      }
-    } catch (_) {
-    }
-    try {
-      const primer = host.fs.expandHome("~/.codeterm/plugins/aider/domios-primer.md");
-      if (primer && host.fs.readFileHead(primer, 1) !== null) {
-        parts.push("--read", quote(primer));
-      }
-    } catch (_) {
-    }
-    const configPath = typeof settings.configPath === "string" && settings.configPath || typeof p.configPath === "string" && p.configPath || null;
-    if (configPath) {
-      parts.push("--config", quote(configPath));
-    }
-    const command = parts.join(" ");
-    const historyFlags = [
-      "--chat-history-file",
-      chatHistoryPath,
-      "--input-history-file",
-      inputHistoryPath
-    ].join(" ");
-    const mkdir = isPowerShell ? `New-Item -ItemType Directory -Force -Path ${quote(historyDirPath)} | Out-Null;` : `mkdir -p ${quote(historyDirPath)};`;
-    return withLaunchEnv(`${mkdir} ${command} ${historyFlags}`, p, selected.endpoint, startupDir);
+    return buildAiderCommand({
+      launchMarker: params.launchMarker,
+      sessionId: params.sessionId,
+      args: params.args,
+      contextFiles: params.contextFiles,
+      toolLessInstructionsPath: params.toolLessInstructionsPath,
+      skipPermissions: params.skipPermissions
+    });
   },
   buildResumeCommand(sessionId, skipPermissions) {
-    return this.buildLaunchCommand(resumeLaunchParams({ sessionId, skipPermissions }));
+    return resumeCommand({ sessionId, skipPermissions });
   },
   buildResumeCommandWithContext(params) {
-    return this.buildLaunchCommand(resumeLaunchParams(params));
+    return resumeCommand(params);
   },
   launchOnboardingResponse(screen) {
     const prompt = parsePromptWithContext(String(screen || ""));

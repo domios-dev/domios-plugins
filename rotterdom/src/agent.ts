@@ -92,7 +92,7 @@ export function runAgentTask(input: AgentTaskInput): AgentTaskResult {
           if (run.tokens > profile.budgets.tokens) throw new Error("task token budget exhausted");
           history.turns.push(turn); save(history);
           if (turn.toolCalls?.length) return calls([...turn.toolCalls]);
-          let output: unknown = turn.content;
+          let output: AgentTaskResult["output"] = turn.content;
           try { output = JSON.parse(turn.content); } catch {}
           if (JSON.stringify(output).length > 60000) throw new Error("task output exceeds limit");
           return finish(input.runId, { status: "done", output });

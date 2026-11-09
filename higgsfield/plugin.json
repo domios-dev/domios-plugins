@@ -1,7 +1,7 @@
 {
   "id": "higgsfield",
-  "version": "0.1.0",
-  "minCodeterm": "1.17.1",
+  "version": "0.1.1",
+  "minCodeterm": "1.18.0",
   "hostApi": 2,
   "displayName": "Higgsfield",
   "description": "DEV 550cb1c only: protected SOUL2 quote/host approval/job runtime. Public released minimum unknown; HIG11 retained.",

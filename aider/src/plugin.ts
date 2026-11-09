@@ -50,7 +50,7 @@ function pluginSettings(): Record<string, unknown> {
   }
 }
 
-function withLaunchEnv(command: string, p: LaunchParams, endpoint: Endpoint, startupDir?: string): string {
+function withLaunchEnv(command: string, p: AiderLaunchOptions, endpoint: Endpoint, startupDir?: string): string {
   const platform = host.platform();
   const quote = (v: string) => host.shell.quoteFor(v, platform);
   // On Windows Domios launches agents in PowerShell; the host reports the
@@ -98,15 +98,102 @@ function historyFilePath(cwd: string, sessionId: string): string {
   return `${historyDir(cwd)}/${sessionId}.md`;
 }
 
-function resumeLaunchParams(params: ResumeParams): LaunchParams {
+type AiderLaunchOptions = Partial<Pick<LaunchParams,
+  "launchMarker" | "sessionId" | "args" | "contextFiles" | "toolLessInstructionsPath" | "skipPermissions"
+>> & { resumeCwd?: string | null; resume?: boolean };
+
+function resumeCommand(params: ResumeParams): string {
   if (!/^[A-Za-z0-9_-]+$/.test(params.sessionId || "")) {
     throw new Error("Aider resume requires the existing session ID.");
   }
-  // Resume owns an existing history file; a new launch marker must not rename it.
-  return { ...params, sessionId: params.sessionId, launchMarker: params.sessionId,
-    contextFiles: params.contextFiles ?? undefined, toolLessInstructionsPath: params.toolLessInstructionsPath ?? undefined,
-    agentName: params.agentName ?? undefined, instanceId: params.instanceId ?? undefined,
-    restoreChatHistory: true, task: undefined };
+  return buildAiderCommand({ ...params, launchMarker: params.sessionId, resumeCwd: params.cwd, resume: true });
+}
+
+function buildAiderCommand(p: AiderLaunchOptions): string {
+  const platform = host.platform();
+  const quote = (v: string) => host.shell.quoteFor(v, platform);
+  const isPowerShell = platform === "windows";
+  const cwd = p.resumeCwd || ".";
+  const historyDirPath = `${cwd}/.aider/history`;
+  // The nonce must expand at run time, so the path is a double-quoted
+  // string with the variable left unquoted; only the directory is escaped.
+  const escapeDir = (value: string) =>
+    isPowerShell
+      ? value.replace(/`/g, "``").replace(/"/g, '`"')
+      : value.replace(/(["\\$`])/g, "\\$1");
+  const dirQuoted = escapeDir(historyDirPath);
+  const chatHistoryPath = isPowerShell
+    ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).md"`
+    : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.md"`;
+  const inputHistoryPath = isPowerShell
+    ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).input"`
+    : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.input"`;
+  const settings = pluginSettings();
+  const requestedModel = selectedModel(p);
+  const selected = launchEndpoint(configuredEndpoints(settings), requestedModel);
+  let startupDir: string | undefined;
+  if (settings.plainMode !== true) {
+    startupDir = host.fs.expandHome("~/.codeterm/plugins/aider/startup") || undefined;
+    if (!startupDir) throw new Error("Domios Aider adapter is missing. Reinstall the plugin or explicitly set plainMode=true.");
+  }
+  // Preserve aider's normal entry point in the PTY process tree. Python's
+  // startup hook installs the adapter before aider.main runs, in its own venv.
+  const parts = ["aider", ...modelLaunchArgs(p.args || [], selected.entry).map(quote)];
+  if (p.resume) parts.push("--restore-chat-history");
+  const context = contextAttachments(p.contextFiles);
+  for (const path of context.read) {
+    let readable = false;
+    try { readable = host.fs.readFileHead(path, 1) !== null; } catch (_) { /* refuse below */ }
+    if (!readable) throw new Error(`Aider read-only context is unreadable: ${path}. Restore the file or update the task's read files.`);
+  }
+  for (const path of context.edit) parts.push("--file", quote(path));
+  for (const path of context.read) parts.push("--read", quote(path));
+  // Core owns the shared tool-less rules. A supplied file is mandatory;
+  // unlike optional project/primer context, it must never be silently lost.
+  if (p.toolLessInstructionsPath !== undefined && p.toolLessInstructionsPath !== null) {
+    const path = p.toolLessInstructionsPath;
+    let readable = false;
+    if (typeof path === "string" && path.trim()) {
+      try { readable = host.fs.readFileHead(path, 1) !== null; } catch (_) { /* refuse below */ }
+    }
+    if (!readable) throw new Error("Domios tool-less instructions are unreadable. Retry the launch so Domios can recreate its instructions file.");
+    parts.push("--read", quote(path));
+  }
+  if (p.skipPermissions) parts.push("--yes-always");
+  if (!requestedModel) parts.push("--model", quote(selected.model));
+  parts.push("--no-suggest-shell-commands", "--no-auto-commits", "--no-pretty", "--no-fancy-input", "--no-show-model-warnings", "--chat-language", "English");
+  parts.push(isPowerShell
+    ? "$(if (Test-Path -LiteralPath './AGENTS.md' -PathType Leaf) { '--read'; './AGENTS.md' })"
+    : "$(if [ -r ./AGENTS.md ]; then printf '%s ' --read ./AGENTS.md; fi)");
+  try {
+    // expandHome maps ~/.codeterm to this instance's data directory, so
+    // the bundled primer resolves inside the installed plugin on DEV too.
+    const primer = host.fs.expandHome("~/.codeterm/plugins/aider/domios-primer.md");
+    if (primer && host.fs.readFileHead(primer, 1) !== null) {
+      parts.push("--read", quote(primer));
+    }
+  } catch (_) {
+    // A missing bundled primer must not prevent starting Aider either.
+  }
+  const configPath =
+    (typeof settings.configPath === "string" && settings.configPath) ||
+    null;
+  if (configPath) {
+    parts.push("--config", quote(configPath));
+  }
+  // --message/--message-file exit after one answer in Aider 0.86.2.
+  // The manifest selects core's confirmed PTY delivery for the initial task.
+  const command = parts.join(" ");
+  const historyFlags = [
+    "--chat-history-file",
+    chatHistoryPath,
+    "--input-history-file",
+    inputHistoryPath,
+  ].join(" ");
+  const mkdir = isPowerShell
+    ? `New-Item -ItemType Directory -Force -Path ${quote(historyDirPath)} | Out-Null;`
+    : `mkdir -p ${quote(historyDirPath)};`;
+  return withLaunchEnv(`${mkdir} ${command} ${historyFlags}`, p, selected.endpoint, startupDir);
 }
 
 interface HistoryFileEntry {
@@ -293,108 +380,20 @@ const plugin: PluginModule = {
   },
 
   buildLaunchCommand(params: LaunchParams): string {
-    const p = params || {};
-    const platform = host.platform();
-    const quote = (v: string) => host.shell.quoteFor(v, platform);
-    const isPowerShell = platform === "windows";
-    const cwd = typeof p.cwd === "string" && p.cwd ? p.cwd : ".";
-    const historyDirPath = `${cwd}/.aider/history`;
-    // The nonce must expand at run time, so the path is a double-quoted
-    // string with the variable left unquoted; only the directory is escaped.
-    const escapeDir = (value: string) =>
-      isPowerShell
-        ? value.replace(/`/g, "``").replace(/"/g, '`"')
-        : value.replace(/(["\\$`])/g, "\\$1");
-    const dirQuoted = escapeDir(historyDirPath);
-    const chatHistoryPath = isPowerShell
-      ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).md"`
-      : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.md"`;
-    const inputHistoryPath = isPowerShell
-      ? `"${dirQuoted}/$($env:DOMIOS_AIDER_SESSION_ID).input"`
-      : `"${dirQuoted}/\${DOMIOS_AIDER_SESSION_ID}.input"`;
-    const settings = pluginSettings();
-    const requestedModel = selectedModel(p);
-    const selected = launchEndpoint(configuredEndpoints(settings), requestedModel);
-    let startupDir: string | undefined;
-    if (settings.plainMode !== true) {
-      startupDir = host.fs.expandHome("~/.codeterm/plugins/aider/startup") || undefined;
-      if (!startupDir) throw new Error("Domios Aider adapter is missing. Reinstall the plugin or explicitly set plainMode=true.");
-    }
-    // Preserve aider's normal entry point in the PTY process tree. Python's
-    // startup hook installs the adapter before aider.main runs, in its own venv.
-    const parts = ["aider", ...modelLaunchArgs(p.args || [], selected.entry).map(quote)];
-    if (p.restoreChatHistory === true) parts.push("--restore-chat-history");
-    const context = contextAttachments(p.contextFiles);
-    for (const path of context.read) {
-      let readable = false;
-      try { readable = host.fs.readFileHead(path, 1) !== null; } catch (_) { /* refuse below */ }
-      if (!readable) throw new Error(`Aider read-only context is unreadable: ${path}. Restore the file or update the task's read files.`);
-    }
-    for (const path of context.edit) parts.push("--file", quote(path));
-    for (const path of context.read) parts.push("--read", quote(path));
-    // Core owns the shared tool-less rules. A supplied file is mandatory;
-    // unlike optional project/primer context, it must never be silently lost.
-    if (p.toolLessInstructionsPath !== undefined && p.toolLessInstructionsPath !== null) {
-      const path = p.toolLessInstructionsPath;
-      let readable = false;
-      if (typeof path === "string" && path.trim()) {
-        try { readable = host.fs.readFileHead(path, 1) !== null; } catch (_) { /* refuse below */ }
-      }
-      if (!readable) throw new Error("Domios tool-less instructions are unreadable. Retry the launch so Domios can recreate its instructions file.");
-      parts.push("--read", quote(path as string));
-    }
-    if (p.skipPermissions) parts.push("--yes-always");
-    if (!requestedModel) parts.push("--model", quote(selected.model));
-    parts.push("--no-suggest-shell-commands", "--no-auto-commits", "--no-pretty", "--no-fancy-input", "--no-show-model-warnings", "--chat-language", "English");
-    // Aider does not load the agents.md convention itself. Keep repository
-    // instructions in read-only context, without scanning the whole tree.
-    const instructions = `${cwd.replace(/[\\/]+$/, "")}/AGENTS.md`;
-    try {
-      if (host.fs.readFileHead(instructions, 1) !== null) {
-        parts.push("--read", quote(instructions));
-      }
-    } catch (_) {
-      // Missing or unreadable instructions must not prevent starting Aider.
-    }
-    try {
-      // expandHome maps ~/.codeterm to this instance's data directory, so
-      // the bundled primer resolves inside the installed plugin on DEV too.
-      const primer = host.fs.expandHome("~/.codeterm/plugins/aider/domios-primer.md");
-      if (primer && host.fs.readFileHead(primer, 1) !== null) {
-        parts.push("--read", quote(primer));
-      }
-    } catch (_) {
-      // A missing bundled primer must not prevent starting Aider either.
-    }
-    const configPath =
-      (typeof settings.configPath === "string" && settings.configPath) ||
-      (typeof p.configPath === "string" && p.configPath) ||
-      null;
-    if (configPath) {
-      parts.push("--config", quote(configPath));
-    }
-    // --message/--message-file exit after one answer in Aider 0.86.2.
-    // The manifest selects core's confirmed PTY delivery for the initial task.
-    const command = parts.join(" ");
-    const historyFlags = [
-      "--chat-history-file",
-      chatHistoryPath,
-      "--input-history-file",
-      inputHistoryPath,
-    ].join(" ");
-    const mkdir = isPowerShell
-      ? `New-Item -ItemType Directory -Force -Path ${quote(historyDirPath)} | Out-Null;`
-      : `mkdir -p ${quote(historyDirPath)};`;
-    return withLaunchEnv(`${mkdir} ${command} ${historyFlags}`, p, selected.endpoint, startupDir);
+    return buildAiderCommand({
+      launchMarker: params.launchMarker, sessionId: params.sessionId, args: params.args,
+      contextFiles: params.contextFiles, toolLessInstructionsPath: params.toolLessInstructionsPath,
+      skipPermissions: params.skipPermissions,
+    });
   },
 
 
   buildResumeCommand(sessionId: string, skipPermissions?: boolean): string {
-    return this.buildLaunchCommand!(resumeLaunchParams({sessionId, skipPermissions}));
+    return resumeCommand({sessionId, skipPermissions});
   },
 
   buildResumeCommandWithContext(params: ResumeParams): string {
-    return this.buildLaunchCommand!(resumeLaunchParams(params));
+    return resumeCommand(params);
   },
 
   launchOnboardingResponse(screen: string): { frameKey: string; step: string } | null {

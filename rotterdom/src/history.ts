@@ -1,3 +1,4 @@
+import type { AgentTaskResult } from "@codeterm/plugin-sdk";
 import type { ChatTurn, Profile } from "./types";
 export interface CallRecord { signature: string; state: "claimed" | "completed"; result?: string }
 export interface History {
@@ -7,7 +8,7 @@ export interface History {
   turns: ChatTurn[];
   ledger: Record<string, CallRecord>;
   run: number;
-  taskResult?: { status: "done" | "failed" | "cancelled" | "deadline_exceeded"; output: unknown; error?: string };
+  taskResult?: AgentTaskResult;
 }
 export function claim(history: History, id: string, signature: string): string | null {
   const old = history.ledger[id];

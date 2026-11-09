@@ -1,3 +1,5 @@
+import type { Host } from "@codeterm/plugin-sdk";
+type ExecPollResult = ReturnType<Host["exec"]["poll"]>;
 import type { GlanceView, PluginModule, ViewNode } from "@codeterm/plugin-sdk";
 import { qrSvg } from "./qr";
 import { classifyLoginOutput, loginStateForStep, maskPhone, nextLoginAction, type LoginStep } from "./login-steps";
@@ -25,7 +27,7 @@ let transientSendFailure: { state: string; message: string; updatedAt: number } 
 
 type RunResult = { ok: true; stdout: string; stderr: string; raw: string } | { ok: false; error: string; stderr: string };
 type TgJob = { jobId?: string; error?: string; ambiguousStart?: boolean };
-type PollResult = { done: boolean; code?: number; stdout?: string; stderr?: string; error?: string };
+type PollResult = ExecPollResult;
 type Paths = { root: string; binDir: string; binary: string; config: string; install: string; failure: string; outbox: string; scope: string };
 
 function platformName(): string {
@@ -855,8 +857,8 @@ function settleFileAttempt(p: Paths, ledger: Outbox, attempt: Attempt): { result
   const jobId = fileJobs[attempt.idempotencyKey];
   if (!jobId) return failAttempt(p, ledger, attempt, "unknown", "the upload process result was lost before it was recorded");
   let polled: PollResult;
-  try { polled = host.exec.poll(jobId) as PollResult; } catch { polled = { done: true, error: "the upload job could not be read" }; }
-  if (!polled || !polled.done) return uploadingResult(attempt);
+  try { polled = host.exec.poll(jobId); } catch { polled = { done: true, error: "the upload job could not be read" }; }
+  if (!polled || (!polled.error && !polled.done)) return uploadingResult(attempt);
   try { host.exec.close(jobId); } catch { }
   delete fileJobs[attempt.idempotencyKey];
   return finishUpload(p, ledger, attempt, polled);
@@ -1269,8 +1271,13 @@ function loginPoll(jobId: string): any {
   if (!p) return { error: "The host home directory is unavailable." };
   if (loginLaunchPending[jobId]) {
     let launch: PollResult;
-    try { launch = host.exec.poll(jobId) as PollResult; }
+    try { launch = host.exec.poll(jobId); }
     catch { return { error: "Could not read the login job." }; }
+    if (launch.error) {
+      try { host.exec.close(jobId); } catch { }
+      forgetLoginJob(jobId);
+      return { done: true, error: redact(launch.error), state: "reauth-needed" };
+    }
     if (!launch.done) {
       let partial = host.fs.readFileTail(loginLogPaths[jobId], 8192) || "";
       const password = loginPasswords[jobId] || "";

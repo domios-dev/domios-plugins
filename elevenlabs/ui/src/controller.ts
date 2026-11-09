@@ -76,7 +76,7 @@ export class StudioController {
     try{if(validateParameters(operation(this.state.operation),this.state.params,this.state.inputs.length))return;}catch{}
     return {action:'Check inputs',helper:'Check the inputs to get a price'};
   }
-  priceFor(item:AudioItem){return item.price.kind==='ready' && this.now()>=(this.deadLines.get(item.id)??0)?{kind:'stale' as const}:item.price;}
+  priceFor(item:Pick<AudioItem,'id'|'price'>){return item.price.kind==='ready' && this.now()>=(this.deadLines.get(item.id)??0)?{kind:'stale' as const}:item.price;}
   price():EstimateView{
     const s=this.state,item=s.snapshot?.items.find(i=>i.id===s.id),issue=this.issue();
     return {gate:item?this.priceFor(item):{kind:s.stale?'stale':'unavailable'},count:1,available:!!s.snapshot?.capabilities.estimate,

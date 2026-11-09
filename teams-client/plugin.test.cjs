@@ -360,6 +360,20 @@ function loginUntil(env, predicate, limit = 12) {
   return value;
 }
 
+test("an error-only install poll refusal ends the attempt without starting another stage", () => {
+  const env = mockHost();
+  const started = result(command("login"));
+  assert.equal(started.done, false);
+  globalThis.host.exec.poll = () => ({ error: "observation refused" });
+  const failed = result(command("login-status"));
+  assert.equal(failed.done, true);
+  assert.equal(failed.state, "install-failed");
+  assert.match(failed.message, /observation refused/);
+  const count = env.calls.length;
+  command("login-status");
+  assert.equal(env.calls.length, count);
+});
+
 test("first login installs the pinned toolchain and module stage by stage, then returns the device code", () => {
   const env = mockHost();
   const value = loginUntil(env, (v) => v.signIn === "device-code");

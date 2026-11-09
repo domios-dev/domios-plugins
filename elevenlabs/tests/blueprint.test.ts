@@ -9,7 +9,7 @@ import {checkCoverage,checkDescriptors,inputs} from '../scripts/check-coverage.m
 function setup(){
   const f=fixture();
   const req:BlueprintStepRequest={context:{scope:{workspace:'workspace',team:'team',run:'trusted-run'},owner:'workspace-user',node:'speech',attempt:'attempt',operation:'stable-operation',runView:'trusted-run-view',runLabel:'Run',nodeLabel:'Speech',inputLineage:[]},
-    nodeType:'elevenlabs.tts',revision:1,params:{voice:'owned',text:'Hello',model:'eleven_multilingual_v2'},inputs:{},unit:'usd_micro',stepAllowance:100,job:null,deadlineMs:1000};
+    nodeType:'elevenlabs.tts',revision:1,params:{voice:'owned',text:'Hello',model:'eleven_multilingual_v2'},inputs:{},job:null,deadlineMs:1000};
   const token=f.grant({},'run-actor',{run:'trusted-run'}),snapshot=JSON.stringify(req.context);
   const bp=createBlueprint(f.service,{caller(r){if(r!==req||JSON.stringify(r.context)!==snapshot)throw new Error('forged_run');return token;},intent(r){if(r!==req)throw new Error('forged_run');return r.context.operation;}});
   return {...f,req,token,bp,id:'stable-operation'};

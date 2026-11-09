@@ -582,7 +582,7 @@ test("status cause: bw-level error maps to a fixed reason", () => {
   }
 });
 
-test("locked with nothing remembered: status answers once and names the way out", () => {
+test("locked with nothing remembered: status answers once with the host locked variant", () => {
   const secrets = {};
   const savedHost = globalThis.host;
   let execs = 0;
@@ -600,7 +600,7 @@ test("locked with nothing remembered: status answers once and names the way out"
   try {
     const s = plugin.secretStatus();
     assert(s.status === "locked", "expected locked, got " + JSON.stringify(s));
-    assert(/unlock/i.test(s.reason || ""), "a terminal lock must name the way out, got " + s.reason);
+    assert(!("reason" in s), "locked status uses the host unit variant");
     assert(execs === 1, "one bw invocation is enough to know, ran " + execs);
   } finally {
     globalThis.host = savedHost;
@@ -623,7 +623,7 @@ test("locked with nothing remembered: an operation fails structurally without ru
     const r = plugin.secretGetItem("example");
     const err = r && r.error;
     assert(err && err.kind === "locked", "expected a locked envelope, got " + JSON.stringify(r));
-    assert(/unlock/i.test(err.message || ""), "the error must name the way out, got " + err.message);
+    assert(!("message" in err), "locked errors use the host unit variant");
     assert(execs === 0, "a headlessly-unopenable vault needs no bw call, ran " + execs);
   } finally {
     globalThis.host = savedHost;
@@ -890,7 +890,7 @@ test("consent armed but no stored credential: an operation is refused with a nam
   try {
     const r = plugin.secretGetItem("token");
     assert(r && r.error && r.error.kind === "locked", "expected a locked discriminant, got " + JSON.stringify(r));
-    assert(/unlock/i.test(r.error.message || ""), "the refusal must name the way out, got " + r.error.message);
+    assert(!("message" in r.error), "locked refusal uses the host unit variant");
     assert(rec.execs.length === 0, "consent is not access: nothing is attempted, ran " + rec.execs.length);
   } finally {
     globalThis.host = savedHost;

@@ -115,13 +115,38 @@ export function uiItem(job: Job, now: number): StudioItem {
     recordedCost: cost ? { amount: cost.amount, unit: cost.unit, text: displayUSD(cost.amount), kind: charged ? 'charged' : 'quoted' } : undefined,
     activity: privateActivity(job), startedBy: actorLabel(documentActor(job)) };
 }
+function inputSchema(value: unknown): value is InputSchema {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  for (const [key, field] of Object.entries(value)) {
+    if (field === undefined) continue;
+    if (['title', 'description', '$ref'].includes(key) && typeof field !== 'string') return false;
+    if (key === 'type' && typeof field !== 'string' &&
+        !(Array.isArray(field) && field.every(v => typeof v === 'string'))) return false;
+    if (key === 'required' && !(Array.isArray(field) && field.every(v => typeof v === 'string'))) return false;
+    if (['minimum', 'maximum', 'multipleOf', 'minLength', 'maxLength', 'minItems', 'maxItems'].includes(key) &&
+        typeof field !== 'number') return false;
+    if (['properties', '$defs'].includes(key) &&
+        (!field || typeof field !== 'object' || Array.isArray(field) || !Object.values(field).every(inputSchema))) return false;
+    if (key === 'items' && !inputSchema(field)) return false;
+    if (key === 'enum' && (!Array.isArray(field) || !field.every(schemaValue))) return false;
+    if (key === 'default' && !schemaValue(field)) return false;
+  }
+  return true;
+}
+function schemaValue(value: unknown): value is Json {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return true;
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (Array.isArray(value)) return value.every(schemaValue);
+  return !!value && typeof value === 'object' && Object.values(value).every(schemaValue);
+}
 export function uiSchema(operation: unknown): InputSchema | UIUnavailable {
   if (!id(operation)) throw new Error('ui_refused');
   const row = models.find(m => m.id === operation);
   if (!row?.schema) return unavailable('ui_schema_unsupported');
   try { uiJSONBytes(row.schema, uiBounds.schema); } catch { return unavailable('ui_schema_too_large'); }
-  if (!schemaSupported(row.schema as InputSchema)) return unavailable('ui_schema_unsupported');
-  return clone(row.schema) as InputSchema;
+  const schema: unknown = row.schema;
+  if (!inputSchema(schema) || !schemaSupported(schema)) return unavailable('ui_schema_unsupported');
+  return clone(schema);
 }
 export function documentUI(service: HiggsfieldService, access: Access, method: string, value: unknown, now: number,
   capabilities: UISnapshot['capabilities']): UISnapshot | UIDetails | UISchema | UIUnavailable {

@@ -91,7 +91,7 @@ test('host attribution and consecutive run groups preserve job order and distinc
   assert.equal(activityLine(agent, 'submitted', 'x'.repeat(49)), `Rex submitted ${'x'.repeat(48)}…`);
   const older = new Date(2026, 9, 27, 12);
   assert.equal(groupHistory([{ at: older.getTime(), actor: you }], now)[0].day,
-    older.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }));
+    older.toLocaleDateString('en', { month: 'short', day: 'numeric' }));
 });
 test('Iris refusal copy sanitizes raw errors, stays silent for busy/stale and gates action ordering', () => {
   for (const reason of ['cancelled', 'busy', 'stale']) assert.equal(refusalCopy('denied', reason), null);

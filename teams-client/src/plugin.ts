@@ -1,3 +1,5 @@
+import type { Host } from "@codeterm/plugin-sdk";
+type ExecPollResult = ReturnType<Host["exec"]["poll"]>;
 import type { GlanceView, PluginModule, ViewNode } from "@codeterm/plugin-sdk";
 import { readOutput } from "./read-output";
 import { decideSend, matchChats, parseSendScope, validateSendScope, type SendOrigin, type SendScope } from "../../shared/src/send-scope";
@@ -1181,10 +1183,10 @@ function loginPoll(): any {
   if (activeInstallJobId) {
     const jobId = activeInstallJobId;
     const job = installJobs[jobId];
-    let poll: { done: boolean; code?: number; stdout?: string; stderr?: string; error?: string };
+    let poll: ExecPollResult;
     try { poll = host.exec.poll(jobId); }
     catch { activeInstallJobId = null; return { done: true, state: "install-failed", error: "Could not read the install job." }; }
-    if (!poll.done) return { done: false, jobId, state: "install-in-progress", message: STAGE_MESSAGES[job.stage] };
+    if (!poll.error && !poll.done) return { done: false, jobId, state: "install-in-progress", message: STAGE_MESSAGES[job.stage] };
     try { host.exec.close(jobId); } catch { }
     return finishInstallStage(jobId, job, poll);
   }

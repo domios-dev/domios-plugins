@@ -21,7 +21,7 @@ export interface RunPorts {
 }
 export function createBlueprint(service:ElevenLabsService,ports:RunPorts) {
   function bound(request:BlueprintStepRequest) {
-    if (request.nodeType!=='elevenlabs.tts' || request.revision!==1 || Object.keys(request.inputs).length || request.unit!=='usd_micro') throw new Error('step_unavailable');
+    if (request.nodeType!=='elevenlabs.tts' || request.revision!==1 || Object.keys(request.inputs).length) throw new Error('step_unavailable');
     const caller=ports.caller(request), id=ports.intent(request), vendor=speechRequest(request.params);
     const existing=service.history(caller).find(j=>j.id===id);
     if (!existing) service.intent(caller,id,vendor);

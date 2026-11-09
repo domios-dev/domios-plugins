@@ -37,7 +37,7 @@ export function disposition(row: Operation) {
     limitation = 'This exact operation issues or lists credentials/session authority, not ordinary metadata; no reviewed confined session/key consumer is available. See its saved response schema/source.';
   else if (row.transport.kind === 'http-stream' && !row.transport.response_types?.some(mime => mime.startsWith('audio/')))
     limitation = 'Structured event/timestamp stream needs its exact bounded decoder; raw byte completion cannot establish that protocol. See the saved operation schema/source.';
-  else if (row.transport.response_types?.includes('multipart/mixed'))
+  else if (row.transport.response_types?.some(mime => mime === 'multipart/mixed'))
     limitation = 'Multipart response metadata/audio needs the exact bounded multipart decoder; see this operation response schema.';
   else if (row.family === 'voices' && row.method !== 'GET' && !['speech_to_speech_full','speech_to_speech_stream'].includes(row.id))
     limitation = 'All existing voices/settings are immutable; design, creation and cloning need separate owner approval (contracts.json#/safety).';

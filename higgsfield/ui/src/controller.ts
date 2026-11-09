@@ -79,7 +79,7 @@ export class StudioController {
     const missing = this.state.schema?.required?.find(key => this.state.values[key] === undefined ||
       typeof this.state.values[key] === 'string' && !String(this.state.values[key]).trim());
     if (missing) {
-      const name = this.state.schema?.properties?.[missing]?.title ?? missing.replaceAll('_', ' ');
+      const name = this.state.schema?.properties?.[missing]?.title ?? missing.replace(/_/g, ' ');
       const action = missing === 'prompt' ? 'Add a prompt' : `Add ${name.toLowerCase()}`;
       return { action, helper: `${action} to get a price` };
     }

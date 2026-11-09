@@ -34,9 +34,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// node_modules/qrcode-generator/qrcode.js
+// ../../codeterm-plugins/node_modules/qrcode-generator/qrcode.js
 var require_qrcode = __commonJS({
-  "node_modules/qrcode-generator/qrcode.js"(exports, module2) {
+  "../../codeterm-plugins/node_modules/qrcode-generator/qrcode.js"(exports, module2) {
     var qrcode2 = (function() {
       var qrcode3 = function(typeNumber, errorCorrectionLevel) {
         var PAD0 = 236;
@@ -2937,7 +2937,7 @@ function settleFileAttempt(p, ledger, attempt) {
   } catch {
     polled = { done: true, error: "the upload job could not be read" };
   }
-  if (!polled || !polled.done) return uploadingResult(attempt);
+  if (!polled || !polled.error && !polled.done) return uploadingResult(attempt);
   try {
     host.exec.close(jobId);
   } catch {
@@ -3361,6 +3361,14 @@ function loginPoll(jobId) {
       launch = host.exec.poll(jobId);
     } catch {
       return { error: "Could not read the login job." };
+    }
+    if (launch.error) {
+      try {
+        host.exec.close(jobId);
+      } catch {
+      }
+      forgetLoginJob(jobId);
+      return { done: true, error: redact(launch.error), state: "reauth-needed" };
     }
     if (!launch.done) {
       let partial = host.fs.readFileTail(loginLogPaths[jobId], 8192) || "";

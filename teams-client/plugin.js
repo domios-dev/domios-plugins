@@ -1547,7 +1547,7 @@ function loginPoll() {
       activeInstallJobId = null;
       return { done: true, state: "install-failed", error: "Could not read the install job." };
     }
-    if (!poll.done) return { done: false, jobId, state: "install-in-progress", message: STAGE_MESSAGES[job.stage] };
+    if (!poll.error && !poll.done) return { done: false, jobId, state: "install-in-progress", message: STAGE_MESSAGES[job.stage] };
     try {
       host.exec.close(jobId);
     } catch {

@@ -174,6 +174,7 @@ function mockHost(options = {}) {
   }
 
   function pollResult(id) {
+    if (options.pollRefusal) return { error: "observation refused" };
     const value = loginJobs.get(id) || jobs.get(id);
     return value ? { done: true, ...value } : { done: true, code: 1, error: "missing job" };
   }
@@ -1564,6 +1565,31 @@ test("search hits carry chat, sender, time, snippet and id; global attribution i
   assert.ok(cut.includes("needle"));
   assert.ok(cut.startsWith("…") && cut.endsWith("…"));
   assert.ok(cut.length <= messages.SNIPPET_CHARS + 2);
+});
+
+test("an error-only upload poll refusal persists an unknown outcome and prevents replay", () => {
+  const env = mockHost({ chats: sendFixtureChats, uploadMode: "pending" });
+  try {
+    configureLoggedInFixture(env);
+    const file = ownerFile(env);
+    plugin.onAgentCommand({ sessionId: "s", verb: "send-file", args: ["id:4242", file, "--key", "refused"] });
+    globalThis.host.exec.poll = () => ({ error: "observation refused" });
+    const refused = plugin.onAgentCommand({ sessionId: "s", verb: "send-file-status", args: ["refused"] });
+    assert.match(refused.error, /^unknown:/);
+    assert.equal(JSON.parse(outboxText()).attempts[0].state, "unknown");
+    assert.match(plugin.onAgentCommand({ sessionId: "s", verb: "send-file", args: ["id:4242", file, "--key", "refused"] }).error, /^unknown:/);
+    assert.equal(uploadCalls(env).length, 1);
+  } finally { env.cleanup(); }
+});
+
+test("an error-only login poll refusal terminates the login observation", () => {
+  const env = mockHost({ loginPending: true, loginLog: "", pollRefusal: true,
+    secrets: { api_id: "887766", api_hash: "1234567890abcdef1234567890abcdef" } });
+  try {
+    const refused = plugin.onAgentCommand({ sessionId: "s", verb: "login", args: [] });
+    assert.match(refused.error, /observation refused/);
+    assert.ok(env.closedJobs.length > 0);
+  } finally { env.cleanup(); }
 });
 
 test("send-file resolves a person by name, uploads with the caption, and returns the server message id; contents never leave the file", () => {
