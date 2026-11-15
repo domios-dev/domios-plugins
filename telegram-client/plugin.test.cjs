@@ -18,6 +18,22 @@ const tests = [];
 const unexpectedCommands = [];
 function test(name, fn) { tests.push([name, fn]); }
 
+test("recipient discovery preserves an unreadable outbox and does not dispatch a send", () => {
+  const env = mockHost({ chats: [{ peer: { id: 4242, type: "user", name: "Вова Зуев", username: "fixture" } }] });
+  try {
+    configureLoggedInFixture(env);
+    const ledger = join(env.root, "outbox.json");
+    writeFileSync(ledger, "unreadable-fixture-q7");
+    const before = { ...env.secrets };
+    const result = JSON.parse(drive(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["Зуев"] })).result);
+    assert.equal(result.match.id, "id:4242");
+    assert.equal(result.ambiguous, false);
+    assert.equal(readFileSync(ledger, "utf8"), "unreadable-fixture-q7");
+    assert.deepEqual(env.secrets, before);
+    assert.deepEqual(env.calls.map(call => call.words[0]), ["chats"]);
+  } finally { env.cleanup(); }
+});
+
 test("plugin view does not repeat the plugin name and shows status as a label, not a slug", () => {
   const React = require("react");
   const { renderToStaticMarkup } = require("react-dom/server");
