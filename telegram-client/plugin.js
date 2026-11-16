@@ -1738,7 +1738,7 @@ function bundleDir(dataDir, pluginId) {
   return stateDir(stateDir(dataDir, "plugins"), pluginId);
 }
 
-// ../../codeterm/codeterm/packages/plugin-sdk/src/ioPrograms.ts
+// ../../codeterm/codeterm-worktrees/pl-7lsisa-task-nl7784-07368e99/packages/plugin-sdk/src/ioPrograms.ts
 function* ioValue(request) {
   return yield request;
 }
