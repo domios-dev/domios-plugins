@@ -17,26 +17,34 @@ function normalize(value) { return path.posix.normalize(String(value).replaceAll
 
 const DEVICE_LOG = "requesting device code...\n\nTo sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code KX7PQ2LMN to authenticate.\n\nwaiting for authentication...\n";
 const SUCCESS_LOG = `${DEVICE_LOG}authenticated, exchanging for Teams tokens...\nskypetoken exchange successful\nrequesting graph token...\nrequesting assignments token...\ntokens saved to ~/.exo-teams/\n  skype: valid until 2030-01-01 10:00:00\n`;
-const WHOAMI_OK = JSON.stringify({ user: "Andrey Kovalev", email: "andrey.kovalev@quantumsoft.pro", tokens: [
-  { name: "skype", valid: true, expiry: "2030-01-01 10:00:00" },
-  { name: "chatsvcagg", valid: true, expiry: "2030-01-01 10:00:00" },
-  { name: "teams", valid: true, expiry: "2030-01-01 10:00:00" },
-  { name: "graph", valid: true, expiry: "2030-01-01 10:00:00" },
-  { name: "assignments", valid: false, expiry: "not set" },
-] });
-const WHOAMI_EXPIRED = JSON.stringify({ user: "", email: "", tokens: [
-  { name: "skype", valid: false, expiry: "2020-01-01 10:00:00" },
-  { name: "chatsvcagg", valid: false, expiry: "2020-01-01 10:00:00" },
-] });
+const WHOAMI_OK = JSON.stringify({
+  user: "Andrey Kovalev", email: "andrey.kovalev@quantumsoft.pro", tokens: [
+    { name: "skype", valid: true, expiry: "2030-01-01 10:00:00" },
+    { name: "chatsvcagg", valid: true, expiry: "2030-01-01 10:00:00" },
+    { name: "teams", valid: true, expiry: "2030-01-01 10:00:00" },
+    { name: "graph", valid: true, expiry: "2030-01-01 10:00:00" },
+    { name: "assignments", valid: false, expiry: "not set" },
+  ]
+});
+const WHOAMI_EXPIRED = JSON.stringify({
+  user: "", email: "", tokens: [
+    { name: "skype", valid: false, expiry: "2020-01-01 10:00:00" },
+    { name: "chatsvcagg", valid: false, expiry: "2020-01-01 10:00:00" },
+  ]
+});
 const ALEX_CHAT = "19:aaa_bbb@unq.gbl.spaces";
 const GROUP_CHAT = "19:groupthread@thread.v2";
 const RAW_CHATS = [
-  { id: GROUP_CHAT, title: "", isOneOnOne: false, chatType: "chat", tenantId: "t1", members: [
-    { mri: "8:orgid:self", friendlyName: "Andrey Kovalev" }, { mri: "8:orgid:alex", friendlyName: "Alexander Kouznetsov" }, { mri: "8:orgid:anna", friendlyName: "Anna Ivanova" },
-  ], lastMessage: { originalarrivaltime: "2026-10-05T10:00:00.000Z" } },
-  { id: ALEX_CHAT, title: "", isOneOnOne: true, hidden: true, chatType: "chat", tenantId: "t1", members: [
-    { mri: "8:orgid:self", friendlyName: "Andrey Kovalev" }, { mri: "8:orgid:alex", friendlyName: "Alexander Kouznetsov" },
-  ], lastMessage: { originalarrivaltime: "2026-10-06T09:00:00.000Z" } },
+  {
+    id: GROUP_CHAT, title: "", isOneOnOne: false, chatType: "chat", tenantId: "t1", members: [
+      { mri: "8:orgid:self", friendlyName: "Andrey Kovalev" }, { mri: "8:orgid:alex", friendlyName: "Alexander Kouznetsov" }, { mri: "8:orgid:anna", friendlyName: "Anna Ivanova" },
+    ], lastMessage: { originalarrivaltime: "2026-10-05T10:00:00.000Z" }
+  },
+  {
+    id: ALEX_CHAT, title: "", isOneOnOne: true, hidden: true, chatType: "chat", tenantId: "t1", members: [
+      { mri: "8:orgid:self", friendlyName: "Andrey Kovalev" }, { mri: "8:orgid:alex", friendlyName: "Alexander Kouznetsov" },
+    ], lastMessage: { originalarrivaltime: "2026-10-06T09:00:00.000Z" }
+  },
   { id: "19:meeting_x@thread.v2", title: "Sprint review", isOneOnOne: false, chatType: "meeting", members: [], lastMessage: { composetime: "2026-09-01T09:00:00.000Z" } },
   { id: "not a chat id", title: "bad" },
 ];
@@ -177,6 +185,8 @@ function mockHost(options = {}) {
   const state = {
     whoami: options.whoami || WHOAMI_OK,
     chats: options.chats || RAW_CHATS,
+    teams: options.teams ?? [],
+    teamResult: options.teamResult,
     messages: options.messages || [],
     sendResult: options.sendResult || { code: 0, stdout: JSON.stringify({ ok: true }), stderr: "message sent\n" },
     sendFileResult: options.sendFileResult || null,
@@ -218,6 +228,7 @@ function mockHost(options = {}) {
       return state.refresh;
     }
     if (args[0] === "list-chats") return { code: 0, stdout: JSON.stringify(state.chats), stderr: "" };
+    if (args[0] === "list-teams") return state.teamResult || { code: 0, stdout: JSON.stringify(state.teams), stderr: "" };
     if (args[0] === "send") {
       if (state.sendResult.code === 0) state.messages.push({ id: "1759744800123", content: args[2], imdisplayname: "Andrey Kovalev", originalarrivaltime: new Date(Date.now()).toISOString() });
       return state.sendResult;
@@ -235,7 +246,7 @@ function mockHost(options = {}) {
       state.messages.push({ id: "1759744800555", messagetype: "RichText/Html", content: message, imdisplayname: "Andrey Kovalev", originalarrivaltime: new Date(Date.now()).toISOString(), properties: { files: JSON.stringify([{ fileName: normalize(file).split("/").pop(), itemid: "DRIVE-ITEM" }]) } });
       return { code: 0, stdout: JSON.stringify({ ok: true }), stderr: `uploading ${file} (1 KB)...\nfile sent (1/1)\n` };
     }
-    if (args[0] === "get-chat") {
+    if (args[0] === "get-chat" || args[0] === "get-messages") {
       if (state.onGetChat) state.onGetChat(args[1]);
       if (state.getChatError) return { code: 1, stdout: "", stderr: state.getChatError };
       const rows = state.chatMessages ? state.chatMessages[args[1]] : state.messages;
@@ -376,7 +387,7 @@ test("first login installs the pinned toolchain and module stage by stage, then 
   assert.ok(hash.env.CT_HASH_FILE.endsWith(C.GO_ARCHIVES["win32/x64"].file), "the archive path travels in the environment, not in a command string");
   const curl = env.calls.find((call) => call.bin === "curl.exe");
   for (const tool of ["curl.exe", "tar.exe", "powershell.exe", "icacls.exe", "whoami.exe"]) {
-    assert.match(env.calls.find((call) => call.bin === tool).raw, /^D:\\Win\\System32\\/,`${tool} runs from System32, never a PATH lookup that could find Git's GNU tar`);
+    assert.match(env.calls.find((call) => call.bin === tool).raw, /^D:\\Win\\System32\\/, `${tool} runs from System32, never a PATH lookup that could find Git's GNU tar`);
   }
   assert.equal(curl.args[curl.args.length - 1], `https://go.dev/dl/${C.GO_ARCHIVES["win32/x64"].file}`);
   assert.ok(curl.args.includes("=https"));
@@ -678,7 +689,7 @@ test("plugin view shows the sign-in code and labels the typed states as words", 
   for (const state of ["logged-out", "awaiting-user", "logged-in", "expired", "refused", "install-in-progress"]) {
     const view = statusView(state);
     assert.doesNotMatch(view.label, /[-_]/, state);
-    const bar = renderToStaticMarkup(React.createElement(StatusBar, { ...view, busy: false, onRefresh() {} }));
+    const bar = renderToStaticMarkup(React.createElement(StatusBar, { ...view, busy: false, onRefresh() { } }));
     if (state.includes("-")) assert.equal(bar.includes(state), false, state);
   }
   assert.equal(setupRows({ state: "logged-in", upn: "a@b.c" })[0].label, "exo-teams runtime");
@@ -784,13 +795,15 @@ test("send-file to a person uses the existing 1:1 chat and refuses a person with
 });
 
 test("send-file refuses bad paths, oversize, unreadable, directory, link and plugin-data files before any upload", () => {
-  const env = mockHost({ localFiles: {
-    "C:/big.iso": { content: "x", size: C.MAX_FILE_BYTES + 1 },
-    "C:/limit.bin": { content: "y", size: C.MAX_FILE_BYTES },
-    "C:/dir": { dir: true },
-    "C:/locked.txt": { content: "z", denied: true },
-    "C:/link.txt": { content: "l", link: true },
-  } });
+  const env = mockHost({
+    localFiles: {
+      "C:/big.iso": { content: "x", size: C.MAX_FILE_BYTES + 1 },
+      "C:/limit.bin": { content: "y", size: C.MAX_FILE_BYTES },
+      "C:/dir": { dir: true },
+      "C:/locked.txt": { content: "z", denied: true },
+      "C:/link.txt": { content: "l", link: true },
+    }
+  });
   env.install(); env.signIn();
   const big = command("send-file", [ALEX_CHAT, "C:\\big.iso"]).error;
   assert.match(big, /^file-too-large:.*25 MiB/);
@@ -981,6 +994,8 @@ test("mixed inline and host bodies are refused before any host operation", () =>
     }
   }
 });
+
+require("./channel.test-cases.cjs")({ test, mockHost, plugin, command, result, PAD_BODY, parse, C, WHOAMI_OK, ALEX_CHAT, normalize });
 
 for (const [name, fn] of tests) {
   try {

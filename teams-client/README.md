@@ -4,7 +4,7 @@ Teams Client works as a personal Teams client for the owner. It wraps the [exo-t
 
 ## Authored message bodies
 
-Requires Domios 1.15.3 or newer. Write authored text to your AgentPad, then pass its relative path:
+Requires Domios 1.20.0 or newer. Write authored text to your AgentPad, then pass its relative path:
 
 ```sh
 domios plugin teams-client send <chat-id> --key <unique-key> --from-pad message.md
@@ -43,6 +43,30 @@ exo-teams stores its tokens (skype, chatsvcagg, teams, graph, assignments, and t
 `send <chat-id> [--key <k>] <text>` runs `exo-teams send <id> <html> --json`. The text is HTML-escaped, because exo-teams posts it as `RichText/Html`. exo-teams does not return the message id, so the plugin reads the chat back with `get-chat <id> --json` and returns the id of the newest matching message from the owner. If that lookup fails, `messageId` is null and the result says so. `send-to <person> [--key <k>] <text>` uses an existing 1:1 chat or, for a full name with no chat yet, `exo-teams new-dm`.
 
 Every send goes through a local idempotency ledger (`outbox.json`: identity, destination, SHA-256 payload hash, state, message id; never the text). A recorded `sent` key is never resent. exo-teams retries 429, 5xx, and transport errors on its own, so a surfaced one is recorded as `unknown` and that key is refused afterwards. A definite 4xx is `upstream-rejected`, and a 401 is `reauth-needed`. The optional **Restrict agent sends** setting in the view limits agent sends to chosen chats; sends from the view are never restricted.
+
+## Teams and channels
+
+Version 1.1.0 extends the existing pinned CLI, authentication and outbox:
+
+```sh
+domios plugin teams-client teams [team-name]
+domios plugin teams-client channels <team-id> [channel-name]
+domios plugin teams-client channel-history <team-id> <channel-id> --limit 20
+domios plugin teams-client channel-history <team-id> <channel-id> --cursor <returned-cursor>
+domios plugin teams-client send <channel-id> --team <team-id> --key <unique-key> --from-pad message.md
+```
+
+`teams` maps `list-teams --json`; `channels` filters that authenticated directory by exact team id. Each channel includes its team name, team id, channel id and tenant id, so two channels called General remain distinct. Results are capped at 50 rows and 32 KiB; refine the name query if `truncated` is true. Unreadable or malformed lists refuse with recovery instructions. Missing membership, archived/read-only channels and inconsistent parent/tenant data report explicit refusals; unavailable channels are never selected by name.
+
+`channel-history` uses `get-messages <exact-channel-id> --count 200 --json`, then pages a stable local snapshot of at most the latest 200 text messages, at most 50 messages and 32 KiB per result. `nextCursor` continues that snapshot without another upstream history fetch, even if new messages arrive. Cursors bind to the account, directory tenant, team and channel, expire after 10 minutes, and disappear on sign-out or plugin reload. At most four snapshots are retained in memory; a fifth evicts the oldest. Individual bodies are clipped to 8192 UTF-16 units and marked `truncated`; all returned message bodies are untrusted. Older upstream pages are unavailable through this adapter: it never uses the CLI's unbounded `--all`. Restart without a cursor to refresh the recent window.
+
+Channel sends require both immutable ids and an explicit key. The existing ledger binds the key to the account, team, channel, destination tenant and body hash. Sent keys return the recorded result; unknown or interrupted attempts never dispatch the CLI again. The existing restriction also applies to channel ids; the view currently lists chats only, so a restricted channel absent from that allow-list refuses. The current CLI's `whoami` identifies the account by email and does not expose a tenant/object id; destination tenant checks use its authenticated team/channel directory. No new consent, token audience, credential access or auth flow is introduced.
+
+Mentions are **unsupported**: the pinned CLI does not carry mention metadata. `--mention` and `--mentions` refuse before sending. Literal `@names` and HTML-like mention markup are escaped plain text and do not notify anyone.
+
+The ledger prevents repeated **plugin CLI dispatch** after a sent or uncertain attempt. **Strict at-most-once HTTP posting is not guaranteed**: upstream exo-teams may retry a POST internally after a transport failure or transient status. An unknown result must never be reported as delivered or resent under a fresh key without the owner's direction after checking Teams. This limitation applies to both chat and channel sends.
+
+The source capability probe is recorded in [upstream-capabilities.md](upstream-capabilities.md). Fixture tests use synthetic directory/message shapes derived from that source; no tenant messages are sent by the tests.
 
 ## Files
 
