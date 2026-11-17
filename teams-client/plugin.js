@@ -1530,6 +1530,7 @@ function* deliver(origin, plan, payload, explicitKey) {
     if (attempt && attempt.state === "sent" && plan.kind !== "channel") return attemptResult(attempt, fileSummary(payload));
     if (attempt && attempt.state === "unknown") return sendFailureResult("unknown");
     if (attempt && attempt.state === "pending") return yield* persistFailure(p, ledger, attempt, "unknown", "a previous invocation ended before its send result was recorded");
+    if (attempt && attempt.state === "failed" && attempt.sendCount > 0) return rememberPrefixedFailure(attempt.failureMessage || failureMessage("upstream-rejected", "This key already dispatched a failed attempt; an intentional new attempt requires a new key"));
     const resolved = yield* liveSender();
     if ("error" in resolved) return rememberPrefixedFailure(resolved.error);
     if (attempt && attempt.sender.identityKey !== resolved.sender.identityKey) {

@@ -120,7 +120,17 @@ module.exports = function registerChannelCases({ test, mockHost, plugin, command
 
   test("definite channel permission rejection stays typed and sent keys remain account-bound", () => {
     const env = channelFixture({ sendResult: { code: 1, stdout: "", stderr: "sending message: POST returned status 403" } });
-    assert.match(channelSend().error, /upstream-rejected/);
+    const rejected = channelSend();
+    assert.match(rejected.error, /upstream-rejected/);
+    const callsAfterRejection = env.exoCalls().length;
+    env.state.sendResult = { code: 0, stdout: JSON.stringify({ ok: true }), stderr: "" };
+    assert.deepEqual(channelSend(), rejected);
+    plugin.__test_reset();
+    assert.deepEqual(channelSend(), rejected);
+    assert.equal(env.exoCalls().length, callsAfterRejection);
+    assert.equal(posts(env).length, 1);
+    const failedAttempt = JSON.parse(env.files.get(normalize(plugin.__test_paths().outbox))).attempts[0];
+    assert.equal(failedAttempt.state, "failed"); assert.equal(failedAttempt.sendCount, 1);
     const sentEnv = channelFixture(); result(channelSend());
     sentEnv.state.whoami = WHOAMI_OK.replaceAll("andrey.kovalev@quantumsoft.pro", "other@example.com");
     assert.match(channelSend().error, /another account/);

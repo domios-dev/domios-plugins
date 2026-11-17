@@ -584,7 +584,19 @@ test("a throttled send stays unknown and its key is refused afterwards; a 403 is
   assert.equal(env.exoCalls().filter((call) => call.args[0] === "send").length, 1);
   env = mockHost({ sendResult: { code: 1, stdout: "", stderr: "Error: sending message: POST https://emea.ng.msg.teams.microsoft.com/v1/x returned status 403" } });
   env.install(); env.signIn();
-  assert.match(command("send", [ALEX_CHAT, "--key", "k4", "hello"]).error, /^upstream-rejected:/);
+  const rejected = command("send", [ALEX_CHAT, "--key", "k4", "hello"]);
+  assert.match(rejected.error, /^upstream-rejected:/);
+  const callsAfterRejection = env.exoCalls().length;
+  env.state.sendResult = { code: 0, stdout: JSON.stringify({ ok: true }), stderr: "" };
+  assert.deepEqual(command("send", [ALEX_CHAT, "--key", "k4", "hello"]), rejected);
+  plugin.__test_reset();
+  assert.deepEqual(command("send", [ALEX_CHAT, "--key", "k4", "hello"]), rejected);
+  assert.equal(env.exoCalls().length, callsAfterRejection);
+  assert.equal(env.exoCalls().filter((call) => call.args[0] === "send").length, 1);
+  const failedAttempt = JSON.parse(env.files.get(normalize(plugin.__test_paths().outbox))).attempts[0];
+  assert.equal(failedAttempt.state, "failed"); assert.equal(failedAttempt.sendCount, 1);
+  assert.equal(result(command("send", [ALEX_CHAT, "--key", "k5", "hello"])).status, "sent");
+  assert.equal(env.exoCalls().filter((call) => call.args[0] === "send").length, 2);
 });
 
 test("an id the account has no chat for is chat-not-found; a name is not an id", () => {
@@ -840,6 +852,11 @@ test("send-file outcomes keep the ledger rules: unreadable and upload failures a
   env.install(); env.signIn();
   assert.match(command("send-file", [ALEX_CHAT, REPORT, "--key", "u1"]).error, /^upstream-rejected:.*no chat message was posted/);
   assert.equal(JSON.parse(env.files.get(normalize(plugin.__test_paths().outbox))).attempts[0].state, "failed");
+  env.state.sendFileResult = null;
+  assert.match(command("send-file", [ALEX_CHAT, REPORT, "--key", "u1"]).error, /^upstream-rejected:/);
+  plugin.__test_reset();
+  assert.match(command("send-file", [ALEX_CHAT, REPORT, "--key", "u1"]).error, /^upstream-rejected:/);
+  assert.equal(env.exoCalls().filter((call) => call.args[0] === "send-file").length, 1);
   env = mockHost({ localFiles: { [REPORT]: { content: REPORT_CONTENT } }, sendFileResult: { code: 1, stdout: "", stderr: "Error: reading file C:\\docs\\report.pdf: open C:\\docs\\report.pdf: The process cannot access the file because it is being used by another process." } });
   env.install(); env.signIn();
   assert.match(command("send-file", [ALEX_CHAT, REPORT, "--key", "u2"]).error, /^file-unreadable:/);
