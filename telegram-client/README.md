@@ -2,6 +2,13 @@
 
 Telegram Client connects CodeTerm to the owner’s Telegram account through the pinned [`gotd/cli`](https://github.com/gotd/cli) v0.11.0 release. It supports account selection, chat listing, bounded recent history, message text search, resolved previews, and an owner-gated path for sending messages and files.
 
+Chat discovery requests the 100 most recent dialogs and returns only chat identity,
+names, type and unread counts, with no last-message text. Redaction reads secrets
+once per JSON command. The pinned runtime has no paging or field-projection flags;
+if its raw output exceeds the host stream bound, discovery tries limits 50, 25,
+10 and 1. Results report `discovery.requested`, `covered` and `reduced` so a match
+outside that reduced window is never claimed absent from the full 100 dialogs.
+
 ## Authored message bodies
 
 Requires Domios 1.15.3 or newer. Write authored text to your AgentPad, then pass its relative path:

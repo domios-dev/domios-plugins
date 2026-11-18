@@ -75,6 +75,7 @@ function mockHost(options = {}) {
     { peer: { id: "Group title", type: "chat", name: "Group title" }, unread: 0 },
   ];
   const secrets = { ...(options.secrets || {}) };
+  const secretReads = [];
   const calls = [];
   const jobs = new Map();
   const closedJobs = [];
@@ -158,7 +159,16 @@ function mockHost(options = {}) {
       if (!existsSync(conf)) return { code: 1, stdout: "", stderr: `no config at ${conf}; run \`tg init\` first` };
       return { code: 0, stdout: envelope({ accounts }), stderr: "" };
     }
-    if (words[0] === "chats") return { code: 0, stdout: envelope({ chats }), stderr: "" };
+    if (words[0] === "chats") {
+      const limit = Number(words[words.indexOf("--limit") + 1]);
+      const stdout = envelope({ chats: chats.slice(0, limit) });
+      const bytes = Buffer.byteLength(stdout);
+      if (options.execOutputLimit && bytes > options.execOutputLimit) {
+        return { code: 0, stdout: stdout.slice(0, options.execOutputLimit), stderr: "", truncated: true,
+          ...(options.typedOutputError ? { error: "output_too_large: fixture", outputTooLarge: { stream: "stdout", actualBytes: bytes, limitBytes: options.execOutputLimit } } : {}) };
+      }
+      return { code: 0, stdout, stderr: "" };
+    }
     if (words[0] === "history") return { code: 0, stdout: envelope({ messages: historyMessages }), stderr: "" };
     if (words[0] === "whoami") {
       return whoamiError
@@ -240,7 +250,7 @@ function mockHost(options = {}) {
     dataDir: () => dataDir,
     envGet: () => null,
     settingsJson: () => JSON.stringify(options.settings || { historyCount: 20, historyMaxBytes: 32768 }),
-    secretGet: (key) => secrets[key] || null,
+    secretGet: (key) => { secretReads.push(key); return secrets[key] || null; },
     secretSet: (key, value) => { secrets[key] = value; return true; },
     secretDelete: (key) => { delete secrets[key]; return true; },
     awaitJob: (id, then) => {
@@ -264,7 +274,7 @@ function mockHost(options = {}) {
   };
 
   return {
-    root, binary, config, secrets, calls, accounts, chats, jobs, loginJobs, closedJobs,
+    root, binary, config, secrets, secretReads, calls, accounts, chats, jobs, loginJobs, closedJobs,
     setWhoamiError(value) { whoamiError = value; },
     setHistoryMessages(value) { historyMessages = value; },
     setSendMode(value) { sendMode = value; },
@@ -359,6 +369,7 @@ test("plugin data paths stay rooted across macOS, Linux, and Windows host mappin
     try {
       const p = plugin.__test_paths();
       assert.equal(path.relative(p.root, p.outbox), "outbox.json");
+      assert.equal(path.relative(p.root, p.outboxLock), "outbox.lock");
       assert.equal(path.relative(p.root, p.scope), "send-scope.json");
       assert.equal(host.path.equal(p.root, p.outbox), false);
       assert.equal(path.basename(p.binary), platform === "win32" ? "tg.exe" : "tg");
@@ -1873,6 +1884,89 @@ test("login-status reads session state and pending logs without starting tg", ()
   } finally {env.cleanup();}
 });
 
+test("a Windows-style exclusive lock leaves an existing outbox readable and preserves send receipts", () => {
+  const env = mockHost({ platform: "win32" });
+  try {
+    configureLoggedInFixture(env);
+    const { outbox } = plugin.__test_paths();
+    const body = "fixture plain text";
+    const attempts = [1, 2, 3].map(number => ({
+      idempotencyKey: `sent-${number}`,
+      sender: { id: "default" },
+      destination: { id: "id:4242" },
+      payloadHash: plugin.__test_sendPayloadHash(body, "plain"),
+      state: "sent",
+      createdAt: number,
+      updatedAt: number,
+      sendCount: 1,
+      telegramMessageId: String(number + 100),
+      ...(number === 3 ? { kind: "file", fileBytes: 24 } : {}),
+    }));
+    writeJson(outbox, { schema: 1, attempts });
+    const original = readFileSync(outbox, "utf8");
+    let lockedPath;
+    host.fs.lockFile = file => (lockedPath = file);
+    host.fs.unlockFile = () => { lockedPath = undefined; return true; };
+    const readFile = host.fs.readFile;
+    // Domios 1.20.1 sees the file but gets null from a separate Windows
+    // read handle while that file itself is locked.
+    host.fs.readFile = file => file === lockedPath ? null : readFile(file);
+    host.io.fs.readJson = function* (file) { return JSON.parse(yield* host.io.fs.readFile(file)); };
+    const send = key => plugin.onAgentCommand({
+      sessionId: "fixture", verb: "send", args: ["id:4242", "--key", key, "--format", "plain"], body,
+    });
+    const replay = send("sent-1");
+    assert.equal(replay.error, undefined, replay.error);
+    assert.equal(JSON.parse(replay.result).telegramMessageId, "101");
+    assert.equal(lockedPath, undefined);
+    assert.deepEqual(env.calls, []);
+    assert.equal(readFileSync(outbox, "utf8"), original);
+
+    const fresh = send("fresh");
+    assert.equal(fresh.error, undefined, fresh.error);
+    assert.equal(JSON.parse(fresh.result).status, "sent");
+    const persisted = JSON.parse(readFileSync(outbox, "utf8"));
+    assert.deepEqual(persisted.attempts.slice(0, 3), attempts);
+    assert.equal(persisted.attempts[3].idempotencyKey, "fresh");
+    assert.equal(sendCalls(env).length, 1);
+  } finally { env.cleanup(); }
+});
+
+test("outbox read errors name the failed check and withhold ledger content", () => {
+  const env = mockHost();
+  try {
+    const { outbox } = plugin.__test_paths();
+    const { fileExists, readFile } = host.fs;
+    const contents = "private-fixture-ledger";
+    const send = () => plugin.onAgentCommand({
+      sessionId: "fixture", verb: "send", args: ["id:4242", "--key", "diagnostics", "fixture"],
+    });
+    for (const [read, expected, disappears] of [
+      [() => null, /check permissions/],
+      [() => null, /went missing/, true],
+      [() => contents, /could not be parsed as JSON/],
+      [() => JSON.stringify({ schema: 2, attempts: contents }), /unsupported schema/],
+      [() => { throw new RangeError(contents); }, /exceeds the host read limit/],
+    ]) {
+      writeFileSync(outbox, contents);
+      let seen = false;
+      host.fs.fileExists = file => {
+        if (file !== outbox || !disappears) return fileExists(file);
+        const exists = !seen;
+        seen = true;
+        return exists;
+      };
+      host.fs.readFile = file => file === outbox ? read() : readFile(file);
+      const { error } = send();
+      assert.match(error, /^upstream-rejected:.*local send prerequisite failed/);
+      assert.match(error, expected);
+      assert.equal(error.includes(contents), false);
+      assert.equal(readFileSync(outbox, "utf8"), contents);
+      assert.deepEqual(env.calls, []);
+    }
+  } finally { env.cleanup(); }
+});
+
 test("an outbox lock spans yielded reads and refuses a concurrent send before a process starts", () => {
   const env=mockHost();
   try {
@@ -1903,6 +1997,60 @@ test("an outbox lock spans yielded reads and refuses a concurrent send before a 
     assert.equal(locks.size,0);
     assert.equal(env.calls.filter(call=>call.words[0]==="send").length,1);
   } finally {env.cleanup();}
+});
+
+test("100 recent dialogs redact with one secret snapshot and omit long last messages", () => {
+  const chats = Array.from({ length: 100 }, (_, index) => ({
+    peer: { id: 1000 + index, type: "user", name: "Dialog " + index, username: "dialog" + index },
+    unread: index, last_message: "long message ".repeat(60), last_date: 123,
+  }));
+  const rawBytes = Buffer.byteLength(envelope({ chats }));
+  assert.ok(rawBytes > 65536 && rawBytes < 131072, String(rawBytes));
+  const env = mockHost({ chats });
+  try {
+    configureLoggedInFixture(env);
+    const reply = plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: [] });
+    const listed = JSON.parse(reply.result).chats;
+    assert.equal(listed.length, 100);
+    assert.deepEqual(listed.map(chat => chat.id), chats.map(chat => "id:" + chat.peer.id));
+    assert.equal(listed[99].title, "Dialog 99");
+    assert.equal(listed[99].unread, 99);
+    assert.ok(Buffer.byteLength(reply.result) < 16384);
+    assert.equal(reply.result.includes("long message"), false);
+    assert.deepEqual(env.calls[0].words, ["chats", "list", "--limit", "100"]);
+    assert.equal(env.secretReads.filter(key => key === "api_id").length, 1);
+    assert.equal(env.secretReads.filter(key => key === "api_hash").length, 1);
+    env.secretReads.length = 0;
+    const found = JSON.parse(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["dialog99"] }).result);
+    assert.equal(found.match.id, "id:1099");
+    env.secrets.api_hash = "Dialog";
+    const redacted = JSON.parse(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: [] }).result);
+    assert.equal(redacted.chats[99].title, "[redacted] 99", "a later invocation reads fresh secrets");
+  } finally { env.cleanup(); }
+});
+
+test("oversized dialog output reduces discovery with explicit coverage on old and typed hosts", () => {
+  for (const typedOutputError of [false, true]) {
+    const chats = Array.from({ length: 100 }, (_, index) => ({
+      peer: { id: 1000 + index, type: "user", name: "Dialog " + index },
+      unread: 0, last_message: "x".repeat(2000),
+    }));
+    const env = mockHost({ chats, execOutputLimit: 131072, typedOutputError });
+    try {
+      configureLoggedInFixture(env);
+      const reply = plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["Dialog 49"] });
+      const found = JSON.parse(reply.result);
+      assert.equal(found.match.id, "id:1049");
+      assert.deepEqual(found.discovery, { requested: 100, covered: 50, reduced: true });
+      assert.deepEqual(env.calls.map(call => call.words), [
+        ["chats", "list", "--limit", "100"], ["chats", "list", "--limit", "50"],
+      ]);
+      const missing = JSON.parse(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["Dialog 99"] }).result);
+      assert.equal(missing.match, null);
+      assert.match(missing.next, /50 most recent/);
+      assert.match(missing.next, /reduced/);
+    } finally { env.cleanup(); }
+  }
 });
 
 async function main() {
