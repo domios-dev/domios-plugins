@@ -369,6 +369,7 @@ test("plugin data paths stay rooted across macOS, Linux, and Windows host mappin
     try {
       const p = plugin.__test_paths();
       assert.equal(path.relative(p.root, p.outbox), "outbox.json");
+      assert.equal(path.relative(p.root, p.outboxLock), "outbox.lock");
       assert.equal(path.relative(p.root, p.scope), "send-scope.json");
       assert.equal(host.path.equal(p.root, p.outbox), false);
       assert.equal(path.basename(p.binary), platform === "win32" ? "tg.exe" : "tg");
@@ -1881,6 +1882,89 @@ test("login-status reads session state and pending logs without starting tg", ()
     assert.equal(plugin.__test_loginIdentity(envelope({id:777})+"QR log").id,777);
     assert.equal(plugin.__test_loginIdentity("QR only"),null);
   } finally {env.cleanup();}
+});
+
+test("a Windows-style exclusive lock leaves an existing outbox readable and preserves send receipts", () => {
+  const env = mockHost({ platform: "win32" });
+  try {
+    configureLoggedInFixture(env);
+    const { outbox } = plugin.__test_paths();
+    const body = "fixture plain text";
+    const attempts = [1, 2, 3].map(number => ({
+      idempotencyKey: `sent-${number}`,
+      sender: { id: "default" },
+      destination: { id: "id:4242" },
+      payloadHash: plugin.__test_sendPayloadHash(body, "plain"),
+      state: "sent",
+      createdAt: number,
+      updatedAt: number,
+      sendCount: 1,
+      telegramMessageId: String(number + 100),
+      ...(number === 3 ? { kind: "file", fileBytes: 24 } : {}),
+    }));
+    writeJson(outbox, { schema: 1, attempts });
+    const original = readFileSync(outbox, "utf8");
+    let lockedPath;
+    host.fs.lockFile = file => (lockedPath = file);
+    host.fs.unlockFile = () => { lockedPath = undefined; return true; };
+    const readFile = host.fs.readFile;
+    // Domios 1.20.1 sees the file but gets null from a separate Windows
+    // read handle while that file itself is locked.
+    host.fs.readFile = file => file === lockedPath ? null : readFile(file);
+    host.io.fs.readJson = function* (file) { return JSON.parse(yield* host.io.fs.readFile(file)); };
+    const send = key => plugin.onAgentCommand({
+      sessionId: "fixture", verb: "send", args: ["id:4242", "--key", key, "--format", "plain"], body,
+    });
+    const replay = send("sent-1");
+    assert.equal(replay.error, undefined, replay.error);
+    assert.equal(JSON.parse(replay.result).telegramMessageId, "101");
+    assert.equal(lockedPath, undefined);
+    assert.deepEqual(env.calls, []);
+    assert.equal(readFileSync(outbox, "utf8"), original);
+
+    const fresh = send("fresh");
+    assert.equal(fresh.error, undefined, fresh.error);
+    assert.equal(JSON.parse(fresh.result).status, "sent");
+    const persisted = JSON.parse(readFileSync(outbox, "utf8"));
+    assert.deepEqual(persisted.attempts.slice(0, 3), attempts);
+    assert.equal(persisted.attempts[3].idempotencyKey, "fresh");
+    assert.equal(sendCalls(env).length, 1);
+  } finally { env.cleanup(); }
+});
+
+test("outbox read errors name the failed check and withhold ledger content", () => {
+  const env = mockHost();
+  try {
+    const { outbox } = plugin.__test_paths();
+    const { fileExists, readFile } = host.fs;
+    const contents = "private-fixture-ledger";
+    const send = () => plugin.onAgentCommand({
+      sessionId: "fixture", verb: "send", args: ["id:4242", "--key", "diagnostics", "fixture"],
+    });
+    for (const [read, expected, disappears] of [
+      [() => null, /check permissions/],
+      [() => null, /went missing/, true],
+      [() => contents, /could not be parsed as JSON/],
+      [() => JSON.stringify({ schema: 2, attempts: contents }), /unsupported schema/],
+      [() => { throw new RangeError(contents); }, /exceeds the host read limit/],
+    ]) {
+      writeFileSync(outbox, contents);
+      let seen = false;
+      host.fs.fileExists = file => {
+        if (file !== outbox || !disappears) return fileExists(file);
+        const exists = !seen;
+        seen = true;
+        return exists;
+      };
+      host.fs.readFile = file => file === outbox ? read() : readFile(file);
+      const { error } = send();
+      assert.match(error, /^upstream-rejected:.*local send prerequisite failed/);
+      assert.match(error, expected);
+      assert.equal(error.includes(contents), false);
+      assert.equal(readFileSync(outbox, "utf8"), contents);
+      assert.deepEqual(env.calls, []);
+    }
+  } finally { env.cleanup(); }
 });
 
 test("an outbox lock spans yielded reads and refuses a concurrent send before a process starts", () => {

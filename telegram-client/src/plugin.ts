@@ -26,7 +26,7 @@ let transientSendFailure: { state: string; message: string; updatedAt: number } 
 type RunResult = { ok: true; stdout: string; stderr: string; raw: string } | { ok: false; error: string; stderr: string; outputTooLarge?: boolean };
 type TgJob = HostIoResult<"execStart"> & { ambiguousStart?: boolean };
 type PollResult = HostIoResult<"execPoll">;
-type Paths = { root: string; binDir: string; binary: string; config: string; install: string; failure: string; outbox: string; scope: string };
+type Paths = { root: string; binDir: string; binary: string; config: string; install: string; failure: string; outbox: string; outboxLock: string; scope: string };
 
 function platformName(): string {
   try { return String(host.platform() || "").toLowerCase(); } catch { return ""; }
@@ -59,6 +59,9 @@ function paths(): Paths | null {
       install: childPath(root, "install.json"),
       failure: childPath(root, "install-status.json"),
       outbox: childPath(root, "outbox.json"),
+      // Windows locks block reads through other handles. Keep the lock on a
+      // separate file that also stays in place when the ledger is replaced.
+      outboxLock: childPath(root, "outbox.lock"),
       scope: childPath(root, "send-scope.json"),
     };
   } catch { return null; }
@@ -554,12 +557,24 @@ function failureMessage(kind: SendFailure, detail?: any): string {
 }
 
 function* loadOutbox(p: Paths): HostIoSteps<{ ledger?: Outbox; error?: string }> {
+  let contents: string | null;
   try {
     if (!(yield* host.io.fs.fileExists(p.outbox))) return { ledger: { schema: 1, attempts: [] } };
-    const value = (yield* host.io.fs.readJson(p.outbox)) as any;
-    if (!value || value.schema !== 1 || !Array.isArray(value.attempts)) return { error: "the existing outbox ledger is unreadable" };
-    return { ledger: value as Outbox };
-  } catch { return { error: "the existing outbox ledger could not be read" }; }
+    contents = yield* host.io.fs.readFile(p.outbox);
+    if (contents === null && !(yield* host.io.fs.fileExists(p.outbox))) {
+      return { error: "the outbox ledger went missing or became inaccessible during the read" };
+    }
+  } catch (error) {
+    return { error: error instanceof RangeError ? "the outbox ledger exceeds the host read limit" : "the host failed to check or read the outbox ledger" };
+  }
+  if (contents === null) return { error: "the existing outbox ledger could not be read (check permissions, file locks, and UTF-8 encoding)" };
+  let value: Outbox | null;
+  try { value = JSON.parse(contents); }
+  catch { return { error: "the existing outbox ledger could not be parsed as JSON" }; }
+  if (!value || value.schema !== 1 || !Array.isArray(value.attempts)) {
+    return { error: "the existing outbox ledger has an unsupported schema (expected schema 1 and an attempts array)" };
+  }
+  return { ledger: value };
 }
 
 function* persistOutbox(p: Paths, ledger: Outbox): HostIoSteps<boolean> {
@@ -709,7 +724,7 @@ function* sendCommand(origin: SendOrigin, args: string[], body?: string): HostIo
   if ("error" in parsed) return rememberPrefixedFailure(parsed.error);
   const lockPaths = paths();
   if (!lockPaths) return sendFailureResult("upstream-rejected", "the plugin-owned data directory is unavailable");
-  const outboxLock = yield* host.io.fs.lockFile(lockPaths.outbox);
+  const outboxLock = yield* host.io.fs.lockFile(lockPaths.outboxLock);
   if (!outboxLock) return { error: "busy: another send is updating the outbox; retry after it completes." };
   try {
   const matchingPreview = parsed.format === "plain" ? Object.values(previewTokens).reverse().find((token: any) => token.destination.id === parsed.chatId && token.text === parsed.text) : undefined;
@@ -897,7 +912,7 @@ function* settleFileJobs(): HostIoSteps<void> {
   const keys = Object.keys(fileJobs);
   const p = paths();
   if (!keys.length || !p) return;
-  const outboxLock = yield* host.io.fs.lockFile(p.outbox);
+  const outboxLock = yield* host.io.fs.lockFile(p.outboxLock);
   if (!outboxLock) return;
   try {
   const loaded = (yield* loadOutbox(p));
@@ -915,7 +930,7 @@ function* sendFileCommand(origin: SendOrigin, args: string[], body?: string): Ho
   if ("error" in parsed) return requestFailure(parsed.error);
   const p = paths();
   if (!p) return sendFailureResult("upstream-rejected", "the plugin-owned data directory is unavailable");
-  const outboxLock = yield* host.io.fs.lockFile(p.outbox);
+  const outboxLock = yield* host.io.fs.lockFile(p.outboxLock);
   if (!outboxLock) return { error: "busy: another send is updating the outbox; retry after it completes." };
   try {
   const payloadHash = filePayloadHash(parsed.chat, parsed.path, parsed.format, parsed.caption);
@@ -991,7 +1006,7 @@ function* sendFileStatus(args: string[]): HostIoSteps<{ result: string } | { err
   if (args.length !== 1 || !/^[A-Za-z0-9._:-]{1,160}$/.test(args[0])) return requestFailure("Usage: send-file-status <idempotency-key> from the send-file result.");
   const p = paths();
   if (!p) return sendFailureResult("upstream-rejected", "the plugin-owned data directory is unavailable");
-  const outboxLock = yield* host.io.fs.lockFile(p.outbox);
+  const outboxLock = yield* host.io.fs.lockFile(p.outboxLock);
   if (!outboxLock) return { error: "busy: another send is updating the outbox; retry after it completes." };
   try {
   const loaded = (yield* loadOutbox(p));
