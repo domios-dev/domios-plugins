@@ -75,6 +75,7 @@ function mockHost(options = {}) {
     { peer: { id: "Group title", type: "chat", name: "Group title" }, unread: 0 },
   ];
   const secrets = { ...(options.secrets || {}) };
+  const secretReads = [];
   const calls = [];
   const jobs = new Map();
   const closedJobs = [];
@@ -158,7 +159,16 @@ function mockHost(options = {}) {
       if (!existsSync(conf)) return { code: 1, stdout: "", stderr: `no config at ${conf}; run \`tg init\` first` };
       return { code: 0, stdout: envelope({ accounts }), stderr: "" };
     }
-    if (words[0] === "chats") return { code: 0, stdout: envelope({ chats }), stderr: "" };
+    if (words[0] === "chats") {
+      const limit = Number(words[words.indexOf("--limit") + 1]);
+      const stdout = envelope({ chats: chats.slice(0, limit) });
+      const bytes = Buffer.byteLength(stdout);
+      if (options.execOutputLimit && bytes > options.execOutputLimit) {
+        return { code: 0, stdout: stdout.slice(0, options.execOutputLimit), stderr: "", truncated: true,
+          ...(options.typedOutputError ? { error: "output_too_large: fixture", outputTooLarge: { stream: "stdout", actualBytes: bytes, limitBytes: options.execOutputLimit } } : {}) };
+      }
+      return { code: 0, stdout, stderr: "" };
+    }
     if (words[0] === "history") return { code: 0, stdout: envelope({ messages: historyMessages }), stderr: "" };
     if (words[0] === "whoami") {
       return whoamiError
@@ -240,7 +250,7 @@ function mockHost(options = {}) {
     dataDir: () => dataDir,
     envGet: () => null,
     settingsJson: () => JSON.stringify(options.settings || { historyCount: 20, historyMaxBytes: 32768 }),
-    secretGet: (key) => secrets[key] || null,
+    secretGet: (key) => { secretReads.push(key); return secrets[key] || null; },
     secretSet: (key, value) => { secrets[key] = value; return true; },
     secretDelete: (key) => { delete secrets[key]; return true; },
     awaitJob: (id, then) => {
@@ -264,7 +274,7 @@ function mockHost(options = {}) {
   };
 
   return {
-    root, binary, config, secrets, calls, accounts, chats, jobs, loginJobs, closedJobs,
+    root, binary, config, secrets, secretReads, calls, accounts, chats, jobs, loginJobs, closedJobs,
     setWhoamiError(value) { whoamiError = value; },
     setHistoryMessages(value) { historyMessages = value; },
     setSendMode(value) { sendMode = value; },
@@ -1903,6 +1913,60 @@ test("an outbox lock spans yielded reads and refuses a concurrent send before a 
     assert.equal(locks.size,0);
     assert.equal(env.calls.filter(call=>call.words[0]==="send").length,1);
   } finally {env.cleanup();}
+});
+
+test("100 recent dialogs redact with one secret snapshot and omit long last messages", () => {
+  const chats = Array.from({ length: 100 }, (_, index) => ({
+    peer: { id: 1000 + index, type: "user", name: "Dialog " + index, username: "dialog" + index },
+    unread: index, last_message: "long message ".repeat(60), last_date: 123,
+  }));
+  const rawBytes = Buffer.byteLength(envelope({ chats }));
+  assert.ok(rawBytes > 65536 && rawBytes < 131072, String(rawBytes));
+  const env = mockHost({ chats });
+  try {
+    configureLoggedInFixture(env);
+    const reply = plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: [] });
+    const listed = JSON.parse(reply.result).chats;
+    assert.equal(listed.length, 100);
+    assert.deepEqual(listed.map(chat => chat.id), chats.map(chat => "id:" + chat.peer.id));
+    assert.equal(listed[99].title, "Dialog 99");
+    assert.equal(listed[99].unread, 99);
+    assert.ok(Buffer.byteLength(reply.result) < 16384);
+    assert.equal(reply.result.includes("long message"), false);
+    assert.deepEqual(env.calls[0].words, ["chats", "list", "--limit", "100"]);
+    assert.equal(env.secretReads.filter(key => key === "api_id").length, 1);
+    assert.equal(env.secretReads.filter(key => key === "api_hash").length, 1);
+    env.secretReads.length = 0;
+    const found = JSON.parse(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["dialog99"] }).result);
+    assert.equal(found.match.id, "id:1099");
+    env.secrets.api_hash = "Dialog";
+    const redacted = JSON.parse(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: [] }).result);
+    assert.equal(redacted.chats[99].title, "[redacted] 99", "a later invocation reads fresh secrets");
+  } finally { env.cleanup(); }
+});
+
+test("oversized dialog output reduces discovery with explicit coverage on old and typed hosts", () => {
+  for (const typedOutputError of [false, true]) {
+    const chats = Array.from({ length: 100 }, (_, index) => ({
+      peer: { id: 1000 + index, type: "user", name: "Dialog " + index },
+      unread: 0, last_message: "x".repeat(2000),
+    }));
+    const env = mockHost({ chats, execOutputLimit: 131072, typedOutputError });
+    try {
+      configureLoggedInFixture(env);
+      const reply = plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["Dialog 49"] });
+      const found = JSON.parse(reply.result);
+      assert.equal(found.match.id, "id:1049");
+      assert.deepEqual(found.discovery, { requested: 100, covered: 50, reduced: true });
+      assert.deepEqual(env.calls.map(call => call.words), [
+        ["chats", "list", "--limit", "100"], ["chats", "list", "--limit", "50"],
+      ]);
+      const missing = JSON.parse(plugin.onAgentCommand({ sessionId: "fixture", verb: "chats", args: ["Dialog 99"] }).result);
+      assert.equal(missing.match, null);
+      assert.match(missing.next, /50 most recent/);
+      assert.match(missing.next, /reduced/);
+    } finally { env.cleanup(); }
+  }
 });
 
 async function main() {

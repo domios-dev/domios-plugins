@@ -34,9 +34,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// node_modules/qrcode-generator/qrcode.js
+// ../../codeterm/codeterm-plugins/node_modules/qrcode-generator/qrcode.js
 var require_qrcode = __commonJS({
-  "node_modules/qrcode-generator/qrcode.js"(exports, module2) {
+  "../../codeterm/codeterm-plugins/node_modules/qrcode-generator/qrcode.js"(exports, module2) {
     var qrcode2 = (function() {
       var qrcode3 = function(typeNumber, errorCorrectionLevel) {
         var PAD0 = 236;
@@ -1738,14 +1738,9 @@ function bundleDir(dataDir, pluginId) {
   return stateDir(stateDir(dataDir, "plugins"), pluginId);
 }
 
-// ../../codeterm/codeterm-worktrees/pl-7lsisa-task-nl7784-07368e99/packages/plugin-sdk/src/ioPrograms.ts
+// ../../codeterm/codeterm/packages/plugin-sdk/src/ioPrograms.ts
 function* ioValue(request) {
   return yield request;
-}
-function* ioMap(values, project) {
-  const result = [];
-  for (let index = 0; index < values.length; index++) result.push(yield* project(values[index], index));
-  return result;
 }
 function defineProviderIo(source, io) {
   const exports = { ...source };
@@ -2145,8 +2140,8 @@ function parseJson(text) {
     return null;
   }
 }
-function* redact(text) {
-  let out = text || "";
+function* redactionValues() {
+  const values = [];
   for (const key of ["api_id", "api_hash"]) {
     let value = "";
     try {
@@ -2154,16 +2149,24 @@ function* redact(text) {
     } catch {
       value = "";
     }
-    if (value) out = out.split(value).join("[redacted]");
+    if (value) values.push(value);
   }
+  return values;
+}
+function redactText(text, values) {
+  let out = text || "";
+  for (const value of values) out = out.split(value).join("[redacted]");
   return out;
 }
-function* redactDeep(value) {
-  if (typeof value === "string") return yield* redact(value);
-  if (Array.isArray(value)) return yield* ioMap(value, redactDeep);
+function* redact(text) {
+  return redactText(text, yield* redactionValues());
+}
+function redactDeep(value, values) {
+  if (typeof value === "string") return redactText(value, values);
+  if (Array.isArray(value)) return value.map((item) => redactDeep(item, values));
   if (!value || typeof value !== "object") return value;
   const out = {};
-  for (const key of Object.keys(value)) if (key !== "app_id" && key !== "app_hash") out[key] = yield* redactDeep(value[key]);
+  for (const key of Object.keys(value)) if (key !== "app_id" && key !== "app_hash") out[key] = redactDeep(value[key], values);
   return out;
 }
 function* telegramLoginArtifacts(text) {
@@ -2230,26 +2233,31 @@ function* startTg(args, env, extra) {
     return { error: "Could not confirm whether tg started.", ambiguousStart: true };
   }
 }
-function* runTg(args, env) {
+function* runTg(args, env, redactions) {
   const opts = yield* options(args, env, { timeoutMs: 4500 });
   if (!opts) return { ok: false, error: notInstalledMessage(paths()), stderr: "" };
   const raw = JSON.stringify(yield* host.io.exec(opts));
   const result = parseJson(raw);
   if (!result) return { ok: false, error: "tg returned an unreadable process result.", stderr: "" };
-  const stdout = yield* redact(result.stdout || "");
-  const stderr = yield* redact(result.stderr || "");
-  if (result.error) return { ok: false, error: yield* redact(result.error), stderr };
+  const values = redactions || (yield* redactionValues());
+  const stdout = redactText(result.stdout || "", values);
+  const stderr = redactText(result.stderr || "", values);
+  if (result.truncated || "outputTooLarge" in result || /^output_too_large:/.test(result.error || "")) {
+    return { ok: false, error: "output-too-large: tg returned oversized output; narrow the query.", stderr, outputTooLarge: true };
+  }
+  if (result.error) return { ok: false, error: redactText(result.error, values), stderr };
   if (result.code !== 0) return { ok: false, error: stderr || stdout || `tg exited ${result.code}`, stderr };
   return { ok: true, stdout, stderr, raw: String(result.stdout || "") };
 }
-function* jsonCommand(args) {
-  const run = yield* runTg(["--output", "json"].concat(args));
-  if (!run.ok) return { error: yield* safeError(run), stderr: run.stderr };
+function* jsonCommand(args, project = (data) => data) {
+  const values = yield* redactionValues();
+  const run = yield* runTg(["--output", "json"].concat(args), void 0, values);
+  if (!run.ok) return { error: run.error, stderr: run.stderr, outputTooLarge: run.outputTooLarge };
   const parsed = parseJson(run.raw.trim());
   if (!parsed || parsed.schema !== 1 || parsed.data === void 0) {
     return { error: "tg returned an unreadable JSON response." };
   }
-  return { data: yield* redactDeep(parsed.data), stderr: run.stderr };
+  return { data: redactDeep(project(parsed.data), values), stderr: run.stderr };
 }
 function settings() {
   let value = {};
@@ -2508,7 +2516,17 @@ function* useAccount(label) {
   return { result: JSON.stringify({ currentAccount: label }) };
 }
 function* chatList() {
-  const response = yield* jsonCommand(["chats", "list", "--limit", "100"]);
+  let response = {};
+  let limit = 100;
+  for (limit of [100, 50, 25, 10, 1]) {
+    response = yield* jsonCommand(["chats", "list", "--limit", String(limit)], (data) => ({
+      chats: (Array.isArray(data.chats) ? data.chats : []).slice(0, limit).map((item) => ({
+        peer: item?.peer,
+        unread: item?.unread
+      }))
+    }));
+    if (!response.outputTooLarge) break;
+  }
   if (response.error) return { error: response.error };
   const source = Array.isArray(response.data.chats) ? response.data.chats : [];
   const chats = source.flatMap((item) => {
@@ -2526,16 +2544,16 @@ function* chatList() {
     if (peer.phone) chat.phone = maskPhone(peer.phone);
     return [chat];
   });
-  return { chats };
+  return { chats, discovery: { requested: 100, covered: source.length, reduced: limit < 100 } };
 }
 function* agentChats(args = []) {
   const listed = yield* chatList();
   if ("error" in listed) return { error: listed.error };
   const query = args.join(" ").trim();
-  if (!query) return { result: JSON.stringify({ chats: listed.chats }) };
+  if (!query) return { result: JSON.stringify({ chats: listed.chats, discovery: listed.discovery }) };
   const found = matchChats(listed.chats, query);
-  const next = found.match ? `Send with: send ${found.match.id} --key <unique-key> --from-pad message.md` : found.ambiguous ? "Several chats match. Show the candidates to the owner and ask which one, then use its id." : "No chat in the 100 most recent dialogs matches. Ask the owner for a more exact name or @username.";
-  return { result: JSON.stringify({ query, match: found.match, ambiguous: found.ambiguous, candidates: found.candidates, next }) };
+  const next = found.match ? `Send with: send ${found.match.id} --key <unique-key> --from-pad message.md` : found.ambiguous ? "Several chats match. Show the candidates to the owner and ask which one, then use its id." : `No chat in the ${listed.discovery.covered} most recent dialogs matches. Ask the owner for an immutable chat id${listed.discovery.reduced ? "; discovery was reduced because tg output exceeded the host bound" : " or a more exact name or @username"}.`;
+  return { result: JSON.stringify({ query, match: found.match, ambiguous: found.ambiguous, candidates: found.candidates, next, discovery: listed.discovery }) };
 }
 function* readSendScope() {
   const p = paths();
@@ -2589,7 +2607,7 @@ function* resolveDestination(id, sender) {
   const listed = yield* chatList();
   if ("error" in listed) return { error: `upstream-rejected: Could not list chats to resolve ${id} (${listed.error}).` };
   const match = listed.chats.find((chat) => chat.id === id);
-  if (!match) return { error: failureMessage("chat-not-found", id) };
+  if (!match) return { error: `${failureMessage("chat-not-found", id)} Discovery covered ${listed.discovery.covered} recent dialogs${listed.discovery.reduced ? " (reduced because tg output was oversized)" : ""}.` };
   const destination = { id: match.id, label: match.title || match.id, type: match.type, username: match.username };
   if (match.phone) destination.phone = match.phone;
   return { destination };
@@ -2886,7 +2904,7 @@ function* chatByIdOrName(value) {
     const options2 = found.candidates.map((chat) => `${chat.title || chat.id} (${chat.id}${chat.username ? `, ${chat.username}` : ""}, ${chat.type})`).join("; ");
     return { error: `invalid-request: Several chats match ${JSON.stringify(value)}: ${options2}. Ask the owner which one and pass its id; nothing was sent.` };
   }
-  return { error: `chat-not-found: No chat among this account's 100 most recent dialogs matches ${JSON.stringify(value)}. Ask the owner for a more exact name or @username, or look it up with \`chats <name>\`.` };
+  return { error: `chat-not-found: No chat among this account's ${listed.discovery.covered} most recent dialogs matches ${JSON.stringify(value)}${listed.discovery.reduced ? " (discovery was reduced because tg output was oversized)" : ""}. Ask the owner for an immutable chat id, or look it up with \`chats <name>\`.` };
 }
 function* resolveFileDestination(value, sender) {
   if (SAVED_MESSAGES.test(value)) return yield* resolveDestination(`id:${sender.telegramUserId}`, sender);
