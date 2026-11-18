@@ -2252,7 +2252,7 @@ function* runTg(args, env, redactions) {
 function* jsonCommand(args, project = (data) => data) {
   const values = yield* redactionValues();
   const run = yield* runTg(["--output", "json"].concat(args), void 0, values);
-  if (!run.ok) return { error: run.error, stderr: run.stderr, outputTooLarge: run.outputTooLarge };
+  if (!run.ok) return { error: run.error.trim().slice(0, 600) || "tg command failed", stderr: run.stderr, outputTooLarge: run.outputTooLarge };
   const parsed = parseJson(run.raw.trim());
   if (!parsed || parsed.schema !== 1 || parsed.data === void 0) {
     return { error: "tg returned an unreadable JSON response." };

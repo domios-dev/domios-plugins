@@ -186,7 +186,7 @@ function* runTg(args: string[], env?: Record<string, string>, redactions?: strin
 function* jsonCommand(args: string[], project: (data: any) => any = data => data): HostIoSteps<{ data?: any; error?: string; stderr?: string; outputTooLarge?: boolean }> {
   const values = yield* redactionValues();
   const run = (yield* runTg(["--output", "json"].concat(args), undefined, values));
-  if (!run.ok) return { error: run.error, stderr: run.stderr, outputTooLarge: run.outputTooLarge };
+  if (!run.ok) return { error: run.error.trim().slice(0, 600) || "tg command failed", stderr: run.stderr, outputTooLarge: run.outputTooLarge };
   const parsed = parseJson(run.raw.trim());
   if (!parsed || parsed.schema !== 1 || parsed.data === undefined) {
     return { error: "tg returned an unreadable JSON response." };
