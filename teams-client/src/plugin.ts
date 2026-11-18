@@ -1,16 +1,21 @@
+import { createFileTools, type FileInfo } from "./file-send";
+import { parseSearchArgs } from "./search-args";
 import { stateDir } from "../../shared/src/host-paths";
 import { defineProviderIo, ioValue, type HostIoSteps, type HostIoResult } from "@codeterm/plugin-sdk";
 import type { GlanceView, PluginModule, ViewNode } from "@codeterm/plugin-sdk";
 import { readOutput } from "./read-output";
+import { channelId, teamId } from "./channels";
+import { createChannelCommands } from "./channel-commands";
+import { boundedHistory, settings, sha256Hex, utf8Bytes } from "./message-utils";
 import { decideSend, matchChats, parseSendScope, validateSendScope, type SendOrigin, type SendScope } from "../../shared/src/send-scope";
 import {
   CHAT_CACHE_TTL_MS, EXO_HOME_DIR, EXO_MODULE, EXO_MODULE_SUM, EXO_PACKAGE, EXO_TOKEN_DIR, EXO_TOKEN_FILES,
   EXO_VERSION, GO_ARCHIVES, GO_DOWNLOAD_BASE, GO_VERSION, MAX_BYTES, MAX_COUNT, MAX_FILE_BYTES, SEARCH_BUDGET_MS,
-  SEARCH_CHAT_MESSAGES, SEARCH_DEFAULT_LIMIT, SEARCH_MAX_CHATS, SEARCH_RECENT_MESSAGES, SIGN_IN_TTL_MS, TIMEOUTS,
+  SEARCH_CHAT_MESSAGES, SEARCH_MAX_CHATS, SEARCH_RECENT_MESSAGES, SIGN_IN_TTL_MS, TIMEOUTS,
 } from "./constants";
 import {
   classifyAuthFailure, fileSendFailure, findSentFileMessageId, findSentMessageId, historyRows, htmlMessage, mapChats, microsoftMessage,
-  normalizeArch, parseByteCount, parseFileProbe, parseGoModDownload, parseJson, parseSha256, parseSignInLog, parseWhoami, personQuery,
+  normalizeArch, parseGoModDownload, parseJson, parseSha256, parseSignInLog, parseWhoami, personQuery,
   redact, searchMessages, searchTerms, sendFailure, sessionExpiry, sessionUsable,
   type Chat, type SearchHit, type SignInLog, type WhoAmI,
 } from "./parse";
@@ -283,7 +288,7 @@ function* runExo(p: Paths, args: string[], timeoutMs: number): HostIoSteps<RunRe
   if (!(yield* installedMarker(p))) return { ok: false, error: lifecycleMessage("not-installed"), stdout: "", stderr: "" };
   const secured = (yield* protectStorage(p));
   if (secured.error) return { ok: false, error: secured.message || "Could not secure plugin storage.", stdout: "", stderr: "" };
-  if (args[0] === "list-chats" || args[0] === "get-chat") {
+  if (["list-chats", "get-chat", "list-teams", "get-messages"].includes(args[0])) {
     return yield* readOutput(nativePath(p.binary), args, exoEnv(p), p.root,
       target.platform === "win32" ? target.tools.powershell : null, timeoutMs, runProcess);
   }
@@ -464,79 +469,8 @@ function* resolveDestination(id: string, sender: Sender): HostIoSteps<{ destinat
   return { destination: { id: chat.id, label: chat.title || chat.id, chatType: chat.chatType, members: chat.members } };
 }
 
-function utf8Bytes(value: string): number {
-  let bytes = 0;
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-    if (code < 0x80) bytes++;
-    else if (code < 0x800) bytes += 2;
-    else if (code >= 0xd800 && code <= 0xdbff && i + 1 < value.length) { bytes += 4; i++; }
-    else bytes += 3;
-  }
-  return bytes;
-}
-
-function cutText(value: string, units: number): string {
-  let end = Math.max(0, Math.min(value.length, units));
-  if (end > 0 && end < value.length) {
-    const last = value.charCodeAt(end - 1);
-    const next = value.charCodeAt(end);
-    if (last >= 0xd800 && last <= 0xdbff && next >= 0xdc00 && next <= 0xdfff) end--;
-  }
-  return value.slice(0, end);
-}
-
-function boundedHistory(chatId: string, source: any[], count: number, maxBytes: number): { chatId: string; messages: any[]; truncated: boolean } {
-  const capCount = Math.max(1, Math.min(MAX_COUNT, Math.floor(count)));
-  const capBytes = Math.max(1024, Math.min(MAX_BYTES, Math.floor(maxBytes)));
-  const ordered = (Array.isArray(source) ? source : []).map((raw: any) => ({
-    id: String(raw && raw.id || ""),
-    createdDateTime: String(raw && raw.createdDateTime || ""),
-    from: String(raw && raw.from || ""),
-    content: String(raw && raw.content || ""),
-    untrusted: true,
-  })).sort((a: any, b: any) => a.createdDateTime.localeCompare(b.createdDateTime)).slice(-capCount);
-  const out: { chatId: string; messages: any[]; truncated: boolean } = { chatId, messages: [], truncated: false };
-  for (let i = ordered.length - 1; i >= 0; i--) {
-    const message = ordered[i];
-    const candidate = [message, ...out.messages];
-    if (utf8Bytes(JSON.stringify({ ...out, messages: candidate })) <= capBytes) {
-      out.messages = candidate;
-      continue;
-    }
-    out.truncated = true;
-    if (out.messages.length > 0) break;
-    let low = 0;
-    let high = message.content.length;
-    let best = "";
-    while (low <= high) {
-      const middle = Math.floor((low + high) / 2);
-      const clipped = { ...message, content: cutText(message.content, middle) };
-      if (utf8Bytes(JSON.stringify({ ...out, messages: [clipped] })) <= capBytes) {
-        best = clipped.content;
-        low = middle + 1;
-      } else high = middle - 1;
-    }
-    const clipped = { ...message, content: best };
-    if (utf8Bytes(JSON.stringify({ ...out, messages: [clipped] })) <= capBytes) out.messages = [clipped];
-    break;
-  }
-  if (utf8Bytes(JSON.stringify(out)) > capBytes) return { chatId, messages: [], truncated: true };
-  return out;
-}
-
-function settings(): { historyCount: number; historyMaxBytes: number } {
-  const value = parseJson<any>(host.settingsJson()) || {};
-  const count = Number(value.historyCount);
-  const bytes = Number(value.historyMaxBytes);
-  return {
-    historyCount: Number.isInteger(count) ? Math.max(1, Math.min(MAX_COUNT, count)) : 20,
-    historyMaxBytes: Number.isInteger(bytes) ? Math.max(1024, Math.min(MAX_BYTES, bytes)) : MAX_BYTES,
-  };
-}
-
-function* readMessages(p: Paths, chatId: string, count: number): HostIoSteps<{ messages: any[] } | { error: string }> {
-  const run = (yield* runExo(p, ["get-chat", chatId, "--json", "--count", String(Math.max(1, Math.min(200, count)))], TIMEOUTS.history));
+function* readMessages(p: Paths, chatId: string, count: number, channel = false): HostIoSteps<{ messages: any[] } | { error: string }> {
+  const run = (yield* runExo(p, [channel ? "get-messages" : "get-chat", chatId, "--json", "--count", String(Math.max(1, Math.min(200, count)))], TIMEOUTS.history));
   if (!run.ok) return { error: failureText(run) };
   const messages = parseJson<any[]>(run.stdout.trim());
   return Array.isArray(messages) ? { messages } : { error: "exo-teams returned unreadable messages." };
@@ -560,6 +494,13 @@ function* agentHistory(args: string[]): HostIoSteps<{ result: string } | { error
   return { result: JSON.stringify(boundedHistory(args[0], historyRows(read.messages), count, configured.historyMaxBytes)) };
 }
 
+const { parseSendFileArgs, probeFile } = createFileTools({ runProcess, nativePath, failureMessage });
+const channelCommands = createChannelCommands({
+  now, paths, liveSender,
+  run: function*(args, timeout) { return yield* runExo(paths()!, args, timeout); },
+  read: function*(id, count) { return yield* readMessages(paths()!, id, count, true); },
+});
+const { agentTeams, resolveChannel, channelHistory } = channelCommands;
 let previewSequence = 0;
 function* previewCommand(args: string[], origin: SendOrigin = "agent", body?: string): HostIoSteps<{ result: string } | { error: string }> {
   if (args.length < (body === undefined ? 2 : 1) || !validChatId(args[0])) return { error: "Usage: preview <immutable-chat-id> --from-pad message.md. Find the id with `chats <name>`; chat names are not accepted." };
@@ -573,16 +514,18 @@ function* previewCommand(args: string[], origin: SendOrigin = "agent", body?: st
   const previewId = sha256Hex(`preview\u0000${now()}\u0000${++previewSequence}`);
   previewTokens[previewId] = { sender: resolved.sender, destination: found.destination, text, origin, previewNonce: previewId };
   const decision = decideSend((yield* readSendScope()), found.destination.id, origin);
-  return { result: JSON.stringify({
-    previewId,
-    idempotencyKey: previewId,
-    sender: resolved.sender,
-    tenant: { id: resolved.sender.tenantId },
-    destination: found.destination,
-    text,
-    allowed: decision.allow,
-    restriction: decision.allow ? null : decision.message,
-  }) };
+  return {
+    result: JSON.stringify({
+      previewId,
+      idempotencyKey: previewId,
+      sender: resolved.sender,
+      tenant: { id: resolved.sender.tenantId },
+      destination: found.destination,
+      text,
+      allowed: decision.allow,
+      restriction: decision.allow ? null : decision.message,
+    })
+  };
 }
 
 type AttemptState = "pending" | "sent" | "failed" | "unknown";
@@ -592,7 +535,7 @@ type Attempt = {
   idempotencyKey: string;
   sender: Sender;
   target?: string;
-  destination: { id: string; label: string };
+  destination: { id: string; label: string; teamId?: string; tenantId?: string };
   payloadHash: string;
   state: AttemptState;
   createdAt: number;
@@ -632,6 +575,7 @@ function* loadOutbox(p: Paths): HostIoSteps<{ ledger?: Outbox; error?: string }>
       typeof item.payloadHash === "string" && /^[a-f0-9]{64}$/.test(item.payloadHash) && states.includes(item.state) &&
       item.sender && typeof item.sender.accountId === "string" && typeof item.sender.identityKey === "string" &&
       item.destination && validChatId(String(item.destination.id || "")) && typeof item.destination.label === "string" &&
+      (!String(item.target || "").startsWith("channel:") || (channelId(item.destination.id) && teamId(item.destination.teamId) && typeof item.destination.tenantId === "string" && !!item.destination.tenantId)) &&
       Number.isFinite(Number(item.createdAt)) && Number.isFinite(Number(item.updatedAt)) && Number.isInteger(item.sendCount) && item.sendCount >= 0);
     if (!valid) return { error: "the existing outbox ledger contains an invalid or unrecognized attempt state" };
     return { ledger: value as Outbox };
@@ -676,16 +620,18 @@ function parseSendArgs(args: string[], target: (value: string) => boolean, usage
 
 function attemptResult(attempt: Attempt, extra: Record<string, unknown> = {}): { result: string } {
   lastSendState = { state: "sent", message: attempt.messageId ? `Teams accepted message ${attempt.messageId}.` : "Teams accepted the message; its id could not be read back.", updatedAt: now() };
-  return { result: JSON.stringify({
-    status: "sent",
-    sender: attempt.sender,
-    destination: attempt.destination,
-    idempotencyKey: attempt.idempotencyKey,
-    messageId: attempt.messageId || null,
-    ...extra,
-    ...(attempt.messageId ? {} : { messageIdNote: "exo-teams confirmed the send, but the message id was not found when the chat was read back. Check the chat before resending." }),
-    deliveryGuarantee: "A sent idempotency key is never resent. An unconfirmed send stays unknown. This is not an exactly-once delivery guarantee.",
-  }) };
+  return {
+    result: JSON.stringify({
+      status: "sent",
+      sender: attempt.sender,
+      destination: attempt.destination,
+      idempotencyKey: attempt.idempotencyKey,
+      messageId: attempt.messageId || null,
+      ...extra,
+      ...(attempt.messageId ? {} : { messageIdNote: "exo-teams confirmed the send, but the message id was not found when the chat was read back. Check the chat before resending." }),
+      deliveryGuarantee: "A sent idempotency key is never resent. An unconfirmed send stays unknown. This is not an exactly-once delivery guarantee.",
+    })
+  };
 }
 
 function* persistFailure(p: Paths, ledger: Outbox, attempt: Attempt, kind: SendFailure, detail?: string, cause?: string): HostIoSteps<{ error: string }> {
@@ -710,8 +656,8 @@ function* exoFailure(p: Paths, ledger: Outbox, attempt: Attempt, run: RunResult,
   return (yield* persistFailure(p, ledger, attempt, failure.kind, failure.detail, failure.cause));
 }
 
-type SendPlan = { kind: "chat"; chatId: string } | { kind: "person"; query: string };
-type FileInfo = { path: string; name: string; size: number; sha256: string };
+type SendPlan = { kind: "chat"; chatId: string } | { kind: "person"; query: string } | { kind: "channel"; teamId: string; channelId: string };
+
 type Payload = { kind: "text"; text: string } | { kind: "file"; file: FileInfo; message: string };
 
 function payloadHash(payload: Payload): string {
@@ -733,105 +679,129 @@ function* deliver(origin: SendOrigin, plan: SendPlan, payload: Payload, explicit
   const outboxLock = yield* host.io.fs.lockFile(p.outbox);
   if (!outboxLock) return { error: "busy: another send is updating the outbox; retry after it completes." };
   try {
-  const loaded = (yield* loadOutbox(p));
-  if (!loaded.ledger) return sendFailureResult("upstream-rejected", loaded.error || "the outbox could not be read");
-  const ledger = loaded.ledger;
-  const hash = payloadHash(payload);
-  const destinationKey = plan.kind === "chat" ? plan.chatId : `person:${sha256Hex(personQuery(plan.query).toLowerCase()).slice(0, 24)}`;
-  let attempt = key ? ledger.attempts.find((item) => item.idempotencyKey === key) : undefined;
-  if (attempt && (attempt.payloadHash !== hash || (attempt.target || attempt.destination.id) !== destinationKey)) {
-    return sendFailureResult("invalid-request", "This idempotency key is already bound to a different chat, text or file; choose a new key only for an intentional new send.");
-  }
-  if (attempt && attempt.state === "sent") return attemptResult(attempt, fileSummary(payload));
-  if (attempt && attempt.state === "unknown") return sendFailureResult("unknown");
-  if (attempt && attempt.state === "pending") return (yield* persistFailure(p, ledger, attempt, "unknown", "a previous invocation ended before its send result was recorded"));
-
-  const resolved = (yield* liveSender());
-  if ("error" in resolved) return rememberPrefixedFailure(resolved.error);
-  if (attempt && attempt.sender.identityKey !== resolved.sender.identityKey) {
-    return sendFailureResult("invalid-request", "This idempotency key belongs to another account; choose a new key only for an intentional new send.");
-  }
-
-  let destination: { id: string; label: string };
-  let newDm = false;
-  let person = "";
-  if (plan.kind === "chat") {
-    const found = (yield* resolveDestination(plan.chatId, resolved.sender));
-    if ("error" in found) return rememberPrefixedFailure(found.error);
-    destination = { id: found.destination.id, label: String(found.destination.label || found.destination.id) };
-  } else {
-    const listed = (yield* chatList(resolved.sender));
-    if ("error" in listed) return rememberPrefixedFailure(listed.error);
-    // A person is reached only through a 1:1 chat; new-dm's unique-roster thread returns the existing DM when there is one.
-    const found = matchChats(listed.chats.filter((chat) => chat.chatType === "oneOnOne"), personQuery(plan.query));
-    if (found.ambiguous) {
-      return sendFailureResult("invalid-request", `Several chats match "${plan.query}": ${found.candidates.slice(0, 8).map((chat) => `${chat.title} (${chat.chatType}, ${chat.id})`).join("; ")}. Ask the owner which one and send to its id.`);
+    const loaded = (yield* loadOutbox(p));
+    if (!loaded.ledger) return sendFailureResult("upstream-rejected", loaded.error || "the outbox could not be read");
+    const ledger = loaded.ledger;
+    const hash = payloadHash(payload);
+    const destinationKey = plan.kind === "chat" ? plan.chatId : plan.kind === "channel"
+      ? `channel:${plan.teamId}:${plan.channelId}` : `person:${sha256Hex(personQuery(plan.query).toLowerCase()).slice(0, 24)}`;
+    let attempt = key ? ledger.attempts.find((item) => item.idempotencyKey === key) : undefined;
+    if (attempt && (attempt.payloadHash !== hash || (attempt.target || attempt.destination.id) !== destinationKey)) {
+      return sendFailureResult("invalid-request", "This idempotency key is already bound to a different chat, text or file; choose a new key only for an intentional new send.");
     }
-    if (found.match) destination = { id: found.match.id, label: found.match.title };
-    else if (payload.kind === "file") {
-      return sendFailureResult("invalid-request", `No 1:1 chat with "${plan.query}" exists, and a file can only go to an existing chat. Start the chat with send-to <full name> --from-pad message.md first, or send the file to a chat id.`);
+    // Channel readback remains bound to the current account even on an already-sent key.
+    if (attempt && attempt.state === "sent" && plan.kind !== "channel") return attemptResult(attempt, fileSummary(payload));
+    if (attempt && attempt.state === "unknown") return sendFailureResult("unknown");
+    if (attempt && attempt.state === "pending") return (yield* persistFailure(p, ledger, attempt, "unknown", "a previous invocation ended before its send result was recorded"));
+    if (attempt && attempt.state === "failed" && attempt.sendCount > 0) return rememberPrefixedFailure(attempt.failureMessage || failureMessage("upstream-rejected", "This key already dispatched a failed attempt; an intentional new attempt requires a new key"));
+
+    const resolved = (yield* liveSender());
+    if ("error" in resolved) return rememberPrefixedFailure(resolved.error);
+    if (attempt && attempt.sender.identityKey !== resolved.sender.identityKey) {
+      return sendFailureResult("invalid-request", "This idempotency key belongs to another account; choose a new key only for an intentional new send.");
+    }
+    if (attempt && attempt.state === "sent") return attemptResult(attempt, fileSummary(payload));
+
+    let destination: Attempt["destination"];
+    let newDm = false;
+    let person = "";
+    if (plan.kind === "channel") {
+      const found = yield* resolveChannel(resolved.sender, plan.teamId, plan.channelId, true);
+      if ("error" in found) return found;
+      destination = {
+        id: found.channel.id, label: `${found.channel.team} / ${found.channel.title}`,
+        teamId: found.channel.teamId, tenantId: found.channel.tenantId
+      };
+      if (attempt && attempt.destination.tenantId !== destination.tenantId) return sendFailureResult("invalid-request", "This channel key belongs to a different tenant. No message was posted.");
+    } else if (plan.kind === "chat") {
+      const found = (yield* resolveDestination(plan.chatId, resolved.sender));
+      if ("error" in found) return rememberPrefixedFailure(found.error);
+      destination = { id: found.destination.id, label: String(found.destination.label || found.destination.id) };
     } else {
-      if (personQuery(plan.query).split(/\s+/).filter(Boolean).length < 2) {
-        return sendFailureResult("invalid-request", `No chat with "${plan.query}" exists. To start a new 1:1 chat, give the person's full name.`);
+      const listed = (yield* chatList(resolved.sender));
+      if ("error" in listed) return rememberPrefixedFailure(listed.error);
+      // A person is reached only through a 1:1 chat; new-dm's unique-roster thread returns the existing DM when there is one.
+      const found = matchChats(listed.chats.filter((chat) => chat.chatType === "oneOnOne"), personQuery(plan.query));
+      if (found.ambiguous) {
+        return sendFailureResult("invalid-request", `Several chats match "${plan.query}": ${found.candidates.slice(0, 8).map((chat) => `${chat.title} (${chat.chatType}, ${chat.id})`).join("; ")}. Ask the owner which one and send to its id.`);
       }
-      newDm = true;
-      person = personQuery(plan.query);
-      destination = { id: destinationKey, label: destinationKey };
+      if (found.match) destination = { id: found.match.id, label: found.match.title };
+      else if (payload.kind === "file") {
+        return sendFailureResult("invalid-request", `No 1:1 chat with "${plan.query}" exists, and a file can only go to an existing chat. Start the chat with send-to <full name> --from-pad message.md first, or send the file to a chat id.`);
+      } else {
+        if (personQuery(plan.query).split(/\s+/).filter(Boolean).length < 2) {
+          return sendFailureResult("invalid-request", `No chat with "${plan.query}" exists. To start a new 1:1 chat, give the person's full name.`);
+        }
+        newDm = true;
+        person = personQuery(plan.query);
+        destination = { id: destinationKey, label: destinationKey };
+      }
     }
-  }
-  const decision = decideSend((yield* readSendScope()), destination.id, origin);
-  if (!decision.allow) return sendFailureResult("chat-not-allowed", decision.message);
-  if (!key) key = sha256Hex(`send\u0000${now()}\u0000${++previewSequence}\u0000${destination.id}`).slice(0, 32);
+    const decision = decideSend((yield* readSendScope()), destination.id, origin);
+    if (!decision.allow) return sendFailureResult("chat-not-allowed", decision.message);
+    if (!key) key = sha256Hex(`send\u0000${now()}\u0000${++previewSequence}\u0000${destination.id}`).slice(0, 32);
 
-  if (!attempt) {
-    attempt = { idempotencyKey: key, sender: resolved.sender, target: destinationKey, destination, payloadHash: hash, state: "pending", createdAt: now(), updatedAt: now(), sendCount: 0 };
-    ledger.attempts.push(attempt);
-  }
-  attempt.destination = destination;
-  attempt.state = "pending";
-  attempt.updatedAt = now();
-  attempt.sendCount += 1;
-  delete attempt.failure;
-  delete attempt.failureCause;
-  delete attempt.failureMessage;
-  if (!(yield* persistOutbox(p, ledger))) return sendFailureResult("upstream-rejected", "the pending attempt could not be persisted; Teams was not contacted");
+    if (!attempt) {
+      attempt = { idempotencyKey: key, sender: resolved.sender, target: destinationKey, destination, payloadHash: hash, state: "pending", createdAt: now(), updatedAt: now(), sendCount: 0 };
+      ledger.attempts.push(attempt);
+    }
+    attempt.destination = destination;
+    attempt.state = "pending";
+    attempt.updatedAt = now();
+    attempt.sendCount += 1;
+    delete attempt.failure;
+    delete attempt.failureCause;
+    delete attempt.failureMessage;
+    if (!(yield* persistOutbox(p, ledger))) return sendFailureResult("upstream-rejected", "the pending attempt could not be persisted; Teams was not contacted");
 
-  const sentAfter = now() - 120_000;
-  let chatId = destination.id;
-  if (payload.kind === "file") {
-    const message = payload.message ? ["--message", htmlMessage(payload.message)] : [];
-    const run = (yield* runExo(p, ["send-file", chatId, "--file", nativePath(payload.file.path), ...message, "--json"], TIMEOUTS.sendFile));
-    if (!run.ok) return (yield* exoFailure(p, ledger, attempt, run, fileSendFailure));
-    const ok = parseJson<any>(run.stdout.trim());
-    if (!ok || ok.ok !== true) return (yield* persistFailure(p, ledger, attempt, "unknown", "exo-teams exited cleanly but did not report the file as sent."));
-  } else if (newDm) {
-    const run = (yield* runExo(p, ["new-dm", person, htmlMessage(payload.text), "--json"], TIMEOUTS.send));
-    if (!run.ok) return (yield* exoFailure(p, ledger, attempt, run));
-    const created = parseJson<any>(run.stdout.trim());
-    const createdId = created && typeof created.id === "string" ? created.id : "";
-    const resolvedName = run.stderr.match(/found user:\s*(.+?)\s*(?:\(|$)/m)?.[1] || person;
-    if (!validChatId(createdId)) return (yield* persistFailure(p, ledger, attempt, "unknown", "exo-teams reported the new chat as sent but returned no chat id."));
-    chatId = createdId;
-    attempt.destination = { id: createdId, label: resolvedName };
-    memoryChats = null;
-  } else {
-    const run = (yield* runExo(p, ["send", chatId, htmlMessage(payload.text), "--json"], TIMEOUTS.send));
-    if (!run.ok) return (yield* exoFailure(p, ledger, attempt, run));
-    const ok = parseJson<any>(run.stdout.trim());
-    if (!ok || ok.ok !== true) return (yield* persistFailure(p, ledger, attempt, "unknown", "exo-teams exited cleanly but did not report the send as accepted."));
-  }
-  attempt.state = "sent";
-  attempt.updatedAt = now();
-  const read = (yield* readMessages(p, chatId, 20));
-  attempt.messageId = !("messages" in read) ? null : payload.kind === "file"
-    ? findSentFileMessageId(read.messages, payload.file.name, resolved.sender.user, sentAfter)
-    : findSentMessageId(read.messages, payload.text, resolved.sender.user, sentAfter);
-  if (!(yield* persistOutbox(p, ledger))) return (yield* persistFailure(p, ledger, attempt, "unknown", "Teams accepted the message but the sent result could not be recorded."));
-  return attemptResult(attempt, fileSummary(payload));
+    const sentAfter = now() - 120_000;
+    let chatId = destination.id;
+    if (payload.kind === "file") {
+      const message = payload.message ? ["--message", htmlMessage(payload.message)] : [];
+      const run = (yield* runExo(p, ["send-file", chatId, "--file", nativePath(payload.file.path), ...message, "--json"], TIMEOUTS.sendFile));
+      if (!run.ok) return (yield* exoFailure(p, ledger, attempt, run, fileSendFailure));
+      const ok = parseJson<any>(run.stdout.trim());
+      if (!ok || ok.ok !== true) return (yield* persistFailure(p, ledger, attempt, "unknown", "exo-teams exited cleanly but did not report the file as sent."));
+    } else if (newDm) {
+      const run = (yield* runExo(p, ["new-dm", person, htmlMessage(payload.text), "--json"], TIMEOUTS.send));
+      if (!run.ok) return (yield* exoFailure(p, ledger, attempt, run));
+      const created = parseJson<any>(run.stdout.trim());
+      const createdId = created && typeof created.id === "string" ? created.id : "";
+      const resolvedName = run.stderr.match(/found user:\s*(.+?)\s*(?:\(|$)/m)?.[1] || person;
+      if (!validChatId(createdId)) return (yield* persistFailure(p, ledger, attempt, "unknown", "exo-teams reported the new chat as sent but returned no chat id."));
+      chatId = createdId;
+      attempt.destination = { id: createdId, label: resolvedName };
+      memoryChats = null;
+    } else {
+      const run = (yield* runExo(p, ["send", chatId, htmlMessage(payload.text), "--json"], TIMEOUTS.send));
+      if (!run.ok) return (yield* exoFailure(p, ledger, attempt, run));
+      const ok = parseJson<any>(run.stdout.trim());
+      if (!ok || ok.ok !== true) return (yield* persistFailure(p, ledger, attempt, "unknown", "exo-teams exited cleanly but did not report the send as accepted."));
+    }
+    attempt.state = "sent";
+    attempt.updatedAt = now();
+    const read = (yield* readMessages(p, chatId, 20, plan.kind === "channel"));
+    attempt.messageId = !("messages" in read) ? null : payload.kind === "file"
+      ? findSentFileMessageId(read.messages, payload.file.name, resolved.sender.user, sentAfter)
+      : findSentMessageId(read.messages, payload.text, resolved.sender.user, sentAfter);
+    if (!(yield* persistOutbox(p, ledger))) return (yield* persistFailure(p, ledger, attempt, "unknown", "Teams accepted the message but the sent result could not be recorded."));
+    return attemptResult(attempt, fileSummary(payload));
   } finally { yield* host.io.fs.unlockFile(outboxLock); }
 }
 
 function* sendCommand(origin: SendOrigin, args: string[], body?: string): HostIoSteps<{ result: string } | { error: string }> {
+  if (args[1] === "--team") {
+    const at = args.indexOf("--team");
+    const team = args[at + 1];
+    if (at !== 1 || !teamId(team) || args.lastIndexOf("--team") !== at || !channelId(args[0])) return { error: "invalid-request: Use send <channel-id> --team <team-id> --key <key> --from-pad message.md. Select both ids from channels." };
+    const rest = [args[0], ...args.slice(3)];
+    if (rest.slice(1, 4).some(arg => /^(?:--mention|--mentions)(?:=|$)/.test(arg))) return { error: "unsupported-mentions: The pinned exo-teams CLI has no mention metadata. Nothing was sent. Use plain text without a mention option." };
+    const parsed = parseSendArgs(rest, channelId, "Use send <channel-id> --team <team-id> --key <key> --from-pad message.md.", body);
+    if ("error" in parsed) return rememberPrefixedFailure(parsed.error);
+    if (!parsed.key) return { error: "invalid-request: Channel sends require --key <unique-key>. Reuse it only for this same team, channel and body." };
+    return yield* deliver(origin, { kind: "channel", teamId: team, channelId: parsed.target }, { kind: "text", text: parsed.text }, parsed.key);
+  }
+  if (channelId(args[0])) return { error: "invalid-request: Channel sends require --team <team-id>. Select the exact team and channel with channels <team-id>." };
   const parsed = parseSendArgs(args, validChatId, "Usage: send <immutable-chat-id> [--key <idempotency-key>] --from-pad message.md; chat names are not ids. Use send-to <person> for a person.", body);
   if ("error" in parsed) return rememberPrefixedFailure(parsed.error);
   return (yield* deliver(origin, { kind: "chat", chatId: parsed.target }, { kind: "text", text: parsed.text }, parsed.key));
@@ -845,96 +815,6 @@ function* sendToCommand(args: string[], body?: string): HostIoSteps<{ result: st
   return (yield* deliver("agent", { kind: "person", query: parsed.target.trim() }, { kind: "text", text: parsed.text }, parsed.key));
 }
 
-const SEND_FILE_USAGE = "Usage: send-file <chat-id | person> <absolute path> [--from-pad caption.md] [--key <idempotency-key>]. Quote a multi-word name or a path with spaces.";
-
-function absolutePath(value: string): boolean {
-  return host.path.isWindows ? /^[A-Za-z]:[\\/]/.test(value) : value.startsWith("/");
-}
-
-function parseSendFileArgs(args: string[], body?: string): { target: string; path: string; message: string; key?: string } | { error: string } {
-  const positional: string[] = [];
-  const message: string[] = [];
-  let key: string | undefined;
-  let inMessage = false;
-  let sawMessage = false;
-  for (let i = 0; i < args.length; i++) {
-    const arg = String(args[i]);
-    if (arg === "--key") {
-      if (key !== undefined || i + 1 >= args.length || !/^[A-Za-z0-9._:-]{1,160}$/.test(String(args[i + 1]))) return { error: failureMessage("invalid-request", "--key needs one 1–160 character idempotency key ([A-Za-z0-9._:-]).") };
-      key = String(args[++i]);
-      inMessage = false;
-    } else if (arg === "--message") {
-      if (sawMessage) return { error: failureMessage("invalid-request", "Give --message once.") };
-      sawMessage = inMessage = true;
-    } else if (inMessage) message.push(arg);
-    else positional.push(arg);
-  }
-  const at = positional.findIndex((arg, index) => index > 0 && absolutePath(arg));
-  if (at < 1) return { error: failureMessage("invalid-request", SEND_FILE_USAGE) };
-  const target = positional.slice(0, at).join(" ").trim();
-  const path = positional.slice(at).join(" ");
-  if (!target || target.length > 200) return { error: failureMessage("invalid-request", SEND_FILE_USAGE) };
-  if (path.length > 1024 || /[\u0000-\u001f]/.test(path)) return { error: failureMessage("invalid-request", "The file path must not contain control characters.") };
-  if (body !== undefined && sawMessage) return { error: failureMessage("invalid-request", "Inline --message cannot be combined with a body source.") };
-  return { target, path, message: body ?? message.join(" "), key };
-}
-
-function underRoot(path: string, root: string): boolean {
-  const fold = (value: string) => {
-    const normalized = host.path.normalize(value).replace(/\\/g, "/").replace(/\/+$/, "");
-    return host.path.isWindows ? normalized.toLowerCase() : normalized;
-  };
-  const child = fold(path);
-  const parent = fold(root);
-  return child === parent || child.startsWith(`${parent}/`);
-}
-
-// Prints only ASCII key=value lines: the console code page would mangle a path, and contents never leave the probe.
-const WINDOWS_FILE_PROBE = "$ErrorActionPreference='Stop'; try { $f = Get-Item -LiteralPath $env:CT_FILE -Force; if ($f.PSIsContainer) { 'kind=dir'; exit 0 }; 'size=' + $f.Length; 'link=' + [bool]($f.Attributes -band [IO.FileAttributes]::ReparsePoint); if ($f.Length -le [long]$env:CT_MAX_BYTES) { $s = [IO.File]::OpenRead($f.FullName); $s.Close(); 'sha256=' + (Get-FileHash -Algorithm SHA256 -LiteralPath $f.FullName).Hash } } catch { 'error=' + $_.Exception.GetType().Name }";
-
-// A confined plugin cannot stat files outside its own directories, so size, readability and the content hash come from a subprocess.
-function* probeFile(p: Paths, target: Target, rawPath: string): HostIoSteps<{ file: FileInfo } | { error: string }> {
-  let path = host.path.normalize(rawPath);
-  const refuse = (kind: SendFailure, detail: string) => ({ error: failureMessage(kind, detail) });
-  const ownData = "Files inside the Teams Client data directory are never sent.";
-  if (/^[\\/]{2}/.test(rawPath)) return refuse("invalid-request", "Network paths are not accepted; give a local absolute path.");
-  if (underRoot(path, p.root)) return refuse("invalid-request", ownData);
-  let size: number;
-  let sha256: string | null = null;
-  if (target.platform === "win32") {
-    const run = (yield* runProcess(target.tools.powershell, ["-NoProfile", "-NonInteractive", "-Command", WINDOWS_FILE_PROBE], { CT_FILE: nativePath(path), CT_MAX_BYTES: String(MAX_FILE_BYTES) }, TIMEOUTS.fileProbe));
-    const probe = parseFileProbe(run.stdout);
-    if (probe.state === "missing") return refuse("file-unreadable", "No file exists at that path.");
-    if (probe.state === "directory") return refuse("file-unreadable", "That path is a directory.");
-    if (probe.state === "denied") return refuse("file-unreadable", "This account may not read that file.");
-    if (probe.state !== "file") return refuse("file-unreadable", "The file could not be opened for reading.");
-    if (probe.link) return refuse("invalid-request", "That path is a link or junction; give the path of the file itself.");
-    size = probe.size;
-    sha256 = probe.sha256;
-  } else {
-    const real = (yield* runProcess(target.tools.realpath, [nativePath(path)], {}, TIMEOUTS.probe));
-    const resolved = real.ok ? real.stdout.trim() : "";
-    if (!resolved.startsWith("/") || /[\r\n]/.test(resolved)) return refuse("file-unreadable", "No readable file exists at that path.");
-    path = host.path.normalize(resolved);
-    const realRoot = (yield* runProcess(target.tools.realpath, [nativePath(p.root)], {}, TIMEOUTS.probe));
-    if (underRoot(path, p.root) || (realRoot.ok && underRoot(path, realRoot.stdout.trim()))) return refuse("invalid-request", ownData);
-    const count = (yield* runProcess(target.tools.wc, ["-c", nativePath(path)], {}, TIMEOUTS.fileProbe));
-    const bytes = count.ok ? parseByteCount(count.stdout) : null;
-    if (bytes === null) return refuse("file-unreadable", "The path is not a readable regular file.");
-    size = bytes;
-  }
-  if (size > MAX_FILE_BYTES) return refuse("file-too-large", `The file is ${size} bytes.`);
-  if (target.platform !== "win32") {
-    const [bin, ...args] = target.tools.hash.map((part) => part === "{file}" ? nativePath(path) : part);
-    const hashed = (yield* runProcess(bin, args, {}, TIMEOUTS.fileProbe));
-    sha256 = hashed.ok ? parseSha256(hashed.stdout) : null;
-  }
-  if (!sha256) return refuse("file-unreadable", "The file could not be read to the end.");
-  const name = path.split(/[\\/]/).pop() || "";
-  if (!name) return refuse("invalid-request", "The path does not name a file.");
-  return { file: { path, name, size, sha256 } };
-}
-
 function* sendFileCommand(args: string[], body?: string): HostIoSteps<{ result: string } | { error: string }> {
   const parsed = parseSendFileArgs(args, body);
   if ("error" in parsed) return rememberPrefixedFailure(parsed.error);
@@ -946,31 +826,6 @@ function* sendFileCommand(args: string[], body?: string): HostIoSteps<{ result: 
   if ("error" in probed) return rememberPrefixedFailure(probed.error);
   const plan: SendPlan = validChatId(parsed.target) ? { kind: "chat", chatId: parsed.target } : { kind: "person", query: parsed.target };
   return (yield* deliver("agent", plan, { kind: "file", file: probed.file, message: parsed.message }, parsed.key));
-}
-
-const SEARCH_USAGE = "Usage: search-messages <query> [--chat <chat-id | name>] [--limit <1-50>]. Quote a multi-word chat name.";
-
-function parseSearchArgs(args: string[]): { query: string; chat?: string; limit: number } | { error: string } {
-  const words: string[] = [];
-  let chat: string | undefined;
-  let limit = SEARCH_DEFAULT_LIMIT;
-  for (let i = 0; i < args.length; i++) {
-    const arg = String(args[i]);
-    if (arg === "--chat") {
-      const value = String(args[i + 1] ?? "").trim();
-      if (chat !== undefined || !value || value.length > 512) return { error: `invalid-request: ${SEARCH_USAGE}` };
-      chat = value;
-      i++;
-    } else if (arg === "--limit") {
-      const value = String(args[i + 1] ?? "");
-      if (!/^[0-9]{1,2}$/.test(value) || Number(value) < 1 || Number(value) > MAX_COUNT) return { error: `invalid-request: --limit must be an integer from 1 to ${MAX_COUNT}.` };
-      limit = Number(value);
-      i++;
-    } else words.push(arg);
-  }
-  const query = words.join(" ").trim();
-  if (query.length < 2 || query.length > 200) return { error: `invalid-request: ${SEARCH_USAGE} The query needs 2 to 200 characters.` };
-  return { query, chat, limit };
 }
 
 function* searchScope(sender: Sender, chats: Chat[], wanted: string): HostIoSteps<{ chat: Chat } | { error: string }> {
@@ -1050,6 +905,7 @@ function* logout(): HostIoSteps<{ result: string } | { error: string }> {
   try { (yield* host.io.fs.removeFile(p.chatCache)); } catch { }
   try { (yield* host.io.fs.removeFile(p.loginLog)); } catch { }
   memoryChats = null;
+  channelCommands.clear();
   lastStatus = null;
   clearPreviewTokens();
   if ((yield* installedMarker(p))) {
@@ -1259,6 +1115,9 @@ function* onAgentCommand(ctx: { sessionId: string; verb: string; args: string[];
     }
     case "use": return { error: "exo-teams keeps one signed-in Teams account. Run logout, then login with the other account." };
     case "chats": return (yield* agentChats(args));
+    case "teams": return yield* agentTeams(args);
+    case "channels": return yield* agentTeams(args, true);
+    case "channel-history": return yield* channelHistory(args);
     case "search": return args.length ? (yield* agentChats(args, true)) : { error: "Usage: search <person name or email>." };
     case "history": return (yield* agentHistory(args));
     case "health": return { result: JSON.stringify((yield* health())) };
@@ -1304,70 +1163,6 @@ function* renderGlance(): HostIoSteps<GlanceView> {
   return { title: "Teams Client", nodes };
 }
 
-function sha256Hex(text: string): string {
-  const bytes: number[] = [];
-  for (let i = 0; i < text.length; i++) {
-    let code = text.charCodeAt(i);
-    if (code >= 0xd800 && code <= 0xdbff && i + 1 < text.length) {
-      const low = text.charCodeAt(i + 1);
-      if (low >= 0xdc00 && low <= 0xdfff) { code = 0x10000 + ((code - 0xd800) << 10) + (low - 0xdc00); i++; }
-      else code = 0xfffd;
-    } else if (code >= 0xdc00 && code <= 0xdfff) code = 0xfffd;
-    if (code < 0x80) bytes.push(code);
-    else if (code < 0x800) bytes.push(0xc0 | (code >> 6), 0x80 | (code & 63));
-    else if (code < 0x10000) bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 63), 0x80 | (code & 63));
-    else bytes.push(0xf0 | (code >> 18), 0x80 | ((code >> 12) & 63), 0x80 | ((code >> 6) & 63), 0x80 | (code & 63));
-  }
-  const bitLength = bytes.length * 8;
-  bytes.push(0x80);
-  while (bytes.length % 64 !== 56) bytes.push(0);
-  const high = Math.floor(bitLength / 0x100000000);
-  const low = bitLength >>> 0;
-  for (let shift = 24; shift >= 0; shift -= 8) bytes.push((high >>> shift) & 255);
-  for (let shift = 24; shift >= 0; shift -= 8) bytes.push((low >>> shift) & 255);
-  const constants = [
-    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
-  ];
-  const state = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
-  const words = new Array<number>(64);
-  const rotate = (value: number, bits: number) => (value >>> bits) | (value << (32 - bits));
-  for (let offset = 0; offset < bytes.length; offset += 64) {
-    for (let i = 0; i < 16; i++) {
-      const at = offset + i * 4;
-      words[i] = ((bytes[at] << 24) | (bytes[at + 1] << 16) | (bytes[at + 2] << 8) | bytes[at + 3]) >>> 0;
-    }
-    for (let i = 16; i < 64; i++) {
-      const x = words[i - 15];
-      const y = words[i - 2];
-      const s0 = rotate(x, 7) ^ rotate(x, 18) ^ (x >>> 3);
-      const s1 = rotate(y, 17) ^ rotate(y, 19) ^ (y >>> 10);
-      words[i] = (words[i - 16] + s0 + words[i - 7] + s1) >>> 0;
-    }
-    let [a, b, c, d, e, f, g, h] = state;
-    for (let i = 0; i < 64; i++) {
-      const sum1 = rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25);
-      const choice = (e & f) ^ (~e & g);
-      const t1 = (h + sum1 + choice + constants[i] + words[i]) >>> 0;
-      const sum0 = rotate(a, 2) ^ rotate(a, 13) ^ rotate(a, 22);
-      const majority = (a & b) ^ (a & c) ^ (b & c);
-      const t2 = (sum0 + majority) >>> 0;
-      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
-    }
-    state[0] = (state[0] + a) >>> 0; state[1] = (state[1] + b) >>> 0;
-    state[2] = (state[2] + c) >>> 0; state[3] = (state[3] + d) >>> 0;
-    state[4] = (state[4] + e) >>> 0; state[5] = (state[5] + f) >>> 0;
-    state[6] = (state[6] + g) >>> 0; state[7] = (state[7] + h) >>> 0;
-  }
-  return state.map((value) => value.toString(16).padStart(8, "0")).join("");
-}
-
 const plugin = defineProviderIo({
   onAgentCommand,
   renderGlance,
@@ -1379,6 +1174,7 @@ const plugin = defineProviderIo({
     activeInstallJobId = null;
     cachedTarget = null;
     memoryChats = null;
+    channelCommands.clear();
     lastStatus = null;
     lastSendState = null;
     clearPreviewTokens();

@@ -24,162 +24,6 @@ __export(plugin_exports, {
 });
 module.exports = __toCommonJS(plugin_exports);
 
-// shared/src/host-paths.ts
-function stateDir(dataDir, pluginId) {
-  if (!dataDir || !dataDir.trim()) throw new Error("Host data directory is unavailable");
-  if (!/^[a-z][a-z0-9-]*$/.test(pluginId)) throw new Error("Invalid plugin id");
-  return `${dataDir.replace(/[\\/]+$/, "")}/${pluginId}`;
-}
-
-// ../../codeterm/codeterm/packages/plugin-sdk/src/ioPrograms.ts
-function* ioValue(request) {
-  return yield request;
-}
-function defineProviderIo(source, io) {
-  const exports = { ...source };
-  for (const key of Object.keys(source)) {
-    const value = source[key];
-    if (typeof value !== "function") continue;
-    exports[key] = function(...args) {
-      const result = value.apply(source, args);
-      return result && typeof result.next === "function" ? io().run(result) : result;
-    };
-  }
-  return exports;
-}
-
-// teams-client/src/read-output.ts
-var WINDOWS_READ = [
-  '$ErrorActionPreference = "Stop"',
-  "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)",
-  "$readArgs = @(ConvertFrom-Json $env:CT_EXO_ARGS)",
-  "$readOutput = & $env:CT_EXO_BIN @readArgs",
-  "$readCode = $LASTEXITCODE",
-  '[IO.File]::WriteAllText($env:CT_EXO_OUTPUT, ($readOutput -join "`n"), [Text.UTF8Encoding]::new($false))',
-  "exit $readCode"
-].join("; ");
-function* readOutput(binary, args, env, root, powershell, timeoutMs, run) {
-  const file = host.path.normalize(`${root}/read-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
-  const native = host.path.toNative(file);
-  const readEnv = { ...env, CT_EXO_BIN: binary, CT_EXO_OUTPUT: native, CT_EXO_ARGS: JSON.stringify(args) };
-  try {
-    const result = powershell ? yield* run(powershell, ["-NoProfile", "-NonInteractive", "-Command", WINDOWS_READ], readEnv, timeoutMs) : yield* run("/bin/sh", ["-c", 'umask 077; exec "$CT_EXO_BIN" "$@" > "$CT_EXO_OUTPUT"', "teams-read", ...args], readEnv, timeoutMs);
-    if (!result.ok) return result;
-    const stdout = yield* host.io.fs.readFile(file);
-    if (stdout === null) return { ok: false, error: "Could not read the complete Teams response from private storage.", stdout: "", stderr: result.stderr };
-    return { ok: true, stdout, stderr: result.stderr };
-  } catch {
-    return { ok: false, error: "Could not capture the complete Teams response in private storage.", stdout: "", stderr: "" };
-  } finally {
-    try {
-      yield* host.io.fs.removeFile(file);
-    } catch {
-    }
-  }
-}
-
-// shared/src/send-scope.ts
-var ALL_CHATS = { mode: "all" };
-var MAX_SCOPE_CHATS = 200;
-function scopeChats(value, validId) {
-  if (!Array.isArray(value) || value.length > MAX_SCOPE_CHATS) return null;
-  const out = [];
-  for (const item of value) {
-    const id = item && typeof item.id === "string" ? item.id : "";
-    if (!validId(id)) return null;
-    if (out.some((chat) => chat.id === id)) continue;
-    out.push({ id, title: typeof item.title === "string" ? item.title.slice(0, 200) : "" });
-  }
-  return out;
-}
-function parseSendScope(raw, validId) {
-  if (raw === null || raw === void 0 || raw === "") return ALL_CHATS;
-  let value;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    return { mode: "only", chats: [] };
-  }
-  if (value && value.mode === "all") return ALL_CHATS;
-  const chats = value && value.mode === "only" ? scopeChats(value.chats, validId) : null;
-  return { mode: "only", chats: chats || [] };
-}
-function validateSendScope(value, validId) {
-  if (value && value.mode === "all") return ALL_CHATS;
-  if (!value || value.mode !== "only") return { error: "Choose a restriction mode: all or only." };
-  const chats = scopeChats(value.chats, validId);
-  if (!chats) return { error: `List up to ${MAX_SCOPE_CHATS} chats by their immutable ids.` };
-  return { mode: "only", chats };
-}
-function decideSend(scope, chatId, origin) {
-  if (origin === "view" || scope.mode === "all") return { allow: true };
-  if (scope.chats.some((chat) => chat.id === chatId)) return { allow: true };
-  const allowed = scope.chats.length ? scope.chats.map((chat) => chat.title || chat.id).join(", ") : "no chats";
-  return {
-    allow: false,
-    reason: "chat-not-allowed",
-    message: `chat-not-allowed: The owner's "Restrict agent sends" setting permits only these chats: ${allowed}. ${chatId} is not one of them. Ask the owner to add it in the plugin view (Restrict agent sends) or to switch the setting back to all chats.`
-  };
-}
-var CYRILLIC = {
-  \u0430: "a",
-  \u0431: "b",
-  \u0432: "v",
-  \u0433: "g",
-  \u0434: "d",
-  \u0435: "e",
-  \u0451: "e",
-  \u0436: "zh",
-  \u0437: "z",
-  \u0438: "i",
-  \u0439: "y",
-  \u043A: "k",
-  \u043B: "l",
-  \u043C: "m",
-  \u043D: "n",
-  \u043E: "o",
-  \u043F: "p",
-  \u0440: "r",
-  \u0441: "s",
-  \u0442: "t",
-  \u0443: "u",
-  \u0444: "f",
-  \u0445: "kh",
-  \u0446: "ts",
-  \u0447: "ch",
-  \u0448: "sh",
-  \u0449: "shch",
-  \u044A: "",
-  \u044B: "y",
-  \u044C: "",
-  \u044D: "e",
-  \u044E: "yu",
-  \u044F: "ya",
-  \u0456: "i",
-  \u0457: "yi",
-  \u0454: "ye",
-  \u0491: "g"
-};
-function words(value) {
-  const latin = Array.from(value.toLowerCase().normalize("NFC")).map((ch) => CYRILLIC[ch] ?? ch).join("");
-  return latin.normalize("NFD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9]+/).filter(Boolean);
-}
-function matchChats(chats, query, limit = 20) {
-  const raw = query.trim().toLowerCase();
-  const tokens = words(raw);
-  if (!tokens.length) return { match: null, ambiguous: false, candidates: [] };
-  const byId = chats.filter((chat) => chat.id.toLowerCase() === raw);
-  if (byId.length === 1) return { match: byId[0], ambiguous: false, candidates: byId };
-  const hits = chats.filter((chat) => {
-    const haystack = words(`${chat.title} ${chat.username || ""}`);
-    return tokens.every((token) => haystack.some((word) => word.startsWith(token)));
-  });
-  const key = tokens.join(" ");
-  const exact = hits.filter((chat) => words(chat.title).join(" ") === key || !!chat.username && words(chat.username).join(" ") === key);
-  const match = exact.length === 1 ? exact[0] : hits.length === 1 ? hits[0] : null;
-  return { match, ambiguous: !match && hits.length > 1, candidates: hits.slice(0, limit) };
-}
-
 // teams-client/src/constants.ts
 var EXO_MODULE = "github.com/alxxpersonal/exo-teams";
 var EXO_VERSION = "v0.0.0-20260418032231-b9ebbf5583ee";
@@ -469,6 +313,611 @@ function searchMessages(messages, terms, chat) {
   });
 }
 
+// teams-client/src/file-send.ts
+function createFileTools({ runProcess: runProcess2, nativePath: nativePath2, failureMessage: failureMessage2 }) {
+  const SEND_FILE_USAGE = "Usage: send-file <chat-id | person> <absolute path> [--from-pad caption.md] [--key <idempotency-key>]. Quote a multi-word name or a path with spaces.";
+  function absolutePath(value) {
+    return host.path.isWindows ? /^[A-Za-z]:[\\/]/.test(value) : value.startsWith("/");
+  }
+  function parseSendFileArgs2(args, body) {
+    const positional = [];
+    const message = [];
+    let key;
+    let inMessage = false;
+    let sawMessage = false;
+    for (let i = 0; i < args.length; i++) {
+      const arg = String(args[i]);
+      if (arg === "--key") {
+        if (key !== void 0 || i + 1 >= args.length || !/^[A-Za-z0-9._:-]{1,160}$/.test(String(args[i + 1]))) return { error: failureMessage2("invalid-request", "--key needs one 1\u2013160 character idempotency key ([A-Za-z0-9._:-]).") };
+        key = String(args[++i]);
+        inMessage = false;
+      } else if (arg === "--message") {
+        if (sawMessage) return { error: failureMessage2("invalid-request", "Give --message once.") };
+        sawMessage = inMessage = true;
+      } else if (inMessage) message.push(arg);
+      else positional.push(arg);
+    }
+    const at = positional.findIndex((arg, index) => index > 0 && absolutePath(arg));
+    if (at < 1) return { error: failureMessage2("invalid-request", SEND_FILE_USAGE) };
+    const target = positional.slice(0, at).join(" ").trim();
+    const path = positional.slice(at).join(" ");
+    if (!target || target.length > 200) return { error: failureMessage2("invalid-request", SEND_FILE_USAGE) };
+    if (path.length > 1024 || /[\u0000-\u001f]/.test(path)) return { error: failureMessage2("invalid-request", "The file path must not contain control characters.") };
+    if (body !== void 0 && sawMessage) return { error: failureMessage2("invalid-request", "Inline --message cannot be combined with a body source.") };
+    return { target, path, message: body ?? message.join(" "), key };
+  }
+  function underRoot(path, root) {
+    const fold = (value) => {
+      const normalized = host.path.normalize(value).replace(/\\/g, "/").replace(/\/+$/, "");
+      return host.path.isWindows ? normalized.toLowerCase() : normalized;
+    };
+    const child = fold(path);
+    const parent = fold(root);
+    return child === parent || child.startsWith(`${parent}/`);
+  }
+  const WINDOWS_FILE_PROBE = "$ErrorActionPreference='Stop'; try { $f = Get-Item -LiteralPath $env:CT_FILE -Force; if ($f.PSIsContainer) { 'kind=dir'; exit 0 }; 'size=' + $f.Length; 'link=' + [bool]($f.Attributes -band [IO.FileAttributes]::ReparsePoint); if ($f.Length -le [long]$env:CT_MAX_BYTES) { $s = [IO.File]::OpenRead($f.FullName); $s.Close(); 'sha256=' + (Get-FileHash -Algorithm SHA256 -LiteralPath $f.FullName).Hash } } catch { 'error=' + $_.Exception.GetType().Name }";
+  function* probeFile2(p, target, rawPath) {
+    let path = host.path.normalize(rawPath);
+    const refuse = (kind, detail) => ({ error: failureMessage2(kind, detail) });
+    const ownData = "Files inside the Teams Client data directory are never sent.";
+    if (/^[\\/]{2}/.test(rawPath)) return refuse("invalid-request", "Network paths are not accepted; give a local absolute path.");
+    if (underRoot(path, p.root)) return refuse("invalid-request", ownData);
+    let size;
+    let sha256 = null;
+    if (target.platform === "win32") {
+      const run = yield* runProcess2(target.tools.powershell, ["-NoProfile", "-NonInteractive", "-Command", WINDOWS_FILE_PROBE], { CT_FILE: nativePath2(path), CT_MAX_BYTES: String(MAX_FILE_BYTES) }, TIMEOUTS.fileProbe);
+      const probe = parseFileProbe(run.stdout);
+      if (probe.state === "missing") return refuse("file-unreadable", "No file exists at that path.");
+      if (probe.state === "directory") return refuse("file-unreadable", "That path is a directory.");
+      if (probe.state === "denied") return refuse("file-unreadable", "This account may not read that file.");
+      if (probe.state !== "file") return refuse("file-unreadable", "The file could not be opened for reading.");
+      if (probe.link) return refuse("invalid-request", "That path is a link or junction; give the path of the file itself.");
+      size = probe.size;
+      sha256 = probe.sha256;
+    } else {
+      const real = yield* runProcess2(target.tools.realpath, [nativePath2(path)], {}, TIMEOUTS.probe);
+      const resolved = real.ok ? real.stdout.trim() : "";
+      if (!resolved.startsWith("/") || /[\r\n]/.test(resolved)) return refuse("file-unreadable", "No readable file exists at that path.");
+      path = host.path.normalize(resolved);
+      const realRoot = yield* runProcess2(target.tools.realpath, [nativePath2(p.root)], {}, TIMEOUTS.probe);
+      if (underRoot(path, p.root) || realRoot.ok && underRoot(path, realRoot.stdout.trim())) return refuse("invalid-request", ownData);
+      const count = yield* runProcess2(target.tools.wc, ["-c", nativePath2(path)], {}, TIMEOUTS.fileProbe);
+      const bytes = count.ok ? parseByteCount(count.stdout) : null;
+      if (bytes === null) return refuse("file-unreadable", "The path is not a readable regular file.");
+      size = bytes;
+    }
+    if (size > MAX_FILE_BYTES) return refuse("file-too-large", `The file is ${size} bytes.`);
+    if (target.platform !== "win32") {
+      const [bin, ...args] = target.tools.hash.map((part) => part === "{file}" ? nativePath2(path) : part);
+      const hashed = yield* runProcess2(bin, args, {}, TIMEOUTS.fileProbe);
+      sha256 = hashed.ok ? parseSha256(hashed.stdout) : null;
+    }
+    if (!sha256) return refuse("file-unreadable", "The file could not be read to the end.");
+    const name = path.split(/[\\/]/).pop() || "";
+    if (!name) return refuse("invalid-request", "The path does not name a file.");
+    return { file: { path, name, size, sha256 } };
+  }
+  return { parseSendFileArgs: parseSendFileArgs2, probeFile: probeFile2 };
+}
+
+// teams-client/src/search-args.ts
+var SEARCH_USAGE = "Usage: search-messages <query> [--chat <chat-id | name>] [--limit <1-50>]. Quote a multi-word chat name.";
+function parseSearchArgs(args) {
+  const words2 = [];
+  let chat;
+  let limit = SEARCH_DEFAULT_LIMIT;
+  for (let i = 0; i < args.length; i++) {
+    const arg = String(args[i]);
+    if (arg === "--chat") {
+      const value = String(args[i + 1] ?? "").trim();
+      if (chat !== void 0 || !value || value.length > 512) return { error: `invalid-request: ${SEARCH_USAGE}` };
+      chat = value;
+      i++;
+    } else if (arg === "--limit") {
+      const value = String(args[i + 1] ?? "");
+      if (!/^[0-9]{1,2}$/.test(value) || Number(value) < 1 || Number(value) > MAX_COUNT) return { error: `invalid-request: --limit must be an integer from 1 to ${MAX_COUNT}.` };
+      limit = Number(value);
+      i++;
+    } else words2.push(arg);
+  }
+  const query = words2.join(" ").trim();
+  if (query.length < 2 || query.length > 200) return { error: `invalid-request: ${SEARCH_USAGE} The query needs 2 to 200 characters.` };
+  return { query, chat, limit };
+}
+
+// shared/src/host-paths.ts
+function stateDir(dataDir, pluginId) {
+  if (!dataDir || !dataDir.trim()) throw new Error("Host data directory is unavailable");
+  if (!/^[a-z][a-z0-9-]*$/.test(pluginId)) throw new Error("Invalid plugin id");
+  return `${dataDir.replace(/[\\/]+$/, "")}/${pluginId}`;
+}
+
+// ../../codeterm/codeterm/packages/plugin-sdk/src/ioPrograms.ts
+function* ioValue(request) {
+  return yield request;
+}
+function defineProviderIo(source, io) {
+  const exports = { ...source };
+  for (const key of Object.keys(source)) {
+    const value = source[key];
+    if (typeof value !== "function") continue;
+    exports[key] = function(...args) {
+      const result = value.apply(source, args);
+      return result && typeof result.next === "function" ? io().run(result) : result;
+    };
+  }
+  return exports;
+}
+
+// teams-client/src/read-output.ts
+var WINDOWS_READ = [
+  '$ErrorActionPreference = "Stop"',
+  "[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)",
+  "$readArgs = @(ConvertFrom-Json $env:CT_EXO_ARGS)",
+  "$readOutput = & $env:CT_EXO_BIN @readArgs",
+  "$readCode = $LASTEXITCODE",
+  '[IO.File]::WriteAllText($env:CT_EXO_OUTPUT, ($readOutput -join "`n"), [Text.UTF8Encoding]::new($false))',
+  "exit $readCode"
+].join("; ");
+function* readOutput(binary, args, env, root, powershell, timeoutMs, run) {
+  const file = host.path.normalize(`${root}/read-${Date.now()}-${Math.random().toString(16).slice(2)}.json`);
+  const native = host.path.toNative(file);
+  const readEnv = { ...env, CT_EXO_BIN: binary, CT_EXO_OUTPUT: native, CT_EXO_ARGS: JSON.stringify(args) };
+  try {
+    const result = powershell ? yield* run(powershell, ["-NoProfile", "-NonInteractive", "-Command", WINDOWS_READ], readEnv, timeoutMs) : yield* run("/bin/sh", ["-c", 'umask 077; exec "$CT_EXO_BIN" "$@" > "$CT_EXO_OUTPUT"', "teams-read", ...args], readEnv, timeoutMs);
+    if (!result.ok) return result;
+    const stdout = yield* host.io.fs.readFile(file);
+    if (stdout === null) return { ok: false, error: "Could not read the complete Teams response from private storage.", stdout: "", stderr: result.stderr };
+    return { ok: true, stdout, stderr: result.stderr };
+  } catch {
+    return { ok: false, error: "Could not capture the complete Teams response in private storage.", stdout: "", stderr: "" };
+  } finally {
+    try {
+      yield* host.io.fs.removeFile(file);
+    } catch {
+    }
+  }
+}
+
+// teams-client/src/channels.ts
+function channelId(value) {
+  return typeof value === "string" && /^19:[A-Za-z0-9._-]+@thread\.(?:tacv2|skype)$/.test(value) && value.length <= 512;
+}
+function teamId(value) {
+  return typeof value === "string" && /^[A-Za-z0-9:._@-]{1,512}$/.test(value);
+}
+function parseTeams(value) {
+  const unreadable = { error: "upstream-rejected: Teams returned an unreadable team/channel list. Refresh teams; if it persists, ask the owner to check Teams membership and tenant policy. No destination was selected." };
+  if (!Array.isArray(value) || value.length > 500) return unreadable;
+  const teams = [];
+  const ids = /* @__PURE__ */ new Set();
+  const channels = /* @__PURE__ */ new Set();
+  for (const raw of value) {
+    if (!raw || !teamId(raw.id) || ids.has(raw.id) || typeof raw.displayName !== "string" || raw.displayName.length > 200 || typeof raw.tenantId !== "string" || !raw.tenantId || raw.tenantId.length > 200 || !Array.isArray(raw.channels) || raw.channels.length > 500) return unreadable;
+    ids.add(raw.id);
+    const team = { id: raw.id, title: raw.displayName.slice(0, 200), tenantId: raw.tenantId, channels: [] };
+    for (const ch of raw.channels) {
+      if (!ch || !channelId(ch.id) || channels.has(ch.id) || typeof ch.displayName !== "string" || ch.displayName.length > 200 || ch.tenantId != null && (typeof ch.tenantId !== "string" || ch.tenantId.length > 200)) return unreadable;
+      channels.add(ch.id);
+      const tenant = ch.tenantId || raw.tenantId;
+      const wrongTenant = tenant !== raw.tenantId || ch.parentTeamId && ch.parentTeamId !== raw.id;
+      const locked = ch.isArchived === true || raw.isArchived === true || ch.isReadOnly === true;
+      const unreadableChannel = ch.isMember === false;
+      const refusal = wrongTenant ? "tenant-refused: channel tenant or parent does not match the selected team" : unreadableChannel ? "permission-refused: this account is not a channel member" : locked ? "permission-refused: the channel is archived or read-only" : null;
+      team.channels.push({
+        id: ch.id,
+        title: ch.displayName.slice(0, 200),
+        teamId: team.id,
+        team: team.title,
+        tenantId: tenant,
+        readable: !wrongTenant && !unreadableChannel,
+        writable: !refusal,
+        refusal
+      });
+    }
+    teams.push(team);
+  }
+  return { teams };
+}
+
+// teams-client/src/message-utils.ts
+function utf8Bytes(value) {
+  let bytes = 0;
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code < 128) bytes++;
+    else if (code < 2048) bytes += 2;
+    else if (code >= 55296 && code <= 56319 && i + 1 < value.length) {
+      bytes += 4;
+      i++;
+    } else bytes += 3;
+  }
+  return bytes;
+}
+function cutText(value, units) {
+  let end = Math.max(0, Math.min(value.length, units));
+  if (end > 0 && end < value.length) {
+    const last = value.charCodeAt(end - 1);
+    const next = value.charCodeAt(end);
+    if (last >= 55296 && last <= 56319 && next >= 56320 && next <= 57343) end--;
+  }
+  return value.slice(0, end);
+}
+function boundedHistory(chatId, source, count, maxBytes) {
+  const capCount = Math.max(1, Math.min(MAX_COUNT, Math.floor(count)));
+  const capBytes = Math.max(1024, Math.min(MAX_BYTES, Math.floor(maxBytes)));
+  const ordered = (Array.isArray(source) ? source : []).map((raw) => ({
+    id: String(raw && raw.id || ""),
+    createdDateTime: String(raw && raw.createdDateTime || ""),
+    from: String(raw && raw.from || ""),
+    content: String(raw && raw.content || ""),
+    untrusted: true
+  })).sort((a, b) => a.createdDateTime.localeCompare(b.createdDateTime)).slice(-capCount);
+  const out = { chatId, messages: [], truncated: false };
+  for (let i = ordered.length - 1; i >= 0; i--) {
+    const message = ordered[i];
+    const candidate = [message, ...out.messages];
+    if (utf8Bytes(JSON.stringify({ ...out, messages: candidate })) <= capBytes) {
+      out.messages = candidate;
+      continue;
+    }
+    out.truncated = true;
+    if (out.messages.length > 0) break;
+    let low = 0;
+    let high = message.content.length;
+    let best = "";
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      const clipped2 = { ...message, content: cutText(message.content, middle) };
+      if (utf8Bytes(JSON.stringify({ ...out, messages: [clipped2] })) <= capBytes) {
+        best = clipped2.content;
+        low = middle + 1;
+      } else high = middle - 1;
+    }
+    const clipped = { ...message, content: best };
+    if (utf8Bytes(JSON.stringify({ ...out, messages: [clipped] })) <= capBytes) out.messages = [clipped];
+    break;
+  }
+  if (utf8Bytes(JSON.stringify(out)) > capBytes) return { chatId, messages: [], truncated: true };
+  return out;
+}
+function settings() {
+  const value = parseJson(host.settingsJson()) || {};
+  const count = Number(value.historyCount);
+  const bytes = Number(value.historyMaxBytes);
+  return {
+    historyCount: Number.isInteger(count) ? Math.max(1, Math.min(MAX_COUNT, count)) : 20,
+    historyMaxBytes: Number.isInteger(bytes) ? Math.max(1024, Math.min(MAX_BYTES, bytes)) : MAX_BYTES
+  };
+}
+function sha256Hex(text) {
+  const bytes = [];
+  for (let i = 0; i < text.length; i++) {
+    let code = text.charCodeAt(i);
+    if (code >= 55296 && code <= 56319 && i + 1 < text.length) {
+      const low2 = text.charCodeAt(i + 1);
+      if (low2 >= 56320 && low2 <= 57343) {
+        code = 65536 + (code - 55296 << 10) + (low2 - 56320);
+        i++;
+      } else code = 65533;
+    } else if (code >= 56320 && code <= 57343) code = 65533;
+    if (code < 128) bytes.push(code);
+    else if (code < 2048) bytes.push(192 | code >> 6, 128 | code & 63);
+    else if (code < 65536) bytes.push(224 | code >> 12, 128 | code >> 6 & 63, 128 | code & 63);
+    else bytes.push(240 | code >> 18, 128 | code >> 12 & 63, 128 | code >> 6 & 63, 128 | code & 63);
+  }
+  const bitLength = bytes.length * 8;
+  bytes.push(128);
+  while (bytes.length % 64 !== 56) bytes.push(0);
+  const high = Math.floor(bitLength / 4294967296);
+  const low = bitLength >>> 0;
+  for (let shift = 24; shift >= 0; shift -= 8) bytes.push(high >>> shift & 255);
+  for (let shift = 24; shift >= 0; shift -= 8) bytes.push(low >>> shift & 255);
+  const constants = [
+    1116352408,
+    1899447441,
+    3049323471,
+    3921009573,
+    961987163,
+    1508970993,
+    2453635748,
+    2870763221,
+    3624381080,
+    310598401,
+    607225278,
+    1426881987,
+    1925078388,
+    2162078206,
+    2614888103,
+    3248222580,
+    3835390401,
+    4022224774,
+    264347078,
+    604807628,
+    770255983,
+    1249150122,
+    1555081692,
+    1996064986,
+    2554220882,
+    2821834349,
+    2952996808,
+    3210313671,
+    3336571891,
+    3584528711,
+    113926993,
+    338241895,
+    666307205,
+    773529912,
+    1294757372,
+    1396182291,
+    1695183700,
+    1986661051,
+    2177026350,
+    2456956037,
+    2730485921,
+    2820302411,
+    3259730800,
+    3345764771,
+    3516065817,
+    3600352804,
+    4094571909,
+    275423344,
+    430227734,
+    506948616,
+    659060556,
+    883997877,
+    958139571,
+    1322822218,
+    1537002063,
+    1747873779,
+    1955562222,
+    2024104815,
+    2227730452,
+    2361852424,
+    2428436474,
+    2756734187,
+    3204031479,
+    3329325298
+  ];
+  const state = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225];
+  const words2 = new Array(64);
+  const rotate = (value, bits) => value >>> bits | value << 32 - bits;
+  for (let offset = 0; offset < bytes.length; offset += 64) {
+    for (let i = 0; i < 16; i++) {
+      const at = offset + i * 4;
+      words2[i] = (bytes[at] << 24 | bytes[at + 1] << 16 | bytes[at + 2] << 8 | bytes[at + 3]) >>> 0;
+    }
+    for (let i = 16; i < 64; i++) {
+      const x = words2[i - 15];
+      const y = words2[i - 2];
+      const s0 = rotate(x, 7) ^ rotate(x, 18) ^ x >>> 3;
+      const s1 = rotate(y, 17) ^ rotate(y, 19) ^ y >>> 10;
+      words2[i] = words2[i - 16] + s0 + words2[i - 7] + s1 >>> 0;
+    }
+    let [a, b, c, d, e, f, g, h] = state;
+    for (let i = 0; i < 64; i++) {
+      const sum1 = rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25);
+      const choice = e & f ^ ~e & g;
+      const t1 = h + sum1 + choice + constants[i] + words2[i] >>> 0;
+      const sum0 = rotate(a, 2) ^ rotate(a, 13) ^ rotate(a, 22);
+      const majority = a & b ^ a & c ^ b & c;
+      const t2 = sum0 + majority >>> 0;
+      h = g;
+      g = f;
+      f = e;
+      e = d + t1 >>> 0;
+      d = c;
+      c = b;
+      b = a;
+      a = t1 + t2 >>> 0;
+    }
+    state[0] = state[0] + a >>> 0;
+    state[1] = state[1] + b >>> 0;
+    state[2] = state[2] + c >>> 0;
+    state[3] = state[3] + d >>> 0;
+    state[4] = state[4] + e >>> 0;
+    state[5] = state[5] + f >>> 0;
+    state[6] = state[6] + g >>> 0;
+    state[7] = state[7] + h >>> 0;
+  }
+  return state.map((value) => value.toString(16).padStart(8, "0")).join("");
+}
+
+// teams-client/src/channel-commands.ts
+function createChannelCommands({ now: now2, paths: paths2, run, read, liveSender: liveSender2 }) {
+  let previewSequence2 = 0;
+  function* channelList() {
+    const p = paths2();
+    if (!p) return { error: "upstream-rejected: Teams storage is unavailable." };
+    const response = yield* run(["list-teams", "--json"], TIMEOUTS.chats);
+    if (!response.ok) return { error: `upstream-rejected: Could not list teams/channels. Check Teams membership and tenant policy. Microsoft said: "${microsoftMessage(`${response.error || ""} ${response.stderr} ${response.stdout}`).slice(0, 1e3)}"` };
+    return parseTeams(parseJson(response.stdout));
+  }
+  function* resolveChannel2(sender, team, id, write = false) {
+    const listed = yield* channelList();
+    if ("error" in listed) return listed;
+    const found = listed.teams.find((item) => item.id === team)?.channels.find((ch) => ch.id === id);
+    if (!found) return { error: "channel-not-found: This exact team/channel pair is absent from the current account. Refresh teams and channels; never select by a shared display name." };
+    if (listed.teams.some((item) => item.channels.some((ch) => ch.id !== id && `${item.title} ${ch.title}`.toLowerCase().includes(id.toLowerCase())))) return { error: "upstream-rejected: A channel display name shadows this immutable id in upstream history lookup. Rename that conflicting channel before reading or sending with confirmation; no guessed destination was read." };
+    if (sender.tenantId && sender.tenantId !== found.tenantId) return { error: "tenant-refused: This channel is outside the signed-in tenant." };
+    if (!found.readable || write && !found.writable) return { error: found.refusal || "permission-refused: The selected channel is unavailable." };
+    return { channel: found };
+  }
+  function* agentTeams2(args, channels = false) {
+    if (channels && (!teamId(args[0]) || args.length > 2)) return { error: "Usage: channels <immutable-team-id> [channel-name]. Select a team with teams [name]." };
+    const live = yield* liveSender2();
+    if ("error" in live) return live;
+    const listed = yield* channelList();
+    if ("error" in listed) return listed;
+    const query = (channels ? args[1] || "" : args.join(" ")).toLowerCase();
+    const team = channels ? listed.teams.find((item) => item.id === args[0]) : void 0;
+    if (channels && !team) return { error: "team-not-found: Select an exact team id from teams; names are not ids." };
+    const matches = channels ? team.channels.filter((ch) => ch.title.toLowerCase().includes(query) || ch.id === query) : listed.teams.filter((item) => item.title.toLowerCase().includes(query) || item.id.toLowerCase() === query).map(({ channels: items, ...item }) => ({ ...item, channelCount: items.length }));
+    const out = {
+      [channels ? "channels" : "teams"]: matches.slice(0, MAX_COUNT),
+      truncated: matches.length > MAX_COUNT,
+      next: channels ? "Use the exact teamId and channel id together: send <channel-id> --team <team-id> --key <key> --from-pad message.md. Mentions are unsupported." : "Use channels <team-id> [name] to select a channel. Refine the name query if truncated."
+    };
+    while (matches.length && utf8Bytes(JSON.stringify(out)) > MAX_BYTES) {
+      out[channels ? "channels" : "teams"].pop();
+      out.truncated = true;
+    }
+    return { result: JSON.stringify(out) };
+  }
+  const channelSnapshots = /* @__PURE__ */ new Map();
+  function* channelHistory2(args) {
+    const [team, id, ...options] = args;
+    if (!teamId(team) || !channelId(id) || options.length % 2) return { error: "Usage: channel-history <team-id> <channel-id> [--limit 1-50] [--cursor <cursor>]." };
+    let count = 20;
+    let cursor;
+    const seen = /* @__PURE__ */ new Set();
+    for (let i = 0; i < options.length; i += 2) {
+      const [flag, value] = options.slice(i, i + 2);
+      if (seen.has(flag)) return { error: "invalid-request: Give each history option once." };
+      seen.add(flag);
+      if (flag === "--limit" && /^(?:[1-9]|[1-4][0-9]|50)$/.test(value)) count = Number(value);
+      else if (flag === "--cursor" && /^[a-f0-9]{32}:[0-9]{1,3}$/.test(value)) cursor = value;
+      else return { error: "invalid-request: History accepts --limit 1-50 and a returned --cursor only." };
+    }
+    const live = yield* liveSender2();
+    if ("error" in live) return live;
+    const found = yield* resolveChannel2(live.sender, team, id);
+    if ("error" in found) return found;
+    for (const [key, snap] of channelSnapshots) if (now2() - snap.at > CHAT_CACHE_TTL_MS) channelSnapshots.delete(key);
+    let token = cursor?.split(":")[0];
+    const offset = cursor ? Number(cursor.split(":")[1]) : 0;
+    let snapshot = token ? channelSnapshots.get(token) : void 0;
+    if (cursor && (!snapshot || snapshot.identity !== live.sender.identityKey || snapshot.tenant !== found.channel.tenantId || snapshot.team !== team || snapshot.channel !== id || offset >= snapshot.messages.length)) return { error: "invalid-request: History cursor expired or belongs to a different account/team/channel. Start channel-history again without --cursor." };
+    if (!snapshot) {
+      const response = yield* read(id, 200);
+      if ("error" in response) return { error: `upstream-rejected: Could not read the selected channel. Check membership and tenant policy. ${microsoftMessage(response.error).slice(0, 1e3)}` };
+      const messages = historyRows(response.messages).sort((a, b) => b.createdDateTime.localeCompare(a.createdDateTime) || b.id.localeCompare(a.id)).slice(0, 200);
+      const clipped = messages.some((row) => row.content.length > 8192);
+      for (const row of messages) row.content = cutText(row.content, 8192);
+      snapshot = { identity: live.sender.identityKey, tenant: found.channel.tenantId, team, channel: id, at: now2(), messages, clipped };
+      token = sha256Hex(`channel-history:${now2()}:${++previewSequence2}`).slice(0, 32);
+      if (channelSnapshots.size >= 4) channelSnapshots.delete(channelSnapshots.keys().next().value);
+      channelSnapshots.set(token, snapshot);
+    }
+    const page = boundedHistory(id, snapshot.messages.slice(offset, offset + count).reverse(), count, MAX_BYTES - 4096);
+    const next = offset + page.messages.length;
+    return {
+      result: JSON.stringify({
+        teamId: team,
+        channelId: id,
+        messages: page.messages,
+        nextCursor: next < snapshot.messages.length ? `${token}:${next}` : null,
+        truncated: page.truncated || snapshot.clipped,
+        window: "Stable local snapshot of at most the latest 200 messages; older upstream pages are not fetched. Cursors expire after 10 minutes or plugin reload.",
+        mentions: "unsupported"
+      })
+    };
+  }
+  return { agentTeams: agentTeams2, resolveChannel: resolveChannel2, channelHistory: channelHistory2, clear: () => channelSnapshots.clear() };
+}
+
+// shared/src/send-scope.ts
+var ALL_CHATS = { mode: "all" };
+var MAX_SCOPE_CHATS = 200;
+function scopeChats(value, validId) {
+  if (!Array.isArray(value) || value.length > MAX_SCOPE_CHATS) return null;
+  const out = [];
+  for (const item of value) {
+    const id = item && typeof item.id === "string" ? item.id : "";
+    if (!validId(id)) return null;
+    if (out.some((chat) => chat.id === id)) continue;
+    out.push({ id, title: typeof item.title === "string" ? item.title.slice(0, 200) : "" });
+  }
+  return out;
+}
+function parseSendScope(raw, validId) {
+  if (raw === null || raw === void 0 || raw === "") return ALL_CHATS;
+  let value;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return { mode: "only", chats: [] };
+  }
+  if (value && value.mode === "all") return ALL_CHATS;
+  const chats = value && value.mode === "only" ? scopeChats(value.chats, validId) : null;
+  return { mode: "only", chats: chats || [] };
+}
+function validateSendScope(value, validId) {
+  if (value && value.mode === "all") return ALL_CHATS;
+  if (!value || value.mode !== "only") return { error: "Choose a restriction mode: all or only." };
+  const chats = scopeChats(value.chats, validId);
+  if (!chats) return { error: `List up to ${MAX_SCOPE_CHATS} chats by their immutable ids.` };
+  return { mode: "only", chats };
+}
+function decideSend(scope, chatId, origin) {
+  if (origin === "view" || scope.mode === "all") return { allow: true };
+  if (scope.chats.some((chat) => chat.id === chatId)) return { allow: true };
+  const allowed = scope.chats.length ? scope.chats.map((chat) => chat.title || chat.id).join(", ") : "no chats";
+  return {
+    allow: false,
+    reason: "chat-not-allowed",
+    message: `chat-not-allowed: The owner's "Restrict agent sends" setting permits only these chats: ${allowed}. ${chatId} is not one of them. Ask the owner to add it in the plugin view (Restrict agent sends) or to switch the setting back to all chats.`
+  };
+}
+var CYRILLIC = {
+  \u0430: "a",
+  \u0431: "b",
+  \u0432: "v",
+  \u0433: "g",
+  \u0434: "d",
+  \u0435: "e",
+  \u0451: "e",
+  \u0436: "zh",
+  \u0437: "z",
+  \u0438: "i",
+  \u0439: "y",
+  \u043A: "k",
+  \u043B: "l",
+  \u043C: "m",
+  \u043D: "n",
+  \u043E: "o",
+  \u043F: "p",
+  \u0440: "r",
+  \u0441: "s",
+  \u0442: "t",
+  \u0443: "u",
+  \u0444: "f",
+  \u0445: "kh",
+  \u0446: "ts",
+  \u0447: "ch",
+  \u0448: "sh",
+  \u0449: "shch",
+  \u044A: "",
+  \u044B: "y",
+  \u044C: "",
+  \u044D: "e",
+  \u044E: "yu",
+  \u044F: "ya",
+  \u0456: "i",
+  \u0457: "yi",
+  \u0454: "ye",
+  \u0491: "g"
+};
+function words(value) {
+  const latin = Array.from(value.toLowerCase().normalize("NFC")).map((ch) => CYRILLIC[ch] ?? ch).join("");
+  return latin.normalize("NFD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9]+/).filter(Boolean);
+}
+function matchChats(chats, query, limit = 20) {
+  const raw = query.trim().toLowerCase();
+  const tokens = words(raw);
+  if (!tokens.length) return { match: null, ambiguous: false, candidates: [] };
+  const byId = chats.filter((chat) => chat.id.toLowerCase() === raw);
+  if (byId.length === 1) return { match: byId[0], ambiguous: false, candidates: byId };
+  const hits = chats.filter((chat) => {
+    const haystack = words(`${chat.title} ${chat.username || ""}`);
+    return tokens.every((token) => haystack.some((word) => word.startsWith(token)));
+  });
+  const key = tokens.join(" ");
+  const exact = hits.filter((chat) => words(chat.title).join(" ") === key || !!chat.username && words(chat.username).join(" ") === key);
+  const match = exact.length === 1 ? exact[0] : hits.length === 1 ? hits[0] : null;
+  return { match, ambiguous: !match && hits.length > 1, candidates: hits.slice(0, limit) };
+}
+
 // teams-client/src/plugin.ts
 var installJobs = {};
 var activeInstallJobId = null;
@@ -710,7 +1159,7 @@ function* runExo(p, args, timeoutMs) {
   if (!(yield* installedMarker(p))) return { ok: false, error: lifecycleMessage("not-installed"), stdout: "", stderr: "" };
   const secured = yield* protectStorage(p);
   if (secured.error) return { ok: false, error: secured.message || "Could not secure plugin storage.", stdout: "", stderr: "" };
-  if (args[0] === "list-chats" || args[0] === "get-chat") {
+  if (["list-chats", "get-chat", "list-teams", "get-messages"].includes(args[0])) {
     return yield* readOutput(
       nativePath(p.binary),
       args,
@@ -886,77 +1335,8 @@ function* resolveDestination(id, sender) {
   if (!chat) return { error: failureMessage("chat-not-found", id) };
   return { destination: { id: chat.id, label: chat.title || chat.id, chatType: chat.chatType, members: chat.members } };
 }
-function utf8Bytes(value) {
-  let bytes = 0;
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-    if (code < 128) bytes++;
-    else if (code < 2048) bytes += 2;
-    else if (code >= 55296 && code <= 56319 && i + 1 < value.length) {
-      bytes += 4;
-      i++;
-    } else bytes += 3;
-  }
-  return bytes;
-}
-function cutText(value, units) {
-  let end = Math.max(0, Math.min(value.length, units));
-  if (end > 0 && end < value.length) {
-    const last = value.charCodeAt(end - 1);
-    const next = value.charCodeAt(end);
-    if (last >= 55296 && last <= 56319 && next >= 56320 && next <= 57343) end--;
-  }
-  return value.slice(0, end);
-}
-function boundedHistory(chatId, source, count, maxBytes) {
-  const capCount = Math.max(1, Math.min(MAX_COUNT, Math.floor(count)));
-  const capBytes = Math.max(1024, Math.min(MAX_BYTES, Math.floor(maxBytes)));
-  const ordered = (Array.isArray(source) ? source : []).map((raw) => ({
-    id: String(raw && raw.id || ""),
-    createdDateTime: String(raw && raw.createdDateTime || ""),
-    from: String(raw && raw.from || ""),
-    content: String(raw && raw.content || ""),
-    untrusted: true
-  })).sort((a, b) => a.createdDateTime.localeCompare(b.createdDateTime)).slice(-capCount);
-  const out = { chatId, messages: [], truncated: false };
-  for (let i = ordered.length - 1; i >= 0; i--) {
-    const message = ordered[i];
-    const candidate = [message, ...out.messages];
-    if (utf8Bytes(JSON.stringify({ ...out, messages: candidate })) <= capBytes) {
-      out.messages = candidate;
-      continue;
-    }
-    out.truncated = true;
-    if (out.messages.length > 0) break;
-    let low = 0;
-    let high = message.content.length;
-    let best = "";
-    while (low <= high) {
-      const middle = Math.floor((low + high) / 2);
-      const clipped2 = { ...message, content: cutText(message.content, middle) };
-      if (utf8Bytes(JSON.stringify({ ...out, messages: [clipped2] })) <= capBytes) {
-        best = clipped2.content;
-        low = middle + 1;
-      } else high = middle - 1;
-    }
-    const clipped = { ...message, content: best };
-    if (utf8Bytes(JSON.stringify({ ...out, messages: [clipped] })) <= capBytes) out.messages = [clipped];
-    break;
-  }
-  if (utf8Bytes(JSON.stringify(out)) > capBytes) return { chatId, messages: [], truncated: true };
-  return out;
-}
-function settings() {
-  const value = parseJson(host.settingsJson()) || {};
-  const count = Number(value.historyCount);
-  const bytes = Number(value.historyMaxBytes);
-  return {
-    historyCount: Number.isInteger(count) ? Math.max(1, Math.min(MAX_COUNT, count)) : 20,
-    historyMaxBytes: Number.isInteger(bytes) ? Math.max(1024, Math.min(MAX_BYTES, bytes)) : MAX_BYTES
-  };
-}
-function* readMessages(p, chatId, count) {
-  const run = yield* runExo(p, ["get-chat", chatId, "--json", "--count", String(Math.max(1, Math.min(200, count)))], TIMEOUTS.history);
+function* readMessages(p, chatId, count, channel = false) {
+  const run = yield* runExo(p, [channel ? "get-messages" : "get-chat", chatId, "--json", "--count", String(Math.max(1, Math.min(200, count)))], TIMEOUTS.history);
   if (!run.ok) return { error: failureText(run) };
   const messages = parseJson(run.stdout.trim());
   return Array.isArray(messages) ? { messages } : { error: "exo-teams returned unreadable messages." };
@@ -978,6 +1358,19 @@ function* agentHistory(args) {
   if ("error" in read) return { error: `upstream-rejected: exo-teams could not read that chat. Microsoft said: "${microsoftMessage(read.error)}"` };
   return { result: JSON.stringify(boundedHistory(args[0], historyRows(read.messages), count, configured.historyMaxBytes)) };
 }
+var { parseSendFileArgs, probeFile } = createFileTools({ runProcess, nativePath, failureMessage });
+var channelCommands = createChannelCommands({
+  now,
+  paths,
+  liveSender,
+  run: function* (args, timeout) {
+    return yield* runExo(paths(), args, timeout);
+  },
+  read: function* (id, count) {
+    return yield* readMessages(paths(), id, count, true);
+  }
+});
+var { agentTeams, resolveChannel, channelHistory } = channelCommands;
 var previewSequence = 0;
 function* previewCommand(args, origin = "agent", body) {
   if (args.length < (body === void 0 ? 2 : 1) || !validChatId(args[0])) return { error: "Usage: preview <immutable-chat-id> --from-pad message.md. Find the id with `chats <name>`; chat names are not accepted." };
@@ -991,16 +1384,18 @@ function* previewCommand(args, origin = "agent", body) {
   const previewId = sha256Hex(`preview\0${now()}\0${++previewSequence}`);
   previewTokens[previewId] = { sender: resolved.sender, destination: found.destination, text, origin, previewNonce: previewId };
   const decision = decideSend(yield* readSendScope(), found.destination.id, origin);
-  return { result: JSON.stringify({
-    previewId,
-    idempotencyKey: previewId,
-    sender: resolved.sender,
-    tenant: { id: resolved.sender.tenantId },
-    destination: found.destination,
-    text,
-    allowed: decision.allow,
-    restriction: decision.allow ? null : decision.message
-  }) };
+  return {
+    result: JSON.stringify({
+      previewId,
+      idempotencyKey: previewId,
+      sender: resolved.sender,
+      tenant: { id: resolved.sender.tenantId },
+      destination: found.destination,
+      text,
+      allowed: decision.allow,
+      restriction: decision.allow ? null : decision.message
+    })
+  };
 }
 var SEND_FAILURES = ["invalid-request", "not-logged-in", "reauth-needed", "chat-not-found", "chat-not-allowed", "file-too-large", "file-unreadable", "upstream-rejected", "unknown"];
 function failureMessage(kind, detail, cause) {
@@ -1034,7 +1429,7 @@ function* loadOutbox(p) {
     if (value && value.schema === 1) return { ledger: { schema: 2, attempts: [] } };
     if (!value || value.schema !== 2 || !Array.isArray(value.attempts)) return { error: "the existing outbox ledger is unreadable" };
     const states = ["pending", "sent", "failed", "unknown"];
-    const valid = value.attempts.every((item) => item && typeof item.idempotencyKey === "string" && typeof item.payloadHash === "string" && /^[a-f0-9]{64}$/.test(item.payloadHash) && states.includes(item.state) && item.sender && typeof item.sender.accountId === "string" && typeof item.sender.identityKey === "string" && item.destination && validChatId(String(item.destination.id || "")) && typeof item.destination.label === "string" && Number.isFinite(Number(item.createdAt)) && Number.isFinite(Number(item.updatedAt)) && Number.isInteger(item.sendCount) && item.sendCount >= 0);
+    const valid = value.attempts.every((item) => item && typeof item.idempotencyKey === "string" && typeof item.payloadHash === "string" && /^[a-f0-9]{64}$/.test(item.payloadHash) && states.includes(item.state) && item.sender && typeof item.sender.accountId === "string" && typeof item.sender.identityKey === "string" && item.destination && validChatId(String(item.destination.id || "")) && typeof item.destination.label === "string" && (!String(item.target || "").startsWith("channel:") || channelId(item.destination.id) && teamId(item.destination.teamId) && typeof item.destination.tenantId === "string" && !!item.destination.tenantId) && Number.isFinite(Number(item.createdAt)) && Number.isFinite(Number(item.updatedAt)) && Number.isInteger(item.sendCount) && item.sendCount >= 0);
     if (!valid) return { error: "the existing outbox ledger contains an invalid or unrecognized attempt state" };
     return { ledger: value };
   } catch {
@@ -1076,16 +1471,18 @@ function parseSendArgs(args, target, usage, body) {
 }
 function attemptResult(attempt, extra = {}) {
   lastSendState = { state: "sent", message: attempt.messageId ? `Teams accepted message ${attempt.messageId}.` : "Teams accepted the message; its id could not be read back.", updatedAt: now() };
-  return { result: JSON.stringify({
-    status: "sent",
-    sender: attempt.sender,
-    destination: attempt.destination,
-    idempotencyKey: attempt.idempotencyKey,
-    messageId: attempt.messageId || null,
-    ...extra,
-    ...attempt.messageId ? {} : { messageIdNote: "exo-teams confirmed the send, but the message id was not found when the chat was read back. Check the chat before resending." },
-    deliveryGuarantee: "A sent idempotency key is never resent. An unconfirmed send stays unknown. This is not an exactly-once delivery guarantee."
-  }) };
+  return {
+    result: JSON.stringify({
+      status: "sent",
+      sender: attempt.sender,
+      destination: attempt.destination,
+      idempotencyKey: attempt.idempotencyKey,
+      messageId: attempt.messageId || null,
+      ...extra,
+      ...attempt.messageId ? {} : { messageIdNote: "exo-teams confirmed the send, but the message id was not found when the chat was read back. Check the chat before resending." },
+      deliveryGuarantee: "A sent idempotency key is never resent. An unconfirmed send stays unknown. This is not an exactly-once delivery guarantee."
+    })
+  };
 }
 function* persistFailure(p, ledger, attempt, kind, detail, cause) {
   attempt.failure = kind;
@@ -1125,23 +1522,35 @@ function* deliver(origin, plan, payload, explicitKey) {
     if (!loaded.ledger) return sendFailureResult("upstream-rejected", loaded.error || "the outbox could not be read");
     const ledger = loaded.ledger;
     const hash = payloadHash(payload);
-    const destinationKey = plan.kind === "chat" ? plan.chatId : `person:${sha256Hex(personQuery(plan.query).toLowerCase()).slice(0, 24)}`;
+    const destinationKey = plan.kind === "chat" ? plan.chatId : plan.kind === "channel" ? `channel:${plan.teamId}:${plan.channelId}` : `person:${sha256Hex(personQuery(plan.query).toLowerCase()).slice(0, 24)}`;
     let attempt = key ? ledger.attempts.find((item) => item.idempotencyKey === key) : void 0;
     if (attempt && (attempt.payloadHash !== hash || (attempt.target || attempt.destination.id) !== destinationKey)) {
       return sendFailureResult("invalid-request", "This idempotency key is already bound to a different chat, text or file; choose a new key only for an intentional new send.");
     }
-    if (attempt && attempt.state === "sent") return attemptResult(attempt, fileSummary(payload));
+    if (attempt && attempt.state === "sent" && plan.kind !== "channel") return attemptResult(attempt, fileSummary(payload));
     if (attempt && attempt.state === "unknown") return sendFailureResult("unknown");
     if (attempt && attempt.state === "pending") return yield* persistFailure(p, ledger, attempt, "unknown", "a previous invocation ended before its send result was recorded");
+    if (attempt && attempt.state === "failed" && attempt.sendCount > 0) return rememberPrefixedFailure(attempt.failureMessage || failureMessage("upstream-rejected", "This key already dispatched a failed attempt; an intentional new attempt requires a new key"));
     const resolved = yield* liveSender();
     if ("error" in resolved) return rememberPrefixedFailure(resolved.error);
     if (attempt && attempt.sender.identityKey !== resolved.sender.identityKey) {
       return sendFailureResult("invalid-request", "This idempotency key belongs to another account; choose a new key only for an intentional new send.");
     }
+    if (attempt && attempt.state === "sent") return attemptResult(attempt, fileSummary(payload));
     let destination;
     let newDm = false;
     let person = "";
-    if (plan.kind === "chat") {
+    if (plan.kind === "channel") {
+      const found = yield* resolveChannel(resolved.sender, plan.teamId, plan.channelId, true);
+      if ("error" in found) return found;
+      destination = {
+        id: found.channel.id,
+        label: `${found.channel.team} / ${found.channel.title}`,
+        teamId: found.channel.teamId,
+        tenantId: found.channel.tenantId
+      };
+      if (attempt && attempt.destination.tenantId !== destination.tenantId) return sendFailureResult("invalid-request", "This channel key belongs to a different tenant. No message was posted.");
+    } else if (plan.kind === "chat") {
       const found = yield* resolveDestination(plan.chatId, resolved.sender);
       if ("error" in found) return rememberPrefixedFailure(found.error);
       destination = { id: found.destination.id, label: String(found.destination.label || found.destination.id) };
@@ -1205,7 +1614,7 @@ function* deliver(origin, plan, payload, explicitKey) {
     }
     attempt.state = "sent";
     attempt.updatedAt = now();
-    const read = yield* readMessages(p, chatId, 20);
+    const read = yield* readMessages(p, chatId, 20, plan.kind === "channel");
     attempt.messageId = !("messages" in read) ? null : payload.kind === "file" ? findSentFileMessageId(read.messages, payload.file.name, resolved.sender.user, sentAfter) : findSentMessageId(read.messages, payload.text, resolved.sender.user, sentAfter);
     if (!(yield* persistOutbox(p, ledger))) return yield* persistFailure(p, ledger, attempt, "unknown", "Teams accepted the message but the sent result could not be recorded.");
     return attemptResult(attempt, fileSummary(payload));
@@ -1214,6 +1623,18 @@ function* deliver(origin, plan, payload, explicitKey) {
   }
 }
 function* sendCommand(origin, args, body) {
+  if (args[1] === "--team") {
+    const at = args.indexOf("--team");
+    const team = args[at + 1];
+    if (at !== 1 || !teamId(team) || args.lastIndexOf("--team") !== at || !channelId(args[0])) return { error: "invalid-request: Use send <channel-id> --team <team-id> --key <key> --from-pad message.md. Select both ids from channels." };
+    const rest = [args[0], ...args.slice(3)];
+    if (rest.slice(1, 4).some((arg) => /^(?:--mention|--mentions)(?:=|$)/.test(arg))) return { error: "unsupported-mentions: The pinned exo-teams CLI has no mention metadata. Nothing was sent. Use plain text without a mention option." };
+    const parsed2 = parseSendArgs(rest, channelId, "Use send <channel-id> --team <team-id> --key <key> --from-pad message.md.", body);
+    if ("error" in parsed2) return rememberPrefixedFailure(parsed2.error);
+    if (!parsed2.key) return { error: "invalid-request: Channel sends require --key <unique-key>. Reuse it only for this same team, channel and body." };
+    return yield* deliver(origin, { kind: "channel", teamId: team, channelId: parsed2.target }, { kind: "text", text: parsed2.text }, parsed2.key);
+  }
+  if (channelId(args[0])) return { error: "invalid-request: Channel sends require --team <team-id>. Select the exact team and channel with channels <team-id>." };
   const parsed = parseSendArgs(args, validChatId, "Usage: send <immutable-chat-id> [--key <idempotency-key>] --from-pad message.md; chat names are not ids. Use send-to <person> for a person.", body);
   if ("error" in parsed) return rememberPrefixedFailure(parsed.error);
   return yield* deliver(origin, { kind: "chat", chatId: parsed.target }, { kind: "text", text: parsed.text }, parsed.key);
@@ -1224,88 +1645,6 @@ function* sendToCommand(args, body) {
   const parsed = parseSendArgs(rest, (value) => !!value.trim() && value.length <= 200, "Usage: send-to <person name or email> [--key <idempotency-key>] --from-pad message.md. Quote a multi-word name, or put -- after it.", body);
   if ("error" in parsed) return rememberPrefixedFailure(parsed.error);
   return yield* deliver("agent", { kind: "person", query: parsed.target.trim() }, { kind: "text", text: parsed.text }, parsed.key);
-}
-var SEND_FILE_USAGE = "Usage: send-file <chat-id | person> <absolute path> [--from-pad caption.md] [--key <idempotency-key>]. Quote a multi-word name or a path with spaces.";
-function absolutePath(value) {
-  return host.path.isWindows ? /^[A-Za-z]:[\\/]/.test(value) : value.startsWith("/");
-}
-function parseSendFileArgs(args, body) {
-  const positional = [];
-  const message = [];
-  let key;
-  let inMessage = false;
-  let sawMessage = false;
-  for (let i = 0; i < args.length; i++) {
-    const arg = String(args[i]);
-    if (arg === "--key") {
-      if (key !== void 0 || i + 1 >= args.length || !/^[A-Za-z0-9._:-]{1,160}$/.test(String(args[i + 1]))) return { error: failureMessage("invalid-request", "--key needs one 1\u2013160 character idempotency key ([A-Za-z0-9._:-]).") };
-      key = String(args[++i]);
-      inMessage = false;
-    } else if (arg === "--message") {
-      if (sawMessage) return { error: failureMessage("invalid-request", "Give --message once.") };
-      sawMessage = inMessage = true;
-    } else if (inMessage) message.push(arg);
-    else positional.push(arg);
-  }
-  const at = positional.findIndex((arg, index) => index > 0 && absolutePath(arg));
-  if (at < 1) return { error: failureMessage("invalid-request", SEND_FILE_USAGE) };
-  const target = positional.slice(0, at).join(" ").trim();
-  const path = positional.slice(at).join(" ");
-  if (!target || target.length > 200) return { error: failureMessage("invalid-request", SEND_FILE_USAGE) };
-  if (path.length > 1024 || /[\u0000-\u001f]/.test(path)) return { error: failureMessage("invalid-request", "The file path must not contain control characters.") };
-  if (body !== void 0 && sawMessage) return { error: failureMessage("invalid-request", "Inline --message cannot be combined with a body source.") };
-  return { target, path, message: body ?? message.join(" "), key };
-}
-function underRoot(path, root) {
-  const fold = (value) => {
-    const normalized = host.path.normalize(value).replace(/\\/g, "/").replace(/\/+$/, "");
-    return host.path.isWindows ? normalized.toLowerCase() : normalized;
-  };
-  const child = fold(path);
-  const parent = fold(root);
-  return child === parent || child.startsWith(`${parent}/`);
-}
-var WINDOWS_FILE_PROBE = "$ErrorActionPreference='Stop'; try { $f = Get-Item -LiteralPath $env:CT_FILE -Force; if ($f.PSIsContainer) { 'kind=dir'; exit 0 }; 'size=' + $f.Length; 'link=' + [bool]($f.Attributes -band [IO.FileAttributes]::ReparsePoint); if ($f.Length -le [long]$env:CT_MAX_BYTES) { $s = [IO.File]::OpenRead($f.FullName); $s.Close(); 'sha256=' + (Get-FileHash -Algorithm SHA256 -LiteralPath $f.FullName).Hash } } catch { 'error=' + $_.Exception.GetType().Name }";
-function* probeFile(p, target, rawPath) {
-  let path = host.path.normalize(rawPath);
-  const refuse = (kind, detail) => ({ error: failureMessage(kind, detail) });
-  const ownData = "Files inside the Teams Client data directory are never sent.";
-  if (/^[\\/]{2}/.test(rawPath)) return refuse("invalid-request", "Network paths are not accepted; give a local absolute path.");
-  if (underRoot(path, p.root)) return refuse("invalid-request", ownData);
-  let size;
-  let sha256 = null;
-  if (target.platform === "win32") {
-    const run = yield* runProcess(target.tools.powershell, ["-NoProfile", "-NonInteractive", "-Command", WINDOWS_FILE_PROBE], { CT_FILE: nativePath(path), CT_MAX_BYTES: String(MAX_FILE_BYTES) }, TIMEOUTS.fileProbe);
-    const probe = parseFileProbe(run.stdout);
-    if (probe.state === "missing") return refuse("file-unreadable", "No file exists at that path.");
-    if (probe.state === "directory") return refuse("file-unreadable", "That path is a directory.");
-    if (probe.state === "denied") return refuse("file-unreadable", "This account may not read that file.");
-    if (probe.state !== "file") return refuse("file-unreadable", "The file could not be opened for reading.");
-    if (probe.link) return refuse("invalid-request", "That path is a link or junction; give the path of the file itself.");
-    size = probe.size;
-    sha256 = probe.sha256;
-  } else {
-    const real = yield* runProcess(target.tools.realpath, [nativePath(path)], {}, TIMEOUTS.probe);
-    const resolved = real.ok ? real.stdout.trim() : "";
-    if (!resolved.startsWith("/") || /[\r\n]/.test(resolved)) return refuse("file-unreadable", "No readable file exists at that path.");
-    path = host.path.normalize(resolved);
-    const realRoot = yield* runProcess(target.tools.realpath, [nativePath(p.root)], {}, TIMEOUTS.probe);
-    if (underRoot(path, p.root) || realRoot.ok && underRoot(path, realRoot.stdout.trim())) return refuse("invalid-request", ownData);
-    const count = yield* runProcess(target.tools.wc, ["-c", nativePath(path)], {}, TIMEOUTS.fileProbe);
-    const bytes = count.ok ? parseByteCount(count.stdout) : null;
-    if (bytes === null) return refuse("file-unreadable", "The path is not a readable regular file.");
-    size = bytes;
-  }
-  if (size > MAX_FILE_BYTES) return refuse("file-too-large", `The file is ${size} bytes.`);
-  if (target.platform !== "win32") {
-    const [bin, ...args] = target.tools.hash.map((part) => part === "{file}" ? nativePath(path) : part);
-    const hashed = yield* runProcess(bin, args, {}, TIMEOUTS.fileProbe);
-    sha256 = hashed.ok ? parseSha256(hashed.stdout) : null;
-  }
-  if (!sha256) return refuse("file-unreadable", "The file could not be read to the end.");
-  const name = path.split(/[\\/]/).pop() || "";
-  if (!name) return refuse("invalid-request", "The path does not name a file.");
-  return { file: { path, name, size, sha256 } };
 }
 function* sendFileCommand(args, body) {
   const parsed = parseSendFileArgs(args, body);
@@ -1318,29 +1657,6 @@ function* sendFileCommand(args, body) {
   if ("error" in probed) return rememberPrefixedFailure(probed.error);
   const plan = validChatId(parsed.target) ? { kind: "chat", chatId: parsed.target } : { kind: "person", query: parsed.target };
   return yield* deliver("agent", plan, { kind: "file", file: probed.file, message: parsed.message }, parsed.key);
-}
-var SEARCH_USAGE = "Usage: search-messages <query> [--chat <chat-id | name>] [--limit <1-50>]. Quote a multi-word chat name.";
-function parseSearchArgs(args) {
-  const words2 = [];
-  let chat;
-  let limit = SEARCH_DEFAULT_LIMIT;
-  for (let i = 0; i < args.length; i++) {
-    const arg = String(args[i]);
-    if (arg === "--chat") {
-      const value = String(args[i + 1] ?? "").trim();
-      if (chat !== void 0 || !value || value.length > 512) return { error: `invalid-request: ${SEARCH_USAGE}` };
-      chat = value;
-      i++;
-    } else if (arg === "--limit") {
-      const value = String(args[i + 1] ?? "");
-      if (!/^[0-9]{1,2}$/.test(value) || Number(value) < 1 || Number(value) > MAX_COUNT) return { error: `invalid-request: --limit must be an integer from 1 to ${MAX_COUNT}.` };
-      limit = Number(value);
-      i++;
-    } else words2.push(arg);
-  }
-  const query = words2.join(" ").trim();
-  if (query.length < 2 || query.length > 200) return { error: `invalid-request: ${SEARCH_USAGE} The query needs 2 to 200 characters.` };
-  return { query, chat, limit };
 }
 function* searchScope(sender, chats, wanted) {
   const exact = chats.find((item) => item.id === wanted);
@@ -1426,6 +1742,7 @@ function* logout() {
   } catch {
   }
   memoryChats = null;
+  channelCommands.clear();
   lastStatus = null;
   clearPreviewTokens();
   if (yield* installedMarker(p)) {
@@ -1645,6 +1962,12 @@ function* onAgentCommand(ctx) {
       return { error: "exo-teams keeps one signed-in Teams account. Run logout, then login with the other account." };
     case "chats":
       return yield* agentChats(args);
+    case "teams":
+      return yield* agentTeams(args);
+    case "channels":
+      return yield* agentTeams(args, true);
+    case "channel-history":
+      return yield* channelHistory(args);
     case "search":
       return args.length ? yield* agentChats(args, true) : { error: "Usage: search <person name or email>." };
     case "history":
@@ -1697,138 +2020,6 @@ function* renderGlance() {
   if (lastSendState) nodes.push({ kind: "text", text: `Last send: ${lastSendState.state} \xB7 ${lastSendState.message}`, style: { tone: lastSendState.state === "sent" ? "ok" : "warn" } });
   return { title: "Teams Client", nodes };
 }
-function sha256Hex(text) {
-  const bytes = [];
-  for (let i = 0; i < text.length; i++) {
-    let code = text.charCodeAt(i);
-    if (code >= 55296 && code <= 56319 && i + 1 < text.length) {
-      const low2 = text.charCodeAt(i + 1);
-      if (low2 >= 56320 && low2 <= 57343) {
-        code = 65536 + (code - 55296 << 10) + (low2 - 56320);
-        i++;
-      } else code = 65533;
-    } else if (code >= 56320 && code <= 57343) code = 65533;
-    if (code < 128) bytes.push(code);
-    else if (code < 2048) bytes.push(192 | code >> 6, 128 | code & 63);
-    else if (code < 65536) bytes.push(224 | code >> 12, 128 | code >> 6 & 63, 128 | code & 63);
-    else bytes.push(240 | code >> 18, 128 | code >> 12 & 63, 128 | code >> 6 & 63, 128 | code & 63);
-  }
-  const bitLength = bytes.length * 8;
-  bytes.push(128);
-  while (bytes.length % 64 !== 56) bytes.push(0);
-  const high = Math.floor(bitLength / 4294967296);
-  const low = bitLength >>> 0;
-  for (let shift = 24; shift >= 0; shift -= 8) bytes.push(high >>> shift & 255);
-  for (let shift = 24; shift >= 0; shift -= 8) bytes.push(low >>> shift & 255);
-  const constants = [
-    1116352408,
-    1899447441,
-    3049323471,
-    3921009573,
-    961987163,
-    1508970993,
-    2453635748,
-    2870763221,
-    3624381080,
-    310598401,
-    607225278,
-    1426881987,
-    1925078388,
-    2162078206,
-    2614888103,
-    3248222580,
-    3835390401,
-    4022224774,
-    264347078,
-    604807628,
-    770255983,
-    1249150122,
-    1555081692,
-    1996064986,
-    2554220882,
-    2821834349,
-    2952996808,
-    3210313671,
-    3336571891,
-    3584528711,
-    113926993,
-    338241895,
-    666307205,
-    773529912,
-    1294757372,
-    1396182291,
-    1695183700,
-    1986661051,
-    2177026350,
-    2456956037,
-    2730485921,
-    2820302411,
-    3259730800,
-    3345764771,
-    3516065817,
-    3600352804,
-    4094571909,
-    275423344,
-    430227734,
-    506948616,
-    659060556,
-    883997877,
-    958139571,
-    1322822218,
-    1537002063,
-    1747873779,
-    1955562222,
-    2024104815,
-    2227730452,
-    2361852424,
-    2428436474,
-    2756734187,
-    3204031479,
-    3329325298
-  ];
-  const state = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225];
-  const words2 = new Array(64);
-  const rotate = (value, bits) => value >>> bits | value << 32 - bits;
-  for (let offset = 0; offset < bytes.length; offset += 64) {
-    for (let i = 0; i < 16; i++) {
-      const at = offset + i * 4;
-      words2[i] = (bytes[at] << 24 | bytes[at + 1] << 16 | bytes[at + 2] << 8 | bytes[at + 3]) >>> 0;
-    }
-    for (let i = 16; i < 64; i++) {
-      const x = words2[i - 15];
-      const y = words2[i - 2];
-      const s0 = rotate(x, 7) ^ rotate(x, 18) ^ x >>> 3;
-      const s1 = rotate(y, 17) ^ rotate(y, 19) ^ y >>> 10;
-      words2[i] = words2[i - 16] + s0 + words2[i - 7] + s1 >>> 0;
-    }
-    let [a, b, c, d, e, f, g, h] = state;
-    for (let i = 0; i < 64; i++) {
-      const sum1 = rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25);
-      const choice = e & f ^ ~e & g;
-      const t1 = h + sum1 + choice + constants[i] + words2[i] >>> 0;
-      const sum0 = rotate(a, 2) ^ rotate(a, 13) ^ rotate(a, 22);
-      const majority = a & b ^ a & c ^ b & c;
-      const t2 = sum0 + majority >>> 0;
-      h = g;
-      g = f;
-      f = e;
-      e = d + t1 >>> 0;
-      d = c;
-      c = b;
-      b = a;
-      a = t1 + t2 >>> 0;
-    }
-    state[0] = state[0] + a >>> 0;
-    state[1] = state[1] + b >>> 0;
-    state[2] = state[2] + c >>> 0;
-    state[3] = state[3] + d >>> 0;
-    state[4] = state[4] + e >>> 0;
-    state[5] = state[5] + f >>> 0;
-    state[6] = state[6] + g >>> 0;
-    state[7] = state[7] + h >>> 0;
-  }
-  return state.map((value) => value.toString(16).padStart(8, "0")).join("");
-}
 var plugin = defineProviderIo({
   onAgentCommand,
   renderGlance,
@@ -1842,6 +2033,7 @@ var plugin = defineProviderIo({
     activeInstallJobId = null;
     cachedTarget = null;
     memoryChats = null;
+    channelCommands.clear();
     lastStatus = null;
     lastSendState = null;
     clearPreviewTokens();
