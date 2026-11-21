@@ -4,7 +4,7 @@
   "version": "0.4.4",
   "private": true,
   "type": "module",
-  "description": "CodeTerm Transcriber plugin: speech-to-text backend (local Whisper server or mesh peer).",
+  "description": "Domios Transcriber plugin: local Parakeet dictation and voice-note transcription.",
   "devDependencies": {
     "@codeterm/plugin-sdk": "^1.4.6"
   }
