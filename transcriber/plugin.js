@@ -23,6 +23,179 @@ __export(plugin_exports, {
   default: () => plugin_default
 });
 module.exports = __toCommonJS(plugin_exports);
+
+// transcriber/src/models.ts
+var RELEASE = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/";
+var WORKER = "runtime/parakeet.py";
+var RUNTIME = "runtime-py312-sherpa-2.0.2";
+var root = () => host.dataDir() + "/transcriber/live-dictation";
+var selectionPath = () => root() + "/selected";
+var python = () => host.path.isWindows ? "python.exe" : "python3.12";
+var runtimePython = () => root() + "/" + RUNTIME + (host.path.isWindows ? "/Scripts/python.exe" : "/bin/python3.12");
+var MODELS = [
+  {
+    id: "parakeet-tdt-0.6b-v3-int8",
+    label: "Parakeet TDT 0.6B v3",
+    languages: "25 European languages, including Russian and English",
+    size: "487 MB",
+    bytes: 487211443,
+    sha256: "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9",
+    sample: "en.wav"
+  },
+  {
+    id: "parakeet-tdt-0.6b-v2-int8",
+    label: "Parakeet TDT 0.6B v2",
+    languages: "English",
+    size: "482 MB",
+    bytes: 482440461,
+    sha256: "6fc4426b54aa549a0019b8a75b8dea59164e71790a37ac56a045ad57f915f714",
+    sample: "0.wav"
+  }
+];
+var archiveName = (model) => "sherpa-onnx-nemo-" + model.id;
+var archiveUrl = (model) => RELEASE + archiveName(model) + ".tar.bz2";
+var modelPath = (model) => root() + "/" + model.id + "-" + model.sha256.slice(0, 12);
+function* selectedModel() {
+  const selected = (yield* host.io.fs.readFile(selectionPath()))?.trim();
+  return MODELS.find((model) => model.id === selected) ?? MODELS[0];
+}
+function* hasRuntime() {
+  return yield* host.io.fs.fileExists(runtimePython());
+}
+function* hasModel(model) {
+  const path = modelPath(model);
+  if ((yield* host.io.fs.readFile(path + "/.verified"))?.trim() !== model.sha256) return false;
+  for (const file of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) {
+    if (!(yield* host.io.fs.fileExists(path + "/" + file))) return false;
+  }
+  return true;
+}
+
+// transcriber/src/dictation.ts
+function* dictationLaunch() {
+  const model = yield* selectedModel();
+  if (!(yield* hasRuntime()) || !(yield* hasModel(model))) {
+    return { state: "setup", reason: model.label + " and its local CPU runtime need to be installed." };
+  }
+  return { state: "ready", bin: runtimePython(), script: WORKER, args: ["stream", modelPath(model)] };
+}
+
+// transcriber/src/modelView.ts
+var fs = () => host.io.fs;
+var job = null;
+var starting = false;
+var notice = null;
+function* collectJob() {
+  if (!job) return;
+  const current = job;
+  const status = yield { op: "execPoll", job: current.id };
+  if (job !== current || !status?.done) return;
+  if (status.code === 3) {
+    notice = { kind: "note", body: "Installation cancelled." };
+  } else if (status.error || status.code !== 0) {
+    notice = { kind: "note", level: "error", body: (status.stderr || status.error || "The runtime returned an error.").trim().slice(0, 400) };
+  } else if (current.mode === "test") {
+    notice = { kind: "note", body: (status.stdout || "The test produced no speech.").trim().slice(0, 360) };
+  } else {
+    notice = { kind: "note", body: current.model.label + " installed." };
+  }
+  job = null;
+  yield { op: "execClose", job: current.id };
+  if (current.mode === "install") {
+    yield* fs().removeFile(root() + "/.cancel-" + current.nonce);
+    yield* fs().removeFile(root() + "/.progress-" + current.nonce);
+  }
+}
+function* modelGlance(clip, bundle) {
+  yield* collectJob();
+  const selected = yield* selectedModel();
+  const runtime = yield* hasRuntime();
+  const nodes = [{ kind: "text", text: "Live dictation" }];
+  if (!bundle) nodes.push({ kind: "note", level: "warn", body: "This host cannot open the dictation runtime." });
+  if (!runtime) nodes.push({ kind: "note", body: "Setup uses local CPU inference and needs a supported 64-bit Python 3.12 installation." });
+  const running = job;
+  if (running) {
+    const progress2 = yield* fs().readFile(root() + "/.progress-" + running.nonce);
+    nodes.push({ kind: "note", body: running.cancelled ? "Cancelling installation\u2026" : progress2?.trim().slice(0, 180) || (running.mode === "install" ? "Preparing installation\u2026" : "Loading the model and recognizing its English test sample\u2026") });
+    nodes.push({ kind: "button", label: "Refresh status", action: "dictation:refresh" });
+    if (running.mode === "install" && !running.cancelled) nodes.push({ kind: "button", label: "Cancel installation", action: "dictation:cancel" });
+  }
+  if (notice) nodes.push(notice);
+  for (const model of MODELS) {
+    const installed = yield* hasModel(model);
+    const active = model.id === selected.id;
+    const details = [
+      { kind: "text", text: model.label },
+      { kind: "text", text: model.languages + " \xB7 " + model.size + " \xB7 CPU", style: { tone: "muted" } }
+    ];
+    const controls = [];
+    if (active) controls.push({ kind: "badge", label: installed && runtime ? "Selected \xB7 Installed" : "Selected", tone: installed && runtime ? "ok" : "muted" });
+    else if (installed) controls.push({ kind: "badge", label: "Installed", tone: "ok" });
+    if (bundle && !starting && !job) {
+      if (!installed || !runtime) controls.push({ kind: "button", label: "Install " + model.size, action: "dictation:install:" + model.id });
+      else if (!active) controls.push({ kind: "button", label: "Use model", action: "dictation:select:" + model.id });
+      else controls.push({ kind: "button", label: "Test model", action: "dictation:test:" + model.id });
+    }
+    if (controls.length) details.push({ kind: "row", children: controls });
+    nodes.push({ kind: "divider" }, { kind: "stack", style: { spacing: "sm" }, children: details });
+  }
+  const clipView = yield* clip;
+  return { title: "Transcriber", nodes: [...nodes, { kind: "divider" }, { kind: "text", text: "Voice notes" }, ...clipView.nodes] };
+}
+function* begin(mode, model, bundle) {
+  if (job || starting) return;
+  starting = true;
+  notice = null;
+  try {
+    const nonce = host.unixNowMs().toString(36) + "-" + Math.random().toString(36).slice(2, 14);
+    if (!(yield* fs().makeDirs(root()))) throw new Error("The dictation data directory could not be opened.");
+    const script = bundle.replace(/\\/g, "/") + "/" + WORKER;
+    const installedRuntime = yield* hasRuntime();
+    const bin = installedRuntime ? runtimePython() : python();
+    const args = mode === "test" ? ["-I", script, "test", modelPath(model), model.sample] : [
+      "-I",
+      script,
+      "install",
+      root(),
+      RUNTIME,
+      modelPath(model),
+      archiveName(model),
+      archiveUrl(model),
+      String(model.bytes),
+      model.sha256,
+      model.sample,
+      nonce
+    ];
+    const start = yield { op: "execStart", options: { bin, args, timeoutMs: mode === "install" ? 9e5 : 2e4 } };
+    if (!start.jobId) throw new Error("The local setup process could not start.");
+    job = { id: start.jobId, nonce, mode, model, cancelled: false };
+  } catch (error) {
+    notice = { kind: "note", level: "error", body: String(error).slice(0, 400) };
+  } finally {
+    starting = false;
+  }
+}
+function* modelGlanceAction(action, clip, bundle) {
+  yield* collectJob();
+  const [, verb, id] = action.split(":");
+  const model = MODELS.find((candidate) => candidate.id === id);
+  if (verb === "cancel" && job?.mode === "install" && !job.cancelled) {
+    const expected = job;
+    if ((yield* fs().writeFileAtomic(root() + "/.cancel-" + expected.nonce, "")) && job === expected) job.cancelled = true;
+  } else if (model && bundle && !job && !starting) {
+    if (verb === "install") yield* begin("install", model, bundle);
+    else if ((verb === "select" || verb === "test") && (yield* hasRuntime()) && (yield* hasModel(model))) {
+      if (verb === "select") {
+        if (!(yield* fs().writeFileAtomic(selectionPath(), model.id))) {
+          notice = { kind: "note", level: "error", body: "The selected model could not be saved." };
+        } else notice = null;
+      } else yield* begin("test", model, bundle);
+    }
+  }
+  return yield* modelGlance(clip, bundle);
+}
+
+// transcriber/src/plugin.ts
 var WHISPER_RELEASE = "v1.9.1";
 var WHISPER_BASE = "https://github.com/ggml-org/whisper.cpp/releases/download/" + WHISPER_RELEASE;
 var FFMPEG_WIN_ZIP = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
@@ -58,21 +231,20 @@ function binDir() {
 function tmpDir() {
   return baseDir() + "/tmp";
 }
-function modelPath() {
+function modelPath2() {
   return baseDir() + "/ggml-" + modelId() + ".bin";
 }
 function modelDonePath() {
-  return modelPath() + ".done";
+  return modelPath2() + ".done";
 }
 function entryName(entry) {
   return typeof entry === "string" ? entry : entry.name;
 }
-function cleanupOrphanModels(activeModel) {
+function* cleanupOrphanModels(activeModel) {
   const dir = baseDir();
-  const h = host;
-  let entries = [];
+  let entries;
   try {
-    entries = h.readDir ? h.readDir(dir) : host.fs.readDir(dir);
+    entries = yield* host.io.fs.readDir(dir);
   } catch (e) {
     return;
   }
@@ -83,8 +255,8 @@ function cleanupOrphanModels(activeModel) {
     if (name === activeName) continue;
     const path = typeof entry === "string" ? dir + "/" + name : entry.path || dir + "/" + name;
     if (path === activeModel || path.endsWith(".part")) continue;
-    host.removeFile(path);
-    host.removeFile(path + ".done");
+    yield* host.io.fs.removeFile(path);
+    yield* host.io.fs.removeFile(path + ".done");
   }
 }
 function osKind() {
@@ -97,16 +269,15 @@ function osKind() {
 function exeSuffix() {
   return osKind() === "windows" ? ".exe" : "";
 }
-function exec(opts) {
-  const raw = host.exec(JSON.stringify(opts));
+function* exec(opts) {
   try {
-    return JSON.parse(raw);
-  } catch (e) {
-    return { error: String(e) };
+    return yield* host.io.exec(opts);
+  } catch (error) {
+    return { error: String(error) };
   }
 }
-function runBin(bin, args, timeoutMs) {
-  return exec({ bin, args, timeoutMs });
+function* runBin(bin, args, timeoutMs) {
+  return yield* exec({ bin, args, timeoutMs });
 }
 function ranOk(r) {
   return !r.error;
@@ -114,57 +285,55 @@ function ranOk(r) {
 function exitedOk(r) {
   return !r.error && (r.code === void 0 || r.code === 0);
 }
-function progress(opts) {
-  const h = host;
-  if (typeof h.progress === "function") h.progress(opts);
+function* progress(opts) {
+  yield { op: "progress", options: { ...opts } };
 }
-function errorResult(message) {
-  progress({ label: "Error", error: message });
+function* errorResult(message) {
+  yield* progress({ label: "Error", error: message });
   return { error: message };
 }
-function findLocalBin(name) {
-  const root = binDir();
+function* findLocalBin(name) {
+  const root2 = binDir();
   const suffix = exeSuffix();
-  const direct = root + "/" + name + suffix;
-  if (host.fileExists(direct)) return direct;
+  const direct = root2 + "/" + name + suffix;
+  if (yield* host.io.fs.fileExists(direct)) return direct;
   const fixedCandidates = [
-    root + "/bin/" + name + suffix,
-    root + "/Release/" + name + suffix
+    root2 + "/bin/" + name + suffix,
+    root2 + "/Release/" + name + suffix
   ];
   for (const c of fixedCandidates) {
-    if (host.fileExists(c)) return c;
+    if (yield* host.io.fs.fileExists(c)) return c;
   }
-  const h = host;
-  let entries = [];
+  let entries;
   try {
-    entries = h.readDir ? h.readDir(root) : host.fs.readDir(root);
+    entries = yield* host.io.fs.readDir(root2);
   } catch (e) {
     return null;
   }
   for (const entry of entries) {
     const child = entryName(entry);
     if (!child || child.indexOf("/") !== -1 || child.indexOf("\\") !== -1) continue;
-    const base = root + "/" + child;
+    const base = root2 + "/" + child;
     const candidates = [
       base + "/" + name + suffix,
       base + "/bin/" + name + suffix,
       base + "/Release/" + name + suffix
     ];
     for (const c of candidates) {
-      if (host.fileExists(c)) return c;
+      if (yield* host.io.fs.fileExists(c)) return c;
     }
   }
   return null;
 }
-function download(url, dest) {
-  host.makeDirs(dirOf(dest));
-  host.removeFile(dest);
+function* download(url, dest) {
+  yield* host.io.fs.makeDirs(dirOf(dest));
+  yield* host.io.fs.removeFile(dest);
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const r = exec({ bin: "curl", args: ["-fL", "--retry", "2", "--retry-delay", "2", "-o", dest, url], timeoutMs: 18e5 });
+    const r = yield* exec({ bin: "curl", args: ["-fL", "--retry", "2", "--retry-delay", "2", "-o", dest, url], timeoutMs: 18e5 });
     if (exitedOk(r)) return { ok: true };
-    host.removeFile(dest);
+    yield* host.io.fs.removeFile(dest);
     if (attempt === 2 && osKind() === "windows") {
-      const ps = downloadWithPowerShell(url, dest);
+      const ps = yield* downloadWithPowerShell(url, dest);
       if ("error" in ps) {
         return {
           error: "download failed (" + url + "): curl: " + (r.stderr || r.error || "exit " + r.code) + "; powershell: " + ps.error
@@ -178,14 +347,14 @@ function download(url, dest) {
   }
   return { ok: true };
 }
-function downloadWithPowerShell(url, dest) {
+function* downloadWithPowerShell(url, dest) {
   const script = "$ProgressPreference='SilentlyContinue';Invoke-WebRequest -Uri " + psQuote(url) + " -OutFile " + psQuote(dest) + " -UseBasicParsing";
-  const r = exec({
+  const r = yield* exec({
     bin: "powershell.exe",
     args: ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
     timeoutMs: 18e5
   });
-  if (!exitedOk(r) || !host.fileExists(dest)) {
+  if (!exitedOk(r) || !(yield* host.io.fs.fileExists(dest))) {
     return { error: r.stderr || r.error || "powershell exit " + r.code };
   }
   return { ok: true };
@@ -193,9 +362,9 @@ function downloadWithPowerShell(url, dest) {
 function psQuote(value) {
   return "'" + value.replace(/'/g, "''") + "'";
 }
-function untar(archive, dest) {
-  host.makeDirs(dest);
-  const r = exec({ bin: "tar", args: ["-xf", archive, "-C", dest], timeoutMs: 6e5 });
+function* untar(archive, dest) {
+  yield* host.io.fs.makeDirs(dest);
+  const r = yield* exec({ bin: "tar", args: ["-xf", archive, "-C", dest], timeoutMs: 6e5 });
   if (!exitedOk(r)) {
     return { error: "extract failed (" + archive + "): " + (r.stderr || r.error || "tar exit " + r.code) };
   }
@@ -205,10 +374,10 @@ function dirOf(p) {
   const i = p.lastIndexOf("/");
   return i > 0 ? p.substring(0, i) : ".";
 }
-function brewPrefixes() {
+function* brewPrefixes() {
   const out = [];
   for (const brew of ["/opt/homebrew/bin/brew", "/usr/local/bin/brew", "brew"]) {
-    const r = exec({ bin: brew, args: ["--prefix"], timeoutMs: 15e3 });
+    const r = yield* exec({ bin: brew, args: ["--prefix"], timeoutMs: 15e3 });
     const prefix = ranOk(r) ? String(r.stdout || "").trim() : "";
     if (prefix) {
       out.push(prefix + "/bin");
@@ -217,9 +386,9 @@ function brewPrefixes() {
   }
   return out;
 }
-function unixBinCandidates(name) {
+function* unixBinCandidates(name) {
   const home = host.homeDir && host.homeDir() || "";
-  const dirs = brewPrefixes().concat([
+  const dirs = (yield* brewPrefixes()).concat([
     "/opt/homebrew/bin",
     "/usr/local/bin",
     "/usr/bin",
@@ -235,54 +404,54 @@ function unixBinCandidates(name) {
   }
   return out;
 }
-function resolveUnixBin(name) {
-  const local = findLocalBin(name);
+function* resolveUnixBin(name) {
+  const local = yield* findLocalBin(name);
   if (local) return local;
-  for (const candidate of unixBinCandidates(name)) {
-    if (host.fileExists(candidate)) return candidate;
+  for (const candidate of yield* unixBinCandidates(name)) {
+    if (yield* host.io.fs.fileExists(candidate)) return candidate;
   }
   return null;
 }
-function lookedIn(name) {
-  return unixBinCandidates(name).concat([binDir() + "/" + name]).join(", ");
+function* lookedIn(name) {
+  return (yield* unixBinCandidates(name)).concat([binDir() + "/" + name]).join(", ");
 }
-function ensureFfmpeg() {
-  if (ranOk(exec({ bin: "ffmpeg", args: ["-version"] }))) return { bin: "ffmpeg" };
-  const local = findLocalBin("ffmpeg");
+function* ensureFfmpeg() {
+  if (ranOk(yield* exec({ bin: "ffmpeg", args: ["-version"] }))) return { bin: "ffmpeg" };
+  const local = yield* findLocalBin("ffmpeg");
   if (local) return { bin: local };
   const os = osKind();
   if (os === "macos") {
-    const found = resolveUnixBin("ffmpeg");
+    const found = yield* resolveUnixBin("ffmpeg");
     if (found) return { bin: found };
-    progress({ label: "Installing ffmpeg\u2026" });
-    const r = exec({ bin: "brew", args: ["install", "ffmpeg"], timeoutMs: 18e5 });
+    yield* progress({ label: "Installing ffmpeg\u2026" });
+    const r = yield* exec({ bin: "brew", args: ["install", "ffmpeg"], timeoutMs: 18e5 });
     if (exitedOk(r)) {
-      const installed2 = resolveUnixBin("ffmpeg");
+      const installed2 = yield* resolveUnixBin("ffmpeg");
       if (installed2) return { bin: installed2 };
-      if (ranOk(exec({ bin: "ffmpeg", args: ["-version"] }))) return { bin: "ffmpeg" };
+      if (ranOk(yield* exec({ bin: "ffmpeg", args: ["-version"] }))) return { bin: "ffmpeg" };
     }
-    return { error: "ffmpeg is required. Install it with `brew install ffmpeg`. Looked in: " + lookedIn("ffmpeg") };
+    return { error: "ffmpeg is required. Install it with `brew install ffmpeg`. Looked in: " + (yield* lookedIn("ffmpeg")) };
   }
   if (os === "windows") {
-    progress({ label: "Installing ffmpeg\u2026" });
+    yield* progress({ label: "Installing ffmpeg\u2026" });
     const zip = baseDir() + "/ffmpeg.zip";
-    const dl2 = download(FFMPEG_WIN_ZIP, zip);
+    const dl2 = yield* download(FFMPEG_WIN_ZIP, zip);
     if ("error" in dl2) return ffmpegManual(dl2.error);
-    const ex2 = untar(zip, binDir());
+    const ex2 = yield* untar(zip, binDir());
     if ("error" in ex2) return ffmpegManual(ex2.error);
-    host.removeFile(zip);
-    const installed2 = findLocalBin("ffmpeg");
+    yield* host.io.fs.removeFile(zip);
+    const installed2 = yield* findLocalBin("ffmpeg");
     if (installed2) return { bin: installed2 };
     return ffmpegManual("ffmpeg binary not found after extraction");
   }
-  progress({ label: "Installing ffmpeg\u2026" });
+  yield* progress({ label: "Installing ffmpeg\u2026" });
   const tar = baseDir() + "/ffmpeg.tar.xz";
-  const dl = download(FFMPEG_LINUX_TAR, tar);
+  const dl = yield* download(FFMPEG_LINUX_TAR, tar);
   if ("error" in dl) return ffmpegManual(dl.error);
-  const ex = untar(tar, binDir());
+  const ex = yield* untar(tar, binDir());
   if ("error" in ex) return ffmpegManual(ex.error);
-  host.removeFile(tar);
-  const installed = findLocalBin("ffmpeg");
+  yield* host.io.fs.removeFile(tar);
+  const installed = yield* findLocalBin("ffmpeg");
   if (installed) return { bin: installed };
   return ffmpegManual("ffmpeg binary not found after extraction");
 }
@@ -291,32 +460,32 @@ function ffmpegManual(why) {
     error: "ffmpeg is required to decode the audio but could not be installed automatically (" + why + "). Install ffmpeg from your package manager (e.g. `apt install ffmpeg`) or https://ffmpeg.org/download.html."
   };
 }
-function ensureEngine() {
-  if (ranOk(exec({ bin: "whisper-cli", args: ["--help"] }))) return { bin: "whisper-cli" };
-  const local = findLocalBin("whisper-cli");
+function* ensureEngine() {
+  if (ranOk(yield* exec({ bin: "whisper-cli", args: ["--help"] }))) return { bin: "whisper-cli" };
+  const local = yield* findLocalBin("whisper-cli");
   if (local) return { bin: local };
   const os = osKind();
   if (os === "macos") {
-    const found = resolveUnixBin("whisper-cli");
+    const found = yield* resolveUnixBin("whisper-cli");
     if (found) return { bin: found };
-    progress({ label: "Installing whisper.cpp\u2026" });
-    const r = exec({ bin: "brew", args: ["install", "whisper-cpp"], timeoutMs: 18e5 });
+    yield* progress({ label: "Installing whisper.cpp\u2026" });
+    const r = yield* exec({ bin: "brew", args: ["install", "whisper-cpp"], timeoutMs: 18e5 });
     if (exitedOk(r)) {
-      const installed2 = resolveUnixBin("whisper-cli");
+      const installed2 = yield* resolveUnixBin("whisper-cli");
       if (installed2) return { bin: installed2 };
-      if (ranOk(exec({ bin: "whisper-cli", args: ["--help"] }))) return { bin: "whisper-cli" };
+      if (ranOk(yield* exec({ bin: "whisper-cli", args: ["--help"] }))) return { bin: "whisper-cli" };
     }
-    return { error: "whisper-cli is required. Install it with `brew install whisper-cpp`. Looked in: " + lookedIn("whisper-cli") };
+    return { error: "whisper-cli is required. Install it with `brew install whisper-cpp`. Looked in: " + (yield* lookedIn("whisper-cli")) };
   }
-  progress({ label: "Installing whisper.cpp\u2026" });
+  yield* progress({ label: "Installing whisper.cpp\u2026" });
   const asset = os === "windows" ? "whisper-bin-x64.zip" : "whisper-bin-Linux.zip";
   const archive = baseDir() + "/whisper.zip";
-  const dl = download(WHISPER_BASE + "/" + asset, archive);
+  const dl = yield* download(WHISPER_BASE + "/" + asset, archive);
   if ("error" in dl) return engineManual(os, dl.error);
-  const ex = untar(archive, binDir());
+  const ex = yield* untar(archive, binDir());
   if ("error" in ex) return engineManual(os, ex.error);
-  host.removeFile(archive);
-  const installed = findLocalBin("whisper-cli");
+  yield* host.io.fs.removeFile(archive);
+  const installed = yield* findLocalBin("whisper-cli");
   if (installed) return { bin: installed };
   return engineManual(os, "whisper-cli not found after extraction");
 }
@@ -325,27 +494,27 @@ function engineManual(os, why) {
     error: "whisper-cli (whisper.cpp) is required but could not be installed automatically on " + os + " (" + why + "). Build/download whisper.cpp from https://github.com/ggml-org/whisper.cpp/releases and place `whisper-cli" + exeSuffix() + "` in " + binDir() + "."
   };
 }
-function ensureModel(force = false) {
-  const mp = modelPath();
+function* ensureModel(force = false) {
+  const mp = modelPath2();
   const done = modelDonePath();
-  if (!force && host.fileExists(mp) && host.fileExists(done)) {
-    cleanupOrphanModels(mp);
+  if (!force && (yield* host.io.fs.fileExists(mp)) && (yield* host.io.fs.fileExists(done))) {
+    yield* cleanupOrphanModels(mp);
     return { ok: true };
   }
-  host.removeFile(mp);
-  host.removeFile(done);
-  host.makeDirs(baseDir());
+  yield* host.io.fs.removeFile(mp);
+  yield* host.io.fs.removeFile(done);
+  yield* host.io.fs.makeDirs(baseDir());
   const url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-" + modelId() + ".bin";
-  progress({ label: "Downloading model ggml-" + modelId() + " (~" + modelSizeMb(modelId()) + "MB)\u2026" });
-  const dl = download(url, mp);
+  yield* progress({ label: "Downloading model ggml-" + modelId() + " (~" + modelSizeMb(modelId()) + "MB)\u2026" });
+  const dl = yield* download(url, mp);
   if ("error" in dl) {
-    host.removeFile(mp);
+    yield* host.io.fs.removeFile(mp);
     return {
       error: "could not download the whisper model `ggml-" + modelId() + ".bin`: " + dl.error + ". Download it manually to " + mp + "."
     };
   }
-  host.writeFile(done, "");
-  cleanupOrphanModels(mp);
+  yield* host.io.fs.writeFile(done, "");
+  yield* cleanupOrphanModels(mp);
   return { ok: true };
 }
 function modelSizeMb(id) {
@@ -366,13 +535,12 @@ function modelSizeMb(id) {
   };
   return sizes[id] || 466;
 }
-function modelFileBytes(path) {
+function* modelFileBytes(path) {
   const dir = baseDir();
   const activeName = path.substring(path.lastIndexOf("/") + 1);
-  const h = host;
-  let entries = [];
+  let entries;
   try {
-    entries = h.readDir ? h.readDir(dir) : host.fs.readDir(dir);
+    entries = yield* host.io.fs.readDir(dir);
   } catch (e) {
     return null;
   }
@@ -382,26 +550,23 @@ function modelFileBytes(path) {
   }
   return null;
 }
-function modelFileLabel() {
-  const mp = modelPath();
+function* modelFileLabel() {
+  const mp = modelPath2();
   const done = modelDonePath();
-  if (!host.fileExists(mp)) return "missing (~" + modelSizeMb(modelId()) + "MB)";
-  if (!host.fileExists(done)) return "partial (~" + modelSizeMb(modelId()) + "MB)";
-  const bytes = modelFileBytes(mp);
+  if (!(yield* host.io.fs.fileExists(mp))) return "missing (~" + modelSizeMb(modelId()) + "MB)";
+  if (!(yield* host.io.fs.fileExists(done))) return "partial (~" + modelSizeMb(modelId()) + "MB)";
+  const bytes = yield* modelFileBytes(mp);
   if (bytes !== null) return "present (" + bytes + " bytes, expected ~" + modelSizeMb(modelId()) + "MB)";
   return "present (~" + modelSizeMb(modelId()) + "MB)";
 }
 var SPEECH_PEAK_THRESHOLD_DB = -45;
-function devNull() {
-  return osKind() === "windows" ? "NUL" : "/dev/null";
-}
 function parseMaxVolumeDb(stderr) {
   const m = stderr.match(/max_volume:\s*(-?\d+[.,]\d+|-?\d+)\s*dB/i);
   if (!m) return null;
   return parseFloat(m[1].replace(",", "."));
 }
-function hasSpeech(ffmpegBin, wav) {
-  const r = runBin(ffmpegBin, ["-i", wav, "-af", "volumedetect", "-f", "null", devNull()], 1e4);
+function* hasSpeech(ffmpegBin, wav) {
+  const r = yield* runBin(ffmpegBin, ["-i", wav, "-af", "volumedetect", "-f", "null", "-"], 1e4);
   if (r.error) return true;
   const maxDb = parseMaxVolumeDb(r.stderr || "");
   if (maxDb === null) return true;
@@ -432,78 +597,78 @@ function parseRemote(raw) {
   if (!text.length) return { error: "daemon returned an empty transcript (no speech detected or upload rejected)" };
   return { text };
 }
-function transcribeRemote(ep, path, lang) {
+function* transcribeRemote(ep, path, lang) {
   const l = lang && lang.length ? lang : language();
   const args = ["-sS", "-m", "600", "-F", "file=@" + path];
   if (l && l.length && l !== "auto") args.push("-F", "language=" + l);
   args.push(ep);
-  progress({ label: "Transcribing on remote\u2026" });
-  const r = exec({ bin: "curl", args, timeoutMs: 66e4 });
+  yield* progress({ label: "Transcribing on remote\u2026" });
+  const r = yield* exec({ bin: "curl", args, timeoutMs: 66e4 });
   if (!exitedOk(r)) {
-    return errorResult(
+    return yield* errorResult(
       "remote transcription failed (" + ep + "): " + (r.stderr || r.error || "curl exit " + r.code)
     );
   }
   const parsed = parseRemote(r.stdout || "");
-  if ("error" in parsed) return errorResult("remote transcription failed (" + ep + "): " + parsed.error);
-  progress({ label: "Done", done: true });
+  if ("error" in parsed) return yield* errorResult("remote transcription failed (" + ep + "): " + parsed.error);
+  yield* progress({ label: "Done", done: true });
   return { text: parsed.text };
 }
-function transcribe(path, lang) {
+function* transcribe(path, lang) {
   const ep = endpoint();
-  if (ep.length) return transcribeRemote(ep, path, lang);
-  const ffmpeg = ensureFfmpeg();
-  if ("error" in ffmpeg) return errorResult(ffmpeg.error);
-  const engine = ensureEngine();
-  if ("error" in engine) return errorResult(engine.error);
-  const model = ensureModel();
-  if ("error" in model) return errorResult(model.error);
-  host.makeDirs(tmpDir());
+  if (ep.length) return yield* transcribeRemote(ep, path, lang);
+  const ffmpeg = yield* ensureFfmpeg();
+  if ("error" in ffmpeg) return yield* errorResult(ffmpeg.error);
+  const engine = yield* ensureEngine();
+  if ("error" in engine) return yield* errorResult(engine.error);
+  const model = yield* ensureModel();
+  if ("error" in model) return yield* errorResult(model.error);
+  yield* host.io.fs.makeDirs(tmpDir());
   const base = tmpDir() + "/job-" + host.unixNowMs();
   const wav = base + ".wav";
   const json = base + ".json";
-  const conv = runBin(ffmpeg.bin, ["-y", "-i", path, "-ar", "16000", "-ac", "1", "-f", "wav", wav], 12e4);
+  const conv = yield* runBin(ffmpeg.bin, ["-y", "-i", path, "-ar", "16000", "-ac", "1", "-f", "wav", wav], 12e4);
   if (!exitedOk(conv)) {
-    host.removeFile(wav);
-    return errorResult("ffmpeg could not decode the audio: " + (conv.stderr || conv.error || "exit " + conv.code));
+    yield* host.io.fs.removeFile(wav);
+    return yield* errorResult("ffmpeg could not decode the audio: " + (conv.stderr || conv.error || "exit " + conv.code));
   }
-  if (!hasSpeech(ffmpeg.bin, wav)) {
-    host.removeFile(wav);
+  if (!(yield* hasSpeech(ffmpeg.bin, wav))) {
+    yield* host.io.fs.removeFile(wav);
     return { text: "" };
   }
   const l = lang && lang.length ? lang : language();
-  progress({ label: "Transcribing\u2026" });
-  const tr = runBin(engine.bin, ["-m", modelPath(), "-f", wav, "-l", l, "-nt", "-oj", "-of", base], 6e5);
+  yield* progress({ label: "Transcribing\u2026" });
+  const tr = yield* runBin(engine.bin, ["-m", modelPath2(), "-f", wav, "-l", l, "-nt", "-oj", "-of", base], 6e5);
   if (!exitedOk(tr)) {
-    host.removeFile(wav);
-    host.removeFile(json);
-    return errorResult("whisper-cli failed: " + (tr.stderr || tr.error || "exit " + tr.code));
+    yield* host.io.fs.removeFile(wav);
+    yield* host.io.fs.removeFile(json);
+    return yield* errorResult("whisper-cli failed: " + (tr.stderr || tr.error || "exit " + tr.code));
   }
-  const raw = host.readFile(json);
-  host.removeFile(wav);
-  host.removeFile(json);
-  if (!raw) return errorResult("whisper-cli produced no transcript output");
-  progress({ label: "Done", done: true });
+  const raw = yield* host.io.fs.readFile(json);
+  yield* host.io.fs.removeFile(wav);
+  yield* host.io.fs.removeFile(json);
+  if (!raw) return yield* errorResult("whisper-cli produced no transcript output");
+  yield* progress({ label: "Done", done: true });
   return { text: joinSegments(raw) };
 }
-function present(name) {
-  if (ranOk(exec({ bin: name, args: name === "ffmpeg" ? ["-version"] : ["--help"] }))) return true;
-  return findLocalBin(name) !== null;
+function* present(name) {
+  if (ranOk(yield* exec({ bin: name, args: name === "ffmpeg" ? ["-version"] : ["--help"] }))) return true;
+  return (yield* findLocalBin(name)) !== null;
 }
-function transcribeStatus() {
+function* transcribeStatus() {
   const ep = endpoint();
   if (ep.length) return { state: "ready", reason: "remote: " + ep };
-  const hasFfmpeg = present("ffmpeg");
-  const hasEngine = present("whisper-cli");
-  const hasModel = host.fileExists(modelPath()) && host.fileExists(modelDonePath());
-  if (hasFfmpeg && hasEngine && hasModel) return { state: "ready" };
+  const hasFfmpeg = yield* present("ffmpeg");
+  const hasEngine = yield* present("whisper-cli");
+  const hasModel2 = (yield* host.io.fs.fileExists(modelPath2())) && (yield* host.io.fs.fileExists(modelDonePath()));
+  if (hasFfmpeg && hasEngine && hasModel2) return { state: "ready" };
   const missing = [];
   if (!hasEngine) missing.push("whisper-cli");
   if (!hasFfmpeg) missing.push("ffmpeg");
-  if (!hasModel) missing.push("model ggml-" + modelId() + ".bin");
+  if (!hasModel2) missing.push("model ggml-" + modelId() + ".bin");
   return { state: "unloaded", reason: "needs: " + missing.join(", ") + " (installed on first use)" };
 }
-function renderGlance() {
+function* renderGlance() {
   const ep = endpoint();
   if (ep.length) {
     const nodes2 = [
@@ -516,10 +681,10 @@ function renderGlance() {
     ];
     return { title: "Transcriber", nodes: nodes2 };
   }
-  const st = transcribeStatus();
+  const st = yield* transcribeStatus();
   const ready = st.state === "ready";
-  const hasModel = host.fileExists(modelPath()) && host.fileExists(modelDonePath());
-  const badge = st.state === "unavailable" ? "Unavailable" : ready ? "Ready" : hasModel ? "Idle" : "Not installed";
+  const hasModel2 = (yield* host.io.fs.fileExists(modelPath2())) && (yield* host.io.fs.fileExists(modelDonePath()));
+  const badge = st.state === "unavailable" ? "Unavailable" : ready ? "Ready" : hasModel2 ? "Idle" : "Not installed";
   const nodes = [];
   nodes.push({
     kind: "badge",
@@ -527,29 +692,32 @@ function renderGlance() {
     tone: ready ? "ok" : st.state === "unavailable" ? "danger" : "warn"
   });
   nodes.push({ kind: "keyVal", key: "Model", value: "ggml-" + modelId() });
-  nodes.push({ kind: "keyVal", key: "Model file", value: modelFileLabel() });
+  nodes.push({ kind: "keyVal", key: "Model file", value: yield* modelFileLabel() });
   nodes.push({ kind: "keyVal", key: "Language", value: language() });
   if (st.reason) nodes.push({ kind: "note", body: st.reason });
   nodes.push({ kind: "divider" });
-  if (!hasModel) nodes.push({ kind: "button", label: "Install", action: "install" });
+  if (!hasModel2) nodes.push({ kind: "button", label: "Install", action: "install" });
   nodes.push({ kind: "button", label: "Reinstall", action: "reinstall" });
   nodes.push({ kind: "button", label: "Settings", action: "settings" });
   return { title: "Transcriber", nodes };
 }
-function glanceAction(action) {
+function* glanceAction(action) {
   if (action === "install" || action === "reinstall") {
-    const ffmpeg = ensureFfmpeg();
+    const ffmpeg = yield* ensureFfmpeg();
     if (!("error" in ffmpeg)) {
-      const engine = ensureEngine();
-      if (!("error" in engine)) ensureModel(action === "reinstall");
+      const engine = yield* ensureEngine();
+      if (!("error" in engine)) yield* ensureModel(action === "reinstall");
     }
   }
-  return renderGlance();
+  return yield* renderGlance();
 }
 var plugin = {
-  transcribe,
-  transcribeStatus,
-  renderGlance,
-  glanceAction
+  transcribe: (path, lang) => host.io.run(transcribe(path, lang)),
+  transcribeStatus: () => host.io.run(transcribeStatus()),
+  dictationLaunch: () => host.io.run(dictationLaunch()),
+  renderGlance: (_ctx, bundle) => host.io.run(modelGlance(renderGlance(), bundle)),
+  glanceAction: (action, _ctx, bundle) => host.io.run(
+    action.startsWith("dictation:") ? modelGlanceAction(action, renderGlance(), bundle) : modelGlance(glanceAction(action), bundle)
+  )
 };
 var plugin_default = plugin;

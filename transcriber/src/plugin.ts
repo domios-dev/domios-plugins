@@ -565,7 +565,7 @@ function* transcribeRemote(ep: string, path: string, lang?: string): HostIoSteps
   if (!exitedOk(r)) {
     return yield* errorResult(
       "remote transcription failed (" + ep + "): " + (r.stderr || r.error || "curl exit " + r.code),
-    ));
+    );
   }
   const parsed = parseRemote(r.stdout || "");
   if ("error" in parsed) return yield* errorResult("remote transcription failed (" + ep + "): " + parsed.error);

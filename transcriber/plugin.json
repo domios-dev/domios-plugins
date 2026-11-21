@@ -1,8 +1,8 @@
 {
   "license": "PolyForm-Shield-1.0.0",
   "id": "transcriber",
-  "version": "0.4.4",
-  "minCodeterm": "1.15.1",
+  "version": "0.5.0",
+  "minCodeterm": "1.21.1",
   "hostApi": 2,
   "displayName": "Transcriber",
   "description": "Local live composer dictation with Parakeet, plus voice-note transcription.",
