@@ -1,8 +1,23 @@
 # Transcriber
 
-Offline speech-to-text for CodeTerm — voice notes in, text out. Nothing leaves your machine.
+Local live dictation for the Domios chat composer and speech-to-text for voice notes.
 
-## What it does
+## Live composer dictation
+
+Open the Transcriber glance panel in Extensions. Install a model, select it, and use **Test model** to recognize the release's bundled English sample. Use **Refresh status** to see progress or **Cancel installation** to discard an incomplete download. Selection changes when you choose **Use model**.
+
+| Model | Languages | Download |
+| --- | --- | --- |
+| Parakeet TDT 0.6B v3 int8, default | 25 European languages, including Russian and English | 487 MB |
+| Parakeet TDT 0.6B v2 int8 | English | 482 MB |
+
+Setup needs 64-bit Python 3.12, about 1.5 GB of free disk space, and access to the sherpa-onnx GitHub release and PyPI. The private CPU runtime supports Windows x64 and compatible macOS and Linux x64 or arm64 Python installations. Linux may need the matching Python venv package. Setup verifies the model archive and runtime wheels against pinned SHA-256 values.
+
+Use the composer microphone or select **Dictation** from the @ picker. Tap to start or stop, hold to dictate until release, or slide upward to keep listening after release. Parakeet revises the current bounded speech segment as you speak. A pause or the segment limit commits that segment. **Stop** finishes the remaining text in the draft. **Cancel** discards provisional text. A recording lasts at most five minutes. Model selection changes apply to the next recording.
+
+Audio travels over a local connection to the active plugin worker. The worker runs inference on the local CPU and keeps the current window in memory.
+
+## Voice-note transcription
 
 - Provides the **transcriber** capability. CodeTerm hands it a recorded audio file
   (`.oga`/`.webm`/`.opus`/`.mp3`/…); it returns the transcript.
@@ -39,7 +54,7 @@ Set them with `codeterm plugin config transcriber --set model=base --set languag
 
 The host selects the instance data directory, including isolated development roots.
 
-## Permissions
+## Voice-note permissions
 
 | Permission | Why |
 |------------|-----|
