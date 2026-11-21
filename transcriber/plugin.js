@@ -407,7 +407,8 @@ function* unixBinCandidates(name) {
 function* resolveUnixBin(name) {
   const local = yield* findLocalBin(name);
   if (local) return local;
-  for (const candidate of yield* unixBinCandidates(name)) {
+  const candidates = yield* unixBinCandidates(name);
+  for (const candidate of candidates) {
     if (yield* host.io.fs.fileExists(candidate)) return candidate;
   }
   return null;

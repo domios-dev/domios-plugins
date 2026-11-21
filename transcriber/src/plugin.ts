@@ -302,7 +302,8 @@ function* unixBinCandidates(name: string): HostIoSteps<string[]> {
 function* resolveUnixBin(name: string): HostIoSteps<string | null> {
   const local = (yield* findLocalBin(name));
   if (local) return local;
-  for (const candidate of (yield* unixBinCandidates(name))) {
+  const candidates = (yield* unixBinCandidates(name));
+  for (const candidate of candidates) {
     if ((yield* host.io.fs.fileExists(candidate))) return candidate;
   }
   return null;
