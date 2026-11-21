@@ -20,6 +20,8 @@ import venv
 import wave
 
 RATE = 16000
+MIN_TEST_RATE = 8000
+MAX_TEST_RATE = 48000
 FRAME_BYTES = RATE
 WINDOW_BYTES = RATE * 2 * 6
 MIN_BYTES = RATE * 2
@@ -76,7 +78,7 @@ def heard(pcm):
     return sum(value * value for value in values) >= len(values) * 180**2
 
 
-def decode(recognizer, pcm):
+def decode(recognizer, pcm, sample_rate=RATE):
     waveform = samples(pcm)
     if not waveform:
         return ""
@@ -85,7 +87,7 @@ def decode(recognizer, pcm):
         return ""
     gain = min(8.0, max(1.0, 9000 / peak)) / 32768
     stream = recognizer.create_stream()
-    stream.accept_waveform(RATE, [value * gain for value in waveform])
+    stream.accept_waveform(sample_rate, [value * gain for value in waveform])
     recognizer.decode_stream(stream)
     return stream.result.text.strip()[:768]
 
@@ -144,9 +146,10 @@ def streaming(model):
 
 def test_model(model, sample):
     with wave.open(str(model / sample), "rb") as clip:
-        if clip.getframerate() != RATE or clip.getnchannels() != 1 or clip.getsampwidth() != 2:
+        rate = clip.getframerate()
+        if not (MIN_TEST_RATE <= rate <= MAX_TEST_RATE) or clip.getnchannels() != 1 or clip.getsampwidth() != 2:
             raise ValueError("This model's bundled test clip uses an unsupported format.")
-        text = decode(worker(model), clip.readframes(RATE * 12))
+        text = decode(worker(model), clip.readframes(rate * 12), sample_rate=rate)
     if not text:
         raise ValueError("The bundled test clip produced no transcript.")
     print("Bundled English test: " + text)
