@@ -5,6 +5,7 @@ export const WORKER = "runtime/parakeet.py";
 export const RUNTIME = "runtime-py312-sherpa-2.0.2";
 export const root = () => host.dataDir() + "/transcriber/live-dictation";
 export const selectionPath = () => root() + "/selected";
+export const dictionaryPath = () => root() + "/dictionary.json";
 export const python = () => host.path.isWindows ? "python.exe" : "python3.12";
 export const runtimePython = () => root() + "/" + RUNTIME + (host.path.isWindows ? "/Scripts/python.exe" : "/bin/python3.12");
 export const MODELS = [

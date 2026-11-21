@@ -28,6 +28,8 @@ WINDOW_BYTES = RATE * 2 * 6
 MIN_BYTES = RATE * 2
 SPEECH_RMS = 180
 SPEECH_SLICE_SAMPLES = RATE // 10
+MAX_DICTIONARY_RULES = 200
+MAX_RULE_CHARS = 128
 FILES = {"encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"}
 CHUNK_BYTES = 256 * 1024
 DOWNLOAD_HOSTS = {"github.com", "release-assets.githubusercontent.com"}
@@ -105,6 +107,75 @@ def result(committed="", provisional=""):
     print(json.dumps({"committed": committed, "provisional": provisional}, ensure_ascii=True), flush=True)
 
 
+def _is_word_char(ch):
+    return bool(ch) and (ch.isalnum() or ch == "_")
+
+
+def _aligned_lower(text):
+    lower = text.lower()
+    if len(lower) == len(text):
+        return lower
+    return "".join(ch.lower() if len(ch.lower()) == 1 else ch for ch in text)
+
+
+def load_dictionary(path):
+    if not path:
+        return ()
+    try:
+        raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    except Exception:
+        return ()
+    if not isinstance(raw, list):
+        return ()
+    seen = {}
+    order = 0
+    for item in raw:
+        if not isinstance(item, list) or len(item) != 2:
+            continue
+        wrong, right = item
+        if not isinstance(wrong, str) or not isinstance(right, str):
+            continue
+        wrong = wrong.strip()
+        right = right.strip()
+        if not wrong or not right or len(wrong) > MAX_RULE_CHARS or len(right) > MAX_RULE_CHARS:
+            continue
+        key = _aligned_lower(wrong)
+        if key not in seen and len(seen) >= MAX_DICTIONARY_RULES:
+            continue
+        seen[key] = (order, key, right)
+        order += 1
+    ordered = sorted(seen.values(), key=lambda entry: (-len(entry[1]), entry[0]))
+    return tuple((wrong, right) for _, wrong, right in ordered)
+
+
+def apply_dictionary(text, rules):
+    if not text or not rules:
+        return text
+    lower = _aligned_lower(text)
+    out = []
+    i = 0
+    length = len(text)
+    while i < length:
+        matched = None
+        for wrong, right in rules:
+            if not wrong or not lower.startswith(wrong, i):
+                continue
+            end = i + len(wrong)
+            if _is_word_char(wrong[0]) and i > 0 and _is_word_char(text[i - 1]):
+                continue
+            if _is_word_char(wrong[-1]) and end < length and _is_word_char(text[end]):
+                continue
+            matched = (wrong, right)
+            break
+        if matched is not None:
+            out.append(matched[1])
+            i += len(matched[0])
+        else:
+            out.append(text[i])
+            i += 1
+    return "".join(out)
+
+
 class _StreamLoader:
     def __init__(self, model):
         self._done = threading.Event()
@@ -134,7 +205,7 @@ class _StreamLoader:
         return self._recognizer
 
 
-def streaming(model):
+def streaming(model, rules=()):
     source = sys.stdin.buffer
     # Start loading immediately so model init overlaps mic setup and lead-in audio.
     loader = _StreamLoader(model)
@@ -160,7 +231,7 @@ def streaming(model):
                 active = ensure_recognizer()
                 if active is None:
                     return
-                result(decode(active, window))
+                result(apply_dictionary(decode(active, window), rules))
             else:
                 result("")
             return
@@ -183,7 +254,7 @@ def streaming(model):
             active = ensure_recognizer()
             if active is None:
                 return
-            result(decode(active, window))
+            result(apply_dictionary(decode(active, window), rules))
             window.clear()
             last = ""
             since_preview = 0
@@ -192,7 +263,7 @@ def streaming(model):
                 active = ensure_recognizer()
                 if active is None:
                     return
-                last = decode(active, window)
+                last = apply_dictionary(decode(active, window), rules)
                 since_preview = 0
             result(provisional=last)
 
@@ -354,7 +425,8 @@ def main():
         model = Path(args[0])
         with exclusive_job(model.parent, ".inference-lock"):
             if mode == "stream":
-                streaming(model)
+                dict_path = args[1] if len(args) > 1 and args[1] else None
+                streaming(model, load_dictionary(dict_path))
             else:
                 test_model(model, args[1])
     elif mode == "install":

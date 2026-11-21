@@ -775,6 +775,68 @@ test("macOS: a genuinely missing ffmpeg names where it was looked for", () => {
   assert(msg.indexOf("/usr/local/bin/ffmpeg") >= 0, "the standard prefixes must be named, got " + msg);
 });
 
+test("custom dictionary: Cyrillic & Latin longest-match-first, case-insensitive, word-boundary safe", () => {
+  const dict = "в доме => в Domios\nв доме все => в Domios; дом -> Dom; domios os => Domios";
+  reset({ endpoint: "http://gpu.local:7891/transcribe", dictionary: dict }, "windows");
+  execHandler = () => JSON.stringify({
+    code: 0,
+    stdout: JSON.stringify({ text: "Да В доме все, но в доме сидишь и домик про DOMIOS OS" }),
+    stderr: "",
+  });
+  const remote = plugin.transcribe("/tmp/note.oga");
+  assert(
+    remote.text === "Да в Domios, но в Domios сидишь и домик про Domios",
+    "remote dictionary mismatch: " + JSON.stringify(remote),
+  );
+
+  // Also verify local whisper-cli path applies the exact same rules.
+  reset({ dictionary: dict }, "macos");
+  files[MODEL] = "ok";
+  files[MODEL + ".done"] = "ok";
+  execHandler = happyHandler(["Да в доме все, но в доме сидишь и домик"]);
+  const local = plugin.transcribe("/tmp/note.oga");
+  assert(
+    local.text === "Да в Domios, но в Domios сидишь и домик",
+    "local dictionary mismatch: " + JSON.stringify(local),
+  );
+});
+
+test("custom dictionary: empty or malformed rules fail open safely and respect bounds", () => {
+  reset({ endpoint: "http://gpu.local:7891/transcribe", dictionary: ";; no-arrow ;; => missingLeft ; missingRight => ; " + "x".repeat(129) + " => tooLong" }, "windows");
+  execHandler = () => JSON.stringify({ code: 0, stdout: JSON.stringify({ text: "unchanged text" }), stderr: "" });
+  const r = plugin.transcribe("/tmp/note.oga");
+  assert(r.text === "unchanged text", "malformed rules must fail open: " + JSON.stringify(r));
+});
+
+test("custom dictionary: dictationLaunch writes sorted dictionary.json only when configured", () => {
+  const root = DATA_DIR + "/transcriber/live-dictation";
+  const model = root + "/parakeet-tdt-0.6b-v3-int8-1495e91b59d7";
+  const setupModel = () => {
+    files[model + "/.verified"] = "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9";
+    files[root + "/runtime-py312-sherpa-2.0.2/Scripts/python.exe"] = "";
+    for (const asset of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) files[model + "/" + asset] = "";
+  };
+
+  reset({ dictionary: "   ;; invalid-line " }, "windows");
+  setupModel();
+  const withoutDict = plugin.dictationLaunch();
+  assert(withoutDict.state === "ready" && withoutDict.args.length === 2,
+    "empty/malformed dictionary omits arg: " + JSON.stringify(withoutDict));
+
+  reset({ dictionary: "в доме => в Domios; в доме все => в Domios\nдомиус -> Domios" }, "windows");
+  setupModel();
+  const withDict = plugin.dictationLaunch();
+  const dictPath = root + "/dictionary.json";
+  assert(withDict.state === "ready" && withDict.args.length === 3 && withDict.args[2] === dictPath,
+    "configured dictionary passes dictionary.json path: " + JSON.stringify(withDict));
+  const saved = JSON.parse(files[dictPath]);
+  assert(JSON.stringify(saved) === JSON.stringify([
+    ["в доме все", "в Domios"],
+    ["в доме", "в Domios"],
+    ["домиус", "Domios"],
+  ]), "rules must be normalized and sorted longest-first: " + JSON.stringify(saved));
+});
+
 for (const [name, fn] of tests) {
   try { fn(); console.log(`✓ ${name}`); }
   catch (err) { failed += 1; console.error(`✗ ${name}`); console.error(err); }

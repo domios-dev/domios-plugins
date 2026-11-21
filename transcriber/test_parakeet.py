@@ -290,6 +290,59 @@ class ParakeetStreamingTests(unittest.TestCase):
         )
         self.assertTrue(parakeet.heard(late_syllable))
 
+    def test_dictionary_applies_longest_first_word_boundary_in_streaming(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            dict_file = Path(tmp) / "dictionary.json"
+            dict_file.write_text(
+                json.dumps([
+                    ["в доме", "в Domios"],
+                    ["в доме все", "в Domios"],
+                    ["дом", "Dom"],
+                    ["bad_only_one"],
+                    ["", "ignored"],
+                    ["ignored", ""],
+                ]),
+                encoding="utf-8",
+            )
+            rules = parakeet.load_dictionary(dict_file)
+            self.assertEqual(
+                parakeet.apply_dictionary("Да В доме все, но в доме сидишь и домик", rules),
+                "Да в Domios, но в Domios сидишь и домик",
+            )
+
+            # Corrupt/missing dictionary files fail open cleanly.
+            bad_file = Path(tmp) / "broken.json"
+            bad_file.write_text("{not json", encoding="utf-8")
+            self.assertEqual(parakeet.load_dictionary(bad_file), ())
+            self.assertEqual(parakeet.load_dictionary(Path(tmp) / "missing.json"), ())
+
+            # Verify streaming applies dictionary to both provisional and committed segments.
+            orig_worker = parakeet.worker
+            orig_stdin = sys.stdin
+            recognizer = FakeRecognizer("Да в доме все, но в доме сидишь и домик")
+            half_sec = frame_bytes(pcm_tone(1000, parakeet.FRAME_BYTES // 2))
+            finish = frame_bytes(b"")
+            stdout = io.StringIO()
+            parakeet.worker = lambda _model: recognizer
+            sys.stdin = _FakeStdin(io.BytesIO(half_sec + half_sec + finish))
+            try:
+                with contextlib.redirect_stdout(stdout):
+                    parakeet.streaming(Path("unused"), rules)
+            finally:
+                parakeet.worker = orig_worker
+                sys.stdin = orig_stdin
+
+            lines = [json.loads(line) for line in stdout.getvalue().splitlines()]
+            expected = "Да в Domios, но в Domios сидишь и домик"
+            self.assertEqual(
+                lines,
+                [
+                    {"committed": "", "provisional": ""},
+                    {"committed": "", "provisional": expected},
+                    {"committed": expected, "provisional": ""},
+                ],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,20 @@
 [
   {
     "kind": "section",
+    "title": "Custom dictionary",
+    "description": "Applies to both live Parakeet dictation and voice-note transcription.",
+    "fields": [
+      {
+        "kind": "text",
+        "key": "dictionary",
+        "label": "Custom dictionary",
+        "placeholder": "в доме все => в Domios; домиус => Domios",
+        "description": "Replacement pairs separated by ; or newlines (wrong => right or wrong -> right). Matched case-insensitively on word boundaries, longest phrase first."
+      }
+    ]
+  },
+  {
+    "kind": "section",
     "title": "Voice-note transcription",
     "description": "Use the Transcriber glance panel to install, select or test a live Parakeet dictation model.",
     "fields": [

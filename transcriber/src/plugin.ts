@@ -7,6 +7,7 @@ import type {
   TranscribeResult,
   ViewNode,
 } from "@codeterm/plugin-sdk";
+import { applyDictionary, configuredDictionaryRules } from "./dictionary";
 import { dictationLaunch } from "./dictation";
 import { modelGlance, modelGlanceAction } from "./modelView";
 
@@ -14,6 +15,7 @@ interface TranscriberSettings {
   language?: string;
   model?: string;
   endpoint?: string;
+  dictionary?: string;
 }
 
 type Resolved = { bin: string } | { error: string };
@@ -571,7 +573,7 @@ function* transcribeRemote(ep: string, path: string, lang?: string): HostIoSteps
   const parsed = parseRemote(r.stdout || "");
   if ("error" in parsed) return yield* errorResult("remote transcription failed (" + ep + "): " + parsed.error);
   yield* progress({ label: "Done", done: true });
-  return { text: parsed.text };
+  return { text: applyDictionary(parsed.text, configuredDictionaryRules()) };
 }
 
 // path: absolute audio file. lang: BCP-47 hint ("" / undefined → settings / auto).
@@ -619,7 +621,7 @@ function* transcribe(path: string, lang?: string): HostIoSteps<TranscribeResult>
   yield* host.io.fs.removeFile(json);
   if (!raw) return yield* errorResult("whisper-cli produced no transcript output");
   yield* progress({ label: "Done", done: true });
-  return { text: joinSegments(raw) };
+  return { text: applyDictionary(joinSegments(raw), configuredDictionaryRules()) };
 }
 
 function* present(name: string): HostIoSteps<boolean> {
