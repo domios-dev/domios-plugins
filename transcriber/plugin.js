@@ -17,14 +17,14 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// transcriber/src/plugin.ts
+// ../../codeterm-plugins/transcriber/src/plugin.ts
 var plugin_exports = {};
 __export(plugin_exports, {
   default: () => plugin_default
 });
 module.exports = __toCommonJS(plugin_exports);
 
-// transcriber/src/dictionary.ts
+// ../../codeterm-plugins/transcriber/src/dictionary.ts
 var MAX_DICTIONARY_RULES = 200;
 var MAX_RULE_CHARS = 128;
 function isWordChar(ch) {
@@ -42,23 +42,42 @@ function alignedLower(text) {
   }
   return out;
 }
+function addRule(byKey, wrongRaw, rightRaw, order) {
+  const wrong = wrongRaw.trim();
+  const right = rightRaw.trim();
+  if (!wrong || !right || wrong.length > MAX_RULE_CHARS || right.length > MAX_RULE_CHARS) {
+    return order;
+  }
+  const key = alignedLower(wrong);
+  if (!byKey.has(key) && byKey.size >= MAX_DICTIONARY_RULES) {
+    return order;
+  }
+  byKey.set(key, { order, wrong: key, right });
+  return order + 1;
+}
 function parseDictionary(raw) {
-  if (typeof raw !== "string" || !raw.trim()) return [];
-  const entries = raw.split(/\r\n|\n|\r|;/);
   const byKey = /* @__PURE__ */ new Map();
   let order = 0;
-  for (let i = 0; i < entries.length; i++) {
-    const line = entries[i].trim();
-    if (!line) continue;
-    let sep = line.indexOf("=>");
-    if (sep < 0) sep = line.indexOf("->");
-    if (sep < 0) continue;
-    const wrong = line.slice(0, sep).trim();
-    const right = line.slice(sep + 2).trim();
-    if (!wrong || !right || wrong.length > MAX_RULE_CHARS || right.length > MAX_RULE_CHARS) continue;
-    const key = alignedLower(wrong);
-    if (!byKey.has(key) && byKey.size >= MAX_DICTIONARY_RULES) continue;
-    byKey.set(key, { order: order++, wrong: key, right });
+  if (Array.isArray(raw)) {
+    for (let i = 0; i < raw.length; i++) {
+      const item = raw[i];
+      if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+      const entry = item;
+      if (typeof entry.from !== "string" || typeof entry.to !== "string") continue;
+      order = addRule(byKey, entry.from, entry.to, order);
+    }
+  } else if (typeof raw === "string" && raw.trim()) {
+    const entries = raw.split(/\r\n|\n|\r|;/);
+    for (let i = 0; i < entries.length; i++) {
+      const line = entries[i].trim();
+      if (!line) continue;
+      let sep = line.indexOf("=>");
+      if (sep < 0) sep = line.indexOf("->");
+      if (sep < 0) continue;
+      order = addRule(byKey, line.slice(0, sep), line.slice(sep + 2), order);
+    }
+  } else {
+    return [];
   }
   const rules = Array.from(byKey.values());
   rules.sort((a, b) => b.wrong.length - a.wrong.length || a.order - b.order);
@@ -100,7 +119,7 @@ function configuredDictionaryRules() {
   }
 }
 
-// transcriber/src/models.ts
+// ../../codeterm-plugins/transcriber/src/models.ts
 var RELEASE = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/";
 var WORKER = "runtime/parakeet.py";
 var RUNTIME = "runtime-py312-sherpa-2.0.2";
@@ -148,7 +167,7 @@ function* hasModel(model) {
   return true;
 }
 
-// transcriber/src/dictation.ts
+// ../../codeterm-plugins/transcriber/src/dictation.ts
 function* dictationLaunch() {
   const model = yield* selectedModel();
   if (!(yield* hasRuntime()) || !(yield* hasModel(model))) {
@@ -164,7 +183,7 @@ function* dictationLaunch() {
   return { state: "ready", bin: runtimePython(), script: WORKER, args };
 }
 
-// transcriber/src/modelView.ts
+// ../../codeterm-plugins/transcriber/src/modelView.ts
 var fs = () => host.io.fs;
 var job = null;
 var starting = false;
@@ -279,7 +298,7 @@ function* modelGlanceAction(action, clip, bundle) {
   return yield* modelGlance(clip, bundle);
 }
 
-// transcriber/src/plugin.ts
+// ../../codeterm-plugins/transcriber/src/plugin.ts
 var WHISPER_RELEASE = "v1.9.1";
 var WHISPER_BASE = "https://github.com/ggml-org/whisper.cpp/releases/download/" + WHISPER_RELEASE;
 var FFMPEG_WIN_ZIP = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";

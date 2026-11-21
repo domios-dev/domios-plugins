@@ -5,11 +5,29 @@
     "description": "Applies to both live Parakeet dictation and voice-note transcription.",
     "fields": [
       {
-        "kind": "text",
+        "kind": "array",
         "key": "dictionary",
-        "label": "Custom dictionary",
-        "placeholder": "в доме все => в Domios; домиус => Domios",
-        "description": "Replacement pairs separated by ; or newlines (wrong => right or wrong -> right). Matched case-insensitively on word boundaries, longest phrase first."
+        "label": "Replacement pairs",
+        "description": "Matched case-insensitively on word boundaries, longest phrase first.",
+        "item_label": "Entry",
+        "default": [],
+        "item": {
+          "kind": "object",
+          "fields": [
+            {
+              "kind": "text",
+              "key": "from",
+              "label": "Heard",
+              "placeholder": "в доме все"
+            },
+            {
+              "kind": "text",
+              "key": "to",
+              "label": "Replace with",
+              "placeholder": "в Domios"
+            }
+          ]
+        }
       }
     ]
   },

@@ -837,6 +837,85 @@ test("custom dictionary: dictationLaunch writes sorted dictionary.json only when
   ]), "rules must be normalized and sorted longest-first: " + JSON.stringify(saved));
 });
 
+test("custom dictionary: structured [{ from, to }] array matches legacy string parity", () => {
+  const structured = [
+    { from: "в доме", to: "в Domios" },
+    { from: "в доме все", to: "в Domios" },
+    { from: "дом", to: "Dom" },
+    { from: "domios os", to: "Domios" },
+  ];
+  reset({ endpoint: "http://gpu.local:7891/transcribe", dictionary: structured }, "windows");
+  execHandler = () => JSON.stringify({
+    code: 0,
+    stdout: JSON.stringify({ text: "Да В доме все, но в доме сидишь и домик про DOMIOS OS" }),
+    stderr: "",
+  });
+  const remote = plugin.transcribe("/tmp/note.oga");
+  assert(
+    remote.text === "Да в Domios, но в Domios сидишь и домик про Domios",
+    "structured array remote dictionary mismatch: " + JSON.stringify(remote),
+  );
+
+  reset({ dictionary: structured }, "macos");
+  files[MODEL] = "ok";
+  files[MODEL + ".done"] = "ok";
+  execHandler = happyHandler(["Да в доме все, но в доме сидишь и домик"]);
+  const local = plugin.transcribe("/tmp/note.oga");
+  assert(
+    local.text === "Да в Domios, но в Domios сидишь и домик",
+    "structured array local dictionary mismatch: " + JSON.stringify(local),
+  );
+});
+
+test("custom dictionary: malformed array items fail open and dictationLaunch stages structured array", () => {
+  const root = DATA_DIR + "/transcriber/live-dictation";
+  const model = root + "/parakeet-tdt-0.6b-v3-int8-1495e91b59d7";
+  const setupModel = () => {
+    files[model + "/.verified"] = "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9";
+    files[root + "/runtime-py312-sherpa-2.0.2/Scripts/python.exe"] = "";
+    for (const asset of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) files[model + "/" + asset] = "";
+  };
+
+  reset({
+    dictionary: [
+      null,
+      42,
+      "bare-string",
+      [],
+      { from: "   ", to: "Domios" },
+      { from: "ok", to: "" },
+      { from: 123, to: "bad" },
+      { from: "x".repeat(129), to: "tooLong" },
+    ],
+  }, "windows");
+  setupModel();
+  const emptyLaunch = plugin.dictationLaunch();
+  assert(emptyLaunch.state === "ready" && emptyLaunch.args.length === 2,
+    "all-malformed array must omit dictionary.json arg: " + JSON.stringify(emptyLaunch));
+
+  reset({
+    dictionary: [
+      { from: "  в доме  ", to: "в Old" },
+      null,
+      { from: "в доме все", to: "в Domios" },
+      { from: "В ДОМЕ", to: "в Domios" },
+      { from: "домиус", to: "Domios" },
+      { from: "bad", to: 99 },
+    ],
+  }, "windows");
+  setupModel();
+  const launch = plugin.dictationLaunch();
+  const dictPath = root + "/dictionary.json";
+  assert(launch.state === "ready" && launch.args.length === 3 && launch.args[2] === dictPath,
+    "structured array passes dictionary.json path: " + JSON.stringify(launch));
+  const saved = JSON.parse(files[dictPath]);
+  assert(JSON.stringify(saved) === JSON.stringify([
+    ["в доме все", "в Domios"],
+    ["в доме", "в Domios"],
+    ["домиус", "Domios"],
+  ]), "structured array rules must dedupe, normalize, and sort longest-first: " + JSON.stringify(saved));
+});
+
 for (const [name, fn] of tests) {
   try { fn(); console.log(`✓ ${name}`); }
   catch (err) { failed += 1; console.error(`✗ ${name}`); console.error(err); }

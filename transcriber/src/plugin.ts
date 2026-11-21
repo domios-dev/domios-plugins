@@ -15,7 +15,7 @@ interface TranscriberSettings {
   language?: string;
   model?: string;
   endpoint?: string;
-  dictionary?: string;
+  dictionary?: string | ReadonlyArray<{ from?: unknown; to?: unknown }>;
 }
 
 type Resolved = { bin: string } | { error: string };
