@@ -13,6 +13,7 @@ import struct
 import subprocess
 import sys
 import tarfile
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -25,6 +26,8 @@ MAX_TEST_RATE = 48000
 FRAME_BYTES = RATE
 WINDOW_BYTES = RATE * 2 * 6
 MIN_BYTES = RATE * 2
+SPEECH_RMS = 180
+SPEECH_SLICE_SAMPLES = RATE // 10
 FILES = {"encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"}
 CHUNK_BYTES = 256 * 1024
 DOWNLOAD_HOSTS = {"github.com", "release-assets.githubusercontent.com"}
@@ -75,7 +78,13 @@ def heard(pcm):
     values = samples(pcm)
     if not values:
         return False
-    return sum(value * value for value in values) >= len(values) * 180**2
+    threshold = SPEECH_RMS * SPEECH_RMS
+    step = min(len(values), SPEECH_SLICE_SAMPLES)
+    for start in range(0, len(values), step):
+        chunk = values[start:start + step]
+        if sum(value * value for value in chunk) >= len(chunk) * threshold:
+            return True
+    return False
 
 
 def decode(recognizer, pcm, sample_rate=RATE):
@@ -96,20 +105,50 @@ def result(committed="", provisional=""):
     print(json.dumps({"committed": committed, "provisional": provisional}, ensure_ascii=True), flush=True)
 
 
-def load_for_stream(model):
-    try:
-        return worker(model)
-    except Exception as failure:
-        print(json.dumps({"error": f"Could not load the local model: {failure}"[:420]}), flush=True)
-        return None
+class _StreamLoader:
+    def __init__(self, model):
+        self._done = threading.Event()
+        self._recognizer = None
+        self._error = None
+        self._thread = threading.Thread(
+            target=self._run, args=(model,), name="parakeet-model-load", daemon=True
+        )
+        self._thread.start()
+
+    def _run(self, model):
+        try:
+            self._recognizer = worker(model)
+        except Exception as failure:
+            self._error = f"Could not load the local model: {failure}"[:420]
+        finally:
+            self._done.set()
+
+    def failed(self):
+        return self._done.is_set() and self._error is not None
+
+    def get(self):
+        self._done.wait()
+        if self._error is not None:
+            print(json.dumps({"error": self._error}), flush=True)
+            return None
+        return self._recognizer
 
 
 def streaming(model):
     source = sys.stdin.buffer
+    # Start loading immediately so model init overlaps mic setup and lead-in audio.
+    loader = _StreamLoader(model)
     recognizer = None
     window = bytearray()
     last = ""
     since_preview = 0
+
+    def ensure_recognizer():
+        nonlocal recognizer
+        if recognizer is None:
+            recognizer = loader.get()
+        return recognizer
+
     while header := source.read(4):
         if len(header) != 4:
             raise ValueError("Incomplete microphone frame.")
@@ -117,29 +156,43 @@ def streaming(model):
         if size > FRAME_BYTES or size % 2:
             raise ValueError("Invalid microphone frame.")
         if not size:
-            result(decode(recognizer, window) if window and recognizer else "")
+            if window:
+                active = ensure_recognizer()
+                if active is None:
+                    return
+                result(decode(active, window))
+            else:
+                result("")
             return
         pcm = source.read(size)
         if len(pcm) != size:
             raise ValueError("Incomplete microphone audio.")
         speech = heard(pcm)
         if not window and not speech:
+            if loader.failed():
+                loader.get()
+                return
             result()
             continue
-        if recognizer is None:
-            recognizer = load_for_stream(model)
-            if recognizer is None:
-                return
+        if loader.failed():
+            loader.get()
+            return
         window.extend(pcm)
         since_preview += size
         if len(window) >= WINDOW_BYTES or not speech and len(window) >= MIN_BYTES:
-            result(decode(recognizer, window))
+            active = ensure_recognizer()
+            if active is None:
+                return
+            result(decode(active, window))
             window.clear()
             last = ""
             since_preview = 0
         else:
             if since_preview >= MIN_BYTES:
-                last = decode(recognizer, window)
+                active = ensure_recognizer()
+                if active is None:
+                    return
+                last = decode(active, window)
                 since_preview = 0
             result(provisional=last)
 

@@ -3,9 +3,12 @@ from __future__ import annotations
 import contextlib
 import importlib.util
 import io
+import json
 from pathlib import Path
 import struct
+import sys
 import tempfile
+import threading
 import unittest
 import wave
 
@@ -103,6 +106,189 @@ class ParakeetTestModelTests(unittest.TestCase):
                             parakeet.test_model(model_dir, name)
             finally:
                 parakeet.worker = orig_worker
+
+
+def frame_bytes(pcm: bytes) -> bytes:
+    return struct.pack("<I", len(pcm)) + pcm
+
+
+def pcm_tone(amplitude: int, samples_count: int) -> bytes:
+    return struct.pack("<h", amplitude) * samples_count
+
+
+class _FakeStdin:
+    def __init__(self, buffer) -> None:
+        self.buffer = buffer
+
+
+class _GatedBuffer:
+    def __init__(self, chunks: list[tuple[threading.Event | None, bytes]]) -> None:
+        self._chunks = list(chunks)
+        self._buf = bytearray()
+
+    def read(self, n: int) -> bytes:
+        while len(self._buf) < n and self._chunks:
+            gate, data = self._chunks.pop(0)
+            if gate is not None:
+                assert gate.wait(timeout=5), "timed out waiting for test gate"
+            self._buf.extend(data)
+        out = bytes(self._buf[:n])
+        del self._buf[:n]
+        return out
+
+
+class _NotifyingStdout(io.StringIO):
+    def __init__(self, on_line) -> None:
+        super().__init__()
+        self._on_line = on_line
+
+    def write(self, s: str) -> int:
+        written = super().write(s)
+        if "\n" in s:
+            self._on_line()
+        return written
+
+
+class ParakeetStreamingTests(unittest.TestCase):
+    def test_streaming_starts_loading_eagerly_before_first_frame_arrives(self) -> None:
+        load_started = threading.Event()
+        recognizer = FakeRecognizer("eager hello")
+        orig_worker = parakeet.worker
+        orig_stdin = sys.stdin
+
+        def fake_worker(_model):
+            load_started.set()
+            return recognizer
+
+        speech_frame = frame_bytes(pcm_tone(1000, parakeet.FRAME_BYTES // 2))
+        finish_frame = frame_bytes(b"")
+        buf = _GatedBuffer([(load_started, speech_frame + finish_frame)])
+        stdout = io.StringIO()
+        parakeet.worker = fake_worker
+        sys.stdin = _FakeStdin(buf)
+        try:
+            with contextlib.redirect_stdout(stdout):
+                parakeet.streaming(Path("unused"))
+        finally:
+            parakeet.worker = orig_worker
+            sys.stdin = orig_stdin
+
+        lines = [json.loads(line) for line in stdout.getvalue().splitlines()]
+        self.assertEqual(
+            lines,
+            [
+                {"committed": "", "provisional": ""},
+                {"committed": "eager hello", "provisional": ""},
+            ],
+        )
+        self.assertEqual(len(recognizer.streams), 1)
+
+    def test_streaming_buffers_first_speech_frame_without_blocking_on_loader(self) -> None:
+        load_started = threading.Event()
+        release_load = threading.Event()
+        first_reply = threading.Event()
+        recognizer = FakeRecognizer("preview ok")
+        orig_worker = parakeet.worker
+        orig_stdin = sys.stdin
+
+        def slow_worker(_model):
+            load_started.set()
+            assert release_load.wait(timeout=5)
+            return recognizer
+
+        half_sec = frame_bytes(pcm_tone(1000, parakeet.FRAME_BYTES // 2))
+        finish = frame_bytes(b"")
+        # Frame 2 waits until frame 1 has already replied while loader is still blocked.
+        buf = _GatedBuffer([(None, half_sec), (first_reply, half_sec + finish)])
+
+        def on_line():
+            if not first_reply.is_set():
+                first_reply.set()
+                release_load.set()
+
+        stdout = _NotifyingStdout(on_line)
+        parakeet.worker = slow_worker
+        sys.stdin = _FakeStdin(buf)
+        try:
+            with contextlib.redirect_stdout(stdout):
+                parakeet.streaming(Path("unused"))
+        finally:
+            release_load.set()
+            parakeet.worker = orig_worker
+            sys.stdin = orig_stdin
+
+        self.assertTrue(load_started.is_set())
+        lines = [json.loads(line) for line in stdout.getvalue().splitlines()]
+        self.assertEqual(
+            lines,
+            [
+                {"committed": "", "provisional": ""},
+                {"committed": "", "provisional": "preview ok"},
+                {"committed": "preview ok", "provisional": ""},
+            ],
+        )
+
+    def test_streaming_exits_immediately_on_empty_finish_while_loader_blocked(self) -> None:
+        load_started = threading.Event()
+        release_load = threading.Event()
+        orig_worker = parakeet.worker
+        orig_stdin = sys.stdin
+
+        def blocked_worker(_model):
+            load_started.set()
+            release_load.wait(timeout=5)
+            return FakeRecognizer()
+
+        stdout = io.StringIO()
+        parakeet.worker = blocked_worker
+        sys.stdin = _FakeStdin(io.BytesIO(frame_bytes(b"")))
+        try:
+            with contextlib.redirect_stdout(stdout):
+                parakeet.streaming(Path("unused"))
+            self.assertEqual(
+                [json.loads(line) for line in stdout.getvalue().splitlines()],
+                [{"committed": "", "provisional": ""}],
+            )
+        finally:
+            release_load.set()
+            parakeet.worker = orig_worker
+            sys.stdin = orig_stdin
+
+    def test_streaming_reports_loader_error_once_in_frame_protocol(self) -> None:
+        orig_worker = parakeet.worker
+        orig_stdin = sys.stdin
+
+        def broken_worker(_model):
+            raise RuntimeError("missing onnx")
+
+        speech_frame = frame_bytes(pcm_tone(1000, parakeet.FRAME_BYTES // 2))
+        finish_frame = frame_bytes(b"")
+        stdout = io.StringIO()
+        parakeet.worker = broken_worker
+        sys.stdin = _FakeStdin(io.BytesIO(speech_frame + speech_frame + finish_frame))
+        try:
+            with contextlib.redirect_stdout(stdout):
+                parakeet.streaming(Path("unused"))
+        finally:
+            parakeet.worker = orig_worker
+            sys.stdin = orig_stdin
+
+        lines = [json.loads(line) for line in stdout.getvalue().splitlines()]
+        error_lines = [line for line in lines if "error" in line]
+        self.assertEqual(len(error_lines), 1)
+        self.assertIn("missing onnx", error_lines[0]["error"])
+        self.assertEqual(lines[-1], error_lines[0])
+
+    def test_heard_catches_late_first_syllable_and_rejects_room_noise(self) -> None:
+        half_sec_samples = parakeet.FRAME_BYTES // 2
+        self.assertFalse(parakeet.heard(b""))
+        self.assertFalse(parakeet.heard(pcm_tone(0, half_sec_samples)))
+        self.assertFalse(parakeet.heard(pcm_tone(100, half_sec_samples)))
+        # 400ms silence + 100ms soft first syllable at 250 RMS (whole-frame RMS ~112 < 180).
+        late_syllable = pcm_tone(0, half_sec_samples - parakeet.SPEECH_SLICE_SAMPLES) + pcm_tone(
+            250, parakeet.SPEECH_SLICE_SAMPLES
+        )
+        self.assertTrue(parakeet.heard(late_syllable))
 
 
 if __name__ == "__main__":
