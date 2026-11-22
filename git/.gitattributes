@@ -1,0 +1,2 @@
+# Minified syntax-highlighter strings preserve literal end-of-line whitespace.
+ui/app-*.js -whitespace

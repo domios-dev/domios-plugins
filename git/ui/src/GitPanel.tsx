@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, Columns2, Rows3, RefreshCw, X } from "lucide-react";
+import { ChevronLeft, Columns2, Rows3, RefreshCw } from "lucide-react";
 import "./app.css";
 import type { ApiConfig } from "./types";
 import {
@@ -42,10 +42,9 @@ interface GitPanelProps {
   api: ApiConfig;
   cwd: string | null;
   initialRepos?: RepoEntry[];
-  onClose: () => void;
 }
 
-export function GitPanel({ api, cwd, initialRepos = EMPTY_REPOS, onClose }: GitPanelProps) {
+export function GitPanel({ api, cwd, initialRepos = EMPTY_REPOS }: GitPanelProps) {
   const { ref: rootRef, mode } = useGitLayout();
   const narrow = mode === "narrow";
 
@@ -190,16 +189,13 @@ export function GitPanel({ api, cwd, initialRepos = EMPTY_REPOS, onClose }: GitP
       const inField =
         e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
       if (e.key !== "Escape" || inField) return;
-      // Medium-mode modal owns its own Escape; only close panel here when no
-      // overlay/drill is active.
-      if (mode === "medium" && selectedPath) return;
+      if (!narrow || level <= 1) return;
       e.preventDefault();
-      if (narrow && level > 1) back();
-      else onClose();
+      back();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [onClose, narrow, level, back, mode, selectedPath]);
+  }, [narrow, level, back]);
 
   const loadMore = useCallback(async () => {
     if (!activeCwd || !graph) return;
@@ -275,7 +271,7 @@ export function GitPanel({ api, cwd, initialRepos = EMPTY_REPOS, onClose }: GitP
       className="ct-git absolute inset-0 flex flex-col bg-[var(--ct-bg)] pt-[var(--ct-safe-top,0px)]"
     >
       <div
-        className={`${UI_PANEL.toolbar} gap-3 px-4 py-0 bg-[var(--ct-titlebar-bg)] border-b border-[var(--ct-border)] text-[var(--ct-fg)] ct-hscroll whitespace-nowrap`}
+        className={`${UI_PANEL.toolbar} ${narrow ? "ct-git-toolbar-narrow" : "ct-hscroll"} gap-3 px-4 py-0 bg-[var(--ct-titlebar-bg)] border-b border-[var(--ct-border)] text-[var(--ct-fg)] whitespace-nowrap`}
       >
         {backTitle ? (
           <button
@@ -325,14 +321,6 @@ export function GitPanel({ api, cwd, initialRepos = EMPTY_REPOS, onClose }: GitP
         >
           <RefreshCw size={14} />
           <span>{loading && graph ? "…" : `${refreshCountdown}s`}</span>
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          title="Close (Esc)"
-          className={`${UI_BUTTON.icon} ${UI_BUTTON.sm} shrink-0`}
-        >
-          <X size={14} />
         </button>
       </div>
 

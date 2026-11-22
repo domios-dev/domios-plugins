@@ -44,7 +44,7 @@ function Root() {
       </div>
     );
   }
-  return <GitPanel api={null} cwd={cwd} initialRepos={repos} onClose={() => window.ct?.close?.()} />;
+  return <GitPanel api={null} cwd={cwd} initialRepos={repos} />;
 }
 
 const el = document.getElementById("ct-root");

@@ -99,6 +99,29 @@ body {
   border-bottom: 1px solid var(--ct-border);
   background: var(--ct-titlebar-bg);
 }
+.ct-toolbar.ct-git-toolbar-narrow {
+  height: auto;
+  min-height: 2.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+.ct-git-toolbar-narrow > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.ct-git-toolbar-narrow > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ct-git-toolbar-narrow .ct-git-repos {
+  flex: 0 1 auto;
+}
+.ct-git-toolbar-narrow .ct-git-repos-trigger {
+  max-width: 100%;
+}
 .ct-hscroll {
   overflow-x: auto;
   overflow-y: hidden;
