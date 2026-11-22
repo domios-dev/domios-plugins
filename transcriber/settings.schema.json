@@ -34,7 +34,7 @@
   {
     "kind": "section",
     "title": "Voice-note transcription",
-    "description": "Use the Transcriber glance panel to install, select or test a live Parakeet dictation model.",
+    "description": "Use the Transcriber glance panel or supported `domios plugin transcriber` dictation commands to install, select or test a live Parakeet dictation model.",
     "fields": [
       {
         "kind": "text",

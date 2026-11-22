@@ -1,7 +1,7 @@
 {
   "license": "PolyForm-Shield-1.0.0",
   "id": "transcriber",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "minCodeterm": "1.21.1",
   "hostApi": 2,
   "displayName": "Transcriber",
@@ -15,6 +15,7 @@
     "dictation": true
   },
   "permissions": {
+    "agent_commands": true,
     "subprocess": {
       "allow": [
         "brew",
@@ -31,6 +32,21 @@
     }
   },
   "settingsSchema": "settings.schema.json",
-  "configHelp": "For live composer dictation, open the Transcriber glance panel in Extensions and explicitly install Parakeet TDT 0.6B v3, the Russian-capable default. It uses a separate pinned CPU runtime and needs a supported 64-bit Python 3.12 installation. Describe the download and current setup status before asking the user to install it. Use Refresh status to see progress or Cancel installation to discard a pending download. The voice-note Whisper model, language hint and remote endpoint are separate settings.",
+  "configHelp": "General can inspect and set up local live composer dictation directly with supported Transcriber plugin commands (shared with the Transcriber glance panel; no need to send the owner to glance). First run `domios plugin transcriber dictation-status` (or `domios plugin transcriber help`). The Russian-capable default is Parakeet TDT 0.6B v3 (`parakeet-tdt-0.6b-v3-int8`, ~487 MB download); Parakeet TDT 0.6B v2 (`parakeet-tdt-0.6b-v2-int8`, English, ~482 MB) is optional. Setup needs ~1.5 GB free disk space, a supported 64-bit Python 3.12 (`python.exe` on Windows x64, `python3.12` on macOS/Linux x64/arm64), network access to GitHub releases and PyPI for SHA-256-verified artifacts, and local Python subprocess execution writing only inside this plugin's instance data directory. Explain these requirements and obtain explicit owner approval before running `domios plugin transcriber dictation-install parakeet-tdt-0.6b-v3-int8 --consent`. `--consent` records owner confirmation for this command only and is not a host permission grant; Domios natively enforces `agent_commands` and `subprocess` permissions (report any host refusal verbatim rather than bypassing it or using manual pip/config workarounds). Poll `dictation-progress` for real stages/MB/failures, use `dictation-cancel` to cancel an incomplete install, `dictation-select <model-id>` to switch installed models, and `dictation-test [model-id]` to run only the bundled WAV sample. Voice-note Whisper settings (`model`, `language`, `endpoint`), inbound `integrations.voice_transcribe`, microphone/OS permissions, and composer draft remain separate and untouched.",
+  "agentGuide": "agent-guide.md",
+  "agentVerbs": [
+    "dictation-status",
+    "dictation-install [model-id] --consent",
+    "dictation-progress",
+    "dictation-cancel",
+    "dictation-select <model-id>",
+    "dictation-test [model-id]",
+    "help"
+  ],
+  "agentReadOnlyVerbs": [
+    "dictation-status",
+    "dictation-progress",
+    "help"
+  ],
   "hostIoJobs": true
 }

@@ -50,7 +50,7 @@ async function buildLogic() {
     platform: "neutral",
     mainFields: ["module", "main"],
     target: "es2020",
-    loader: { ".md": "text" },
+    loader: { ".md": "text", ".py": "text", ".txt": "text" },
     write: false,
     logLevel: "warning",
   });
