@@ -59,7 +59,10 @@ globalThis.host = {
 };
 
 const fakeJobs = new Map();
+const closedJobs = [];
 const legacyFake = globalThis.host;
+let execStartHandler = null;
+let writeFileAtomicHandler = null;
 
 Object.assign(legacyFake, {
   path: { get isWindows() { return platformStr === "windows"; } },
@@ -81,20 +84,27 @@ function dispatch(request) {
   if (op === "progress") return legacyFake.progress(options);
   if (op === "execStart") {
     execCalls.push(options);
+    if (execStartHandler) return execStartHandler(options);
     const jobId = String(execCalls.length);
     fakeJobs.set(jobId, { done: false });
     return { jobId };
   }
   if (op === "execPoll") return fakeJobs.get(request.job);
-  if (op === "execClose") return fakeJobs.delete(request.job);
-  if (op === "writeFileAtomic") return legacyFake.writeFile(path, contents);
+  if (op === "execClose") { closedJobs.push(request.job); return fakeJobs.delete(request.job); }
+  if (op === "writeFileAtomic") {
+    if (writeFileAtomicHandler) return writeFileAtomicHandler(path, contents);
+    return legacyFake.writeFile(path, contents);
+  }
   return legacyFake[op](path, contents);
 }
 
 const bundle = readFileSync(join(__dirname, "plugin.js"), "utf8");
-const bundled = { exports: {} };
-runInThisContext("(function(module,exports) {" + bundle + "\n})")(bundled, bundled.exports);
-const plugin = bundled.exports.default;
+function loadPlugin() {
+  const bundled = { exports: {} };
+  runInThisContext("(function(module,exports) {" + bundle + "\n})")(bundled, bundled.exports);
+  return bundled.exports.default;
+}
+let plugin = loadPlugin();
 
 // ── Tiny runner ────────────────────────────────────────────────────────
 const tests = [];
@@ -105,10 +115,15 @@ function reset(settings, platform) {
   execCalls.length = 0;
   progressCalls.length = 0;
   removedFiles.length = 0;
+  closedJobs.length = 0;
+  fakeJobs.clear();
+  execStartHandler = null;
+  writeFileAtomicHandler = null;
   settingsObj = settings || {};
   platformStr = platform || "macos";
   files = {};
   execHandler = () => JSON.stringify({ code: 0, stdout: "", stderr: "" });
+  plugin = loadPlugin();
 }
 
 // Canonical whisper.cpp `-oj` output for the given segment texts.
@@ -914,6 +929,388 @@ test("custom dictionary: malformed array items fail open and dictationLaunch sta
     ["в доме", "в Domios"],
     ["домиус", "Domios"],
   ]), "structured array rules must dedupe, normalize, and sort longest-first: " + JSON.stringify(saved));
+});
+
+// ── Agent-operated live dictation setup (0.5.1) ────────────────────────
+
+const DICTATION_ROOT = DATA_DIR + "/transcriber/live-dictation";
+const V3_ID = "parakeet-tdt-0.6b-v3-int8";
+const V3_SHA = "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9";
+const V3_DIR = DICTATION_ROOT + "/" + V3_ID + "-" + V3_SHA.slice(0, 12);
+const V2_ID = "parakeet-tdt-0.6b-v2-int8";
+const V2_SHA = "6fc4426b54aa549a0019b8a75b8dea59164e71790a37ac56a045ad57f915f714";
+const V2_DIR = DICTATION_ROOT + "/" + V2_ID + "-" + V2_SHA.slice(0, 12);
+const CANONICAL_PARAKEET_PY = readFileSync(join(__dirname, "runtime", "parakeet.py"), "utf8");
+const CANONICAL_REQUIREMENTS_TXT = readFileSync(join(__dirname, "runtime", "requirements.txt"), "utf8");
+
+function agentCall(verb, args = [], body) {
+  return plugin.onAgentCommand({ sessionId: "general-fixture", verb, args, ...(body !== undefined ? { body } : {}) });
+}
+
+function parseAgentOk(res, label) {
+  assert(res && typeof res.result === "string" && !res.error, `${label}: expected result, got ${JSON.stringify(res)}`);
+  return JSON.parse(res.result);
+}
+
+function seedRuntime(platform = "windows") {
+  const py = DICTATION_ROOT + "/runtime-py312-sherpa-2.0.2" + (platform === "windows" ? "/Scripts/python.exe" : "/bin/python3.12");
+  files[py] = "";
+}
+
+function seedModel(modelId) {
+  const dir = modelId === V3_ID ? V3_DIR : V2_DIR;
+  const sha = modelId === V3_ID ? V3_SHA : V2_SHA;
+  files[dir + "/.verified"] = sha;
+  for (const asset of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) {
+    files[dir + "/" + asset] = "";
+  }
+}
+
+test("metadata & exports: 0.5.1 / minCodeterm 1.21.1 agreement, discoverable agentVerbs/agentGuide/help", () => {
+  reset({}, "windows");
+  const pkg = JSON.parse(readFileSync(join(__dirname, "package.json"), "utf8"));
+  const channel = JSON.parse(readFileSync(join(__dirname, "..", "channel.json"), "utf8"));
+  const channelEntry = channel.plugins.find((p) => p.id === "transcriber");
+  assert(MANIFEST.version === "0.5.1" && MANIFEST.minCodeterm === "1.21.1", "plugin.json version/minCodeterm mismatch");
+  assert(pkg.version === "0.5.1", "package.json version mismatch");
+  assert(channelEntry && channelEntry.version === "0.5.1" && channelEntry.minCodeterm === "1.21.1", "channel.json mismatch");
+  assert(MANIFEST.permissions.agent_commands === true, "agent_commands permission must be declared");
+  assert(MANIFEST.agentGuide === "agent-guide.md", "agentGuide must point to agent-guide.md");
+  const guide = readFileSync(join(__dirname, "agent-guide.md"), "utf8");
+  assert(guide.includes("487 MB") && guide.includes("1.5 GB") && guide.includes("Python 3.12"), "agent-guide.md must state resource requirements");
+  assert(Array.isArray(MANIFEST.agentVerbs) && MANIFEST.agentVerbs.length >= 6, "agentVerbs must expose dictation operations");
+  assert(Array.isArray(MANIFEST.agentReadOnlyVerbs) && MANIFEST.agentReadOnlyVerbs.includes("dictation-status") && MANIFEST.agentReadOnlyVerbs.includes("dictation-progress"), "read-only verbs declared");
+  assert(!MANIFEST.agentReadOnlyVerbs.includes("dictation-install"), "dictation-install must not be read-only");
+  assert(typeof plugin.onAgentCommand === "function", "plugin must export onAgentCommand");
+
+  const help = parseAgentOk(agentCall("help"), "help");
+  assert(help.version === "0.5.1" && help.defaultModelId === V3_ID, "help reports version and Russian-capable default");
+  assert(/487 MB/.test(help.requirements.modelDownload), "help states ~487 MB model");
+  assert(/1\.5 GB/.test(help.requirements.diskSpace) && /Python 3\.12/.test(help.requirements.python), "help states ~1.5 GB / Python 3.12");
+  assert(/pypi\.org/i.test(help.requirements.network) && /github\.com/i.test(help.requirements.network), "help states network implications");
+  assert(/not a host permission grant/i.test(help.consent.hostAuthority), "help states --consent is not a host permission grant");
+  assert(execCalls.length === 0 && Object.keys(files).length === 0, "help must be strictly side-effect free");
+});
+
+test("agent dictation-status is read-only and refuses invalid arguments or unexpected body", () => {
+  reset({}, "windows");
+  const status = parseAgentOk(agentCall("dictation-status"), "dictation-status");
+  assert(status.ready === false && status.runtimeInstalled === false, "uninstalled state reported truthfully");
+  assert(status.defaultModelId === V3_ID && status.selectedModelId === V3_ID, "defaults to Russian-capable v3");
+  assert(status.models.length === 2 && status.models[0].id === V3_ID && status.models[0].isDefault === true, "catalog exposed");
+  assert(status.activeJob === null && status.lastJob === null, "no active or last job initially");
+  assert(execCalls.length === 0 && Object.keys(files).length === 0, "status must not launch subprocesses or write files");
+
+  const badStatus = agentCall("dictation-status", ["extra"]);
+  assert(badStatus.error && /^invalid_arguments:/.test(badStatus.error), "rejects unexpected status args");
+  const badBody = agentCall("dictation-install", [V3_ID], JSON.stringify({ authorized: true, consent: true }));
+  assert(badBody.error && /^invalid_arguments:/.test(badBody.error), "rejects JSON body and never treats JSON boolean as authorization");
+  const unknownVerb = agentCall("viewCall", ["install"]);
+  assert(unknownVerb.error && /^unknown_verb:/.test(unknownVerb.error), "unknown/raw internal verb refused");
+  assert(execCalls.length === 0 && Object.keys(files).length === 0, "refused calls leave zero side effects");
+});
+
+test("agent dictation-install requires explicit --consent and returns real native host refusals verbatim", () => {
+  reset({}, "windows");
+  const noConsent = agentCall("dictation-install");
+  assert(noConsent.error && /^consent_required:/.test(noConsent.error), "install without --consent must refuse");
+  assert(/487 MB/.test(noConsent.error) && /1\.5 GB/.test(noConsent.error) && /not a host permission grant/i.test(noConsent.error),
+    "consent error states size/disk and honest host permission contract");
+  assert(execCalls.length === 0 && Object.keys(files).length === 0, "consent refusal writes nothing and spawns nothing");
+
+  const badModel = agentCall("dictation-install", ["../../evil.py", "--consent"]);
+  assert(badModel.error && /^invalid_model:/.test(badModel.error), "arbitrary model/path input rejected");
+  const badFlag = agentCall("dictation-install", ["--python", "evil", "--consent"]);
+  assert(badFlag.error && /^invalid_arguments:/.test(badFlag.error), "unknown flag rejected");
+
+  // Simulate real native host subprocess allowlist refusal.
+  execStartHandler = (opts) => ({ error: "denied exec(" + opts.bin + ") — not in subprocess.allow" });
+  const refused = agentCall("dictation-install", [V3_ID, "--consent"]);
+  assert(refused.error && /^host_refused:/.test(refused.error), "native host refusal surfaces as host_refused: " + JSON.stringify(refused));
+  assert(refused.error.includes("not in subprocess.allow"), "native refusal detail preserved verbatim");
+  const prog = parseAgentOk(agentCall("dictation-progress"), "progress after host refusal");
+  assert(prog.state === "failed" && prog.activeJob === null && prog.lastJob.failure.code === "host_refused",
+    "typed host_refused failure recorded without holding slot");
+});
+
+test("agent dictation-install stages canonical parakeet.py + requirements.txt in data root, tracks real progress, and verifies completion", () => {
+  reset({}, "windows");
+  const started = parseAgentOk(agentCall("dictation-install", ["--consent"]), "install start");
+  assert(started.ok === true && started.outcome === "started" && started.modelId === V3_ID, "default v3 install started");
+  assert(execCalls.length === 1 && execCalls[0].bin === "python.exe", "spawned python.exe once");
+  assert(execCalls[0].args[0] === "-I" && execCalls[0].args[2] === "install", "isolated python install mode");
+
+  const stagedScript = execCalls[0].args[1];
+  assert(stagedScript.startsWith(DICTATION_ROOT + "/.worker-") && stagedScript.endsWith("/parakeet.py"),
+    "staged inside plugin-owned data root without bundle path or hardcoded ~/.domios/plugins: " + stagedScript);
+  assert(!stagedScript.includes(HOME), "never guesses homeDir/plugins path");
+  const stagedReq = stagedScript.replace(/\/parakeet\.py$/, "/requirements.txt");
+  assert(files[stagedScript] === CANONICAL_PARAKEET_PY, "staged worker is exact canonical runtime/parakeet.py");
+  assert(files[stagedReq] === CANONICAL_REQUIREMENTS_TXT, "staged requirements.txt is exact canonical runtime/requirements.txt");
+
+  const nonce = execCalls[0].args[execCalls[0].args.length - 1];
+  const progressFile = DICTATION_ROOT + "/.progress-" + nonce;
+
+  // Stage 1: initial starting before worker writes progress
+  let p = parseAgentOk(agentCall("dictation-progress"), "progress starting");
+  assert(p.state === "running" && p.activeJob.progress.stage === "starting" && p.activeJob.progress.downloadedMb === undefined,
+    "no elapsed-time fiction before worker progress");
+
+  // Stage 2: runtime install
+  files[progressFile] = "Installing the pinned local CPU runtime…";
+  p = parseAgentOk(agentCall("dictation-progress"), "progress runtime");
+  assert(p.activeJob.progress.stage === "installing_runtime", "runtime stage parsed");
+
+  // Stage 3: real download MB
+  files[progressFile] = "Downloading model: 212 / 488 MB";
+  p = parseAgentOk(agentCall("dictation-progress"), "progress downloading");
+  assert(p.activeJob.progress.stage === "downloading_model" && p.activeJob.progress.downloadedMb === 212 && p.activeJob.progress.totalMb === 488,
+    "real MB progress parsed");
+
+  // Stage 4: verifying/unpacking
+  files[progressFile] = "Verifying and unpacking the model…";
+  p = parseAgentOk(agentCall("dictation-progress"), "progress unpacking");
+  assert(p.activeJob.progress.stage === "verifying_and_unpacking", "unpack stage parsed");
+
+  // Complete WITH verified runtime + model files on disk
+  seedRuntime("windows");
+  seedModel(V3_ID);
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 0, stdout: "", stderr: "" });
+
+  p = parseAgentOk(agentCall("dictation-progress"), "progress completed");
+  assert(p.state === "completed" && p.activeJob === null && p.ready === true && p.lastJob.state === "completed",
+    "completed install releases slot and reports ready");
+  assert(closedJobs.length === 1, "completed job handle closed via execClose");
+  assert(!(progressFile in files), "progress marker cleaned up on exit");
+
+  // Repeated install after completion is idempotent: no duplicate execStart
+  const again = parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "install after completion");
+  assert(again.outcome === "already_installed" && execCalls.length === 1, "repeated install after completion spawns nothing");
+});
+
+test("agent install catches false success (exit 0 without verified files) and classifies typed failures", () => {
+  reset({}, "windows");
+  parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "start for false-success test");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 0, stdout: "", stderr: "" });
+  let p = parseAgentOk(agentCall("dictation-progress"), "progress false success");
+  assert(p.state === "failed" && p.lastJob.failure.code === "verification_failed" && p.ready === false,
+    "exit 0 without verified runtime/model must fail with verification_failed, not false success");
+
+  // Disk space failure
+  parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "start for disk failure");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 1, stderr: "Free at least 1.5 GB in the instance data directory to install this model." });
+  p = parseAgentOk(agentCall("dictation-progress"), "progress disk failure");
+  assert(p.state === "failed" && p.lastJob.failure.code === "disk_space" && p.lastJob.failure.exitCode === 1,
+    "disk space error classified accurately");
+
+  // Unsupported Python failure
+  parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "start for python unsupported");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 1, stderr: "Install a supported 64-bit Python 3.12 to use local CPU dictation." });
+  p = parseAgentOk(agentCall("dictation-progress"), "progress python unsupported");
+  assert(p.state === "failed" && p.lastJob.failure.code === "python_unsupported", "python_unsupported classified accurately");
+});
+
+test("repeated/concurrent install and cancellation preserve existing selected model until exit is observed", () => {
+  reset({}, "windows");
+  // Pre-install and explicitly select v2.
+  seedRuntime("windows");
+  seedModel(V2_ID);
+  files[DICTATION_ROOT + "/selected"] = V2_ID;
+
+  // Start installing v3 (upgrade/add second model)
+  const started = parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "start v3 install");
+  assert(started.outcome === "started" && execCalls.length === 1, "started v3 install");
+
+  // Repeated same-model install returns active job without spawning a duplicate process
+  const repeat = parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "repeat v3 install");
+  assert(repeat.outcome === "already_running" && repeat.job.jobId === started.job.jobId && execCalls.length === 1,
+    "repeated install returns active operation with zero duplicate processes");
+
+  // Concurrent different-model install is refused as busy
+  const other = agentCall("dictation-install", [V2_ID, "--consent"]);
+  assert(other.error && /^busy:/.test(other.error) && execCalls.length === 1, "different model refused while install active");
+
+  // Select refused while install active
+  const selBusy = agentCall("dictation-select", [V2_ID]);
+  assert(selBusy.error && /^busy:/.test(selBusy.error), "select refused while install active");
+
+  // Request cancel: slot MUST stay held until exit is actually observed!
+  const cancelling = parseAgentOk(agentCall("dictation-cancel"), "cancel install");
+  assert(cancelling.outcome === "cancelling" && cancelling.job.state === "cancelling", "cancel marks cancelling");
+  const nonce = execCalls[0].args[execCalls[0].args.length - 1];
+  assert((DICTATION_ROOT + "/.cancel-" + nonce) in files, "cancel marker written for exact active job");
+  assert(closedJobs.length === 0, "execClose must NOT run before process exit is observed");
+
+  // Repeated cancel is idempotent
+  const cancelAgain = parseAgentOk(agentCall("dictation-cancel"), "repeat cancel");
+  assert(cancelAgain.outcome === "already_cancelling", "repeated cancel is idempotent");
+
+  // Another install while cancelling is still blocked (slot not prematurely released!)
+  const whileCancelling = agentCall("dictation-install", [V2_ID, "--consent"]);
+  assert(whileCancelling.error && /^busy:/.test(whileCancelling.error) && execCalls.length === 1,
+    "slot remains held until cancellation exit is actually observed");
+
+  // Now process exits with code 3 (Cancelled)
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 3 });
+  const afterExit = parseAgentOk(agentCall("dictation-progress"), "progress after cancel exit");
+  assert(afterExit.state === "cancelled" && afterExit.activeJob === null && afterExit.lastJob.state === "cancelled",
+    "observed cancel exit releases slot truthfully");
+  assert(closedJobs.length === 1, "job closed after exit observed");
+  assert(!((DICTATION_ROOT + "/.cancel-" + nonce) in files), "cancel marker cleaned up");
+  assert(files[DICTATION_ROOT + "/selected"] === V2_ID && afterExit.selectedModelId === V2_ID,
+    "cancelled upgrade preserves existing installed/selected model");
+  assert(agentCall("dictation-cancel").error.startsWith("no_active_install:"), "cancel after exit reports no active install");
+});
+
+test("agent dictation-select and dictation-test enforce installed state, bounded bundled sample only, and non-cancellable test", () => {
+  reset({}, "windows");
+  // Refuses select and test when not installed
+  assert(agentCall("dictation-select", [V2_ID]).error.startsWith("model_not_installed:"), "cannot select uninstalled model");
+  assert(agentCall("dictation-test").error.startsWith("model_not_installed:"), "cannot test uninstalled model");
+  assert(execCalls.length === 0, "no process launched when not installed");
+
+  // Install runtime + both models
+  seedRuntime("windows");
+  seedModel(V3_ID);
+  seedModel(V2_ID);
+
+  // Select v2 explicitly
+  const selV2 = parseAgentOk(agentCall("dictation-select", [V2_ID]), "select v2");
+  assert(selV2.outcome === "selected" && selV2.selectedModelId === V2_ID, "selected v2");
+  assert(files[DICTATION_ROOT + "/selected"] === V2_ID, "selection persisted atomically");
+  const selV2Again = parseAgentOk(agentCall("dictation-select", [V2_ID]), "select v2 again");
+  assert(selV2Again.outcome === "already_selected", "idempotent select");
+  const launch = plugin.dictationLaunch();
+  assert(launch.state === "ready" && launch.args[1] === V2_DIR, "dictationLaunch uses newly selected model");
+
+  // Reject arbitrary audio path / extra args in dictation-test
+  assert(agentCall("dictation-test", ["/tmp/owner.wav"]).error.startsWith("invalid_model:"), "arbitrary file path rejected");
+  assert(agentCall("dictation-test", [V2_ID, "extra"]).error.startsWith("invalid_arguments:"), "extra args rejected");
+
+  // Run bundled sample test for default (currently selected v2 -> 0.wav)
+  const testStart = parseAgentOk(agentCall("dictation-test"), "start bundled test");
+  assert(testStart.outcome === "started" && testStart.modelId === V2_ID && testStart.sample === "0.wav",
+    "test targets selected model's bundled sample only");
+  assert(execCalls.length === 1 && execCalls[0].bin === DICTATION_ROOT + "/runtime-py312-sherpa-2.0.2/Scripts/python.exe",
+    "test runs inside private runtime python");
+  assert(execCalls[0].args[2] === "test" && execCalls[0].args[3] === V2_DIR && execCalls[0].args[4] === "0.wav",
+    "test passes exact model dir and bundled sample name");
+
+  // Repeated same-model test returns active job; cancel on test returns not_cancellable
+  const testRepeat = parseAgentOk(agentCall("dictation-test", [V2_ID]), "repeat test");
+  assert(testRepeat.outcome === "already_running" && execCalls.length === 1, "no duplicate test process");
+  assert(agentCall("dictation-cancel").error.startsWith("not_cancellable:"), "test job is not cancellable");
+
+  // Finish test with bundled transcript
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 0, stdout: "Bundled English test: hello world\n", stderr: "" });
+  const testDone = parseAgentOk(agentCall("dictation-progress"), "test progress done");
+  assert(testDone.state === "completed" && testDone.lastJob.output === "Bundled English test: hello world",
+    "bundled sample transcript returned");
+
+  // Empty test stdout reports test_no_speech failure
+  parseAgentOk(agentCall("dictation-test", [V3_ID]), "start v3 test");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 0, stdout: "   \n", stderr: "" });
+  const emptyTest = parseAgentOk(agentCall("dictation-progress"), "empty test output");
+  assert(emptyTest.state === "failed" && emptyTest.lastJob.failure.code === "test_no_speech",
+    "empty test stdout reported as typed failure");
+});
+
+test("glance and agent share one job lifecycle without duplicates in either direction", () => {
+  reset({}, "windows");
+  const bundleDir = "C:/plugin/fixture";
+  const pythonCalls = () => execCalls.filter((c) => /python/i.test(c.bin));
+
+  // Direction 1: Agent starts install -> Glance sees real progress, cannot duplicate, and can cancel it
+  const agentStarted = parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "agent starts install");
+  const nonce1 = pythonCalls()[0].args[pythonCalls()[0].args.length - 1];
+  files[DICTATION_ROOT + "/.progress-" + nonce1] = "Downloading model: 90 / 488 MB";
+
+  const glanceView = plugin.renderGlance({}, bundleDir);
+  assert(glanceView.nodes.some((n) => n.kind === "note" && n.body === "Downloading model: 90 / 488 MB"),
+    "glance displays real progress of agent-started install");
+  assert(glanceView.nodes.some((n) => n.kind === "button" && n.action === "dictation:cancel"),
+    "glance offers cancel for agent-started install");
+  assert(!allNodes(glanceView.nodes).some((n) => n.kind === "button" && String(n.action || "").startsWith("dictation:install:")),
+    "glance hides install buttons while agent job is active");
+
+  // Clicking glance install cannot duplicate the job
+  plugin.glanceAction("dictation:install:" + V3_ID, {}, bundleDir);
+  assert(pythonCalls().length === 1, "glance install cannot duplicate active agent job");
+
+  // Cancelling from glance cancels the exact shared job visible to agent
+  plugin.glanceAction("dictation:cancel", {}, bundleDir);
+  let prog = parseAgentOk(agentCall("dictation-progress"), "agent sees glance cancel");
+  assert(prog.state === "cancelling" && prog.activeJob.jobId === agentStarted.job.jobId,
+    "agent sees cancelling state triggered from glance");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 3 });
+  prog = parseAgentOk(agentCall("dictation-progress"), "agent collects cancel exit");
+  assert(prog.state === "cancelled" && prog.activeJob === null, "shared job closed cleanly");
+
+  // Direction 2: Glance starts install -> Agent sees it, cannot duplicate, and can cancel it
+  plugin.glanceAction("dictation:install:" + V3_ID, {}, bundleDir);
+  assert(pythonCalls().length === 2, "glance started new install after prior exited");
+  assert(pythonCalls()[1].args.includes(bundleDir + "/runtime/parakeet.py"), "glance uses bundle runtime path when provided");
+  const agentRepeat = parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "agent repeats glance install");
+  assert(agentRepeat.outcome === "already_running" && agentRepeat.job.origin === "glance" && pythonCalls().length === 2,
+    "agent returns active glance job without duplicate process");
+  const agentCancel = parseAgentOk(agentCall("dictation-cancel"), "agent cancels glance install");
+  assert(agentCancel.outcome === "cancelling", "agent cancels glance-started install");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 3 });
+  const glanceAfter = plugin.glanceAction("dictation:refresh", {}, bundleDir);
+  assert(glanceAfter.nodes.some((n) => n.body === "Installation cancelled."), "glance reports shared cancellation");
+});
+
+test("stale or lost host jobs release the single slot truthfully instead of wedging", () => {
+  reset({}, "windows");
+  parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "start job that host will lose");
+  const nonce = execCalls[0].args[execCalls[0].args.length - 1];
+  files[DICTATION_ROOT + "/.progress-" + nonce] = "Downloading model: 10 / 488 MB";
+
+  // Simulate host losing/evicting the background job handle (execPoll returns undefined)
+  fakeJobs.clear();
+  const lost = parseAgentOk(agentCall("dictation-progress"), "progress on lost job");
+  assert(lost.state === "failed" && lost.activeJob === null && lost.lastJob.failure.code === "job_lost",
+    "lost job transitions cleanly to job_lost and releases slot");
+  assert(!((DICTATION_ROOT + "/.progress-" + nonce) in files), "stale progress marker cleaned up");
+
+  // Slot is now free for a fresh install attempt
+  const retry = parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "fresh install after lost job");
+  assert(retry.outcome === "started" && execCalls.length === 2, "slot recovered cleanly after lost job");
+});
+
+test("live dictation agent setup preserves voice-note settings, remote/local clip transcription, and dictionary byte-for-byte", () => {
+  const originalSettings = {
+    model: "small",
+    language: "ru",
+    endpoint: "http://gpu:7891/transcribe",
+    dictionary: "в доме => в Domios",
+  };
+  reset(JSON.parse(JSON.stringify(originalSettings)), "windows");
+  execHandler = remoteHandler({ text: "привет в доме", language: "ru" });
+
+  // Run full live dictation agent sequence
+  parseAgentOk(agentCall("help"), "help");
+  parseAgentOk(agentCall("dictation-status"), "status");
+  parseAgentOk(agentCall("dictation-install", [V3_ID, "--consent"]), "install");
+  seedRuntime("windows");
+  seedModel(V3_ID);
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 0 });
+  parseAgentOk(agentCall("dictation-progress"), "complete install");
+  parseAgentOk(agentCall("dictation-select", [V3_ID]), "select v3");
+  parseAgentOk(agentCall("dictation-test", [V3_ID]), "test v3");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 0, stdout: "Bundled English test: ok" });
+  parseAgentOk(agentCall("dictation-progress"), "complete test");
+
+  // Voice-note config and behavior must remain byte-for-byte unchanged
+  assert(JSON.stringify(settingsObj) === JSON.stringify(originalSettings), "voice-note settings mutated!");
+  const clipStatus = plugin.transcribeStatus();
+  assert(clipStatus.state === "ready" && clipStatus.reason === "remote: http://gpu:7891/transcribe",
+    "voice-note remote status preserved");
+  const clipOut = plugin.transcribe("/tmp/note.oga");
+  assert(clipOut.text === "привет в Domios", "voice-note transcription and dictionary preserved: " + JSON.stringify(clipOut));
+  const curl = execCalls.find((c) => c.bin === "curl");
+  assert(curl && curl.args.includes("language=ru") && curl.args.includes("http://gpu:7891/transcribe"),
+    "voice-note endpoint and language=ru preserved");
 });
 
 for (const [name, fn] of tests) {

@@ -1,7 +1,7 @@
 {
   "license": "PolyForm-Shield-1.0.0",
   "name": "@codeterm/plugin-transcriber",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "type": "module",
   "description": "Domios Transcriber plugin: local Parakeet dictation and voice-note transcription.",

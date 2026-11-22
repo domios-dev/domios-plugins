@@ -8,6 +8,7 @@ import type {
   ViewNode,
 } from "@codeterm/plugin-sdk";
 import { applyDictionary, configuredDictionaryRules } from "./dictionary";
+import { onAgentCommand } from "./agent";
 import { dictationLaunch } from "./dictation";
 import { modelGlance, modelGlanceAction } from "./modelView";
 
@@ -696,6 +697,7 @@ const plugin: PluginModule = {
   transcribe: (path, lang) => host.io.run(transcribe(path, lang)),
   transcribeStatus: () => host.io.run(transcribeStatus()),
   dictationLaunch: () => host.io.run(dictationLaunch()),
+  onAgentCommand: (ctx) => host.io.run(onAgentCommand(ctx)),
   renderGlance: (_ctx, bundle?: string) => host.io.run(modelGlance(renderGlance(), bundle)),
   glanceAction: (action, _ctx, bundle?: string) => host.io.run(
     action.startsWith("dictation:") ? modelGlanceAction(action, renderGlance(), bundle) : modelGlance(glanceAction(action), bundle),

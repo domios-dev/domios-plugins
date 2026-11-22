@@ -4,14 +4,24 @@ Local live dictation for the Domios chat composer and speech-to-text for voice n
 
 ## Live composer dictation
 
-Open the Transcriber glance panel in Extensions. Install a model, select it, and use **Test model** to recognize the release's bundled English sample. Use **Refresh status** to see progress or **Cancel installation** to discard an incomplete download. Selection changes when you choose **Use model**.
+You can set up and manage live dictation either through supported General/CLI commands or through the Transcriber glance panel in Extensions — both share one bounded setup lifecycle and state:
+
+- `domios plugin transcriber help` — show supported commands, model catalog, requirements, and consent rules without starting setup.
+- `domios plugin transcriber dictation-status` — inspect runtime/model state, catalog, selection, and any active or last setup job.
+- `domios plugin transcriber dictation-install [model-id] --consent` — install the private CPU runtime and model (defaults to `parakeet-tdt-0.6b-v3-int8`) after explicit owner confirmation.
+- `domios plugin transcriber dictation-progress` — inspect real setup stages, downloaded/total MB, completion, cancellation, or typed failures.
+- `domios plugin transcriber dictation-cancel` — request cancellation of an in-progress installation (poll `dictation-progress` until exit is observed).
+- `domios plugin transcriber dictation-select <model-id>` — select an installed model for subsequent recordings.
+- `domios plugin transcriber dictation-test [model-id]` — run the release's bundled English WAV sample test for an installed model.
+
+In the Transcriber glance panel, install a model, select it with **Use model**, use **Test model** to recognize the bundled English sample, **Refresh status** to see progress, or **Cancel installation** to discard an incomplete download.
 
 | Model | Languages | Download |
 | --- | --- | --- |
-| Parakeet TDT 0.6B v3 int8, default | 25 European languages, including Russian and English | 487 MB |
-| Parakeet TDT 0.6B v2 int8 | English | 482 MB |
+| Parakeet TDT 0.6B v3 int8 (`parakeet-tdt-0.6b-v3-int8`), default | 25 European languages, including Russian and English | 487 MB |
+| Parakeet TDT 0.6B v2 int8 (`parakeet-tdt-0.6b-v2-int8`) | English | 482 MB |
 
-Setup needs 64-bit Python 3.12, about 1.5 GB of free disk space, and access to the sherpa-onnx GitHub release and PyPI. The private CPU runtime supports Windows x64 and compatible macOS and Linux x64 or arm64 Python installations. Linux may need the matching Python venv package. Setup verifies the model archive and runtime wheels against pinned SHA-256 values.
+Setup needs 64-bit Python 3.12, about 1.5 GB of free disk space, and access to the sherpa-onnx GitHub release and PyPI. The private CPU runtime supports Windows x64 and compatible macOS and Linux x64 or arm64 Python installations. Linux may need the matching Python venv package. Setup verifies the model archive and runtime wheels against pinned SHA-256 values, runs local Python (`-I`) under the host `subprocess` grant, and writes only inside this plugin's instance data directory. Agent commands additionally require the host `agent_commands` permission.
 
 Use the composer microphone or select **Dictation** from the @ picker. Tap to start or stop, hold to dictate until release, or slide upward to keep listening after release. Parakeet revises the current bounded speech segment as you speak. A pause or the segment limit commits that segment. **Stop** finishes the remaining text in the draft. **Cancel** discards provisional text. A recording lasts at most five minutes. Model selection changes apply to the next recording.
 
