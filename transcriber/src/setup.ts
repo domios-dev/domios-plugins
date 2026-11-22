@@ -1,4 +1,5 @@
-import type { ExecPollResult, HostIoSteps, ViewNode } from "@codeterm/plugin-sdk";
+import type { ExecResult, HostIoSteps, ViewNode } from "@codeterm/plugin-sdk";
+type ExecPollResult = ExecResult & { done?: boolean };
 import parakeetWorkerSource from "../runtime/parakeet.py";
 import runtimeRequirementsSource from "../runtime/requirements.txt";
 import {
