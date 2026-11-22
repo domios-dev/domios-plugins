@@ -1,8 +1,40 @@
 [
   {
     "kind": "section",
-    "title": "Transcription",
-    "description": "Offline speech-to-text. Dependencies install themselves on first use.",
+    "title": "Custom dictionary",
+    "description": "Applies to both live Parakeet dictation and voice-note transcription.",
+    "fields": [
+      {
+        "kind": "array",
+        "key": "dictionary",
+        "label": "Replacement pairs",
+        "description": "Matched case-insensitively on word boundaries, longest phrase first.",
+        "item_label": "Entry",
+        "default": [],
+        "item": {
+          "kind": "object",
+          "fields": [
+            {
+              "kind": "text",
+              "key": "from",
+              "label": "Heard",
+              "placeholder": "в доме все"
+            },
+            {
+              "kind": "text",
+              "key": "to",
+              "label": "Replace with",
+              "placeholder": "в Domios"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "section",
+    "title": "Voice-note transcription",
+    "description": "Use the Transcriber glance panel to install, select or test a live Parakeet dictation model.",
     "fields": [
       {
         "kind": "text",
@@ -23,7 +55,7 @@
         "key": "endpoint",
         "label": "Remote endpoint",
         "placeholder": "",
-        "description": "Optional GPU offload URL (e.g. http://host:7891/transcribe). When set, audio is uploaded there instead of running whisper.cpp locally — no ffmpeg/model download. Leave empty for offline local mode."
+        "description": "Optional GPU offload URL (e.g. http://host:7891/transcribe). When set, audio is uploaded there instead of running whisper.cpp locally \u2014 no ffmpeg/model download. Leave empty for offline local mode."
       }
     ]
   }

@@ -24,21 +24,278 @@ __export(plugin_exports, {
 });
 module.exports = __toCommonJS(plugin_exports);
 
-// ../../codeterm/codeterm/packages/plugin-sdk/src/ioPrograms.ts
-function* ioValue(request) {
-  return yield request;
+// transcriber/src/dictionary.ts
+var MAX_DICTIONARY_RULES = 200;
+var MAX_RULE_CHARS = 128;
+function isWordChar(ch) {
+  if (!ch) return false;
+  if (ch >= "0" && ch <= "9" || ch === "_") return true;
+  return ch.toLowerCase() !== ch.toUpperCase();
 }
-function defineProviderIo(source, io) {
-  const exports = { ...source };
-  for (const key of Object.keys(source)) {
-    const value = source[key];
-    if (typeof value !== "function") continue;
-    exports[key] = function(...args) {
-      const result = value.apply(source, args);
-      return result && typeof result.next === "function" ? io().run(result) : result;
-    };
+function alignedLower(text) {
+  const lower = text.toLowerCase();
+  if (lower.length === text.length) return lower;
+  let out = "";
+  for (let i = 0; i < text.length; i++) {
+    const mapped = text[i].toLowerCase();
+    out += mapped.length === 1 ? mapped : text[i];
   }
-  return exports;
+  return out;
+}
+function addRule(byKey, wrongRaw, rightRaw, order) {
+  const wrong = wrongRaw.trim();
+  const right = rightRaw.trim();
+  if (!wrong || !right || wrong.length > MAX_RULE_CHARS || right.length > MAX_RULE_CHARS) {
+    return order;
+  }
+  const key = alignedLower(wrong);
+  if (!byKey.has(key) && byKey.size >= MAX_DICTIONARY_RULES) {
+    return order;
+  }
+  byKey.set(key, { order, wrong: key, right });
+  return order + 1;
+}
+function parseDictionary(raw) {
+  const byKey = /* @__PURE__ */ new Map();
+  let order = 0;
+  if (Array.isArray(raw)) {
+    for (let i = 0; i < raw.length; i++) {
+      const item = raw[i];
+      if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+      const entry = item;
+      if (typeof entry.from !== "string" || typeof entry.to !== "string") continue;
+      order = addRule(byKey, entry.from, entry.to, order);
+    }
+  } else if (typeof raw === "string" && raw.trim()) {
+    const entries = raw.split(/\r\n|\n|\r|;/);
+    for (let i = 0; i < entries.length; i++) {
+      const line = entries[i].trim();
+      if (!line) continue;
+      let sep = line.indexOf("=>");
+      if (sep < 0) sep = line.indexOf("->");
+      if (sep < 0) continue;
+      order = addRule(byKey, line.slice(0, sep), line.slice(sep + 2), order);
+    }
+  } else {
+    return [];
+  }
+  const rules = Array.from(byKey.values());
+  rules.sort((a, b) => b.wrong.length - a.wrong.length || a.order - b.order);
+  return rules.map((r) => [r.wrong, r.right]);
+}
+function applyDictionary(text, rules) {
+  if (!text || !rules.length) return text;
+  const lower = alignedLower(text);
+  let out = "";
+  let i = 0;
+  while (i < text.length) {
+    let matched = null;
+    for (let r = 0; r < rules.length; r++) {
+      const rule = rules[r];
+      const wrong = rule[0];
+      if (!wrong || !lower.startsWith(wrong, i)) continue;
+      const end = i + wrong.length;
+      if (isWordChar(wrong[0]) && i > 0 && isWordChar(text[i - 1])) continue;
+      if (isWordChar(wrong[wrong.length - 1]) && end < text.length && isWordChar(text[end])) continue;
+      matched = rule;
+      break;
+    }
+    if (matched) {
+      out += matched[1];
+      i += matched[0].length;
+    } else {
+      out += text[i];
+      i += 1;
+    }
+  }
+  return out;
+}
+function configuredDictionaryRules() {
+  try {
+    const parsed = JSON.parse(host.settingsJson());
+    return parseDictionary(parsed?.dictionary);
+  } catch {
+    return [];
+  }
+}
+
+// transcriber/src/models.ts
+var RELEASE = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/";
+var WORKER = "runtime/parakeet.py";
+var RUNTIME = "runtime-py312-sherpa-2.0.2";
+var root = () => host.dataDir() + "/transcriber/live-dictation";
+var selectionPath = () => root() + "/selected";
+var dictionaryPath = () => root() + "/dictionary.json";
+var python = () => host.path.isWindows ? "python.exe" : "python3.12";
+var runtimePython = () => root() + "/" + RUNTIME + (host.path.isWindows ? "/Scripts/python.exe" : "/bin/python3.12");
+var MODELS = [
+  {
+    id: "parakeet-tdt-0.6b-v3-int8",
+    label: "Parakeet TDT 0.6B v3",
+    languages: "25 European languages, including Russian and English",
+    size: "487 MB",
+    bytes: 487211443,
+    sha256: "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9",
+    sample: "en.wav"
+  },
+  {
+    id: "parakeet-tdt-0.6b-v2-int8",
+    label: "Parakeet TDT 0.6B v2",
+    languages: "English",
+    size: "482 MB",
+    bytes: 482440461,
+    sha256: "6fc4426b54aa549a0019b8a75b8dea59164e71790a37ac56a045ad57f915f714",
+    sample: "0.wav"
+  }
+];
+var archiveName = (model) => "sherpa-onnx-nemo-" + model.id;
+var archiveUrl = (model) => RELEASE + archiveName(model) + ".tar.bz2";
+var modelPath = (model) => root() + "/" + model.id + "-" + model.sha256.slice(0, 12);
+function* selectedModel() {
+  const selected = (yield* host.io.fs.readFile(selectionPath()))?.trim();
+  return MODELS.find((model) => model.id === selected) ?? MODELS[0];
+}
+function* hasRuntime() {
+  return yield* host.io.fs.fileExists(runtimePython());
+}
+function* hasModel(model) {
+  const path = modelPath(model);
+  if ((yield* host.io.fs.readFile(path + "/.verified"))?.trim() !== model.sha256) return false;
+  for (const file of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) {
+    if (!(yield* host.io.fs.fileExists(path + "/" + file))) return false;
+  }
+  return true;
+}
+
+// transcriber/src/dictation.ts
+function* dictationLaunch() {
+  const model = yield* selectedModel();
+  if (!(yield* hasRuntime()) || !(yield* hasModel(model))) {
+    return { state: "setup", reason: model.label + " and its local CPU runtime need to be installed." };
+  }
+  const args = ["stream", modelPath(model)];
+  const rules = configuredDictionaryRules();
+  if (rules.length) {
+    const path = dictionaryPath();
+    const ok = yield* host.io.fs.writeFileAtomic(path, JSON.stringify(rules));
+    if (ok !== false) args.push(path);
+  }
+  return { state: "ready", bin: runtimePython(), script: WORKER, args };
+}
+
+// transcriber/src/modelView.ts
+var fs = () => host.io.fs;
+var job = null;
+var starting = false;
+var notice = null;
+function* collectJob() {
+  if (!job) return;
+  const current = job;
+  const status = yield { op: "execPoll", job: current.id };
+  if (job !== current || !status?.done) return;
+  if (status.code === 3) {
+    notice = { kind: "note", body: "Installation cancelled." };
+  } else if (status.error || status.code !== 0) {
+    notice = { kind: "note", level: "error", body: (status.stderr || status.error || "The runtime returned an error.").trim().slice(0, 400) };
+  } else if (current.mode === "test") {
+    notice = { kind: "note", body: (status.stdout || "The test produced no speech.").trim().slice(0, 360) };
+  } else {
+    notice = { kind: "note", body: current.model.label + " installed." };
+  }
+  job = null;
+  yield { op: "execClose", job: current.id };
+  if (current.mode === "install") {
+    yield* fs().removeFile(root() + "/.cancel-" + current.nonce);
+    yield* fs().removeFile(root() + "/.progress-" + current.nonce);
+  }
+}
+function* modelGlance(clip, bundle) {
+  yield* collectJob();
+  const selected = yield* selectedModel();
+  const runtime = yield* hasRuntime();
+  const nodes = [{ kind: "text", text: "Live dictation" }];
+  if (!bundle) nodes.push({ kind: "note", level: "warn", body: "This host cannot open the dictation runtime." });
+  if (!runtime) nodes.push({ kind: "note", body: "Setup uses local CPU inference and needs a supported 64-bit Python 3.12 installation." });
+  const running = job;
+  if (running) {
+    const progress2 = yield* fs().readFile(root() + "/.progress-" + running.nonce);
+    nodes.push({ kind: "note", body: running.cancelled ? "Cancelling installation\u2026" : progress2?.trim().slice(0, 180) || (running.mode === "install" ? "Preparing installation\u2026" : "Loading the model and recognizing its English test sample\u2026") });
+    nodes.push({ kind: "button", label: "Refresh status", action: "dictation:refresh" });
+    if (running.mode === "install" && !running.cancelled) nodes.push({ kind: "button", label: "Cancel installation", action: "dictation:cancel" });
+  }
+  if (notice) nodes.push(notice);
+  for (const model of MODELS) {
+    const installed = yield* hasModel(model);
+    const active = model.id === selected.id;
+    const details = [
+      { kind: "text", text: model.label },
+      { kind: "text", text: model.languages + " \xB7 " + model.size + " \xB7 CPU", style: { tone: "muted" } }
+    ];
+    const controls = [];
+    if (active) controls.push({ kind: "badge", label: installed && runtime ? "Selected \xB7 Installed" : "Selected", tone: installed && runtime ? "ok" : "muted" });
+    else if (installed) controls.push({ kind: "badge", label: "Installed", tone: "ok" });
+    if (bundle && !starting && !job) {
+      if (!installed || !runtime) controls.push({ kind: "button", label: "Install " + model.size, action: "dictation:install:" + model.id });
+      else if (!active) controls.push({ kind: "button", label: "Use model", action: "dictation:select:" + model.id });
+      else controls.push({ kind: "button", label: "Test model", action: "dictation:test:" + model.id });
+    }
+    if (controls.length) details.push({ kind: "row", children: controls });
+    nodes.push({ kind: "divider" }, { kind: "stack", style: { spacing: "sm" }, children: details });
+  }
+  const clipView = yield* clip;
+  return { title: "Transcriber", nodes: [...nodes, { kind: "divider" }, { kind: "text", text: "Voice notes" }, ...clipView.nodes] };
+}
+function* begin(mode, model, bundle) {
+  if (job || starting) return;
+  starting = true;
+  notice = null;
+  try {
+    const nonce = host.unixNowMs().toString(36) + "-" + Math.random().toString(36).slice(2, 14);
+    if (!(yield* fs().makeDirs(root()))) throw new Error("The dictation data directory could not be opened.");
+    const script = bundle.replace(/\\/g, "/") + "/" + WORKER;
+    const installedRuntime = yield* hasRuntime();
+    const bin = installedRuntime ? runtimePython() : python();
+    const args = mode === "test" ? ["-I", script, "test", modelPath(model), model.sample] : [
+      "-I",
+      script,
+      "install",
+      root(),
+      RUNTIME,
+      modelPath(model),
+      archiveName(model),
+      archiveUrl(model),
+      String(model.bytes),
+      model.sha256,
+      model.sample,
+      nonce
+    ];
+    const start = yield { op: "execStart", options: { bin, args, timeoutMs: mode === "install" ? 9e5 : 2e4 } };
+    if (!start.jobId) throw new Error("The local setup process could not start.");
+    job = { id: start.jobId, nonce, mode, model, cancelled: false };
+  } catch (error) {
+    notice = { kind: "note", level: "error", body: String(error).slice(0, 400) };
+  } finally {
+    starting = false;
+  }
+}
+function* modelGlanceAction(action, clip, bundle) {
+  yield* collectJob();
+  const [, verb, id] = action.split(":");
+  const model = MODELS.find((candidate) => candidate.id === id);
+  if (verb === "cancel" && job?.mode === "install" && !job.cancelled) {
+    const expected = job;
+    if ((yield* fs().writeFileAtomic(root() + "/.cancel-" + expected.nonce, "")) && job === expected) job.cancelled = true;
+  } else if (model && bundle && !job && !starting) {
+    if (verb === "install") yield* begin("install", model, bundle);
+    else if ((verb === "select" || verb === "test") && (yield* hasRuntime()) && (yield* hasModel(model))) {
+      if (verb === "select") {
+        if (!(yield* fs().writeFileAtomic(selectionPath(), model.id))) {
+          notice = { kind: "note", level: "error", body: "The selected model could not be saved." };
+        } else notice = null;
+      } else yield* begin("test", model, bundle);
+    }
+  }
+  return yield* modelGlance(clip, bundle);
 }
 
 // transcriber/src/plugin.ts
@@ -77,18 +334,18 @@ function binDir() {
 function tmpDir() {
   return baseDir() + "/tmp";
 }
-function modelPath() {
+function modelPath2() {
   return baseDir() + "/ggml-" + modelId() + ".bin";
 }
 function modelDonePath() {
-  return modelPath() + ".done";
+  return modelPath2() + ".done";
 }
 function entryName(entry) {
   return typeof entry === "string" ? entry : entry.name;
 }
 function* cleanupOrphanModels(activeModel) {
   const dir = baseDir();
-  let entries = [];
+  let entries;
   try {
     entries = yield* host.io.fs.readDir(dir);
   } catch (e) {
@@ -116,11 +373,10 @@ function exeSuffix() {
   return osKind() === "windows" ? ".exe" : "";
 }
 function* exec(opts) {
-  const raw = JSON.stringify(yield* host.io.exec(opts));
   try {
-    return JSON.parse(raw);
-  } catch (e) {
-    return { error: String(e) };
+    return yield* host.io.exec(opts);
+  } catch (error) {
+    return { error: String(error) };
   }
 }
 function* runBin(bin, args, timeoutMs) {
@@ -133,34 +389,34 @@ function exitedOk(r) {
   return !r.error && (r.code === void 0 || r.code === 0);
 }
 function* progress(opts) {
-  yield* ioValue({ op: "progress", options: opts });
+  yield { op: "progress", options: { ...opts } };
 }
 function* errorResult(message) {
   yield* progress({ label: "Error", error: message });
   return { error: message };
 }
 function* findLocalBin(name) {
-  const root = binDir();
+  const root2 = binDir();
   const suffix = exeSuffix();
-  const direct = root + "/" + name + suffix;
+  const direct = root2 + "/" + name + suffix;
   if (yield* host.io.fs.fileExists(direct)) return direct;
   const fixedCandidates = [
-    root + "/bin/" + name + suffix,
-    root + "/Release/" + name + suffix
+    root2 + "/bin/" + name + suffix,
+    root2 + "/Release/" + name + suffix
   ];
   for (const c of fixedCandidates) {
     if (yield* host.io.fs.fileExists(c)) return c;
   }
-  let entries = [];
+  let entries;
   try {
-    entries = yield* host.io.fs.readDir(root);
+    entries = yield* host.io.fs.readDir(root2);
   } catch (e) {
     return null;
   }
   for (const entry of entries) {
     const child = entryName(entry);
     if (!child || child.indexOf("/") !== -1 || child.indexOf("\\") !== -1) continue;
-    const base = root + "/" + child;
+    const base = root2 + "/" + child;
     const candidates = [
       base + "/" + name + suffix,
       base + "/bin/" + name + suffix,
@@ -343,7 +599,7 @@ function engineManual(os, why) {
   };
 }
 function* ensureModel(force = false) {
-  const mp = modelPath();
+  const mp = modelPath2();
   const done = modelDonePath();
   if (!force && (yield* host.io.fs.fileExists(mp)) && (yield* host.io.fs.fileExists(done))) {
     yield* cleanupOrphanModels(mp);
@@ -386,7 +642,7 @@ function modelSizeMb(id) {
 function* modelFileBytes(path) {
   const dir = baseDir();
   const activeName = path.substring(path.lastIndexOf("/") + 1);
-  let entries = [];
+  let entries;
   try {
     entries = yield* host.io.fs.readDir(dir);
   } catch (e) {
@@ -399,7 +655,7 @@ function* modelFileBytes(path) {
   return null;
 }
 function* modelFileLabel() {
-  const mp = modelPath();
+  const mp = modelPath2();
   const done = modelDonePath();
   if (!(yield* host.io.fs.fileExists(mp))) return "missing (~" + modelSizeMb(modelId()) + "MB)";
   if (!(yield* host.io.fs.fileExists(done))) return "partial (~" + modelSizeMb(modelId()) + "MB)";
@@ -408,16 +664,13 @@ function* modelFileLabel() {
   return "present (~" + modelSizeMb(modelId()) + "MB)";
 }
 var SPEECH_PEAK_THRESHOLD_DB = -45;
-function devNull() {
-  return osKind() === "windows" ? "NUL" : "/dev/null";
-}
 function parseMaxVolumeDb(stderr) {
   const m = stderr.match(/max_volume:\s*(-?\d+[.,]\d+|-?\d+)\s*dB/i);
   if (!m) return null;
   return parseFloat(m[1].replace(",", "."));
 }
 function* hasSpeech(ffmpegBin, wav) {
-  const r = yield* runBin(ffmpegBin, ["-i", wav, "-af", "volumedetect", "-f", "null", devNull()], 1e4);
+  const r = yield* runBin(ffmpegBin, ["-i", wav, "-af", "volumedetect", "-f", "null", "-"], 1e4);
   if (r.error) return true;
   const maxDb = parseMaxVolumeDb(r.stderr || "");
   if (maxDb === null) return true;
@@ -463,32 +716,19 @@ function* transcribeRemote(ep, path, lang) {
   const parsed = parseRemote(r.stdout || "");
   if ("error" in parsed) return yield* errorResult("remote transcription failed (" + ep + "): " + parsed.error);
   yield* progress({ label: "Done", done: true });
-  return { text: parsed.text };
-}
-function* ensureLocal(force = false) {
-  if (!(yield* host.io.fs.makeDirs(baseDir()))) return { error: "The transcriber data directory is unavailable." };
-  const lock = yield* host.io.fs.lockFile(baseDir() + "/install.lock");
-  if (!lock) return { error: "Transcriber installation is busy; retry after it completes." };
-  try {
-    const ffmpeg = yield* ensureFfmpeg();
-    if ("error" in ffmpeg) return ffmpeg;
-    const engine = yield* ensureEngine();
-    if ("error" in engine) return engine;
-    const model = yield* ensureModel(force);
-    if ("error" in model) return model;
-    return { ffmpeg, engine };
-  } finally {
-    yield* host.io.fs.unlockFile(lock);
-  }
+  return { text: applyDictionary(parsed.text, configuredDictionaryRules()) };
 }
 function* transcribe(path, lang) {
   const ep = endpoint();
   if (ep.length) return yield* transcribeRemote(ep, path, lang);
-  const installed = yield* ensureLocal();
-  if ("error" in installed) return yield* errorResult(installed.error);
-  const { ffmpeg, engine } = installed;
+  const ffmpeg = yield* ensureFfmpeg();
+  if ("error" in ffmpeg) return yield* errorResult(ffmpeg.error);
+  const engine = yield* ensureEngine();
+  if ("error" in engine) return yield* errorResult(engine.error);
+  const model = yield* ensureModel();
+  if ("error" in model) return yield* errorResult(model.error);
   yield* host.io.fs.makeDirs(tmpDir());
-  const base = tmpDir() + "/job-" + host.unixNowMs() + "-" + Math.random().toString(16).slice(2);
+  const base = tmpDir() + "/job-" + host.unixNowMs();
   const wav = base + ".wav";
   const json = base + ".json";
   const conv = yield* runBin(ffmpeg.bin, ["-y", "-i", path, "-ar", "16000", "-ac", "1", "-f", "wav", wav], 12e4);
@@ -502,7 +742,7 @@ function* transcribe(path, lang) {
   }
   const l = lang && lang.length ? lang : language();
   yield* progress({ label: "Transcribing\u2026" });
-  const tr = yield* runBin(engine.bin, ["-m", modelPath(), "-f", wav, "-l", l, "-nt", "-oj", "-of", base], 6e5);
+  const tr = yield* runBin(engine.bin, ["-m", modelPath2(), "-f", wav, "-l", l, "-nt", "-oj", "-of", base], 6e5);
   if (!exitedOk(tr)) {
     yield* host.io.fs.removeFile(wav);
     yield* host.io.fs.removeFile(json);
@@ -513,7 +753,7 @@ function* transcribe(path, lang) {
   yield* host.io.fs.removeFile(json);
   if (!raw) return yield* errorResult("whisper-cli produced no transcript output");
   yield* progress({ label: "Done", done: true });
-  return { text: joinSegments(raw) };
+  return { text: applyDictionary(joinSegments(raw), configuredDictionaryRules()) };
 }
 function* present(name) {
   if (ranOk(yield* exec({ bin: name, args: name === "ffmpeg" ? ["-version"] : ["--help"] }))) return true;
@@ -524,12 +764,12 @@ function* transcribeStatus() {
   if (ep.length) return { state: "ready", reason: "remote: " + ep };
   const hasFfmpeg = yield* present("ffmpeg");
   const hasEngine = yield* present("whisper-cli");
-  const hasModel = (yield* host.io.fs.fileExists(modelPath())) && (yield* host.io.fs.fileExists(modelDonePath()));
-  if (hasFfmpeg && hasEngine && hasModel) return { state: "ready" };
+  const hasModel2 = (yield* host.io.fs.fileExists(modelPath2())) && (yield* host.io.fs.fileExists(modelDonePath()));
+  if (hasFfmpeg && hasEngine && hasModel2) return { state: "ready" };
   const missing = [];
   if (!hasEngine) missing.push("whisper-cli");
   if (!hasFfmpeg) missing.push("ffmpeg");
-  if (!hasModel) missing.push("model ggml-" + modelId() + ".bin");
+  if (!hasModel2) missing.push("model ggml-" + modelId() + ".bin");
   return { state: "unloaded", reason: "needs: " + missing.join(", ") + " (installed on first use)" };
 }
 function* renderGlance() {
@@ -547,8 +787,8 @@ function* renderGlance() {
   }
   const st = yield* transcribeStatus();
   const ready = st.state === "ready";
-  const hasModel = (yield* host.io.fs.fileExists(modelPath())) && (yield* host.io.fs.fileExists(modelDonePath()));
-  const badge = st.state === "unavailable" ? "Unavailable" : ready ? "Ready" : hasModel ? "Idle" : "Not installed";
+  const hasModel2 = (yield* host.io.fs.fileExists(modelPath2())) && (yield* host.io.fs.fileExists(modelDonePath()));
+  const badge = st.state === "unavailable" ? "Unavailable" : ready ? "Ready" : hasModel2 ? "Idle" : "Not installed";
   const nodes = [];
   nodes.push({
     kind: "badge",
@@ -560,21 +800,28 @@ function* renderGlance() {
   nodes.push({ kind: "keyVal", key: "Language", value: language() });
   if (st.reason) nodes.push({ kind: "note", body: st.reason });
   nodes.push({ kind: "divider" });
-  if (!hasModel) nodes.push({ kind: "button", label: "Install", action: "install" });
+  if (!hasModel2) nodes.push({ kind: "button", label: "Install", action: "install" });
   nodes.push({ kind: "button", label: "Reinstall", action: "reinstall" });
   nodes.push({ kind: "button", label: "Settings", action: "settings" });
   return { title: "Transcriber", nodes };
 }
 function* glanceAction(action) {
   if (action === "install" || action === "reinstall") {
-    yield* ensureLocal(action === "reinstall");
+    const ffmpeg = yield* ensureFfmpeg();
+    if (!("error" in ffmpeg)) {
+      const engine = yield* ensureEngine();
+      if (!("error" in engine)) yield* ensureModel(action === "reinstall");
+    }
   }
   return yield* renderGlance();
 }
-var plugin = defineProviderIo({
-  transcribe,
-  transcribeStatus,
-  renderGlance,
-  glanceAction
-}, () => host.io);
-var plugin_default = defineProviderIo(plugin, () => host.io);
+var plugin = {
+  transcribe: (path, lang) => host.io.run(transcribe(path, lang)),
+  transcribeStatus: () => host.io.run(transcribeStatus()),
+  dictationLaunch: () => host.io.run(dictationLaunch()),
+  renderGlance: (_ctx, bundle) => host.io.run(modelGlance(renderGlance(), bundle)),
+  glanceAction: (action, _ctx, bundle) => host.io.run(
+    action.startsWith("dictation:") ? modelGlanceAction(action, renderGlance(), bundle) : modelGlance(glanceAction(action), bundle)
+  )
+};
+var plugin_default = plugin;

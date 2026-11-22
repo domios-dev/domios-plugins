@@ -1,11 +1,11 @@
 {
-  "name": "@codeterm/plugin-transcriber",
-  "version": "0.4.6",
   "license": "PolyForm-Shield-1.0.0",
+  "name": "@codeterm/plugin-transcriber",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
-  "description": "CodeTerm Transcriber plugin: speech-to-text backend (local Whisper server or mesh peer).",
+  "description": "Domios Transcriber plugin: local Parakeet dictation and voice-note transcription.",
   "devDependencies": {
-    "@codeterm/plugin-sdk": "^1.20.0"
+    "@codeterm/plugin-sdk": "^1.21.1"
   }
 }

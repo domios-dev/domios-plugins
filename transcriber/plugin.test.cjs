@@ -1,10 +1,10 @@
-require("../scripts/host-io-fixture.cjs").installTestHostIo();
 // Plugin-side tests for the one-shot whisper-cli Transcriber, exercised against a
 // FAKE host (exec + an in-memory filesystem). The unit under test is the plugin's
 // pure bootstrap/transcribe logic — no real ffmpeg/whisper-cli/brew/curl runs.
 // Run: npx tsx transcriber/plugin.test.cjs
 const { readFileSync } = require("fs");
 const { join } = require("path");
+const { runInThisContext } = require("node:vm");
 
 const HOME = "/home/test";
 const DATA_DIR = "/instances/custom-data";
@@ -58,12 +58,49 @@ globalThis.host = {
   },
 };
 
-const plugin = require("./plugin.js").default;
+const fakeJobs = new Map();
+const legacyFake = globalThis.host;
+
+Object.assign(legacyFake, {
+  path: { get isWindows() { return platformStr === "windows"; } },
+  io: {
+    run(generator) {
+      let next = generator.next();
+      while (!next.done) next = generator.next(dispatch(next.value));
+      return next.value;
+    },
+    exec: function* (options) { return yield { op: "exec", options }; },
+    fs: Object.fromEntries(["fileExists", "readFile", "writeFile", "writeFileAtomic", "removeFile", "readDir", "makeDirs"]
+      .map(op => [op, function* (path, contents) { return yield { op, path, contents }; }])),
+  },
+});
+
+function dispatch(request) {
+  const { op, options, path, contents } = request;
+  if (op === "exec") return JSON.parse(legacyFake.exec(JSON.stringify(options)));
+  if (op === "progress") return legacyFake.progress(options);
+  if (op === "execStart") {
+    execCalls.push(options);
+    const jobId = String(execCalls.length);
+    fakeJobs.set(jobId, { done: false });
+    return { jobId };
+  }
+  if (op === "execPoll") return fakeJobs.get(request.job);
+  if (op === "execClose") return fakeJobs.delete(request.job);
+  if (op === "writeFileAtomic") return legacyFake.writeFile(path, contents);
+  return legacyFake[op](path, contents);
+}
+
+const bundle = readFileSync(join(__dirname, "plugin.js"), "utf8");
+const bundled = { exports: {} };
+runInThisContext("(function(module,exports) {" + bundle + "\n})")(bundled, bundled.exports);
+const plugin = bundled.exports.default;
 
 // ── Tiny runner ────────────────────────────────────────────────────────
 const tests = [];
 function test(name, fn) { tests.push([name, fn]); }
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
+const allNodes = (nodes) => nodes.flatMap(node => [node, ...allNodes(node.children || [])]);
 function reset(settings, platform) {
   execCalls.length = 0;
   progressCalls.length = 0;
@@ -99,7 +136,7 @@ function happyHandler(segments) {
 const indexOfCall = (pred) => execCalls.findIndex(pred);
 const progressLabels = () => progressCalls.map((c) => c.label);
 const buttonLabels = (view) => view.nodes.filter((n) => n.kind === "button").map((n) => n.label);
-const badgeLabels = (view) => view.nodes.filter((n) => n.kind === "badge").map((n) => n.label);
+const badgeLabels = (view) => view.nodes.filter((n) => n.kind === "badge" && !n.label.startsWith("Selected")).map((n) => n.label);
 
 function installHandler() {
   let ffmpegInstalled = false;
@@ -147,6 +184,40 @@ function withSandbox(handler) {
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────
+
+test("live dictation defaults to the Russian-capable local model and ignores the clip endpoint", () => {
+  reset({ endpoint: "https://fixture.invalid/clip" }, "windows");
+  assert(plugin.dictationLaunch().state === "setup", "explicit setup is required");
+  assert(!execCalls.length, "availability cannot start subprocesses or download models");
+  const root = DATA_DIR + "/transcriber/live-dictation";
+  const model = root + "/parakeet-tdt-0.6b-v3-int8-1495e91b59d7";
+  files[model + "/.verified"] = "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9";
+  files[root + "/runtime-py312-sherpa-2.0.2/Scripts/python.exe"] = "";
+  for (const asset of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) files[model + "/" + asset] = "";
+  const ready = plugin.dictationLaunch();
+  assert(ready.state === "ready" && ready.args[1] === model && ready.script === "runtime/parakeet.py",
+    "matched local runtime and model only");
+});
+
+test("model install requires a glance action, and cancellation preserves the selected model", () => {
+  reset({}, "windows");
+  const bundle = "C:/plugin/fixture";
+  const initial = plugin.renderGlance({}, bundle);
+  assert(allNodes(initial.nodes).some(node => node.kind === "button" && node.action === "dictation:install:parakeet-tdt-0.6b-v3-int8"),
+    "setup is offered before starting");
+  assert(!execCalls.some(call => call.bin === "python.exe"), "render does not launch setup");
+  const started = plugin.glanceAction("dictation:install:parakeet-tdt-0.6b-v3-int8", {}, bundle);
+  const first = execCalls.find(call => call.bin === "python.exe");
+  assert(first && first.args.includes(bundle + "/runtime/parakeet.py"), "uses the loaded runtime path");
+  assert(started.nodes.some(node => node.action === "dictation:cancel"), "cancel is available during the exact install");
+  plugin.glanceAction("dictation:cancel", {}, bundle);
+  const root = DATA_DIR + "/transcriber/live-dictation";
+  assert(Object.keys(files).some(path => path.startsWith(root + "/.cancel-")), "cancellation signals only the owned job");
+  assert(!(root + "/selected" in files), "an incomplete install cannot change the model");
+  for (const id of fakeJobs.keys()) fakeJobs.set(id, { done: true, code: 3 });
+  const cancelled = plugin.glanceAction("dictation:refresh", {}, bundle);
+  assert(cancelled.nodes.some(node => node.body === "Installation cancelled."), "closed install reports cancellation");
+});
 
 test("progress: cold transcribe reports install, model download, transcribe, done phases", () => {
   reset({}, "macos");
@@ -702,6 +773,147 @@ test("macOS: a genuinely missing ffmpeg names where it was looked for", () => {
   const msg = (r && (r.error || r.text)) || "";
   assert(/looked in/i.test(msg), "the failure must be diagnosable, got " + JSON.stringify(r));
   assert(msg.indexOf("/usr/local/bin/ffmpeg") >= 0, "the standard prefixes must be named, got " + msg);
+});
+
+test("custom dictionary: Cyrillic & Latin longest-match-first, case-insensitive, word-boundary safe", () => {
+  const dict = "в доме => в Domios\nв доме все => в Domios; дом -> Dom; domios os => Domios";
+  reset({ endpoint: "http://gpu.local:7891/transcribe", dictionary: dict }, "windows");
+  execHandler = () => JSON.stringify({
+    code: 0,
+    stdout: JSON.stringify({ text: "Да В доме все, но в доме сидишь и домик про DOMIOS OS" }),
+    stderr: "",
+  });
+  const remote = plugin.transcribe("/tmp/note.oga");
+  assert(
+    remote.text === "Да в Domios, но в Domios сидишь и домик про Domios",
+    "remote dictionary mismatch: " + JSON.stringify(remote),
+  );
+
+  // Also verify local whisper-cli path applies the exact same rules.
+  reset({ dictionary: dict }, "macos");
+  files[MODEL] = "ok";
+  files[MODEL + ".done"] = "ok";
+  execHandler = happyHandler(["Да в доме все, но в доме сидишь и домик"]);
+  const local = plugin.transcribe("/tmp/note.oga");
+  assert(
+    local.text === "Да в Domios, но в Domios сидишь и домик",
+    "local dictionary mismatch: " + JSON.stringify(local),
+  );
+});
+
+test("custom dictionary: empty or malformed rules fail open safely and respect bounds", () => {
+  reset({ endpoint: "http://gpu.local:7891/transcribe", dictionary: ";; no-arrow ;; => missingLeft ; missingRight => ; " + "x".repeat(129) + " => tooLong" }, "windows");
+  execHandler = () => JSON.stringify({ code: 0, stdout: JSON.stringify({ text: "unchanged text" }), stderr: "" });
+  const r = plugin.transcribe("/tmp/note.oga");
+  assert(r.text === "unchanged text", "malformed rules must fail open: " + JSON.stringify(r));
+});
+
+test("custom dictionary: dictationLaunch writes sorted dictionary.json only when configured", () => {
+  const root = DATA_DIR + "/transcriber/live-dictation";
+  const model = root + "/parakeet-tdt-0.6b-v3-int8-1495e91b59d7";
+  const setupModel = () => {
+    files[model + "/.verified"] = "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9";
+    files[root + "/runtime-py312-sherpa-2.0.2/Scripts/python.exe"] = "";
+    for (const asset of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) files[model + "/" + asset] = "";
+  };
+
+  reset({ dictionary: "   ;; invalid-line " }, "windows");
+  setupModel();
+  const withoutDict = plugin.dictationLaunch();
+  assert(withoutDict.state === "ready" && withoutDict.args.length === 2,
+    "empty/malformed dictionary omits arg: " + JSON.stringify(withoutDict));
+
+  reset({ dictionary: "в доме => в Domios; в доме все => в Domios\nдомиус -> Domios" }, "windows");
+  setupModel();
+  const withDict = plugin.dictationLaunch();
+  const dictPath = root + "/dictionary.json";
+  assert(withDict.state === "ready" && withDict.args.length === 3 && withDict.args[2] === dictPath,
+    "configured dictionary passes dictionary.json path: " + JSON.stringify(withDict));
+  const saved = JSON.parse(files[dictPath]);
+  assert(JSON.stringify(saved) === JSON.stringify([
+    ["в доме все", "в Domios"],
+    ["в доме", "в Domios"],
+    ["домиус", "Domios"],
+  ]), "rules must be normalized and sorted longest-first: " + JSON.stringify(saved));
+});
+
+test("custom dictionary: structured [{ from, to }] array matches legacy string parity", () => {
+  const structured = [
+    { from: "в доме", to: "в Domios" },
+    { from: "в доме все", to: "в Domios" },
+    { from: "дом", to: "Dom" },
+    { from: "domios os", to: "Domios" },
+  ];
+  reset({ endpoint: "http://gpu.local:7891/transcribe", dictionary: structured }, "windows");
+  execHandler = () => JSON.stringify({
+    code: 0,
+    stdout: JSON.stringify({ text: "Да В доме все, но в доме сидишь и домик про DOMIOS OS" }),
+    stderr: "",
+  });
+  const remote = plugin.transcribe("/tmp/note.oga");
+  assert(
+    remote.text === "Да в Domios, но в Domios сидишь и домик про Domios",
+    "structured array remote dictionary mismatch: " + JSON.stringify(remote),
+  );
+
+  reset({ dictionary: structured }, "macos");
+  files[MODEL] = "ok";
+  files[MODEL + ".done"] = "ok";
+  execHandler = happyHandler(["Да в доме все, но в доме сидишь и домик"]);
+  const local = plugin.transcribe("/tmp/note.oga");
+  assert(
+    local.text === "Да в Domios, но в Domios сидишь и домик",
+    "structured array local dictionary mismatch: " + JSON.stringify(local),
+  );
+});
+
+test("custom dictionary: malformed array items fail open and dictationLaunch stages structured array", () => {
+  const root = DATA_DIR + "/transcriber/live-dictation";
+  const model = root + "/parakeet-tdt-0.6b-v3-int8-1495e91b59d7";
+  const setupModel = () => {
+    files[model + "/.verified"] = "1495e91b59d7fc53ddca91f3431758ec99f8fa253fdb0e1e851be0f72b14b0f9";
+    files[root + "/runtime-py312-sherpa-2.0.2/Scripts/python.exe"] = "";
+    for (const asset of ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"]) files[model + "/" + asset] = "";
+  };
+
+  reset({
+    dictionary: [
+      null,
+      42,
+      "bare-string",
+      [],
+      { from: "   ", to: "Domios" },
+      { from: "ok", to: "" },
+      { from: 123, to: "bad" },
+      { from: "x".repeat(129), to: "tooLong" },
+    ],
+  }, "windows");
+  setupModel();
+  const emptyLaunch = plugin.dictationLaunch();
+  assert(emptyLaunch.state === "ready" && emptyLaunch.args.length === 2,
+    "all-malformed array must omit dictionary.json arg: " + JSON.stringify(emptyLaunch));
+
+  reset({
+    dictionary: [
+      { from: "  в доме  ", to: "в Old" },
+      null,
+      { from: "в доме все", to: "в Domios" },
+      { from: "В ДОМЕ", to: "в Domios" },
+      { from: "домиус", to: "Domios" },
+      { from: "bad", to: 99 },
+    ],
+  }, "windows");
+  setupModel();
+  const launch = plugin.dictationLaunch();
+  const dictPath = root + "/dictionary.json";
+  assert(launch.state === "ready" && launch.args.length === 3 && launch.args[2] === dictPath,
+    "structured array passes dictionary.json path: " + JSON.stringify(launch));
+  const saved = JSON.parse(files[dictPath]);
+  assert(JSON.stringify(saved) === JSON.stringify([
+    ["в доме все", "в Domios"],
+    ["в доме", "в Domios"],
+    ["домиус", "Domios"],
+  ]), "structured array rules must dedupe, normalize, and sort longest-first: " + JSON.stringify(saved));
 });
 
 for (const [name, fn] of tests) {
