@@ -13,7 +13,7 @@
     {
       "id": "git",
       "path": "git",
-      "version": "0.1.10",
+      "version": "0.1.11",
       "minCodeterm": "1.21.1"
     },
     {

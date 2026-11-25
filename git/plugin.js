@@ -409,12 +409,198 @@ function* gitCommitFiles(cwd, sha) {
   if (!ok(r)) return fail(r, "git show failed");
   return parseNumstat(r.stdout);
 }
+var MAX_DIFF_LINE_CHARS = 500;
+var MAX_DIFF_PREVIEW_LINES = 300;
+var MAX_DIFF_PREVIEW_CHARS = 64 * 1024;
+var HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)$/;
+function oversizedStdoutBytes(r) {
+  if (!r) return null;
+  if (r.outputTooLarge && r.outputTooLarge.stream === "stdout") {
+    return r.outputTooLarge.actualBytes;
+  }
+  if (r.error) {
+    const m = /^output_too_large:\s*stdout produced (\d+) bytes;/.exec(r.error);
+    if (m) return parseInt(m[1], 10);
+  }
+  if (r.truncated && typeof r.stdout === "string" && r.stdout.length > 0 && !r.error) {
+    return r.stdout.length;
+  }
+  return null;
+}
+function boundDiff(raw, opts = {}) {
+  const hostTruncated = Boolean(opts.hostTruncated);
+  const maxLineChars = opts.maxLineChars ?? MAX_DIFF_LINE_CHARS;
+  const maxPreviewLines = opts.maxPreviewLines ?? MAX_DIFF_PREVIEW_LINES;
+  const maxPreviewChars = opts.maxPreviewChars ?? MAX_DIFF_PREVIEW_CHARS;
+  if (!raw) {
+    if (hostTruncated) {
+      return {
+        diff: "",
+        truncated: true,
+        totalBytes: opts.totalBytes ?? 0,
+        shownLines: 0,
+        added: opts.added ?? null,
+        deleted: opts.deleted ?? null
+      };
+    }
+    return { diff: "" };
+  }
+  if (/^Binary files .* differ$/m.test(raw)) {
+    return { diff: raw };
+  }
+  const normalized = raw.replace(/\r\n/g, "\n");
+  const endedWithNewline = normalized.endsWith("\n");
+  const rawLines = endedWithNewline ? normalized.slice(0, -1).split("\n") : normalized.split("\n");
+  const headerLines = [];
+  let bodyStart = -1;
+  for (let i = 0; i < rawLines.length; i++) {
+    headerLines.push(rawLines[i]);
+    if (rawLines[i].startsWith("+++")) {
+      bodyStart = i + 1;
+      break;
+    }
+  }
+  if (bodyStart === -1) {
+    if (hostTruncated) {
+      return {
+        diff: "",
+        truncated: true,
+        totalBytes: opts.totalBytes ?? raw.length,
+        shownLines: 0,
+        added: opts.added ?? null,
+        deleted: opts.deleted ?? null
+      };
+    }
+    return { diff: raw };
+  }
+  const hunks = [];
+  let current = null;
+  let shownLines = 0;
+  let previewChars = 0;
+  let truncated = hostTruncated;
+  let longLinesTruncated = false;
+  for (let i = bodyStart; i < rawLines.length; i++) {
+    const isLastRawLine = i === rawLines.length - 1;
+    const cutMidLine = hostTruncated && isLastRawLine && !endedWithNewline;
+    const line = rawLines[i];
+    if (line.startsWith("@@")) {
+      if (cutMidLine) break;
+      const m = HUNK_HEADER_RE.exec(line);
+      if (!m) break;
+      if (hostTruncated && shownLines > 0 && (shownLines >= maxPreviewLines || previewChars >= maxPreviewChars)) {
+        truncated = true;
+        break;
+      }
+      if (current && current.lines.length > 0) {
+        hunks.push(current);
+      }
+      current = {
+        oldStart: parseInt(m[1], 10),
+        newStart: parseInt(m[3], 10),
+        heading: m[5] || "",
+        lines: [],
+        oldCount: 0,
+        newCount: 0
+      };
+      continue;
+    }
+    if (!current) break;
+    const prefix = line.charAt(0);
+    if (prefix === "\\") {
+      if (cutMidLine || line.length < 12) break;
+      current.lines.push(line);
+      continue;
+    }
+    if (prefix === "+" || prefix === "-" || prefix === " " || line === "") {
+      if (hostTruncated && shownLines > 0 && (shownLines >= maxPreviewLines || previewChars >= maxPreviewChars)) {
+        truncated = true;
+        break;
+      }
+      const lead = line === "" ? " " : prefix;
+      let body = line === "" ? "" : line.slice(1);
+      if (cutMidLine) {
+        body = body.replace(/\uFFFD+$/, "");
+      }
+      if (body.length > maxLineChars) {
+        body = `${body.slice(0, maxLineChars)}\u2026`;
+        longLinesTruncated = true;
+      } else if (cutMidLine) {
+        body = `${body}\u2026`;
+        longLinesTruncated = true;
+      }
+      const outLine = lead + body;
+      current.lines.push(outLine);
+      if (lead === " ") {
+        current.oldCount += 1;
+        current.newCount += 1;
+      } else if (lead === "-") {
+        current.oldCount += 1;
+      } else {
+        current.newCount += 1;
+      }
+      shownLines += 1;
+      previewChars += outLine.length + 1;
+      continue;
+    }
+    break;
+  }
+  if (current && current.lines.length > 0) {
+    hunks.push(current);
+  }
+  if (!truncated && !longLinesTruncated) {
+    return { diff: raw };
+  }
+  if (hunks.length === 0) {
+    const empty = { diff: "" };
+    if (truncated) {
+      empty.truncated = true;
+      empty.totalBytes = opts.totalBytes ?? raw.length;
+      empty.shownLines = 0;
+      empty.added = opts.added ?? null;
+      empty.deleted = opts.deleted ?? null;
+    }
+    if (longLinesTruncated) empty.longLinesTruncated = true;
+    return empty;
+  }
+  const outLines = headerLines.slice();
+  for (const h of hunks) {
+    outLines.push(`@@ -${h.oldStart},${h.oldCount} +${h.newStart},${h.newCount} @@${h.heading}`);
+    for (const l of h.lines) outLines.push(l);
+  }
+  const result = { diff: `${outLines.join("\n")}
+` };
+  if (truncated) {
+    result.truncated = true;
+    result.totalBytes = opts.totalBytes ?? raw.length;
+    result.shownLines = shownLines;
+    result.added = opts.added ?? null;
+    result.deleted = opts.deleted ?? null;
+  }
+  if (longLinesTruncated) result.longLinesTruncated = true;
+  return result;
+}
+function* numstatSingle(cwd, args) {
+  const ns = yield* git(cwd, args);
+  if (ns.error || ns.code !== 0 && ns.code !== 1) return { added: null, deleted: null };
+  const entry = parseNumstat(ns.stdout)[0];
+  return entry ? { added: entry.added, deleted: entry.deleted } : { added: null, deleted: null };
+}
 function* gitCommitDiff(cwd, sha, path) {
   const rl = yield* git(cwd, ["rev-list", "--parents", "-n", "1", sha]);
   const isMerge = (rl.stdout || "").trim().split(" ").filter(Boolean).length > 2;
   const r = isMerge ? yield* git(cwd, ["diff", "-M", "-C", "--no-color", `${sha}^1`, sha, "--", path]) : yield* git(cwd, ["show", "-M", "-C", "--no-color", "--format=", sha, "--", path]);
+  const oversized = oversizedStdoutBytes(r);
+  if (oversized !== null && r.code === 0) {
+    const ns = isMerge ? yield* numstatSingle(cwd, ["diff", "-M", "-C", "--numstat", `${sha}^1`, sha, "--", path]) : yield* numstatSingle(cwd, ["show", "-M", "-C", "--numstat", "--format=", sha, "--", path]);
+    return boundDiff(r.stdout || "", {
+      hostTruncated: true,
+      totalBytes: oversized,
+      added: ns.added,
+      deleted: ns.deleted
+    });
+  }
   if (r.error) return { error: r.error };
-  return { diff: r.stdout || "" };
+  return boundDiff(r.stdout || "", { hostTruncated: false });
 }
 function* gitWorkdirFiles(cwd) {
   const s = yield* git(cwd, ["-c", "core.quotePath=false", "status", "--porcelain=v1", "-z"]);
@@ -423,9 +609,59 @@ function* gitWorkdirFiles(cwd) {
   return mergeWorkdirFiles(parseStatusPorcelain(s.stdout), ok(ns) ? parseNumstatCounts(ns.stdout) : {});
 }
 function* gitWorkdirDiff(cwd, path) {
+  if (!path) return { diff: "" };
   const r = yield* git(cwd, ["diff", "-M", "-C", "--no-color", "HEAD", "--", path]);
+  const oversized = oversizedStdoutBytes(r);
+  if (oversized !== null && r.code === 0) {
+    const ns = yield* numstatSingle(cwd, ["diff", "-M", "-C", "--numstat", "HEAD", "--", path]);
+    return boundDiff(r.stdout || "", {
+      hostTruncated: true,
+      totalBytes: oversized,
+      added: ns.added,
+      deleted: ns.deleted
+    });
+  }
   if (r.error) return { error: r.error };
-  return { diff: r.stdout || "" };
+  if (r.code === 0 && (r.stdout || "").length > 0) {
+    return boundDiff(r.stdout || "", { hostTruncated: false });
+  }
+  if (r.code !== 0) {
+    const cached = yield* git(cwd, ["diff", "--cached", "-M", "-C", "--no-color", "--", path]);
+    const cachedOversized = oversizedStdoutBytes(cached);
+    if (cachedOversized !== null && cached.code === 0) {
+      const ns = yield* numstatSingle(cwd, ["diff", "--cached", "-M", "-C", "--numstat", "--", path]);
+      return boundDiff(cached.stdout || "", {
+        hostTruncated: true,
+        totalBytes: cachedOversized,
+        added: ns.added,
+        deleted: ns.deleted
+      });
+    }
+    if (cached.error) return { error: cached.error };
+    if (cached.code === 0 && (cached.stdout || "").length > 0) {
+      return boundDiff(cached.stdout || "", { hostTruncated: false });
+    }
+  }
+  if (!pathWithinRepo(path) || path.endsWith("/")) return { diff: "" };
+  const st = yield* git(cwd, ["-c", "core.quotePath=false", "status", "--porcelain=v1", "-z", "--", path]);
+  const entry = parseStatusPorcelain(st.stdout).find((e) => e.path === path);
+  if (!entry || entry.status !== "untracked") return { diff: "" };
+  const u = yield* git(cwd, ["diff", "--no-index", "--no-color", "--", "/dev/null", path]);
+  const uOversized = oversizedStdoutBytes(u);
+  if (uOversized !== null && (u.code === 0 || u.code === 1)) {
+    const ns = yield* numstatSingle(cwd, ["diff", "--no-index", "--numstat", "--", "/dev/null", path]);
+    return boundDiff(u.stdout || "", {
+      hostTruncated: true,
+      totalBytes: uOversized,
+      added: ns.added,
+      deleted: ns.deleted
+    });
+  }
+  if (u.error) return { error: u.error };
+  if (u.code === 0 || u.code === 1) {
+    return boundDiff(u.stdout || "", { hostTruncated: false });
+  }
+  return { diff: "" };
 }
 function* gitStage(cwd, paths) {
   if (!paths || !paths.length) return { error: "no paths" };
@@ -611,6 +847,8 @@ var plugin = {
   __test_mergeWorkdirFiles: mergeWorkdirFiles,
   __test_classifyPorcelain: classifyPorcelain,
   __test_pathWithinRepo: pathWithinRepo,
-  __test_parseWorktrees: parseWorktrees
+  __test_parseWorktrees: parseWorktrees,
+  __test_boundDiff: boundDiff,
+  __test_oversizedStdoutBytes: oversizedStdoutBytes
 };
 var plugin_default = defineProviderIo(plugin, () => host.io);

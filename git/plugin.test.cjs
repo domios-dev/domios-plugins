@@ -353,6 +353,247 @@ test("bubble output is byte-identical to the previous synchronous implementation
   }
 });
 
+// ── bounded large diffs (uncommitted, untracked, commit, JSONL) ──
+
+test("boundDiff leaves ordinary small diffs untouched", () => {
+  const raw = [
+    "diff --git a/a.ts b/a.ts",
+    "index 1111111..2222222 100644",
+    "--- a/a.ts",
+    "+++ b/a.ts",
+    "@@ -1,2 +1,2 @@",
+    " const a = 1;",
+    "-const b = 2;",
+    "+const b = 3;",
+  ].join("\n") + "\n";
+  const res = plugin.__test_boundDiff(raw, { hostTruncated: false });
+  assert(res.diff === raw, "ordinary diff returned verbatim");
+  assert(!res.truncated && !res.longLinesTruncated, "no truncation flags on small diff");
+});
+
+test("boundDiff clips long single JSONL lines without marking host-truncated", () => {
+  const bigLine = `{"event":"click","payload":"${"x".repeat(2000)}"}`;
+  const raw = [
+    "diff --git a/events.jsonl b/events.jsonl",
+    "index 1111111..2222222 100644",
+    "--- a/events.jsonl",
+    "+++ b/events.jsonl",
+    "@@ -1,1 +1,2 @@",
+    " {\"event\":\"init\"}",
+    `+${bigLine}`,
+  ].join("\n") + "\n";
+  const res = plugin.__test_boundDiff(raw, { hostTruncated: false });
+  assert(!res.truncated, "not byte/line truncated");
+  assert(res.longLinesTruncated === true, "longLinesTruncated flagged");
+  const added = res.diff.split("\n").find((l) => l.startsWith("+{\"event\""));
+  assert(added && added.endsWith("…"), "long line ends with ellipsis");
+  assert(added.length === 1 + 500 + 1, `expected capped width 502, got ${added.length}`);
+});
+
+test("boundDiff shapes host-truncated diff, rewrites hunk counts, drops dangling markers", () => {
+  const header = [
+    "diff --git a/big.txt b/big.txt",
+    "index 1111111..2222222 100644",
+    "--- a/big.txt",
+    "+++ b/big.txt",
+    "@@ -1,1 +1,500 @@",
+    " first",
+  ];
+  const body = [];
+  for (let i = 0; i < 400; i++) body.push(`+line ${i}`);
+  // Simulate a dangling hunk header & partial no-newline marker after a 128 KiB cut
+  const raw = header.concat(body, ["@@ -900,5 +1400,5 @@", "\\ No new"]).join("\n");
+  const res = plugin.__test_boundDiff(raw, {
+    hostTruncated: true,
+    totalBytes: 512000,
+    added: 500,
+    deleted: 0,
+    maxPreviewLines: 50,
+  });
+  assert(res.truncated === true, "marked truncated");
+  assert(res.totalBytes === 512000, "preserves actual totalBytes");
+  assert(res.shownLines === 50, `expected 50 shown lines, got ${res.shownLines}`);
+  assert(res.added === 500 && res.deleted === 0, "preserves numstat");
+  assert(res.diff.includes("@@ -1,1 +1,50 @@"), `rewrote hunk header counts, got:\n${res.diff.slice(0, 220)}`);
+  assert(!res.diff.includes("@@ -900"), "dropped excess hunk");
+  assert(!res.diff.includes("\\ No new"), "dropped partial no-newline marker");
+});
+
+test("boundDiff keeps a single huge JSONL line cut mid-line and strips trailing U+FFFD", () => {
+  const partialLine = `+{"big":"${"a".repeat(800)}\uFFFD`;
+  const raw = [
+    "diff --git a/amplitude.jsonl b/amplitude.jsonl",
+    "new file mode 100644",
+    "index 0000000..1111111",
+    "--- /dev/null",
+    "+++ b/amplitude.jsonl",
+    "@@ -0,0 +1,1 @@",
+    partialLine,
+  ].join("\n"); // no trailing newline: cut mid-line
+  const res = plugin.__test_boundDiff(raw, {
+    hostTruncated: true,
+    totalBytes: 600000,
+    added: 1,
+    deleted: 0,
+  });
+  assert(res.truncated === true, "marked truncated");
+  assert(res.shownLines === 1, `kept single cut line, got ${res.shownLines}`);
+  assert(res.longLinesTruncated === true, "long line clipped");
+  assert(!res.diff.includes("\uFFFD"), "stripped lossy replacement char");
+  assert(res.diff.includes("@@ -0,0 +1,1 @@\n+{\"big\":\""), "valid hunk with kept line");
+  assert(res.diff.trimEnd().endsWith("…"), "cut line ends with ellipsis");
+});
+
+test("boundDiff handles mid-line cut shorter than maxLineChars and header-only truncation", () => {
+  const shortCut = [
+    "diff --git a/x.jsonl b/x.jsonl",
+    "--- a/x.jsonl",
+    "+++ b/x.jsonl",
+    "@@ -1,0 +1,2 @@",
+    "+{\"a\":1}",
+    "+{\"b\":",
+  ].join("\n");
+  const res = plugin.__test_boundDiff(shortCut, { hostTruncated: true, totalBytes: 200000 });
+  assert(res.shownLines === 2, `kept both lines, got ${res.shownLines}`);
+  assert(res.diff.includes("+{\"b\":…\n"), "mid-line cut gets ellipsis");
+
+  const headerCut = "diff --git a/x.txt b/x.txt\nindex 111..222\n--- a/x.txt";
+  const empty = plugin.__test_boundDiff(headerCut, { hostTruncated: true, totalBytes: 200000, added: 10, deleted: 0 });
+  assert(empty.truncated === true && empty.diff === "" && empty.shownLines === 0, "header-only cut degrades cleanly");
+});
+
+test("gitWorkdirDiff handles oversized tracked diff without returning output_too_large error", () => {
+  const bigChunk = [
+    "diff --git a/amplitude.jsonl b/amplitude.jsonl",
+    "index 1111111..2222222 100644",
+    "--- a/amplitude.jsonl",
+    "+++ b/amplitude.jsonl",
+    "@@ -1,1 +1,65 @@",
+    " {\"row\":0}",
+    `+{"row":1,"data":"${"z".repeat(1200)}"}`,
+    `+{"row":2,"data":"${"y".repeat(1200)}"}`,
+  ].join("\n");
+  globalThis.host = {
+    exec: (raw) => {
+      const args = JSON.parse(raw).args.slice(2);
+      if (args[0] === "diff" && args.includes("--numstat")) {
+        return JSON.stringify({ code: 0, stdout: "64\t0\tamplitude.jsonl\n", stderr: "" });
+      }
+      if (args[0] === "diff" && args.includes("HEAD")) {
+        return JSON.stringify({
+          code: 0,
+          stdout: bigChunk,
+          stderr: "",
+          truncated: true,
+          outputTooLarge: { stream: "stdout", limitBytes: 131072, actualBytes: 451059 },
+          error: "output_too_large: stdout produced 451059 bytes; limit is 131072 bytes; project or page subprocess output before returning it",
+        });
+      }
+      throw new Error(`unexpected git call: ${args.join(" ")}`);
+    },
+  };
+  const out = plugin.viewCall("gitWorkdirDiff", { cwd: "C:/repo", path: "amplitude.jsonl" });
+  assert(!out.error, `expected preview, got error: ${out.error}`);
+  assert(out.truncated === true, "marked truncated");
+  assert(out.totalBytes === 451059, "exact actualBytes preserved");
+  assert(out.added === 64 && out.deleted === 0, "numstat counts attached");
+  assert(out.shownLines === 3, `expected 3 shown lines, got ${out.shownLines}`);
+  assert(out.longLinesTruncated === true, "JSONL lines width-capped");
+  assert(out.diff.includes("@@ -1,1 +1,3 @@"), "valid rewritten hunk header");
+});
+
+test("gitWorkdirDiff handles untracked small and oversized files and skips untracked dirs", () => {
+  const calls = [];
+  globalThis.host = {
+    exec: (raw) => {
+      const args = JSON.parse(raw).args.slice(2);
+      calls.push(args);
+      if (args[0] === "diff" && args.includes("HEAD")) {
+        return JSON.stringify({ code: 0, stdout: "", stderr: "" });
+      }
+      if (args[0] === "-c" && args[2] === "status") {
+        const target = args[args.length - 1];
+        return JSON.stringify({ code: 0, stdout: `?? ${target}\0`, stderr: "" });
+      }
+      if (args[0] === "diff" && args.includes("--no-index") && args.includes("--numstat")) {
+        return JSON.stringify({ code: 1, stdout: "120\t0\t/dev/null => huge.jsonl\n", stderr: "" });
+      }
+      if (args[0] === "diff" && args.includes("--no-index")) {
+        const target = args[args.length - 1];
+        if (target === "small.txt") {
+          return JSON.stringify({
+            code: 1,
+            stdout: "diff --git a/small.txt b/small.txt\nnew file mode 100644\n--- /dev/null\n+++ b/small.txt\n@@ -0,0 +1,2 @@\n+hi\n+there\n",
+            stderr: "",
+          });
+        }
+        return JSON.stringify({
+          code: 1,
+          stdout: `diff --git a/huge.jsonl b/huge.jsonl\nnew file mode 100644\n--- /dev/null\n+++ b/huge.jsonl\n@@ -0,0 +1,120 @@\n+{"k":"${"v".repeat(900)}"}`,
+          stderr: "",
+          truncated: true,
+          outputTooLarge: { stream: "stdout", limitBytes: 131072, actualBytes: 580000 },
+          error: "output_too_large: stdout produced 580000 bytes; limit is 131072 bytes",
+        });
+      }
+      throw new Error(`unexpected git call: ${args.join(" ")}`);
+    },
+  };
+
+  const small = plugin.viewCall("gitWorkdirDiff", { cwd: "C:/repo", path: "small.txt" });
+  assert(!small.error && !small.truncated && small.diff.includes("+hi\n+there\n"), "small untracked file diff rendered");
+
+  const huge = plugin.viewCall("gitWorkdirDiff", { cwd: "C:/repo", path: "huge.jsonl" });
+  assert(!huge.error && huge.truncated === true && huge.totalBytes === 580000, "large untracked file truncated cleanly");
+  assert(huge.added === 120 && huge.deleted === 0 && huge.shownLines === 1, "large untracked file has numstat and preview line");
+
+  const dirCountBefore = calls.length;
+  const dir = plugin.viewCall("gitWorkdirDiff", { cwd: "C:/repo", path: "plans/sub/" });
+  assert(!dir.error && dir.diff === "", "untracked directory returns empty diff");
+  assert(!calls.slice(dirCountBefore).some((a) => a.includes("--no-index")), "untracked directory skips --no-index");
+
+  const escapeCountBefore = calls.length;
+  const escaped = plugin.viewCall("gitWorkdirDiff", { cwd: "C:/repo", path: "../secret.txt" });
+  assert(!escaped.error && escaped.diff === "", "escaping path returns empty diff");
+  assert(!calls.slice(escapeCountBefore).some((a) => a.includes("--no-index")), "escaping path refuses --no-index");
+});
+
+test("gitCommitDiff handles oversized normal and merge commit diffs with numstat", () => {
+  for (const [label, parents, expectMerge] of [["normal", "aaa bbb\n", false], ["merge", "aaa bbb ccc\n", true]]) {
+    globalThis.host = {
+      exec: (raw) => {
+        const args = JSON.parse(raw).args.slice(2);
+        if (args[0] === "rev-list") return JSON.stringify({ code: 0, stdout: parents, stderr: "" });
+        if (args.includes("--numstat")) {
+          assert((args[0] === "diff") === expectMerge, `${label}: numstat command matches merge flag`);
+          return JSON.stringify({ code: 0, stdout: "80\t12\tdata.jsonl\n", stderr: "" });
+        }
+        return JSON.stringify({
+          code: 0,
+          stdout: `diff --git a/data.jsonl b/data.jsonl\n--- a/data.jsonl\n+++ b/data.jsonl\n@@ -1,1 +1,80 @@\n+{"commit":"${"c".repeat(700)}"}\n`,
+          stderr: "",
+          truncated: true,
+          outputTooLarge: { stream: "stdout", limitBytes: 131072, actualBytes: 520000 },
+          error: "output_too_large: stdout produced 520000 bytes; limit is 131072 bytes",
+        });
+      },
+    };
+    const out = plugin.viewCall("gitCommitDiff", { cwd: "C:/repo", sha: "aaa", path: "data.jsonl" });
+    assert(!out.error, `${label}: no output_too_large error, got ${out.error}`);
+    assert(out.truncated === true && out.totalBytes === 520000, `${label}: truncated with actualBytes`);
+    assert(out.added === 80 && out.deleted === 12 && out.shownLines === 1, `${label}: numstat and shownLines`);
+    assert(out.longLinesTruncated === true, `${label}: long line clipped`);
+  }
+});
+
+test("gitWorkdirDiff preserves real non-oversized errors", () => {
+  globalThis.host = {
+    exec: () => JSON.stringify({ error: "spawn git: ENOENT" }),
+  };
+  const out = plugin.viewCall("gitWorkdirDiff", { cwd: "C:/repo", path: "a.ts" });
+  assert(out.error === "spawn git: ENOENT", `expected real error, got ${JSON.stringify(out)}`);
+});
+
 let failed = 0;
 for (const [name, fn] of tests) {
   try { fn(); console.log(`✓ ${name}`); }

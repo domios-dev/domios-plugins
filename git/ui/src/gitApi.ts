@@ -141,14 +141,36 @@ export async function fetchWorkdirFiles(
   return call<GitWorkdirFile[]>("gitWorkdirFiles", cwd, {});
 }
 
+export interface GitDiffResponse {
+  diff: string;
+  truncated?: boolean;
+  totalBytes?: number;
+  shownLines?: number;
+  added?: number | null;
+  deleted?: number | null;
+  longLinesTruncated?: boolean;
+}
+
+function normalizeDiffResponse(r: Partial<GitDiffResponse> | undefined): GitDiffResponse {
+  return {
+    diff: r?.diff ?? "",
+    truncated: r?.truncated,
+    totalBytes: r?.totalBytes,
+    shownLines: r?.shownLines,
+    added: r?.added,
+    deleted: r?.deleted,
+    longLinesTruncated: r?.longLinesTruncated,
+  };
+}
+
 export async function fetchWorkdirDiff(
   _api: unknown,
   cwd: string,
   path: string,
   _signal?: AbortSignal,
-): Promise<string> {
-  const r = await call<{ diff: string }>("gitWorkdirDiff", cwd, { path });
-  return r.diff ?? "";
+): Promise<GitDiffResponse> {
+  const r = await call<GitDiffResponse>("gitWorkdirDiff", cwd, { path });
+  return normalizeDiffResponse(r);
 }
 
 export async function revertFile(_api: unknown, cwd: string, path: string): Promise<void> {
@@ -185,7 +207,7 @@ export async function fetchCommitDiff(
   sha: string,
   path: string,
   _signal?: AbortSignal,
-): Promise<string> {
-  const r = await call<{ diff: string }>("gitCommitDiff", cwd, { sha, path });
-  return r.diff ?? "";
+): Promise<GitDiffResponse> {
+  const r = await call<GitDiffResponse>("gitCommitDiff", cwd, { sha, path });
+  return normalizeDiffResponse(r);
 }
