@@ -8,6 +8,7 @@ import {
   fetchWorkdirDiff,
   type GitCommit,
   type GitCommitFile,
+  type GitDiffResponse,
   WORKDIR_SHA,
 } from "./gitApi";
 import { useDragRatio } from "./useDragRatio";
@@ -414,8 +415,39 @@ interface DiffPaneProps {
   split: boolean;
 }
 
+function formatByteSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${bytes} B`;
+}
+
+export function formatDiffNotice(res: GitDiffResponse | null): string | null {
+  if (!res) return null;
+  if (res.truncated) {
+    const details: string[] = [];
+    if (typeof res.totalBytes === "number" && res.totalBytes > 0) {
+      details.push(formatByteSize(res.totalBytes));
+    }
+    if (res.added != null || res.deleted != null) {
+      details.push(`+${(res.added ?? 0).toLocaleString()} −${(res.deleted ?? 0).toLocaleString()}`);
+    }
+    const meta = details.length ? ` (${details.join(", ")})` : "";
+    const lines = res.shownLines ?? 0;
+    const shown =
+      lines > 0
+        ? `showing the first ${lines.toLocaleString()} ${lines === 1 ? "line" : "lines"}`
+        : "preview unavailable";
+    const clipped = res.longLinesTruncated && lines > 0 ? "; long lines clipped" : "";
+    return `Diff is large${meta}; ${shown}${clipped}.`;
+  }
+  if (res.longLinesTruncated) {
+    return "Long lines clipped for preview.";
+  }
+  return null;
+}
+
 export function DiffPane({ api, cwd, sha, path, split }: DiffPaneProps) {
-  const [patch, setPatch] = useState<string | null>(null);
+  const [diffResult, setDiffResult] = useState<GitDiffResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -426,14 +458,14 @@ export function DiffPane({ api, cwd, sha, path, split }: DiffPaneProps) {
     const ctrl = new AbortController();
     setLoading(true);
     setError(null);
-    setPatch(null);
+    setDiffResult(null);
     const fetcher =
       sha === WORKDIR_SHA
         ? fetchWorkdirDiff(api, cwd, path, ctrl.signal)
         : fetchCommitDiff(api, cwd, sha, path, ctrl.signal);
     fetcher
-      .then((text) => {
-        if (active) setPatch(text);
+      .then((res) => {
+        if (active) setDiffResult(res);
       })
       .catch((e) => {
         if (active && e.name !== "AbortError") setError(String(e.message ?? e));
@@ -447,7 +479,8 @@ export function DiffPane({ api, cwd, sha, path, split }: DiffPaneProps) {
     };
   }, [api, cwd, sha, path]);
 
-  const truncated = patch?.includes("\n<<TRUNCATED>>") ?? false;
+  const patch = diffResult?.diff ?? null;
+  const notice = useMemo(() => formatDiffNotice(diffResult), [diffResult]);
   const isBinary = useMemo(
     () => (patch ? /Binary files .* differ/.test(patch) : false),
     [patch],
@@ -482,13 +515,13 @@ export function DiffPane({ api, cwd, sha, path, split }: DiffPaneProps) {
     >
       {loading && <div className={`p-4 ${UI_TEXT.meta}`}>Loading diff…</div>}
       {error && <div className="p-4 text-[11px] text-[var(--ct-red)]">{error}</div>}
-      {!loading && !error && !patch && null}
+      {!loading && !error && !patch && !notice && null}
       {!loading && !error && isBinary && (
         <div className={`p-4 ${UI_TEXT.meta}`}>Binary file — no preview.</div>
       )}
-      {truncated && (
+      {!loading && !error && notice && !isBinary && (
         <div className="px-4 py-2 text-[11px] text-[var(--ct-yellow)] border-b border-[var(--ct-border)]">
-          diff truncated
+          {notice}
         </div>
       )}
       {!loading && !error && patch && !isBinary && (
