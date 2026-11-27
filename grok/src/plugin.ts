@@ -20,7 +20,7 @@ const OUTPUT_FINGERPRINTS = [
   "Compactions remaining",
 ];
 const TUI_FRAGMENTS = ["grok build tui", "compactions remaining"];
-const COMPOSER_FRAME_RE = /^╭─+╮\r?\n│[ \t]*[>❯][ \t]*│\r?\n╰─[^\r\n]*─╯[ \t]*$/m;
+const COMPOSER_FRAME_RE = /^[╭┌]─+[╮┐]\r?\n│[ \t]*[>❯][ \t]*│\r?\n[╰└]─[^\r\n]*─[╯┘][ \t]*$/m;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ALWAYS_APPROVE = "--always-approve";
 const BYPASS_PERMISSIONS = ["--permission-mode", "bypassPermissions"];
@@ -126,6 +126,13 @@ function* readSummary(cwd: string, sessionId: string): HostIoSteps<GrokSummary |
 function isUuid(value: string): boolean {
   return UUID_RE.test(String(value || ""));
 }
+function sessionIdFromMarker(marker: string | null | undefined): string | null {
+  const raw = String(marker || "").trim();
+  if (isUuid(raw)) return raw.toLowerCase();
+  const hex = raw.replace(/^ct-launch-/i, "").replace(/-/g, "");
+  if (!/^[0-9a-f]{32}$/i.test(hex)) return null;
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`.toLowerCase();
+}
 
 function parseTimeMs(value: string | undefined): number | null {
   if (!value) return null;
@@ -140,9 +147,9 @@ function appendLaunchFlags(parts: string[], params: LaunchParams): void {
   }
   const args = params.args || [];
   for (let i = 0; i < args.length; i++) parts.push(quote(String(args[i])));
-  const marker = String(params.launchMarker || "").trim();
-  if (isUuid(marker) && !hasFlag(parts, "--session-id")) {
-    parts.push("--session-id", quote(marker));
+  const sessionId = sessionIdFromMarker(params.launchMarker);
+  if (sessionId && !hasFlag(parts, "--session-id")) {
+    parts.push("--session-id", quote(sessionId));
   }
 }
 
@@ -526,11 +533,11 @@ const plugin: IoExports<PluginModule & { sessionModelIdentityPath(cwd: string, s
       }
     }
     if (matches.length === 1) return { sessionId: matches[0], source: "pid_registry" };
-    const marker = String(evidence.launchMarker || "").trim();
-    const summary = isUuid(marker) ? (yield* readSummary(evidence.cwd, marker)) : null;
+    const sessionId = sessionIdFromMarker(evidence.launchMarker);
+    const summary = sessionId ? (yield* readSummary(evidence.cwd, sessionId)) : null;
     const created = parseTimeMs(summary?.created_at);
-    if (summary?.info?.id === marker && created !== null && created >= evidence.launchedAtMs) {
-      return { sessionId: marker, source: "launch_marker" };
+    if (sessionId && summary?.info?.id === sessionId && created !== null && created >= evidence.launchedAtMs) {
+      return { sessionId, source: "launch_marker" };
     }
     return null;
   },
