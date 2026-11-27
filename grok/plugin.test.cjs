@@ -159,6 +159,12 @@ const tests = [
     assert.equal(plugin.screenHasTui(screen.replace(/Grok 4\.6 \(high\)/, "Opaque model")), true);
     assert.equal(plugin.screenHasTui("│ > │"), false);
     assert.equal(plugin.screenHasTui(screen.replace(/│ >[^\n]*/, "│ Select an option │")), false);
+    const square = screen
+      .replaceAll("╭", "┌")
+      .replaceAll("╮", "┐")
+      .replaceAll("╰", "└")
+      .replaceAll("╯", "┘");
+    assert.equal(plugin.screenHasTui(square), true);
   }],
   ["manifest versions agree with channel", () => {
     const manifest = JSON.parse(readFileSync(join(__dirname, "plugin.json"), "utf8"));
@@ -275,6 +281,13 @@ const tests = [
     const plugin = load(hostFor());
     const id = "01a0b594-144d-7670-8a36-03e39639311c";
     const cmd = plugin.buildLaunchCommand({ launchMarker: id });
+    assert.match(cmd, new RegExp(`--session-id '${id}'`));
+  }],
+
+  ["ct-launch marker hex becomes --session-id UUID", () => {
+    const plugin = load(hostFor());
+    const id = "01a0b594-144d-7670-8a36-03e39639311c";
+    const cmd = plugin.buildLaunchCommand({ launchMarker: `ct-launch-${id.replace(/-/g, "")}` });
     assert.match(cmd, new RegExp(`--session-id '${id}'`));
   }],
 
